@@ -5,8 +5,10 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -15,6 +17,8 @@ import moten.david.util.xml.TaggedString;
 
 public class UmlProducer {
 
+	private static final String DIRECTION_IN = "in";
+	private static final String DIRECTION_RETURN = "return";
 	private static final String DIRECTION = "direction";
 	private static final String OWNED_PARAMETER = "ownedParameter";
 	private static final String OWNED_OPERATION = "ownedOperation";
@@ -140,26 +144,47 @@ public class UmlProducer {
 				}
 				t.addAttribute("clientDependency", interfaceIds.toString());
 			}
-			for (Method method : classWrapper.getWrappedClass()
-					.getDeclaredMethods()) {
-				if (Modifier.isPublic(method.getModifiers())) {
-					// <ownedOperation xmi:id="_g6Qf8NSkEd6IEsbu0VI_Hg"
-					// name="getWrappedClass">
-					// <ownedParameter xmi:id="_jHSYMNSkEd6IEsbu0VI_Hg"
-					// direction="return"/>
-					// </ownedOperation>
-					t.startTag(OWNED_OPERATION);
-					String key = classWrapper.getWrappedClass()
-							.getCanonicalName()
-							+ "." + method.getName() + "-" + id++;
-					t.addAttribute(XMI_ID, getXmiId(key));
-					t.addAttribute(NAME, method.getName());
-					t.startTag(OWNED_PARAMETER);
-					t.addAttribute(XMI_ID, getXmiId(id++ + ""));
-					t.addAttribute(DIRECTION, "return");
-					t.closeTag();
-					t.closeTag();
+
+			{
+				List<Dependency> deps = new ArrayList<Dependency>();
+				// add method elements
+				for (Method method : classWrapper.getWrappedClass()
+						.getDeclaredMethods()) {
+					if (Modifier.isPublic(method.getModifiers())
+							&& !Modifier.isStatic(method.getModifiers())) {
+						// <ownedOperation xmi:id="_g6Qf8NSkEd6IEsbu0VI_Hg"
+						// name="getWrappedClass">
+						// <ownedParameter xmi:id="_jHSYMNSkEd6IEsbu0VI_Hg"
+						// direction="return"/>
+						// </ownedOperation>
+						t.startTag(OWNED_OPERATION);
+						String key = classWrapper.getWrappedClass()
+								.getCanonicalName()
+								+ "." + method.getName() + "-" + id++;
+						t.addAttribute(XMI_ID, getXmiId(key));
+						t.addAttribute(NAME, method.getName());
+						t.startTag(OWNED_PARAMETER);
+						t.addAttribute(XMI_ID, getXmiId(id++ + ""));
+						t.addAttribute(DIRECTION, DIRECTION_RETURN);
+						t.closeTag();
+						int argNo = 1;
+						for (Class<?> parameter : method.getParameterTypes()) {
+							deps.add(new Dependency(new ClassWrapper(parameter,
+									filter)));
+							t.startTag(OWNED_PARAMETER);
+							t
+									.addAttribute(XMI_ID, getXmiId(key + ".p"
+											+ argNo));
+							t.addAttribute(NAME, "a" + argNo);
+							t.addAttribute(TYPE, getXmiId(parameter));
+							t.closeTag();
+							argNo++;
+						}
+						t.closeTag();
+					}
 				}
+				for (Dependency dependency : deps)
+					t.append(getPackageElements(dependency, defined));
 			}
 
 			// add generalizations and realizations
