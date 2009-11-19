@@ -1,8 +1,8 @@
 package moten.david.util.uml.eclipse;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.HashMap;
@@ -15,6 +15,12 @@ import moten.david.util.xml.TaggedString;
 
 public class UmlProducer {
 
+	private static final String DIRECTION = "direction";
+	private static final String OWNED_PARAMETER = "ownedParameter";
+	private static final String OWNED_OPERATION = "ownedOperation";
+	private static final String USAGE = "uml:Usage";
+	private static final String SUPPLIER = "supplier";
+	private static final String CLIENT = "client";
 	private static final String GENERAL = "general";
 	private static final String GENERALIZATION = "generalization";
 	private final UmlProducerOptions options;
@@ -134,6 +140,28 @@ public class UmlProducer {
 				}
 				t.addAttribute("clientDependency", interfaceIds.toString());
 			}
+			for (Method method : classWrapper.getWrappedClass()
+					.getDeclaredMethods()) {
+				if (Modifier.isPublic(method.getModifiers())) {
+					// <ownedOperation xmi:id="_g6Qf8NSkEd6IEsbu0VI_Hg"
+					// name="getWrappedClass">
+					// <ownedParameter xmi:id="_jHSYMNSkEd6IEsbu0VI_Hg"
+					// direction="return"/>
+					// </ownedOperation>
+					t.startTag(OWNED_OPERATION);
+					String key = classWrapper.getWrappedClass()
+							.getCanonicalName()
+							+ "." + method.getName() + "-" + id++;
+					t.addAttribute(XMI_ID, getXmiId(key));
+					t.addAttribute(NAME, method.getName());
+					t.startTag(OWNED_PARAMETER);
+					t.addAttribute(XMI_ID, getXmiId(id++ + ""));
+					t.addAttribute(DIRECTION, "return");
+					t.closeTag();
+					t.closeTag();
+				}
+			}
+
 			// add generalizations and realizations
 			for (Dependency inter : (Set<Dependency>) classWrapper
 					.getInterfaceDependencies())
@@ -148,8 +176,8 @@ public class UmlProducer {
 					t.addAttribute(XMI_ID, getInterfaceXmiId(cls, inter
 							.getClassWrapper().getWrappedClass()));
 					t.addAttribute(NAME, "Realization" + id++);
-					t.addAttribute("supplier", getXmiId(inter));
-					t.addAttribute("client", getXmiId(cls));
+					t.addAttribute(SUPPLIER, getXmiId(inter));
+					t.addAttribute(CLIENT, getXmiId(cls));
 					t.addAttribute("contract", getXmiId(inter));
 					t.closeTag();
 				}
@@ -197,64 +225,21 @@ public class UmlProducer {
 			// add associations via constructor/fields
 			for (Dependency dependency : (Set<Dependency>) classWrapper
 					.getConstructorDependencies()) {
+				// <packagedElement xmi:type="uml:Usage"
+				// xmi:id="_q_k1ANSiEd6IEsbu0VI_Hg" supplier="id151"
+				// client="id121"/>
 				TaggedString t = new TaggedString();
 				t.startTag(PACKAGED_ELEMENT);
-				t.addAttribute(XMI_TYPE, UML_ASSOCIATION);
-				String name = "C" + id++;
+				t.addAttribute(XMI_TYPE, USAGE);
+				String name = "U" + id++;
 				String xmiId = getXmiId(name);
 				t.addAttribute(XMI_ID, xmiId);
-				t.addAttribute(NAME, name);
-				String memberEndA = getXmiId("ME" + id++);
-				String memberEndB = getXmiId("ME" + id++);
-				t.addAttribute("memberEnd", memberEndA + " " + memberEndB);
-				{
-					t.startTag(OWNED_END);
-					t.addAttribute(XMI_ID, memberEndA);
-					t.addAttribute(TYPE, getXmiId(dep));
-					if (options.includeAssociationEndLabels())
-						t.addAttribute(NAME, "end" + cls.getSimpleName());
-					t.addAttribute(ASSOCIATION, xmiId);
-					{
-						t.startTag("upperValue");
-						t.addAttribute(XMI_TYPE, UML_LITERAL_UNLIMITED_NATURAL);
-						t.addAttribute(XMI_ID, getXmiId("UV" + id++));
-						t.addAttribute(VALUE, "1");
-						t.closeTag();
-					}
-					{
-						t.startTag("lowerValue");
-						t.addAttribute(XMI_TYPE, UML_LITERAL_UNLIMITED_NATURAL);
-						t.addAttribute(XMI_ID, getXmiId("LV" + id++));
-						t.addAttribute(VALUE, "1");
-						t.closeTag();
-					}
-					t.closeTag();
-				}
-				{
-					t.startTag(OWNED_END);
-					t.addAttribute(XMI_ID, memberEndB);
-					t.addAttribute(TYPE, getXmiId(dependency));
-					if (options.includeAssociationEndLabels())
-						t.addAttribute(NAME, "end"
-								+ dependency.getClassWrapper()
-										.getWrappedClass().getSimpleName());
-					t.addAttribute(ASSOCIATION, xmiId);
-					{
-						t.startTag("upperValue");
-						t.addAttribute(XMI_TYPE, UML_LITERAL_UNLIMITED_NATURAL);
-						t.addAttribute(XMI_ID, getXmiId("UV" + id++));
-						t.addAttribute(VALUE, "1");
-						t.closeTag();
-					}
-					{
-						t.startTag("lowerValue");
-						t.addAttribute(XMI_TYPE, UML_LITERAL_UNLIMITED_NATURAL);
-						t.addAttribute(XMI_ID, getXmiId("LV" + id++));
-						t.addAttribute(VALUE, "1");
-						t.closeTag();
-					}
-					t.closeTag();
-				}
+				// t.addAttribute(NAME, name);
+				t
+						.addAttribute(CLIENT, getXmiId(classWrapper
+								.getWrappedClass()));
+				t.addAttribute(SUPPLIER, getXmiId(dependency.getClassWrapper()
+						.getWrappedClass()));
 				t.closeTag();
 				t.close();
 				s.append(t.toString());
@@ -281,15 +266,4 @@ public class UmlProducer {
 		return s.toString();
 	}
 
-	public static void main(String[] args) throws IOException {
-		UmlProducer p = new UmlProducer(ClassFilter.ACCEPT_ALL,
-				new UmlProducerOptionsImpl(false));
-		OutputStream out = new FileOutputStream("target/result.uml");
-
-		String xmi = p.getUmlXmi(ClassWrapper.Test.class);
-
-		System.out.println(xmi);
-		out.write(xmi.getBytes());
-		out.close();
-	}
 }

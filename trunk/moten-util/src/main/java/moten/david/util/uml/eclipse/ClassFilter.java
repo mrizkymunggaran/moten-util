@@ -20,7 +20,7 @@ public interface ClassFilter {
 			for (Class exclude : excludes)
 				if (exclude.equals(cls))
 					return false;
-			return !cls.isPrimitive();
+			return !cls.isPrimitive() || cls.getName().startsWith("java");
 		}
 
 	};
