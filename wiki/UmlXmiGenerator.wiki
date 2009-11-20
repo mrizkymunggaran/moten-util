@@ -2,3 +2,5 @@
 
 ==Description ==
 Developed for Eclipse 3.5.1 and latest UML2 plugin from Galileo release
+
+http://moten-util.googlecode.com/svn/trunk/moten-util/docs/demo.png
