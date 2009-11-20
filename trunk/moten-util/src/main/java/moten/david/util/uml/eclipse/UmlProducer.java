@@ -130,7 +130,9 @@ public class UmlProducer {
 			else
 				t.addAttribute(XMI_TYPE, UML_CLASS);
 			t.addAttribute(XMI_ID, getXmiId(cls));
-			t.addAttribute(NAME, getClassName(cls));
+			t
+					.addAttribute(NAME, getClassName(cls, options
+							.useFullClassNames()));
 			// only add clientDependency if is class and has interfaces
 			if (classWrapper.getInterfaceDependencies().size() > 0
 					&& !cls.isInterface()) {
@@ -166,6 +168,12 @@ public class UmlProducer {
 						t.startTag(OWNED_PARAMETER);
 						t.addAttribute(XMI_ID, getXmiId(id++ + ""));
 						t.addAttribute(DIRECTION, DIRECTION_RETURN);
+						if (method.getReturnType() != null) {
+							t.addAttribute(TYPE, getXmiId(method
+									.getReturnType()));
+							deps.add(new Dependency(new ClassWrapper(method
+									.getReturnType(), filter)));
+						}
 						t.closeTag();
 						int argNo = 1;
 						for (Class<?> parameter : method.getParameterTypes()) {
@@ -274,11 +282,15 @@ public class UmlProducer {
 		return s.toString();
 	}
 
-	private String getClassName(Class cls) {
+	private String getClassName(Class cls, boolean useFullClassNames) {
 		if (cls.isArray())
-			return "[" + getClassName(cls.getComponentType()) + "]";
-		else
+			return "["
+					+ getClassName(cls.getComponentType(), useFullClassNames)
+					+ "]";
+		else if (useFullClassNames)
 			return cls.getName();
+		else
+			return cls.getSimpleName();
 	}
 
 	private String getPackageElements(Type genericParameterType,
