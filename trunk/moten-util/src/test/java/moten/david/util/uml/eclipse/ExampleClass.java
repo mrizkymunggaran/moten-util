@@ -9,6 +9,11 @@ import java.util.Date;
  * 
  */
 public class ExampleClass {
+
+	public ExampleClass(UmlProducerOptions options) {
+
+	}
+
 	public void hello(String s) {
 		// do nothing
 	}

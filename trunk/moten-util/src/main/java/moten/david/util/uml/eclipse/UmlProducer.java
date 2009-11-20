@@ -175,7 +175,9 @@ public class UmlProducer {
 						t.startTag(OWNED_PARAMETER);
 						t.addAttribute(XMI_ID, getXmiId(id++ + ""));
 						t.addAttribute(DIRECTION, DIRECTION_RETURN);
-						if (method.getReturnType() != null) {
+						if (method.getReturnType() != null
+								&& !method.getReturnType().toString().equals(
+										"void")) {
 							t.addAttribute(TYPE, getXmiId(method
 									.getReturnType()));
 							deps.add(new Dependency(new ClassWrapper(method

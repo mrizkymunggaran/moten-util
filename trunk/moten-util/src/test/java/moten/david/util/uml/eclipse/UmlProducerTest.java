@@ -24,7 +24,7 @@ public class UmlProducerTest {
 
 		String xmi = p.getUmlXmi(ClassFilter.class, ClassWrapper.class,
 				Dependency.class, UmlProducer.class,
-				UmlProducerOptionsImpl.class);
+				UmlProducerOptionsImpl.class, ExampleClass.class);
 
 		System.out.println(xmi);
 		out.write(xmi.getBytes());
