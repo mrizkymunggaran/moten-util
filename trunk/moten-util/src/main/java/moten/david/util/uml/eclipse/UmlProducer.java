@@ -15,6 +15,12 @@ import java.util.Set;
 import moten.david.util.text.StringUtil;
 import moten.david.util.xml.TaggedString;
 
+/**
+ * Produces uml2 xmi from a set of classes
+ * 
+ * @author dave
+ * 
+ */
 public class UmlProducer {
 
 	private static final String DIRECTION_IN = "in";

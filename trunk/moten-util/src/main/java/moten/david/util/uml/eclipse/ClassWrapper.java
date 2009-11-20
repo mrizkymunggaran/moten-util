@@ -10,16 +10,32 @@ import java.util.Set;
 
 import com.google.inject.Provider;
 
+/**
+ * Facade pattern for a java.lang.Class and provides dependency information
+ * about that class including constructor and inherited dependencies
+ * 
+ * @author dave
+ * 
+ * @param <T>
+ */
 public class ClassWrapper<T extends Class> {
 
+	/**
+	 * the wrapped class
+	 */
 	private final Class<T> cls;
 	private final Type[] genericTypes;
+
+	/**
+	 * the filter used to remove irrelevant classes from consideration in
+	 * dependencies
+	 */
 	private final ClassFilter filter;
 
 	public ClassWrapper(Class<T> cls, ClassFilter filter, Type... genericTypes) {
 		this.cls = cls;
 		if (filter == null)
-			this.filter = createAlwaysAcceptFilter();
+			this.filter = ClassFilter.ACCEPT_ALL;
 		else
 			this.filter = filter;
 		if (genericTypes == null)
@@ -28,15 +44,12 @@ public class ClassWrapper<T extends Class> {
 			this.genericTypes = genericTypes;
 	}
 
-	private ClassFilter createAlwaysAcceptFilter() {
-		return new ClassFilter() {
-			@Override
-			public boolean accept(Class cls) {
-				return true;
-			}
-		};
-	}
-
+	/**
+	 * Get the superclass dependency of the wrapped class. Java does not have
+	 * multiple inheritance so there can only be one.
+	 * 
+	 * @return
+	 */
 	public Dependency getSuperDependency() {
 		if (cls.getSuperclass() != null) {
 			if (cls.getGenericSuperclass() instanceof Class)
@@ -49,6 +62,12 @@ public class ClassWrapper<T extends Class> {
 			return null;
 	}
 
+	/**
+	 * returns null if dependency not accepted by filter
+	 * 
+	 * @param dependency
+	 * @return
+	 */
 	private Dependency filter(Dependency dependency) {
 		if (filter == null)
 			throw new RuntimeException("null filter!");
@@ -58,6 +77,12 @@ public class ClassWrapper<T extends Class> {
 			return null;
 	}
 
+	/**
+	 * gets the dependencies corresponding to the interfaces implemented by the
+	 * wrapped class
+	 * 
+	 * @return
+	 */
 	public Set<Dependency> getInterfaceDependencies() {
 		Set<Dependency> set = new HashSet<Dependency>();
 		for (Type type : cls.getGenericInterfaces()) {
@@ -69,6 +94,11 @@ public class ClassWrapper<T extends Class> {
 		return filter(set);
 	}
 
+	/**
+	 * get the dependencies mentioned in the constructors of the wrapped class
+	 * 
+	 * @return
+	 */
 	public Set<Dependency> getConstructorDependencies() {
 		Set<Dependency> set = new HashSet<Dependency>();
 		for (Constructor<?> c : cls.getConstructors()) {
@@ -94,6 +124,12 @@ public class ClassWrapper<T extends Class> {
 		return filter(set);
 	}
 
+	/**
+	 * reduce the dependencies set to only include those accepted by the filter
+	 * 
+	 * @param set
+	 * @return
+	 */
 	private Set<Dependency> filter(Set<Dependency> set) {
 		Set<Dependency> deps = new HashSet<Dependency>(set);
 		for (Dependency dep : set) {
@@ -103,14 +139,31 @@ public class ClassWrapper<T extends Class> {
 		return deps;
 	}
 
+	/**
+	 * get the wrapped class
+	 * 
+	 * @return
+	 */
 	public Class getWrappedClass() {
 		return cls;
 	}
 
+	/**
+	 * add a dependency to a dependency set
+	 * 
+	 * @param set
+	 * @param c
+	 */
 	private void addClass(Set<Dependency> set, Class c) {
 		set.add(new Dependency(new ClassWrapper(c, filter)));
 	}
 
+	/**
+	 * get all the dependencies (including super, interface and constructor
+	 * dependencies)
+	 * 
+	 * @return
+	 */
 	public Set<Dependency> getDependencies() {
 		Set<Dependency> deps = new HashSet<Dependency>();
 		Dependency dep = getSuperDependency();
@@ -121,6 +174,12 @@ public class ClassWrapper<T extends Class> {
 		return deps;
 	}
 
+	/**
+	 * add a type to a set of dependencies
+	 * 
+	 * @param set
+	 * @param type
+	 */
 	private void addType(Set<Dependency> set, Type type) {
 		if (type instanceof Class)
 			addClass(set, ((Class) type));
@@ -212,7 +271,7 @@ public class ClassWrapper<T extends Class> {
 	}
 
 	// Test class
-	static class Test {
+	private static class Test {
 		public Test(Provider<UmlProducer> provider) {
 
 		}

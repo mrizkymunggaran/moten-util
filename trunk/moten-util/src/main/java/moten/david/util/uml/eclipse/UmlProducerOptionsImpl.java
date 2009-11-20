@@ -9,7 +9,10 @@ public class UmlProducerOptionsImpl implements UmlProducerOptions {
 			boolean useFullClassNames) {
 		this.includeAssociationEndLabels = includeAssociationEndLabels;
 		this.useFullClassNames = useFullClassNames;
+	}
 
+	public UmlProducerOptionsImpl() {
+		this(false, false);
 	}
 
 	@Override

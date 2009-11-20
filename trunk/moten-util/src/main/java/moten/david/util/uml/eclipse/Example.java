@@ -6,6 +6,13 @@ import java.io.OutputStream;
 
 public class Example {
 
+	/**
+	 * Demonstrate the generation of a uml file from which UML2 Tools in Eclipse
+	 * can generate a class diagram
+	 * 
+	 * @param args
+	 * @throws IOException
+	 */
 	public static void main(String[] args) throws IOException {
 
 		UmlProducer p = new UmlProducer(ClassFilter.STANDARD,

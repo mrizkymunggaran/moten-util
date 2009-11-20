@@ -1,5 +1,12 @@
 package moten.david.util.uml.eclipse;
 
+/**
+ * wraps a dependent class. Could we have used a ClassWrapper instead of this?
+ * It doesn't seem special in any way.
+ * 
+ * @author dave
+ * 
+ */
 public class Dependency {
 
 	private final ClassWrapper classWrapper;
