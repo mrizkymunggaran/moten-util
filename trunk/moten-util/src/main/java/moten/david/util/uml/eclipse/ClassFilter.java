@@ -20,7 +20,16 @@ public interface ClassFilter {
 			for (Class exclude : excludes)
 				if (exclude.equals(cls))
 					return false;
-			return !cls.isPrimitive() || cls.getName().startsWith("java");
+			return !cls.isPrimitive() && !isBaseJavaClass(cls);
+		}
+
+		private boolean isBaseJavaClass(Class cls) {
+			if (cls.isArray())
+				return isBaseJavaClass(cls.getComponentType());
+			else
+				return cls.getName().startsWith("java.")
+						|| cls.getName().startsWith("javax.")
+						|| cls.getName().startsWith("sun.");
 		}
 
 	};

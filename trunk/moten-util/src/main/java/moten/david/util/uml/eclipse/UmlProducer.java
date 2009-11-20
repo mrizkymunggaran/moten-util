@@ -70,9 +70,9 @@ public class UmlProducer {
 		return getPackageElements(cls, new HashSet<Class>());
 	}
 
-	private final Map<String, String> ids = new HashMap<String, String>();
+	private final Map<Object, String> ids = new HashMap<Object, String>();
 
-	private synchronized String getXmiId(String key) {
+	private synchronized String getXmiId(Object key) {
 		if (ids.get(key) == null)
 			ids.put(key, "id" + id++);
 		return ids.get(key);
@@ -130,7 +130,7 @@ public class UmlProducer {
 			else
 				t.addAttribute(XMI_TYPE, UML_CLASS);
 			t.addAttribute(XMI_ID, getXmiId(cls));
-			t.addAttribute(NAME, cls.getSimpleName());
+			t.addAttribute(NAME, getClassName(cls));
 			// only add clientDependency if is class and has interfaces
 			if (classWrapper.getInterfaceDependencies().size() > 0
 					&& !cls.isInterface()) {
@@ -145,9 +145,11 @@ public class UmlProducer {
 				t.addAttribute("clientDependency", interfaceIds.toString());
 			}
 
-			{
+			// only include methods if filter accepts the class
+			if (filter.accept(classWrapper.getWrappedClass())) {
 				List<Dependency> deps = new ArrayList<Dependency>();
 				// add method elements
+				int methodNo = 0;
 				for (Method method : classWrapper.getWrappedClass()
 						.getDeclaredMethods()) {
 					if (Modifier.isPublic(method.getModifiers())
@@ -157,11 +159,9 @@ public class UmlProducer {
 						// <ownedParameter xmi:id="_jHSYMNSkEd6IEsbu0VI_Hg"
 						// direction="return"/>
 						// </ownedOperation>
+						methodNo++;
 						t.startTag(OWNED_OPERATION);
-						String key = classWrapper.getWrappedClass()
-								.getCanonicalName()
-								+ "." + method.getName() + "-" + id++;
-						t.addAttribute(XMI_ID, getXmiId(key));
+						t.addAttribute(XMI_ID, getXmiId(method));
 						t.addAttribute(NAME, method.getName());
 						t.startTag(OWNED_PARAMETER);
 						t.addAttribute(XMI_ID, getXmiId(id++ + ""));
@@ -172,9 +172,9 @@ public class UmlProducer {
 							deps.add(new Dependency(new ClassWrapper(parameter,
 									filter)));
 							t.startTag(OWNED_PARAMETER);
-							t
-									.addAttribute(XMI_ID, getXmiId(key + ".p"
-											+ argNo));
+							t.addAttribute(XMI_ID, getXmiId(classWrapper
+									.getWrappedClass().getName()
+									+ ".method" + methodNo + ".p" + argNo));
 							t.addAttribute(NAME, "a" + argNo);
 							t.addAttribute(TYPE, getXmiId(parameter));
 							t.closeTag();
@@ -272,6 +272,13 @@ public class UmlProducer {
 
 		}
 		return s.toString();
+	}
+
+	private String getClassName(Class cls) {
+		if (cls.isArray())
+			return "[" + getClassName(cls.getComponentType()) + "]";
+		else
+			return cls.getName();
 	}
 
 	private String getPackageElements(Type genericParameterType,

@@ -7,7 +7,7 @@ import java.io.OutputStream;
 public class Example {
 
 	public static void main(String[] args) throws IOException {
-		UmlProducer p = new UmlProducer(ClassFilter.ACCEPT_ALL,
+		UmlProducer p = new UmlProducer(ClassFilter.STANDARD,
 				new UmlProducerOptionsImpl(false));
 		OutputStream out = new FileOutputStream("target/result.uml");
 
