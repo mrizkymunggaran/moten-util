@@ -4,7 +4,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-public class Example {
+import org.junit.Test;
+
+public class UmlProducerTest {
 
 	/**
 	 * Demonstrate the generation of a uml file from which UML2 Tools in Eclipse
@@ -13,7 +15,8 @@ public class Example {
 	 * @param args
 	 * @throws IOException
 	 */
-	public static void main(String[] args) throws IOException {
+	@Test
+	public void testGetUmlXmi() throws IOException {
 
 		UmlProducer p = new UmlProducer(ClassFilter.STANDARD,
 				new UmlProducerOptionsImpl(false, false));
