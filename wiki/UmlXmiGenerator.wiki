@@ -1,0 +1,5 @@
+#Uml2.1 Xmi generator
+
+= UML2 Class Diagram Generator =
+
+Developed for Eclipse 3.5.1 and latest UML2 plugin from Galileo release
