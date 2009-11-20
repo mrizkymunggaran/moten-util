@@ -16,7 +16,8 @@ import moten.david.util.text.StringUtil;
 import moten.david.util.xml.TaggedString;
 
 /**
- * Produces uml2 xmi from a set of classes
+ * Produces uml2 v3.0 in xmi v2.1 format (xml) from a set of classes. This xmi
+ * can be converted by Eclipse 3.5 UML2 Tools editor into a class diagram.
  * 
  * @author dave
  * 
