@@ -1,6 +1,6 @@
 =Uml2 Class Diagram Generator for Eclipse 3.5=
 Developed for Eclipse 3.5.1 and latest UML2 plugin from Galileo release
 
-http://code.google.com/p/moten-util/source/browse/trunk/moten-util/src/test/java/moten/david/util/uml/eclipse/UmlProducerTest.java
+Here's an example, [http://code.google.com/p/moten-util/source/browse/trunk/moten-util/src/test/java/moten/david/util/uml/eclipse/UmlProducerTest.java UmlProducerTest.java]
 
 http://moten-util.googlecode.com/svn/trunk/moten-util/docs/demo.png
