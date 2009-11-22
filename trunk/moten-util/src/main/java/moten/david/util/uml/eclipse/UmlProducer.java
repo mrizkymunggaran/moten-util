@@ -6,6 +6,7 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -57,6 +58,10 @@ public class UmlProducer {
 	private static final String PACKAGED_ELEMENT = "packagedElement";
 	static int id = 1;
 	private final ClassFilter filter;
+
+	public String getUmlXmi(Collection<Class> classes) {
+		return getUmlXmi(classes.toArray(new Class[] {}));
+	}
 
 	public String getUmlXmi(Class... classes) {
 		StringBuffer s = new StringBuffer();

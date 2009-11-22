@@ -27,7 +27,7 @@ public class UmlProducerTest {
 				.getName());
 		list.add(ExampleClass.class);
 
-		String xmi = p.getUmlXmi(list.toArray(new Class[] {}));
+		String xmi = p.getUmlXmi(list);
 
 		System.out.println(xmi);
 		out.write(xmi.getBytes());
