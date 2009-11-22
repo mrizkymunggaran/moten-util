@@ -7,8 +7,21 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 
+/**
+ * Utility methods
+ * 
+ * @author dave
+ * 
+ */
 public class Util {
 
+	/**
+	 * Get all classes within a package. Classes must be on the classpath as
+	 * .class files not in a jar
+	 * 
+	 * @param packageName
+	 * @return
+	 */
 	public static List<Class> getClasses(String packageName) {
 		try {
 			ClassLoader classLoader = Thread.currentThread()
