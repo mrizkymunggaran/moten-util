@@ -36,7 +36,7 @@ public class TaggedOutputStream {
 
 	}
 
-	public void startTag(String tag) {
+	public TaggedOutputStream startTag(String tag) {
 		closeBracket();
 		if (prettyPrint) {
 			writeString("\n");
@@ -47,6 +47,7 @@ public class TaggedOutputStream {
 		stack.push(tag);
 		tagOpen = true;
 		lastOperationWasCloseTag = false;
+		return this;
 	}
 
 	private void closeBracket() {
@@ -56,15 +57,17 @@ public class TaggedOutputStream {
 		}
 	}
 
-	public void addAttribute(String key, String value) {
+	public TaggedOutputStream addAttribute(String key, String value) {
 
 		writeString(" " + key + "=\"" + value + "\"");
+		return this;
 	}
 
-	public void addAttribute(String key, double d) {
+	public TaggedOutputStream addAttribute(String key, double d) {
 
 		DecimalFormat df = new DecimalFormat("#.0000000");
 		writeString(" " + key + "=\"" + df.format(d) + "\"");
+		return this;
 
 	}
 
@@ -72,7 +75,7 @@ public class TaggedOutputStream {
 		writeString("\n");
 	}
 
-	public void closeTag() {
+	public TaggedOutputStream closeTag() {
 		if (tagOpen) {
 			writeString("/");
 			closeBracket();
@@ -89,11 +92,13 @@ public class TaggedOutputStream {
 			writeString("</" + tag + ">");
 		}
 		lastOperationWasCloseTag = true;
+		return this;
 	}
 
-	public void close() {
+	public TaggedOutputStream close() {
 		if (stack.size() > 0)
 			throw new Error(stack.size() + "unclosed tags!");
+		return this;
 	}
 
 	private void writeString(String str) {
@@ -106,22 +111,26 @@ public class TaggedOutputStream {
 		}
 	}
 
-	public void append(String str) {
+	public TaggedOutputStream append(String str) {
 		closeBracket();
 		writeString(str);
+		return this;
 	}
 
-	public void append(boolean b) {
+	public TaggedOutputStream append(boolean b) {
 		append(new Boolean(b).toString());
+		return this;
 	}
 
-	public void append(double d) {
+	public TaggedOutputStream append(double d) {
 		DecimalFormat df = new DecimalFormat("#.0000000");
 		append(df.format(d));
+		return this;
 	}
 
-	public void append(long d) {
+	public TaggedOutputStream append(long d) {
 		append(new Long(d).toString());
+		return this;
 	}
 
 	public OutputStream getOutputStream() {

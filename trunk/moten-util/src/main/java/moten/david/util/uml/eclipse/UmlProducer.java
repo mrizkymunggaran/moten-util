@@ -24,6 +24,7 @@ import moten.david.util.xml.TaggedString;
  */
 public class UmlProducer {
 
+	private static final String CONTRACT = "contract";
 	private static final String DIRECTION_IN = "in";
 	private static final String DIRECTION_RETURN = "return";
 	private static final String DIRECTION = "direction";
@@ -220,7 +221,7 @@ public class UmlProducer {
 					t.addAttribute(NAME, "Realization" + id++);
 					t.addAttribute(SUPPLIER, getXmiId(inter));
 					t.addAttribute(CLIENT, getXmiId(cls));
-					t.addAttribute("contract", getXmiId(inter));
+					t.addAttribute(CONTRACT, getXmiId(inter));
 					t.closeTag();
 				}
 
