@@ -76,6 +76,10 @@
 					<descriptorRefs>
 						<descriptorRef>jar-with-dependencies</descriptorRef>
 					</descriptorRefs>
+					<!--
+						<descriptors> <descriptor>src/main/assembly/bin.xml</descriptor>
+						</descriptors>
+					-->
 					<archive>
 						<manifest>
 							<mainClass>au.edu.anu.delibdem.qsort.gui.MainFrame</mainClass>
