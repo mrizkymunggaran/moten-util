@@ -53,11 +53,6 @@
 						</goals>
 						<configuration>
 							<mainClass>au.edu.anu.delibdem.qsort.gui.MainFrame</mainClass>
-							<arguments>
-								<!--
-									<argument>arg0</argument> <argument>arg1</argument>
-								-->
-							</arguments>
 						</configuration>
 					</execution>
 				</executions>
@@ -68,10 +63,6 @@
 					<descriptorRefs>
 						<descriptorRef>jar-with-dependencies</descriptorRef>
 					</descriptorRefs>
-					<!--
-						<descriptors> <descriptor>src/main/assembly/bin.xml</descriptor>
-						</descriptors>
-					-->
 					<archive>
 						<manifest>
 							<mainClass>au.edu.anu.delibdem.qsort.gui.MainFrame</mainClass>
