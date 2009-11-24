@@ -22,29 +22,25 @@
 			<groupId>jama</groupId>
 			<artifactId>jama</artifactId>
 			<version>1.0.2</version>
-			<scope>system</scope>
-			<systemPath>${project.build.directory}/../lib/jama/jama-1.0.2.jar</systemPath>
+			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>gif4j</groupId>
 			<artifactId>gif4j-light-trial</artifactId>
 			<version>1.0</version>
-			<scope>system</scope>
-			<systemPath>${project.build.directory}/../lib/gif4j/gif4j-light-trial-1.0.jar</systemPath>
+			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.java.dev.flexdock</groupId>
 			<artifactId>flexdock</artifactId>
 			<version>0.5.1</version>
-			<scope>system</scope>
-			<systemPath>${project.build.directory}/../lib/flexdock/flexdock-0.5.1.jar</systemPath>
+			<scope>runtime</scope>
 		</dependency>
 		<dependency>
-			<groupId>moten.david</groupId>
-			<artifactId>moten-david-util</artifactId>
+			<groupId>org.moten.david</groupId>
+			<artifactId>moten-util-old</artifactId>
 			<version>1.0.0</version>
-			<scope>system</scope>
-			<systemPath>${project.build.directory}/../lib/moten-david-util/moten-david-util-1.0.0.jar</systemPath>
+			<scope>runtime</scope>
 		</dependency>
 	</dependencies>
 	<build>
@@ -109,5 +105,11 @@
 			</plugin>
 		</plugins>
 	</build>
+	<repositories>
+		<repository>
+			<id>googlecode-moten-util</id>
+			<url>http://moten-util.googlecode.com/svn/repo</url>
+		</repository>
+	</repositories>
 
 </project>
