@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import moten.david.util.tv.Configuration;
 import moten.david.util.tv.schedule.ScheduleItem;
 import moten.david.util.tv.servlet.ApplicationInjector;
 
@@ -24,8 +23,7 @@ public class RecorderLinux implements Recorder {
 	private final AliasProvider aliasProvider;
 
 	@Inject
-	public RecorderLinux(Configuration configuration,
-			AliasProvider aliasProvider) {
+	public RecorderLinux(AliasProvider aliasProvider) {
 		this.aliasProvider = aliasProvider;
 	}
 
@@ -33,7 +31,7 @@ public class RecorderLinux implements Recorder {
 	public boolean isRecording(ScheduleItem item) {
 		log.info("checking if is recording " + item.getName());
 		String output = startProcess("src/main/resources/is-recording.sh",
-				aliasProvider.getAlias(item.getChannel()));
+				aliasProvider.getAlias(item.getChannelId()));
 		boolean recording = output.trim().length() > 0;
 		log.info("recording=" + recording + " output length="
 				+ output.trim().length() + " output=" + output);
@@ -54,14 +52,13 @@ public class RecorderLinux implements Recorder {
 		// 6. series no
 		// 7. episode no
 		startProcess(file.getAbsolutePath(), aliasProvider.getAlias(item
-				.getChannel()), "0", dateFormat.format(item.getStartDate()),
+				.getChannelId()), "0", dateFormat.format(item.getStartDate()),
 				"00:00", item.getName());
 	}
 
 	@Override
 	public void stopRecording(ScheduleItem item) {
-		// TODO Auto-generated method stub
-
+		stopRecorder();
 	}
 
 	@Override
@@ -71,8 +68,13 @@ public class RecorderLinux implements Recorder {
 		startProcess("/usr/bin/mplayer", "-quiet", "dvb://" + alias);
 	}
 
+	private void stopRecorder() {
+		File file = new File("src/main/resources/stop-recorder.sh");
+		startProcess(file.getAbsolutePath());
+	}
+
 	private void stopPlayer() {
-		File file = new File("src/main/resources/stop-dvb-player.sh");
+		File file = new File("src/main/resources/stop-player.sh");
 		startProcess(file.getAbsolutePath());
 	}
 

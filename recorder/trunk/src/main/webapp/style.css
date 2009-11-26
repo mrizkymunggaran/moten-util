@@ -6,6 +6,10 @@
 	margin-bottom:0px;
 }
 
+.scheduled {
+	color: lime;	
+}
+
 .programmeItem {
 	border:1px solid black;
 	border-collapse:collapse;

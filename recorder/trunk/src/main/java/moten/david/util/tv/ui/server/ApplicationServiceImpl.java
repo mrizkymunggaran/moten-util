@@ -52,6 +52,7 @@ public class ApplicationServiceImpl extends RemoteServiceServlet implements
 	public MyProgrammeItem[] getProgramme(String[] channelIds, Date start,
 			Date finish) {
 		try {
+			Set<ScheduleItem> scheduledItems = schedule.load();
 			ArrayList<MyProgrammeItem> list = new ArrayList<MyProgrammeItem>();
 			for (String channelId : channelIds) {
 				log.info("getting programme for channel " + channelId);
@@ -68,6 +69,11 @@ public class ApplicationServiceImpl extends RemoteServiceServlet implements
 					p.setTitle(item.getTitle());
 					p.setStartTimeInMinutes(getTimeInMinutes(item.getStart()));
 					p.setStopTimeInMinutes(getTimeInMinutes(item.getStop()));
+					p
+							.setScheduledForRecording(isScheduled(
+									scheduledItems, item));
+					if (p.isScheduledForRecording())
+						log.info(item.getTitle() + " is scheduled");
 					list.add(p);
 				}
 			}
@@ -77,6 +83,25 @@ public class ApplicationServiceImpl extends RemoteServiceServlet implements
 			log.log(Level.SEVERE, e.getMessage(), e);
 			throw e;
 		}
+	}
+
+	private boolean isScheduled(Set<ScheduleItem> scheduledItems,
+			ProgrammeItem item) {
+		for (ScheduleItem scheduledItem : scheduledItems) {
+			if (item.getChannelId().equals(scheduledItem.getChannelId()))
+				if (between(scheduledItem.getStartDate(), item.getStart(), item
+						.getStop())
+						|| between(item.getStart(), scheduledItem
+								.getStartDate(), scheduledItem.getEndDate())) {
+					return true;
+				}
+		}
+		return false;
+	}
+
+	private boolean between(Date date, Date start, Date stop) {
+		return date.getTime() >= start.getTime()
+				&& date.getTime() < stop.getTime();
 	}
 
 	private int getTimeInMinutes(Date date) {

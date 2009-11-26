@@ -11,7 +11,7 @@ import java.util.Date;
  */
 public class ScheduleItem implements Serializable {
 	final String name;
-	final String channel;
+	final String channelId;
 	final Date startDate;
 	final Date endDate;
 
@@ -19,24 +19,24 @@ public class ScheduleItem implements Serializable {
 		return name;
 	}
 
-	public ScheduleItem(String name, String channel, Date startDate,
+	public ScheduleItem(String name, String channelId, Date startDate,
 			Date endDate) {
 		super();
 		this.name = name;
-		this.channel = channel;
+		this.channelId = channelId;
 		this.startDate = startDate;
 		this.endDate = endDate;
 	}
 
-	public String getChannel() {
-		return channel;
+	public String getChannelId() {
+		return channelId;
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((channel == null) ? 0 : channel.hashCode());
+		result = prime * result + ((channelId == null) ? 0 : channelId.hashCode());
 		result = prime * result + ((endDate == null) ? 0 : endDate.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		result = prime * result
@@ -53,10 +53,10 @@ public class ScheduleItem implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		ScheduleItem other = (ScheduleItem) obj;
-		if (channel == null) {
-			if (other.channel != null)
+		if (channelId == null) {
+			if (other.channelId != null)
 				return false;
-		} else if (!channel.equals(other.channel))
+		} else if (!channelId.equals(other.channelId))
 			return false;
 		if (endDate == null) {
 			if (other.endDate != null)

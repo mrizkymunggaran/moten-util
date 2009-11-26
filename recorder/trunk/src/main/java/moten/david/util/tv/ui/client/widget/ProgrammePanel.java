@@ -155,7 +155,9 @@ public class ProgrammePanel extends VerticalPanel {
 				vp.setStyleName("noBorder");
 				Label labelTime = new Label(getStartTimeString(item));
 
-				if (isOnNow(item))
+				if (item.isScheduledForRecording())
+					labelTime.setStyleName("scheduled");
+				else if (isOnNow(item))
 					labelTime.setStyleName("currentTime");
 				else
 					labelTime.setStyleName("time");
@@ -167,6 +169,7 @@ public class ProgrammePanel extends VerticalPanel {
 				disclosureTitle.setHeader(labelTitle);
 				disclosureTitle.setContent(getContent(item));
 				vp.add(disclosureTitle);
+
 				return vp;
 			}
 
