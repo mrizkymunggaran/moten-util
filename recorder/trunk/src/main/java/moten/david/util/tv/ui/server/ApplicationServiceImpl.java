@@ -89,8 +89,10 @@ public class ApplicationServiceImpl extends RemoteServiceServlet implements
 			ProgrammeItem item) {
 		for (ScheduleItem scheduledItem : scheduledItems) {
 			if (item.getChannelId().equals(scheduledItem.getChannelId()))
-				if (between(scheduledItem.getStartDate(), item.getStart(), item
-						.getStop())
+				if ((scheduledItem.getStartDate().equals(item.getStart()) && scheduledItem
+						.getEndDate().equals(item.getStop()))
+						|| between(scheduledItem.getStartDate(), item
+								.getStart(), item.getStop())
 						|| between(item.getStart(), scheduledItem
 								.getStartDate(), scheduledItem.getEndDate())) {
 					return true;
@@ -100,7 +102,7 @@ public class ApplicationServiceImpl extends RemoteServiceServlet implements
 	}
 
 	private boolean between(Date date, Date start, Date stop) {
-		return date.getTime() >= start.getTime()
+		return date.getTime() > start.getTime()
 				&& date.getTime() < stop.getTime();
 	}
 
