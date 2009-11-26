@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import moten.david.util.tv.Channel;
@@ -73,7 +74,7 @@ public class ApplicationServiceImpl extends RemoteServiceServlet implements
 			log.info("obtained programme");
 			return list.toArray(new MyProgrammeItem[] {});
 		} catch (RuntimeException e) {
-			log.severe(e.getMessage());
+			log.log(Level.SEVERE, e.getMessage(), e);
 			throw e;
 		}
 	}
@@ -88,7 +89,12 @@ public class ApplicationServiceImpl extends RemoteServiceServlet implements
 
 	@Override
 	public void play(String channelId) {
-		recorder.play(channelId);
+		try {
+			recorder.play(channelId);
+		} catch (RuntimeException e) {
+			log.log(Level.SEVERE, e.getMessage(), e);
+			throw e;
+		}
 	}
 
 	@Override
@@ -102,7 +108,7 @@ public class ApplicationServiceImpl extends RemoteServiceServlet implements
 			schedule.save(scheduledItems);
 			log.info("saved schedule");
 		} catch (RuntimeException e) {
-			log.severe(e.getMessage());
+			log.log(Level.SEVERE, e.getMessage(), e);
 			throw e;
 		}
 	}

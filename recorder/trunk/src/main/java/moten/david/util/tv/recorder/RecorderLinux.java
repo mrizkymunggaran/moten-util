@@ -9,8 +9,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import moten.david.util.tv.Configuration;
@@ -21,21 +21,23 @@ import com.google.inject.Inject;
 
 public class RecorderLinux implements Recorder {
 	private static Logger log = Logger.getLogger(RecorderLinux.class.getName());
-	private final File recordings;
 	private final AliasProvider aliasProvider;
 
 	@Inject
 	public RecorderLinux(Configuration configuration,
 			AliasProvider aliasProvider) {
 		this.aliasProvider = aliasProvider;
-		recordings = configuration.getRecordingsFolder();
 	}
 
 	@Override
 	public boolean isRecording(ScheduleItem item) {
+		log.info("checking if is recording " + item.getName());
 		String output = startProcess("src/main/resources/is-recording.sh",
 				aliasProvider.getAlias(item.getChannel()));
-		return output.trim().length() > 0;
+		boolean recording = output.trim().length() > 0;
+		log.info("recording=" + recording + " output length="
+				+ output.trim().length() + " output=" + output);
+		return recording;
 	}
 
 	@Override
@@ -103,6 +105,7 @@ public class RecorderLinux implements Recorder {
 
 		private static final int MAX_BUFFER_SIZE = 100000;
 		private StringBuffer output = new StringBuffer();
+		private boolean finished = false;
 
 		public ConsoleWriter(final InputStream is) {
 			Thread t = new Thread(new Runnable() {
@@ -121,30 +124,37 @@ public class RecorderLinux implements Recorder {
 
 							// output guaranteed only to have the last
 							// MAX_BUFFER_SIZE bytes
-							if (output.length() >= 2 * MAX_BUFFER_SIZE)
+							if (output.length() >= 2 * MAX_BUFFER_SIZE) {
 								// reset buffer, too bad if you were interested
 								// in the output!
 								output.replace(0, MAX_BUFFER_SIZE, "");
-							output = new StringBuffer();
+								output = new StringBuffer();
+							}
 						}
 					} catch (IOException e) {
-						e.printStackTrace();
+						log.log(Level.SEVERE, e.getMessage(), e);
 					}
+					finished = true;
 				}
 			});
 			t.start();
 		}
 
 		public String getOutput() {
+			while (!finished)
+				try {
+					Thread.sleep(50);
+				} catch (InterruptedException e) {
+					// do nothing
+				}
 			return output.toString();
 		}
 	}
 
 	public static void main(String[] args) {
-		ScheduleItem item = new ScheduleItem("test", "ABC2", new Date(),
-				new Date());
-		Recorder recorder = ApplicationInjector.getInjector().getInstance(
-				Recorder.class);
-		recorder.startRecording(item);
+		RecorderLinux r = ApplicationInjector.getInjector().getInstance(
+				RecorderLinux.class);
+		String output = r.startProcess("ls", "-l");
+		System.out.println("output=" + output);
 	}
 }
