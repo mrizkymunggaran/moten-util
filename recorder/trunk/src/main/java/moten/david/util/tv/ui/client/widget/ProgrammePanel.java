@@ -179,7 +179,7 @@ public class ProgrammePanel extends VerticalPanel {
 				return isOnNow;
 			}
 
-			private Widget getContent(MyProgrammeItem item) {
+			private Widget getContent(final MyProgrammeItem item) {
 				VerticalPanel content = new VerticalPanel();
 				Label text = new Label();
 				long minutes = (item.getStop().getTime() - item.getStart()
@@ -194,30 +194,44 @@ public class ProgrammePanel extends VerticalPanel {
 				play.setStyleName("play");
 				if (isOnNow(item))
 					p.add(play);
-				DisclosurePanel record = new DisclosurePanel();
+				final DisclosurePanel record = new DisclosurePanel();
 				p.add(record);
 				Label recordLabel = new Label("Record");
 				recordLabel.setStyleName("record");
 				record.setHeader(recordLabel);
-				if (item.isScheduledForRecording()) {
-					Button cancel = new Button("Cancel");
-					cancel.addClickHandler(createCancelHandler(item));
-					Panel p2 = new HorizontalPanel();
-					record.setContent(p2);
-					p2.add(cancel);
-				} else {
 
-					Panel p2 = new HorizontalPanel();
-					ListBox quality = new ListBox();
-					quality.addItem("Normal quality");
-					quality.addItem("High quality");
-					p2.add(quality);
-					Button recordButton = new Button("Record");
-					p2.add(recordButton);
-					record.setContent(p2);
-					recordButton
-							.addClickHandler(createRecordClickHandler(item));
-				}
+				// recording content
+				Button cancel = new Button("Cancel");
+
+				final Panel recordingContent = new HorizontalPanel();
+				recordingContent.add(cancel);
+
+				// not recording content
+				final Panel notRecordingContent = new HorizontalPanel();
+				ListBox quality = new ListBox();
+				quality.addItem("Normal quality");
+				quality.addItem("High quality");
+				notRecordingContent.add(quality);
+				Button recordButton = new Button("Record");
+				notRecordingContent.add(recordButton);
+				record.setContent(notRecordingContent);
+
+				Runnable updateRecordContent = new Runnable() {
+					public void run() {
+						// set content
+						if (item.isScheduledForRecording()) {
+							record.setContent(recordingContent);
+						} else {
+							record.setContent(notRecordingContent);
+						}
+					}
+				};
+
+				cancel.addClickHandler(createCancelHandler(cancel, item,
+						updateRecordContent));
+				recordButton.addClickHandler(createRecordClickHandler(
+						recordButton, item, updateRecordContent));
+				updateRecordContent.run();
 				content.add(p);
 				play
 						.addClickHandler(createPlayClickHandler(item
@@ -252,22 +266,31 @@ public class ProgrammePanel extends VerticalPanel {
 		};
 	}
 
-	private ClickHandler createCancelHandler(final MyProgrammeItem item) {
+	private ClickHandler createCancelHandler(final Button cancel,
+			final MyProgrammeItem item, final Runnable updateRecordContent) {
 		return new ClickHandler() {
 
 			@Override
 			public void onClick(ClickEvent arg0) {
+				cancel.setEnabled(false);
+
 				applicationService.cancel(item.getChannelId(), item.getStart(),
 						item.getStop(), new AsyncCallback<Void>() {
 
 							@Override
 							public void onFailure(Throwable t) {
 								add(new Label(t.getMessage()));
+								cancel.setEnabled(true);
+								item.setScheduledForRecording(true);
+								cancel.setText(t.getMessage());
+								updateRecordContent.run();
 							}
 
 							@Override
 							public void onSuccess(Void arg0) {
-
+								cancel.setEnabled(true);
+								item.setScheduledForRecording(false);
+								updateRecordContent.run();
 							}
 						});
 			}
@@ -279,6 +302,7 @@ public class ProgrammePanel extends VerticalPanel {
 
 			@Override
 			public void onClick(ClickEvent arg0) {
+
 				applicationService.play(channelId, new AsyncCallback<Void>() {
 
 					@Override
@@ -288,18 +312,20 @@ public class ProgrammePanel extends VerticalPanel {
 
 					@Override
 					public void onSuccess(Void arg0) {
-						// do nothing
 					}
 				});
 			}
 		};
 	}
 
-	private ClickHandler createRecordClickHandler(final MyProgrammeItem item) {
+	private ClickHandler createRecordClickHandler(final Button recordButton,
+			final MyProgrammeItem item, final Runnable updateRecordContent) {
 		return new ClickHandler() {
 
 			@Override
 			public void onClick(ClickEvent arg0) {
+				recordButton.setEnabled(false);
+
 				applicationService.record(item.getTitle(), item.getChannelId(),
 						item.getStart(), item.getStop(),
 						new AsyncCallback<Void>() {
@@ -307,11 +333,16 @@ public class ProgrammePanel extends VerticalPanel {
 							@Override
 							public void onFailure(Throwable arg0) {
 								add(new Label(arg0.getMessage()));
+								recordButton.setEnabled(true);
+								item.setScheduledForRecording(false);
+								updateRecordContent.run();
 							}
 
 							@Override
 							public void onSuccess(Void arg0) {
-								// do nothing
+								recordButton.setEnabled(true);
+								item.setScheduledForRecording(true);
+								updateRecordContent.run();
 							}
 						});
 			}
