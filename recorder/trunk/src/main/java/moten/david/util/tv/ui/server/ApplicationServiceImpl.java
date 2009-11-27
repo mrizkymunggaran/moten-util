@@ -139,4 +139,24 @@ public class ApplicationServiceImpl extends RemoteServiceServlet implements
 			throw e;
 		}
 	}
+
+	@Override
+	public void cancel(String channelId, Date start, Date stop) {
+		try {
+			Set<ScheduleItem> scheduledItems = schedule.load();
+			ArrayList<ScheduleItem> removeThese = new ArrayList<ScheduleItem>();
+			for (ScheduleItem item : scheduledItems) {
+				if (channelId.equals(item.getChannelId())
+						&& start.equals(item.getStartDate())
+						&& stop.equals(item.getEndDate()))
+					removeThese.add(item);
+			}
+			scheduledItems.removeAll(removeThese);
+			schedule.save(scheduledItems);
+			log.info("saved schedule");
+		} catch (RuntimeException e) {
+			log.log(Level.SEVERE, e.getMessage(), e);
+			throw e;
+		}
+	}
 }

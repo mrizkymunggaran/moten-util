@@ -12,4 +12,7 @@ public interface ApplicationServiceAsync {
 
 	void record(String name, String channelId, Date start, Date stop,
 			AsyncCallback<Void> callback);
+
+	void cancel(String channelId, Date start, Date stop,
+			AsyncCallback<Void> callback);
 }

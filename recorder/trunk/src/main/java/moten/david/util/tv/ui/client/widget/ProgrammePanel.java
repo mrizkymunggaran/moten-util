@@ -201,6 +201,7 @@ public class ProgrammePanel extends VerticalPanel {
 				record.setHeader(recordLabel);
 				if (item.isScheduledForRecording()) {
 					Button cancel = new Button("Cancel");
+					cancel.addClickHandler(createCancelHandler(item));
 					Panel p2 = new HorizontalPanel();
 					record.setContent(p2);
 					p2.add(cancel);
@@ -248,6 +249,28 @@ public class ProgrammePanel extends VerticalPanel {
 				return bestStartTime;
 			}
 
+		};
+	}
+
+	private ClickHandler createCancelHandler(final MyProgrammeItem item) {
+		return new ClickHandler() {
+
+			@Override
+			public void onClick(ClickEvent arg0) {
+				applicationService.cancel(item.getChannelId(), item.getStart(),
+						item.getStop(), new AsyncCallback<Void>() {
+
+							@Override
+							public void onFailure(Throwable t) {
+								add(new Label(t.getMessage()));
+							}
+
+							@Override
+							public void onSuccess(Void arg0) {
+
+							}
+						});
+			}
 		};
 	}
 
