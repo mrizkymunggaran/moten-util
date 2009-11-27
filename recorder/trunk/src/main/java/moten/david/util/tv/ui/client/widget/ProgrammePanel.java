@@ -17,12 +17,12 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.DisclosurePanel;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -162,7 +162,6 @@ public class ProgrammePanel extends VerticalPanel {
 				else
 					labelTime.setStyleName("time");
 				vp.add(labelTime);
-
 				DisclosurePanel disclosureTitle = new DisclosurePanel();
 				Label labelTitle = new Label(item.getTitle());
 				labelTitle.setStyleName("itemTitle");
@@ -197,13 +196,21 @@ public class ProgrammePanel extends VerticalPanel {
 					p.add(play);
 				DisclosurePanel record = new DisclosurePanel();
 				p.add(record);
-				{
-					Label recordLabel = new Label("Record");
-					recordLabel.setStyleName("record");
-					record.setHeader(recordLabel);
+				Label recordLabel = new Label("Record");
+				recordLabel.setStyleName("record");
+				record.setHeader(recordLabel);
+				if (item.isScheduledForRecording()) {
+					Button cancel = new Button("Cancel");
 					Panel p2 = new HorizontalPanel();
-					final CheckBox highQuality = new CheckBox("High Quality");
-					p2.add(highQuality);
+					record.setContent(p2);
+					p2.add(cancel);
+				} else {
+
+					Panel p2 = new HorizontalPanel();
+					ListBox quality = new ListBox();
+					quality.addItem("Normal quality");
+					quality.addItem("High quality");
+					p2.add(quality);
 					Button recordButton = new Button("Record");
 					p2.add(recordButton);
 					record.setContent(p2);
