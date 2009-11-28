@@ -50,4 +50,8 @@ public class Configuration {
 	public File getRecordingsFolder() {
 		return new File(getDataDirectory(), "recordings");
 	}
+
+	public int getTunersCount() {
+		return 1;
+	}
 }

@@ -155,18 +155,12 @@ public class ProgrammePanel extends VerticalPanel {
 				vp.setStyleName("noBorder");
 				Label labelTime = new Label(getStartTimeString(item));
 
-				if (item.isScheduledForRecording())
-					labelTime.setStyleName("scheduled");
-				else if (isOnNow(item))
-					labelTime.setStyleName("currentTime");
-				else
-					labelTime.setStyleName("time");
 				vp.add(labelTime);
 				DisclosurePanel disclosureTitle = new DisclosurePanel();
 				Label labelTitle = new Label(item.getTitle());
 				labelTitle.setStyleName("itemTitle");
 				disclosureTitle.setHeader(labelTitle);
-				disclosureTitle.setContent(getContent(item));
+				disclosureTitle.setContent(getContent(item, labelTime));
 				vp.add(disclosureTitle);
 
 				return vp;
@@ -179,7 +173,8 @@ public class ProgrammePanel extends VerticalPanel {
 				return isOnNow;
 			}
 
-			private Widget getContent(final MyProgrammeItem item) {
+			private Widget getContent(final MyProgrammeItem item,
+					final Label labelTime) {
 				VerticalPanel content = new VerticalPanel();
 				Label text = new Label();
 				long minutes = (item.getStop().getTime() - item.getStart()
@@ -224,6 +219,12 @@ public class ProgrammePanel extends VerticalPanel {
 						} else {
 							record.setContent(notRecordingContent);
 						}
+						if (item.isScheduledForRecording())
+							labelTime.setStyleName("scheduled");
+						else if (isOnNow(item))
+							labelTime.setStyleName("currentTime");
+						else
+							labelTime.setStyleName("time");
 					}
 				};
 

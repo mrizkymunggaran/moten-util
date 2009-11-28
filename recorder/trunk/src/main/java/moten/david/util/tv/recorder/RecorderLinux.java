@@ -31,17 +31,23 @@ public class RecorderLinux implements Recorder {
 	public boolean isRecording(ScheduleItem item) {
 		log.info("checking if is recording " + item.getName());
 		String output = startProcess("src/main/resources/is-recording.sh",
-				aliasProvider.getAlias(item.getChannelId()));
+				aliasProvider.getAlias(item.getChannelId()),
+				getStartDateString(item));
 		boolean recording = output.trim().length() > 0;
 		log.info("recording=" + recording + " output length="
 				+ output.trim().length() + " output=" + output);
 		return recording;
 	}
 
+	private String getStartDateString(ScheduleItem item) {
+		DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HHmm");
+		return dateFormat.format(item.getStartDate());
+	}
+
 	@Override
 	public void startRecording(ScheduleItem item) {
 		log.info("starting recording for " + item.getName());
-		DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HHmm");
+
 		File file = new File("src/main/resources/start-recording.sh");
 		// pass in as parameters to the script
 		// 1. channel alias
@@ -52,8 +58,8 @@ public class RecorderLinux implements Recorder {
 		// 6. series no
 		// 7. episode no
 		startProcess(file.getAbsolutePath(), aliasProvider.getAlias(item
-				.getChannelId()), "0", dateFormat.format(item.getStartDate()),
-				"00:00", item.getName());
+				.getChannelId()), "0", getStartDateString(item), "00:00", item
+				.getName());
 	}
 
 	@Override
