@@ -54,4 +54,9 @@ public class Configuration {
 	public int getTunersCount() {
 		return 1;
 	}
+
+	public long getExtraTimeMs() {
+		// 5 mins
+		return 1000 * 60 * 5;
+	}
 }

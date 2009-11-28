@@ -49,7 +49,9 @@ public class RecordJob implements Job {
 				if (!recorder.isRecording(item))
 					// start recording
 					startThese.add(item);
-			} else if (recorder.isRecording(item)) {
+			} else if (recorder.isRecording(item)
+					&& item.getEndDate().getTime()
+							+ configuration.getExtraTimeMs() > now.getTime()) {
 				stopThese.add(item);
 			}
 		}
