@@ -40,7 +40,6 @@ public class RecordJob implements Job {
 		Set<ScheduleItem> scheduleItems = schedule.load();
 		Date now = new Date();
 		Set<ScheduleItem> stopThese = new HashSet<ScheduleItem>();
-		Set<ScheduleItem> stopCandidates = new HashSet<ScheduleItem>();
 		Set<ScheduleItem> startThese = new HashSet<ScheduleItem>();
 		for (ScheduleItem item : scheduleItems) {
 			// if the item should be on now or if the item starts now
