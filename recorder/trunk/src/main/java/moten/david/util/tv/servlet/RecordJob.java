@@ -53,26 +53,14 @@ public class RecordJob implements Job {
 				stopThese.add(item);
 			}
 		}
-		for (ScheduleItem item : stopThese)
-			if (startThese.size() > 0)
-				recorder.stopRecording(item);
-			else {
-				// only stop if past the extra time and nothing else being
-				// recorded
-				if (item.getEndDate().getTime()
-						+ configuration.getExtraTimeMs() >= now.getTime()) {
-					recorder.stopRecording(item);
-				}
-			}
+
 		boolean singleTuner = configuration.getTunersCount() == 1;
 		if (singleTuner) {
 			// start the latest scheduled recording
-			Date latestStartDate = null;
 			ScheduleItem latestItem = null;
 			for (ScheduleItem item : startThese)
-				if (latestStartDate == null
-						|| item.getStartDate().after(latestStartDate)) {
-					latestStartDate = item.getStartDate();
+				if (latestItem == null
+						|| item.getStartDate().after(latestItem.getStartDate())) {
 					latestItem = item;
 				}
 			if (latestItem != null) {
@@ -81,9 +69,12 @@ public class RecordJob implements Job {
 						recorder.stopRecording(item);
 				recorder.startRecording(latestItem);
 			}
-		} else
+		} else {
+			for (ScheduleItem item : stopThese)
+				recorder.stopRecording(item);
 			for (ScheduleItem item : startThese)
 				recorder.startRecording(item);
+		}
 
 		log.info("finished job");
 

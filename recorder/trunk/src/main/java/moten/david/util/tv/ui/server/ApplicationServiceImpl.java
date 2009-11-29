@@ -136,6 +136,15 @@ public class ApplicationServiceImpl extends RemoteServiceServlet implements
 			ScheduleItem item = new ScheduleItem(name, channelId, start, stop);
 			Set<ScheduleItem> scheduledItems = schedule.load();
 			scheduledItems.add(item);
+			// remove expired items
+			Date expiryDate = new Date(System.currentTimeMillis() - 24 * 60
+					* 60 * 1000);
+			ArrayList<ScheduleItem> removeThese = new ArrayList<ScheduleItem>();
+			for (ScheduleItem it : scheduledItems)
+				if (item.getEndDate().before(expiryDate))
+					removeThese.add(it);
+			scheduledItems.removeAll(removeThese);
+			// save
 			schedule.save(scheduledItems);
 			log.info("saved schedule");
 		} catch (RuntimeException e) {
