@@ -180,7 +180,32 @@ public class ProgrammePanel extends VerticalPanel {
 				long minutes = (item.getStop().getTime() - item.getStart()
 						.getTime())
 						/ minuteMs;
-				text.setText(item.getDescription() + " " + minutes + "mins");
+				StringBuffer s = new StringBuffer();
+				s.append(item.getDescription() + " " + minutes + "mins");
+				if (item.getCategories().length > 0) {
+					StringBuffer categories = new StringBuffer();
+					for (String category : item.getCategories()) {
+						if (categories.length() > 0)
+							categories.append(",");
+						categories.append(category);
+					}
+					s.append("\n[");
+					s.append(categories);
+					s.append("]");
+				}
+
+				if (item.getActors().length > 0) {
+					StringBuffer actors = new StringBuffer();
+					for (String actor : item.getActors()) {
+						if (actor.length() > 0)
+							actors.append(",");
+						actors.append(actor);
+					}
+					s.append("\nActors: ");
+					s.append(actors);
+				}
+
+				text.setText(s.toString());
 				text.setStyleName("itemDescription");
 				content.add(text);
 

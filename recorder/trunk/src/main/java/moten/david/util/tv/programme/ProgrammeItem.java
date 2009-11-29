@@ -69,6 +69,10 @@ public class ProgrammeItem {
 		return (int) ((stop.getTime() - start.getTime()) / 1000 / 60);
 	}
 
+	public List<String> getActors() {
+		return actors;
+	}
+
 	private Date start;
 	private Date stop;
 	private String channelId;
@@ -76,5 +80,15 @@ public class ProgrammeItem {
 	private String subTitle;
 	private String description;
 	private final List<String> categories = new ArrayList<String>();
+	private final List<String> actors = new ArrayList<String>();
+	private String date;
+
+	public String getDate() {
+		return date;
+	}
+
+	public void setDate(String date) {
+		this.date = date;
+	}
 
 }

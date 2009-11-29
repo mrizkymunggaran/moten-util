@@ -69,6 +69,10 @@ public class ApplicationServiceImpl extends RemoteServiceServlet implements
 					p.setTitle(item.getTitle());
 					p.setStartTimeInMinutes(getTimeInMinutes(item.getStart()));
 					p.setStopTimeInMinutes(getTimeInMinutes(item.getStop()));
+					p.setDate(item.getDate());
+					p.setActors(item.getActors().toArray(new String[] {}));
+					p.setCategories(item.getCategories().toArray(
+							new String[] {}));
 					p
 							.setScheduledForRecording(isScheduled(
 									scheduledItems, item));

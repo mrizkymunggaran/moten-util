@@ -11,6 +11,29 @@ public class MyProgrammeItem implements Serializable {
 	private String subTitle;
 	private String description;
 	private String[] categories;
+	private String date;
+
+	public String getDate() {
+		return date;
+	}
+
+	public void setDate(String date) {
+		this.date = date;
+	}
+
+	public String[] getActors() {
+		return actors;
+	}
+
+	public void setActors(String[] actors) {
+		this.actors = actors;
+	}
+
+	public void setCategories(String[] categories) {
+		this.categories = categories;
+	}
+
+	private String[] actors;
 	private int startTimeInMinutes;
 	private int stopTimeInMinutes;
 	private boolean scheduledForRecording;

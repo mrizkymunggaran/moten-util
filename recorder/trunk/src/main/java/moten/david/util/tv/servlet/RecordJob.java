@@ -40,6 +40,7 @@ public class RecordJob implements Job {
 		Set<ScheduleItem> scheduleItems = schedule.load();
 		Date now = new Date();
 		Set<ScheduleItem> stopThese = new HashSet<ScheduleItem>();
+		Set<ScheduleItem> stopCandidates = new HashSet<ScheduleItem>();
 		Set<ScheduleItem> startThese = new HashSet<ScheduleItem>();
 		for (ScheduleItem item : scheduleItems) {
 			// if the item should be on now or if the item starts now
@@ -49,10 +50,11 @@ public class RecordJob implements Job {
 				if (!recorder.isRecording(item))
 					// start recording
 					startThese.add(item);
-			} else if (recorder.isRecording(item)
-					&& item.getEndDate().getTime()
-							+ configuration.getExtraTimeMs() > now.getTime()) {
-				stopThese.add(item);
+			} else if (recorder.isRecording(item)) {
+				stopCandidates.add(item);
+				if (item.getEndDate().getTime()
+						+ configuration.getExtraTimeMs() > now.getTime())
+					stopThese.add(item);
 			}
 		}
 		for (ScheduleItem item : stopThese)
@@ -68,8 +70,12 @@ public class RecordJob implements Job {
 					latestStartDate = item.getStartDate();
 					latestItem = item;
 				}
-			if (latestItem != null)
+			if (latestItem != null) {
+				for (ScheduleItem item : scheduleItems)
+					if (!item.equals(latestItem))
+						recorder.stopRecording(item);
 				recorder.startRecording(latestItem);
+			}
 		} else
 			for (ScheduleItem item : startThese)
 				recorder.startRecording(item);

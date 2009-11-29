@@ -8,6 +8,8 @@ import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.logging.Logger;
@@ -137,10 +139,24 @@ public class ProgrammeProviderOzList implements ProgrammeProvider {
 				item.setSubTitle(nd.getTextContent());
 			else if (nd.getNodeName().equals("category"))
 				item.getCategories().add(nd.getTextContent());
+			else if (nd.getNodeName().equals("credits")) {
+				item.getActors().addAll(getActors(nd));
+			} else if (nd.getNodeName().equals("date"))
+				item.setDate(nd.getTextContent());
 			else
 				// ignore
 				;
 		}
+	}
+
+	private Collection<? extends String> getActors(Node node) {
+		ArrayList<String> actors = new ArrayList<String>();
+		for (int i = 0; i < node.getChildNodes().getLength(); i++) {
+			Node nd = node.getChildNodes().item(i);
+			if (nd.getNodeName().equals("actor"))
+				actors.add(nd.getTextContent());
+		}
+		return actors;
 	}
 
 	@Override
