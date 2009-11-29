@@ -15,6 +15,7 @@ import moten.david.util.tv.ui.client.event.ShowProgramme;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DisclosurePanel;
@@ -173,6 +174,16 @@ public class ProgrammePanel extends VerticalPanel {
 				return isOnNow;
 			}
 
+			private String delimited(String[] c, String delimiter) {
+				StringBuffer s = new StringBuffer();
+				for (String str : c) {
+					if (s.length() > 0)
+						s.append(delimiter);
+					s.append(str);
+				}
+				return s.toString();
+			}
+
 			private Widget getContent(final MyProgrammeItem item,
 					final Label labelTime) {
 				VerticalPanel content = new VerticalPanel();
@@ -182,27 +193,16 @@ public class ProgrammePanel extends VerticalPanel {
 						/ minuteMs;
 				StringBuffer s = new StringBuffer();
 				s.append(item.getDescription() + " " + minutes + "mins");
+
 				if (item.getCategories().length > 0) {
-					StringBuffer categories = new StringBuffer();
-					for (String category : item.getCategories()) {
-						if (categories.length() > 0)
-							categories.append(",");
-						categories.append(category);
-					}
-					s.append("\n[");
-					s.append(categories);
+					s.append(" [");
+					s.append(delimited(item.getCategories(), ", "));
 					s.append("]");
 				}
 
 				if (item.getActors().length > 0) {
-					StringBuffer actors = new StringBuffer();
-					for (String actor : item.getActors()) {
-						if (actor.length() > 0)
-							actors.append(",");
-						actors.append(actor);
-					}
 					s.append("\nActors: ");
-					s.append(actors);
+					s.append(delimited(item.getActors(), ", "));
 				}
 
 				text.setText(s.toString());
@@ -219,6 +219,11 @@ public class ProgrammePanel extends VerticalPanel {
 				Label recordLabel = new Label("Record");
 				recordLabel.setStyleName("record");
 				record.setHeader(recordLabel);
+
+				Button about = new Button("About");
+				about.setStyleName("about");
+				p.add(about);
+				about.addClickHandler(createAboutClickHandler(item));
 
 				// recording content
 				Button cancel = new Button("Cancel");
@@ -263,6 +268,20 @@ public class ProgrammePanel extends VerticalPanel {
 						.addClickHandler(createPlayClickHandler(item
 								.getChannelId()));
 				return content;
+			}
+
+			private ClickHandler createAboutClickHandler(
+					final MyProgrammeItem item) {
+				return new ClickHandler() {
+					@Override
+					public void onClick(ClickEvent arg0) {
+						if (item.getTitle() != null) {
+							String url = "http://www.imdb.com/find?s=all&q="
+									+ item.getTitle();
+							Window.open(url, null, null);
+						}
+					}
+				};
 			}
 
 			private String getStartTimeString(MyProgrammeItem item) {

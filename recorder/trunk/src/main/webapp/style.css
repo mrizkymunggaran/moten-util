@@ -45,6 +45,13 @@
 	border:none;  
 }
 
+.about {
+	font-size:80%;
+	color:blue; 
+	background-color:transparent; 
+	border:none;  
+}
+
 .record {
 	font-size:80%;
 	color:blue; 
