@@ -193,7 +193,9 @@ public class ProgrammePanel extends VerticalPanel {
 						.getTime())
 						/ minuteMs;
 				StringBuffer s = new StringBuffer();
-				s.append(item.getDescription() + " " + minutes + "mins");
+				s.append(item.getDescription() + " "
+						+ (item.getDate() == null ? "" : item.getDate() + ", ")
+						+ minutes + "mins");
 
 				if (item.getCategories().length > 0) {
 					s.append(" [");
