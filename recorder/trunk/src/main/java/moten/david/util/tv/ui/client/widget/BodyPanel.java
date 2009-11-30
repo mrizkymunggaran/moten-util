@@ -9,6 +9,7 @@ import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TabPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 
 public class BodyPanel extends VerticalPanel {
 
@@ -23,6 +24,7 @@ public class BodyPanel extends VerticalPanel {
 		programmePanel = new ProgrammePanel();
 		tabs.add(programmePanel, "Programme");
 		tabs.add(new Label("TODO"), "Schedule");
+		tabs.add(createChannelsWidget(), "Channels");
 		tabs.add(new Label("TODO"), "Settings");
 		tabs.addSelectionHandler(new SelectionHandler<Integer>() {
 			@Override
@@ -35,6 +37,10 @@ public class BodyPanel extends VerticalPanel {
 		});
 		add(tabs);
 		tabs.selectTab(0);
+	}
+
+	private Widget createChannelsWidget() {
+		return new ChannelsPanel();
 	}
 
 	private ControllerListener<ShowProgramme> createShowProgrammeListener() {

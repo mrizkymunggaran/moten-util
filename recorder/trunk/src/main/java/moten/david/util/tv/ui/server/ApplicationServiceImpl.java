@@ -18,6 +18,7 @@ import moten.david.util.tv.schedule.Schedule;
 import moten.david.util.tv.schedule.ScheduleItem;
 import moten.david.util.tv.servlet.ApplicationInjector;
 import moten.david.util.tv.ui.client.ApplicationService;
+import moten.david.util.tv.ui.client.MyChannel;
 import moten.david.util.tv.ui.client.MyProgrammeItem;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
@@ -167,6 +168,22 @@ public class ApplicationServiceImpl extends RemoteServiceServlet implements
 			scheduledItems.removeAll(removeThese);
 			schedule.save(scheduledItems);
 			log.info("saved schedule");
+		} catch (RuntimeException e) {
+			log.log(Level.SEVERE, e.getMessage(), e);
+			throw e;
+		}
+	}
+
+	@Override
+	public MyChannel[] getChannels() {
+		try {
+			ArrayList<MyChannel> list = new ArrayList<MyChannel>();
+			for (Channel channel : channelsProvider.getChannels()) {
+				MyChannel c = new MyChannel();
+				c.setName(channel.getDisplayName());
+				list.add(c);
+			}
+			return list.toArray(new MyChannel[] {});
 		} catch (RuntimeException e) {
 			log.log(Level.SEVERE, e.getMessage(), e);
 			throw e;

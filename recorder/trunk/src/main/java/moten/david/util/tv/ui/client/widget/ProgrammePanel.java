@@ -32,8 +32,7 @@ import com.google.gwt.user.client.ui.Widget;
 public class ProgrammePanel extends VerticalPanel {
 
 	/**
-	 * Create a remote service proxy to talk to the server-side Greeting
-	 * service.
+	 * Create a remote service proxy to talk to the server-side service.
 	 */
 	private final ApplicationServiceAsync applicationService = GWT
 			.create(ApplicationService.class);
