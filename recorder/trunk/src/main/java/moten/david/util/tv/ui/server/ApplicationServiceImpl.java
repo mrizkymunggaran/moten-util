@@ -20,6 +20,7 @@ import moten.david.util.tv.servlet.ApplicationInjector;
 import moten.david.util.tv.ui.client.ApplicationService;
 import moten.david.util.tv.ui.client.MyChannel;
 import moten.david.util.tv.ui.client.MyProgrammeItem;
+import moten.david.util.tv.updater.Updater;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import com.google.inject.Inject;
@@ -189,4 +190,10 @@ public class ApplicationServiceImpl extends RemoteServiceServlet implements
 			throw e;
 		}
 	}
+
+	@Override
+	public void update() {
+		Updater.main(null);
+	}
+
 }

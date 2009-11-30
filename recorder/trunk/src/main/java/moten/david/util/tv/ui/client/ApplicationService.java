@@ -20,4 +20,6 @@ public interface ApplicationService extends RemoteService {
 	void cancel(String channelId, Date start, Date stop);
 
 	MyChannel[] getChannels();
+
+	void update();
 }

@@ -16,5 +16,7 @@ public interface ApplicationServiceAsync {
 	void cancel(String channelId, Date start, Date stop,
 			AsyncCallback<Void> callback);
 
-	void getChannels(AsyncCallback<MyChannel[]> channels);
+	void getChannels(AsyncCallback<MyChannel[]> callback);
+
+	void update(AsyncCallback<Void> callback);
 }
