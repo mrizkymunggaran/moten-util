@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<tv generator-info-name="Wktivoguide v5">
+	<channel id="13THST">
+		<display-name lang="en">13th Street</display-name>
+		<base-url>http://www.oztivo.net/xmltv/</base-url>
+		<base-url>http://xml.oztivo.net/xmltv/</base-url>
+		<datafor lastmodified="20091116133325 +1000">2009-11-16</datafor>
+		<datafor lastmodified="20091117131703 +1000">2009-11-17</datafor>
+		<datafor lastmodified="20091117131704 +1000">2009-11-18</datafor>
+		<datafor lastmodified="20091117131704 +1000">2009-11-19</datafor>
+		<datafor lastmodified="20091117131704 +1000">2009-11-20</datafor>
+		<datafor lastmodified="20091117131704 +1000">2009-11-21</datafor>
+		<datafor lastmodified="20091117131704 +1000">2009-11-22</datafor>
+		<datafor lastmodified="20091117131704 +1000">2009-11-23</datafor>
+		<datafor lastmodified="20091117131704 +1000">2009-11-24</datafor>
+		<datafor lastmodified="20091117131705 +1000">2009-11-25</datafor>
+		<datafor lastmodified="20091117131705 +1000">2009-11-26</datafor>
+		<datafor lastmodified="20091117131705 +1000">2009-11-27</datafor>
+		<datafor lastmodified="20091121132755 +1000">2009-11-28</datafor>
+		<datafor lastmodified="20091121132755 +1000">2009-11-29</datafor>
+		<datafor lastmodified="20091119132318 +1000">2009-11-30</datafor>
+		<datafor lastmodified="20091121132755 +1000">2009-12-01</datafor>
+		<datafor lastmodified="20091128133604 +1000">2009-12-02</datafor>
+		<datafor lastmodified="20091128133604 +1000">2009-12-03</datafor>
+		<datafor lastmodified="20091127153911 +1000">2009-12-04</datafor>
+		<datafor lastmodified="20091127153911 +1000">2009-12-05</datafor>
+	</channel>
+	<channel id="31-Adl">
+		<display-name lang="en">Ch31 Adelaide</display-name>
+		<base-url>http://www.oztivo.net/xmltv/</base-url>
+		<base-url>http://xml.oztivo.net/xmltv/</base-url>
+		<datafor lastmodified="20091109135535 +1000">2009-11-14</datafor>
+		<datafor lastmodified="20091112134114 +1000">2009-11-15</datafor>
+		<datafor lastmodified="20091113153436 +1000">2009-11-16</datafor>
+		<datafor lastmodified="20091113153436 +1000">2009-11-17</datafor>
+		<datafor lastmodified="20091113153437 +1000">2009-11-18</datafor>
+		<datafor lastmodified="20091113153437 +1000">2009-11-19</datafor>
+		<datafor lastmodified="20091113153437 +1000">2009-11-20</datafor>
+		<datafor lastmodified="20091116140201 +1000">2009-11-21</datafor>
+		<datafor lastmodified="20091119135354 +1000">2009-11-22</datafor>
+		<datafor lastmodified="20091120155027 +1000">2009-11-23</datafor>
+		<datafor lastmodified="20091120155027 +1000">2009-11-24</datafor>
+		<datafor lastmodified="20091120155028 +1000">2009-11-25</datafor>
+		<datafor lastmodified="20091120155028 +1000">2009-11-26</datafor>
+		<datafor lastmodified="20091120155028 +1000">2009-11-27</datafor>
+		<datafor lastmodified="20091123140319 +1000">2009-11-28</datafor>
+		<datafor lastmodified="20091127160517 +1000">2009-11-29</datafor>
+		<datafor lastmodified="20091127160518 +1000">2009-11-30</datafor>
+		<datafor lastmodified="20091127160518 +1000">2009-12-01</datafor>
+		<datafor lastmodified="20091127160518 +1000">2009-12-02</datafor>
+		<datafor lastmodified="20091127160519 +1000">2009-12-03</datafor>
+		<datafor lastmodified="20091127160519 +1000">2009-12-04</datafor>
+	</channel>
+</tv>
