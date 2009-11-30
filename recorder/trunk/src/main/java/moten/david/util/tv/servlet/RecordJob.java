@@ -68,6 +68,9 @@ public class RecordJob implements Job {
 					if (!item.equals(latestItem))
 						recorder.stopRecording(item);
 				recorder.startRecording(latestItem);
+			} else {
+				for (ScheduleItem item : stopThese)
+					recorder.stopRecording(item);
 			}
 		} else {
 			for (ScheduleItem item : stopThese)
