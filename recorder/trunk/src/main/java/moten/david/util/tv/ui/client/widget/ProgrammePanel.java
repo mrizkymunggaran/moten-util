@@ -11,6 +11,7 @@ import moten.david.util.tv.ui.client.MyProgrammeItem;
 import moten.david.util.tv.ui.client.controller.ControllerListener;
 import moten.david.util.tv.ui.client.event.ProgrammeLoaded;
 import moten.david.util.tv.ui.client.event.ShowProgramme;
+import moten.david.util.tv.ui.client.event.Status;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -399,6 +400,8 @@ public class ProgrammePanel extends VerticalPanel {
 
 			@Override
 			public void event(ShowProgramme event) {
+				Application.getInstance().getController().event(
+						new Status("Loading..."));
 				refresh();
 			}
 

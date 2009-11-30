@@ -6,6 +6,6 @@ public class MenuPanel extends VerticalPanel {
 
 	public MenuPanel() {
 
-		setStyleName("menu");
+		setStyleName("menuPanel");
 	}
 }
