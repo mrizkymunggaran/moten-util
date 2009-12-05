@@ -104,6 +104,11 @@
 	font-weight:bold;
 }
 
+.itemTitleHighlighted {
+	font-weight:bold;
+	color:navy;
+}
+
 .menuItem {
 	font-size:100%;
 	color:blue; 

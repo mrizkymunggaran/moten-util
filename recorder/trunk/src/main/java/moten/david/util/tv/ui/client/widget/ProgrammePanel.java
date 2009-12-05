@@ -31,6 +31,7 @@ import com.google.gwt.user.client.ui.Widget;
 
 public class ProgrammePanel extends VerticalPanel {
 
+	private static final String CYCLING = "CYCLING";
 	/**
 	 * Create a remote service proxy to talk to the server-side service.
 	 */
@@ -159,12 +160,26 @@ public class ProgrammePanel extends VerticalPanel {
 				vp.add(labelTime);
 				DisclosurePanel disclosureTitle = new DisclosurePanel();
 				Label labelTitle = new Label(item.getTitle());
-				labelTitle.setStyleName("itemTitle");
+				if ((item.getCategories() != null && contains(item
+						.getCategories(), "Movie"))
+						|| item.getDescription().toUpperCase().contains(
+								CYCLING)
+						|| item.getTitle().toUpperCase().contains(CYCLING))
+					labelTitle.setStyleName("itemTitleHighlighted");
+				else
+					labelTitle.setStyleName("itemTitle");
 				disclosureTitle.setHeader(labelTitle);
 				disclosureTitle.setContent(getContent(item, labelTime));
 				vp.add(disclosureTitle);
 
 				return vp;
+			}
+
+			private boolean contains(String[] items, String string) {
+				for (String item : items)
+					if (item.toUpperCase().contains(string.toUpperCase()))
+						return true;
+				return false;
 			}
 
 			private boolean isOnNow(MyProgrammeItem item) {
