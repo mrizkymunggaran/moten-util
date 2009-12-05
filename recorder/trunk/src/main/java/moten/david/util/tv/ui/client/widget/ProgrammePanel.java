@@ -42,6 +42,7 @@ public class ProgrammePanel extends VerticalPanel {
 	private final List<String> channels = new ArrayList<String>();
 	private final long minuteMs = 60000;
 	private FlexTable oldTable;
+	private final Widget loading;
 
 	public ProgrammePanel() {
 		Application.getInstance().getController().addListener(
@@ -59,6 +60,7 @@ public class ProgrammePanel extends VerticalPanel {
 		channels.add("Ten-Can");
 		channels.add("WIN-Can");
 		channels.add("GO");
+		loading = new Label("Loading...");
 	}
 
 	private AsyncCallback<MyProgrammeItem[]> createGetProgrammeCallback() {
@@ -137,6 +139,7 @@ public class ProgrammePanel extends VerticalPanel {
 							col++;
 						}
 					}
+					remove(loading);
 					remove(oldTable);
 					add(table);
 					Application.getInstance().getController().event(
@@ -162,8 +165,8 @@ public class ProgrammePanel extends VerticalPanel {
 				Label labelTitle = new Label(item.getTitle());
 				if ((item.getCategories() != null && contains(item
 						.getCategories(), "Movie"))
-						|| item.getDescription().toUpperCase().contains(
-								CYCLING)
+						|| item.getDescription().toUpperCase()
+								.contains(CYCLING)
 						|| item.getTitle().toUpperCase().contains(CYCLING))
 					labelTitle.setStyleName("itemTitleHighlighted");
 				else
@@ -426,6 +429,7 @@ public class ProgrammePanel extends VerticalPanel {
 
 	public void refresh() {
 		clear();
+		add(loading);
 		oldTable = table;
 		table = new FlexTable();
 		table.setStyleName("programme");
