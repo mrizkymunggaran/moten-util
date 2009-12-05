@@ -8,7 +8,7 @@
 	<name>recorder Maven Webapp</name>
 	<url>http://maven.apache.org</url>
 	<properties>
-		<gwt.version>1.6.4</gwt.version>
+		<gwt.version>1.7.1</gwt.version>
 	</properties>
 	<dependencies>
 		<dependency>
