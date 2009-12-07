@@ -196,4 +196,16 @@ public class ApplicationServiceImpl extends RemoteServiceServlet implements
 		Updater.main(null);
 	}
 
+	@Override
+	public String[] getSelectedChannelIds() {
+		return new String[] { "ABC2", "ABC-Can", "Prime-Can", "SBS-Can",
+				"One-NSW" };
+	}
+
+	@Override
+	public void setSelectedChannelIds(String[] channelIds) {
+		// TODO Auto-generated method stub
+
+	}
+
 }

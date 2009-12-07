@@ -56,6 +56,7 @@ public class ProgrammePanel extends VerticalPanel {
 		channels.add("One-NSW");
 		channels.add("ABC-Can");
 		channels.add("ABC2");
+		channels.add("ABC3");
 		channels.add("Prime-Can");
 		channels.add("Ten-Can");
 		channels.add("WIN-Can");
@@ -68,7 +69,7 @@ public class ProgrammePanel extends VerticalPanel {
 
 			@Override
 			public void onFailure(Throwable t) {
-				add(new HTML(t.getMessage()));
+				add(new HTML(t.toString()));
 				Application.getInstance().getController().event(
 						new ProgrammeLoaded());
 			}

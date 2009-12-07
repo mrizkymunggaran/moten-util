@@ -110,6 +110,7 @@ public class Updater {
 	public static void main(String[] args) {
 		Set<String> channels = new HashSet<String>();
 		channels.add("ABC2");
+		channels.add("ABC3");
 		channels.add("ABC-Can");
 		channels.add("Prime-Can");
 		channels.add("SBS-Can");

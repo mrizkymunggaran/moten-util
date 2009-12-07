@@ -21,5 +21,9 @@ public interface ApplicationService extends RemoteService {
 
 	MyChannel[] getChannels();
 
+	String[] getSelectedChannelIds();
+
+	void setSelectedChannelIds(String[] channelIds);
+
 	void update();
 }

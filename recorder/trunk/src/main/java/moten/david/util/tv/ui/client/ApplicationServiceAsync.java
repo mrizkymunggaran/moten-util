@@ -18,5 +18,9 @@ public interface ApplicationServiceAsync {
 
 	void getChannels(AsyncCallback<MyChannel[]> callback);
 
+	void getSelectedChannelIds(AsyncCallback<String[]> callback);
+
+	void setSelectedChannelIds(String[] channelIds, AsyncCallback<Void> callback);
+
 	void update(AsyncCallback<Void> callback);
 }

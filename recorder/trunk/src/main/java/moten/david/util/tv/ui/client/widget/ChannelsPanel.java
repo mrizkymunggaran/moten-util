@@ -6,10 +6,14 @@ import moten.david.util.tv.ui.client.MyChannel;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 
-public class ChannelsPanel extends VerticalPanel {
+public class ChannelsPanel extends HorizontalPanel {
 
 	/**
 	 * Create a remote service proxy to talk to the server-side service.
@@ -17,8 +21,29 @@ public class ChannelsPanel extends VerticalPanel {
 	private final ApplicationServiceAsync applicationService = GWT
 			.create(ApplicationService.class);
 
+	private final ListBox channelsList = new ListBox();
+
 	public ChannelsPanel() {
+		channelsList.setVisibleItemCount(20);
+		add(channelsList);
+		add(createButtons());
 		applicationService.getChannels(createGetChannelsCallback());
+
+	}
+
+	private Widget createButtons() {
+		VerticalPanel panel = new VerticalPanel();
+		panel.setHorizontalAlignment(ALIGN_CENTER);
+		panel.setVerticalAlignment(ALIGN_MIDDLE);
+		Button up = new Button("Up");
+		Button down = new Button("Down");
+		Button remove = new Button("Remove");
+		Button add = new Button("Add..");
+		panel.add(add);
+		panel.add(remove);
+		panel.add(up);
+		panel.add(down);
+		return panel;
 	}
 
 	private AsyncCallback<MyChannel[]> createGetChannelsCallback() {
@@ -27,18 +52,19 @@ public class ChannelsPanel extends VerticalPanel {
 
 			@Override
 			public void onFailure(Throwable throwable) {
-
+				add(new Label(throwable.getMessage()));
 			}
 
 			@Override
 			public void onSuccess(MyChannel[] channels) {
-				clear();
-				ListBox list = new ListBox();
-				list.setVisibleItemCount(20);
+				reset(channels);
+			}
+
+			private void reset(MyChannel[] channels) {
+				channelsList.clear();
 				for (MyChannel channel : channels) {
-					list.addItem(channel.getName());
+					channelsList.addItem(channel.getName());
 				}
-				add(list);
 			}
 		};
 	}
