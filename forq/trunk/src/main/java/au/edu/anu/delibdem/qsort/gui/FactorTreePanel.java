@@ -95,6 +95,7 @@ public class FactorTreePanel extends JPanel {
 		DefaultMutableTreeNode top = new DefaultMutableTreeNode(
 				new ObjectDecorator(results, results.extractionMethod
 						.toString()));
+		
 		try {
 			top.add(createFieldNode("Raw Data", results, "initial"));
 			top.add(createFieldNode("Correlations", results, "correlations"));
