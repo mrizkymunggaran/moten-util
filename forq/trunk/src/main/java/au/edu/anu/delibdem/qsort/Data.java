@@ -143,6 +143,8 @@ public class Data implements Serializable {
 		this.qSorts = new ArrayList<QSort>();
 		String[] columns = null;
 		int lineNumber = 0;
+		//input file is organized as 
+		//data then statements
 		boolean readingData = true;
 		boolean readingStatements = false;
 		Set<String> unrecognizedColumns = new HashSet<String>();
@@ -163,11 +165,21 @@ public class Data implements Serializable {
 			if (line.trim().equals("#Data")) {
 				// read header
 				line = br.readLine();
+				//participantId, participantVariables, Q1, .., Qn,[P1,..,Pm]
+				//participantId is a string value
+				//participantVariables are strings without tabs, delimited by colon ':'. 
+				//Sample input
+				//----------------------
+				//StatementCount\t3
+				//PreferenceStatementCount\t2
+				//ParticipantId\tParticipantVariables\tQ1\tQ2\tQ3\tP1\tP2
+				//Dave Moten\tRegion_Canberra:Type_Lay_Participant\t5\t4\t1\t3\t-3
 				columns = line.split(TAB);
 				System.out.println(line);
 				line = br.readLine();
 				System.out.println(line);
 			}
+			
 			String[] items = line.split(TAB);
 
 			if (readingData) {
