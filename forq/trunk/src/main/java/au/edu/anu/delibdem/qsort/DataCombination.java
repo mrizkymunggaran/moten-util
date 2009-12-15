@@ -4,13 +4,11 @@ public class DataCombination {
 
 	private String participantType;
 	private String stage;
-	private boolean forced;
 
-	public DataCombination(String participantType, String stage, boolean forced) {
+	public DataCombination(String participantType, String stage) {
 		super();
 		this.participantType = participantType;
 		this.stage = stage;
-		this.forced = forced;
 	}
 
 	public String getParticipantType() {
@@ -29,20 +27,11 @@ public class DataCombination {
 		this.stage = stage;
 	}
 
-	public boolean getForced() {
-		return forced;
-	}
-
-	public void setForced(boolean forced) {
-		this.forced = forced;
-	}
-
+	@Override
 	public String toString() {
 		return ("all".equalsIgnoreCase(participantType) ? "All Participants"
 				: participantType)
-				+ " "
-				+ ("all".equalsIgnoreCase(stage) ? "All Stages" : stage)
-				+ " " + (forced ? "Forced" : "Unforced");
+				+ " " + ("all".equalsIgnoreCase(stage) ? "All Stages" : stage);
 	}
 
 }

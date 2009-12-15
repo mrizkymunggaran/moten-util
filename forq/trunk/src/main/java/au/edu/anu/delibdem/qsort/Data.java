@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
 
@@ -36,48 +37,25 @@ import org.apache.commons.math.stat.regression.SimpleRegression;
 
 public class Data implements Serializable {
 
+	private static Logger log = Logger.getLogger(Data.class.getName());
+
 	public static final String participantPrefix = "P";
 	private static final long serialVersionUID = -8216642174736641063L;
 	private static final String TAB = "\t";
-	public static final String[] COLUMN_PREFIX_RANKING_RESULTS_FORCED = new String[] {
-			"Ranking results::F", "RF" };
-	public static final String[] COLUMN_PREFIX_RANKING_RESULTS_UNFORCED = new String[] {
-			"Ranking results::U", "RU" };
-	public static final String[] COLUMN_PREFIX_Q_RESULTS_FORCED = new String[] {
-			"Q results agreement::F", "QF" };
-	public static final String[] COLUMN_PREFIX_Q_RESULTS_UNFORCED = new String[] {
-			"Q results agreement::U", "QU" };
-	public static final String[] COLUMN_PREFIX_METACONSENSUS_UNFORCED = new String[] {
-			"Metaconsensus::U", "MU" };
-	public static final String[] COLUMN_PARTICIPANT_NO = new String[] { "Participant No" };
-	public static final String[] COLUMN_PARTICIPANT_TYPE = new String[] {
-			"Participant Info::Participant Type",
-			"Pariticipant Info::Participant Type", "Participant Type" };
-	public static final String[] COLUMN_STAGE = new String[] { "Stage" };
 
 	private final Map<Integer, String> statements = new HashMap<Integer, String>();
 
-	public static String[] getSignificantColumnNames() {
-		// return new String[] { COLUMN_PARTICIPANT_NO, COLUMN_PARTICIPANT_TYPE,
-		// COLUMN_PARTICIPANT_TYPE_ALTERNATE,
-		// COLUMN_PREFIX_Q_RESULTS_FORCED,
-		// COLUMN_PREFIX_Q_RESULTS_UNFORCED,
-		// COLUMN_PREFIX_RANKING_RESULTS_FORCED,
-		// COLUMN_PREFIX_RANKING_RESULTS_UNFORCED };
-		return new String[] { "not implemented" };
-	}
-
-	public static final String CONFIDENCE_BANDS_95 = "Confidence_Bands_95";
 	public static final String PREDICTION_INTERVAL_95 = "Prediction_Interval_95";
 
-	private final Set<Integer> excludeParticipants = new TreeSet<Integer>();
+	private final Map<String, Participant> participants = new HashMap<String, Participant>();
+	private final Set<String> excludeParticipants = new TreeSet<String>();
 
-	public List<Integer> getParticipants() {
-		TreeSet<Integer> set = new TreeSet<Integer>();
+	public List<String> getParticipants() {
+		TreeSet<String> set = new TreeSet<String>();
 		for (QSort q : qSorts) {
-			set.add(q.getParticipantId());
+			set.add(q.getParticipant().getId());
 		}
-		return new ArrayList<Integer>(set);
+		return new ArrayList<String>(set);
 	}
 
 	private List<QSort> qSorts;
@@ -114,121 +92,151 @@ public class Data implements Serializable {
 	public Set<String> getParticipantTypes() {
 		Set<String> set = new TreeSet<String>();
 		for (QSort q : qSorts) {
-			set.add(q.getParticipantType());
+			set.addAll(participants.get(q.getParticipant().getId()).getTypes());
 		}
 		return set;
 	}
 
-	private boolean startsWith(String[] options, String s) {
-		for (String option : options) {
-			if (s.startsWith(option))
-				return true;
-		}
-		return false;
-	}
-
-	private boolean equalsIgnoreCase(String[] options, String s) {
-		for (String option : options) {
-			if (s.equalsIgnoreCase(option))
-				return true;
-		}
-		return false;
+	private static enum Marker {
+		STARTED, TITLE_READ, NUM_PARTICIPANTS_READ, NUM_VARIABLES_READ, PARTICIPANT_DATA_READ, NUM_Q_STATEMENTS_READ, NUM_P_STATEMENTS_READ, DATA_READ, STATEMENTS_READ, STATEMENTS_DATA_READ;
 	}
 
 	public void load(InputStream is) throws IOException {
-		System.out.println("loading data..");
+		log.info("loading data..");
 		InputStreamReader isr = new InputStreamReader(is);
-		BufferedReader br = new BufferedReader(isr);
+		LineCountingReader br = new LineCountingReader(new BufferedReader(isr));
+
 		String line;
 		this.qSorts = new ArrayList<QSort>();
-		String[] columns = null;
-		int lineNumber = 0;
-		//input file is organized as 
-		//data then statements
-		boolean readingData = true;
-		boolean readingStatements = false;
-		Set<String> unrecognizedColumns = new HashSet<String>();
-		while ((line = br.readLine()) != null) {
-			System.out.println(line);
-			lineNumber++;
-			if (line.trim().equals("#Statements")) {
-				readingStatements = true;
-				readingData = false;
-				line = br.readLine();
-				if (line == null)
-					break;
-			}
-			if (line.startsWith("#Title ")) {
-				title = line.substring("#Title ".length());
-				line = br.readLine();
-			}
-			if (line.trim().equals("#Data")) {
-				// read header
-				line = br.readLine();
-				//participantId, participantVariables, Q1, .., Qn,[P1,..,Pm]
-				//participantId is a string value
-				//participantVariables are strings without tabs, delimited by colon ':'. 
-				//Sample input
-				//----------------------
-				//StatementCount\t3
-				//PreferenceStatementCount\t2
-				//ParticipantId\tParticipantVariables\tQ1\tQ2\tQ3\tP1\tP2
-				//Dave Moten\tRegion_Canberra:Type_Lay_Participant\t5\t4\t1\t3\t-3
-				columns = line.split(TAB);
-				System.out.println(line);
-				line = br.readLine();
-				System.out.println(line);
-			}
-			
-			String[] items = line.split(TAB);
 
-			if (readingData) {
+		Marker marker = Marker.STARTED;
+		int numParticipants = 0;
+		int numParticipantsRead = 0;
+		int numQStatements = 0;
+		int numPStatements = 0;
+		int numVariables = 0;
+		while ((line = nextLine(br)) != null) {
+			log.info(line);
+
+			if (marker.equals(Marker.STARTED) && line.startsWith(":Title")) {
+				title = getValue(line, 1);
+				marker = Marker.TITLE_READ;
+			} else if (marker.equals(Marker.TITLE_READ)
+					&& line.startsWith(":Participants")) {
+				numParticipants = Integer.parseInt(getValue(line, 1));
+				marker = Marker.NUM_PARTICIPANTS_READ;
+			} else if (marker.equals(Marker.NUM_PARTICIPANTS_READ)
+					&& line.startsWith(":Variables")) {
+				numVariables = Integer.parseInt(getValue(line, 1));
+				marker = Marker.NUM_VARIABLES_READ;
+			} else if (marker.equals(Marker.NUM_VARIABLES_READ)
+					&& !line.startsWith(":")) {
+				// is participant data
+				numParticipantsRead++;
+				String[] items = line.split(TAB);
+				Participant participant = new Participant(items[0]);
+				participants.put(participant.getId(), participant);
+				for (int i = 0; i < numVariables; i++) {
+					String value = items[i + 1];
+					participant.getTypes().add(value);
+				}
+			} else if (marker.equals(Marker.NUM_VARIABLES_READ)
+					&& line.startsWith(":Q Statements")) {
+				if (numParticipantsRead != numParticipants)
+					throw new RuntimeException(
+							"Number of participants doesn't match the declared value on the :Participants line (declared="
+									+ numParticipants
+									+ ",actual="
+									+ numParticipantsRead);
+				numQStatements = Integer.parseInt(getValue(line, 1));
+				marker = Marker.NUM_Q_STATEMENTS_READ;
+			} else if (marker.equals(Marker.NUM_Q_STATEMENTS_READ)
+					&& line.startsWith(":P Statements")) {
+				numPStatements = Integer.parseInt(getValue(line, 1));
+				marker = Marker.NUM_P_STATEMENTS_READ;
+			} else if (marker.equals(Marker.NUM_P_STATEMENTS_READ)
+					&& !line.startsWith(":")) {
+				// is qsort data
+				String[] items = line.split(TAB);
 				QSort q = new QSort();
-				for (int i = 0; i < items.length; i++) {
-					String col = columns[i].trim();
-					if (equalsIgnoreCase(COLUMN_PARTICIPANT_NO, col)) {
-						q.setParticipantId(getInt(items[i]));
-					} else if (equalsIgnoreCase(COLUMN_PARTICIPANT_TYPE, col)) {
-						q.setParticipantType(items[i]);
-					} else if (equalsIgnoreCase(COLUMN_STAGE, col)) {
-						q.setStage(items[i]);
-					} else if (startsWith(COLUMN_PREFIX_Q_RESULTS_UNFORCED, col)) {
-						q.getQResults(false).add(getDouble(items[i]));
-					} else if (startsWith(COLUMN_PREFIX_Q_RESULTS_FORCED, col)) {
-						q.getQResults(true).add(getDouble(items[i]));
-					} else if (startsWith(
-							COLUMN_PREFIX_RANKING_RESULTS_UNFORCED, col)) {
-						q.getRankings(false).add(getDouble(items[i]));
-					} else if (startsWith(COLUMN_PREFIX_RANKING_RESULTS_FORCED,
-							col)) {
-						q.getRankings(true).add(getDouble(items[i]));
-					} else if (startsWith(COLUMN_PREFIX_METACONSENSUS_UNFORCED,
-							col)) {
-						q.getMetaconsensus().add(getDouble(items[i]));
-					} else {
-						unrecognizedColumns.add(col);
-					}
-				}
-				if (q.getParticipantType() == null) {
-					System.out.println("unrecognizedColumns="
-							+ unrecognizedColumns);
-					throw new Error("participant type not found");
-				}
-				String[] participantTypes = q.getParticipantType().split(";");
-				for (String participantType : participantTypes) {
-					QSort q2 = q.copy();
-					q2.setParticipantType(participantType.trim());
-					qSorts.add(q2);
-				}
-			} else if (readingStatements) {
+				Participant participant = participants.get(items[0]);
+				if (participant == null)
+					throw new RuntimeException(
+							"Participant not found from line "
+									+ br.linesRead
+									+ ". Have you declared it in the participants section?");
+				q.setParticipant(participant);
+				q.setStage(items[1]);
+				for (int j = 2; j < 2 + numQStatements; j++)
+					q.getQResults().add(getDouble(items[j]));
+				for (int j = 2 + numQStatements; j < 2 + numQStatements
+						+ numPStatements; j++)
+					q.getRankings().add(getDouble(items[j]));
+				qSorts.add(q);
+			} else if (marker.equals(Marker.NUM_P_STATEMENTS_READ)
+					&& line.startsWith(":Statements")) {
+				marker = marker.STATEMENTS_READ;
+			} else if (marker.equals(Marker.STATEMENTS_READ)
+					&& !line.startsWith(":")) {
+				// is statement data
+				String[] items = line.split(TAB);
 				statements.put(Integer.parseInt(items[0]), items[1]);
 			}
 		}
 		br.close();
 		isr.close();
 		is.close();
-		System.out.println("unrecognizedColumns=" + unrecognizedColumns);
-		System.out.println("loaded");
+		log.info("loaded");
+	}
+
+	/**
+	 * Returns the ith value (O based) from the line based on a tab delimiter
+	 * 
+	 * @param line
+	 * @param i
+	 * @return
+	 */
+	private String getValue(String line, int i) {
+		String[] items = line.split(TAB);
+		if (i >= items.length)
+			throw new RuntimeException("Could not read the " + (i + 1)
+					+ "th value from the line=" + line
+					+ ". Perhaps there is a value missing on this line?");
+		return items[i];
+	}
+
+	private static class LineCountingReader {
+		private final BufferedReader br;
+
+		public int getLinesRead() {
+			return linesRead;
+		}
+
+		private int linesRead = 0;
+
+		public LineCountingReader(BufferedReader br) {
+			this.br = br;
+		}
+
+		public String readLine() throws IOException {
+			String line = br.readLine();
+			if (line != null)
+				linesRead++;
+			return line;
+		}
+
+		public void close() throws IOException {
+			br.close();
+		}
+
+	}
+
+	private String nextLine(LineCountingReader br) throws IOException {
+		String line = br.readLine();
+		while (line != null
+				&& (line.startsWith("#") || line.trim().length() == 0))
+			line = br.readLine();
+		return line;
 	}
 
 	private Double getDouble(String s) {
@@ -270,37 +278,37 @@ public class Data implements Serializable {
 	public List<QSort> getQSorts() {
 		List<QSort> list = new ArrayList<QSort>(qSorts);
 		for (int i = list.size() - 1; i >= 0; i--)
-			if (excludeParticipants.contains(list.get(i).getParticipantId())) {
+			if (excludeParticipants.contains(list.get(i).getParticipant()
+					.getId())) {
 				list.remove(i);
 			}
 		return list;
 	}
 
-	public void graph(boolean forced, String participantType, String stage,
-			String bands, OutputStream imageOutputStream, boolean labelPoints,
-			int size, Set<Integer> exclusions, Set<Integer> filter)
-			throws IOException {
-		List<QSort> subList = restrictList(forced, participantType, stage,
-				exclusions);
+	public void graph(String participantType, String stage, String bands,
+			OutputStream imageOutputStream, boolean labelPoints, int size,
+			Set<Integer> exclusions, Set<Integer> filter) throws IOException {
+		List<QSort> subList = restrictList(participantType, stage, exclusions);
 		if (stage.equals("all"))
-			graphConnected(subList, forced, imageOutputStream, labelPoints,
-					size, filter);
+			graphConnected(subList, imageOutputStream, labelPoints, size,
+					filter);
 		else
-			graph(subList, forced, imageOutputStream, labelPoints, size,
-					filter, bands);
+			graph(subList, imageOutputStream, labelPoints, size, filter, bands);
 	}
 
-	public DataComponents getDataComponents(boolean forced,
-			String participantType, String stage, Set<Integer> exclusions,
-			Set<Integer> filter) {
-		List<QSort> subList = restrictList(forced, participantType, stage,
-				exclusions);
-		return buildMatrix(subList, forced, filter);
+	public DataComponents getDataComponents(String participantType,
+			String stage, Set<Integer> exclusions, Set<Integer> filter) {
+		List<QSort> subList = restrictList(participantType, stage, exclusions);
+		return buildMatrix(subList, filter);
 
 	}
 
-	public List<QSort> restrictList(boolean forced, String participantType,
-			String stage, Set<Integer> exclusions) {
+	private Set<String> getParticipantTypes(String participantId) {
+		return participants.get(participantId).getTypes();
+	}
+
+	public List<QSort> restrictList(String participantType, String stage,
+			Set<Integer> exclusions) {
 		// read data
 		List<QSort> list = getQSorts();
 
@@ -308,15 +316,16 @@ public class Data implements Serializable {
 		for (QSort q : list) {
 			if ((stage.equalsIgnoreCase("all") || q.getStage().trim()
 					.equalsIgnoreCase(stage))
-					&& (participantType.equalsIgnoreCase("all") || q
-							.getParticipantType().trim()
-							.equals(participantType))
+					&& (participantType.equalsIgnoreCase("all") || getParticipantTypes(
+							q.getParticipant().getId()).contains(
+							participantType))
 					&& (exclusions == null || !exclusions.contains(q
-							.getParticipantId()))) {
+							.getParticipant().getId()))) {
 
 				boolean alreadyGotIt = false;
 				for (QSort q2 : subList) {
-					if (q2.getParticipantId().equals(q.getParticipantId())
+					if (q2.getParticipant().getId().equals(
+							q.getParticipant().getId())
 							&& q2.getStage().equals(q.getStage())) {
 						alreadyGotIt = true;
 						break;
@@ -334,10 +343,11 @@ public class Data implements Serializable {
 		public Matrix qSorts;
 		public Matrix rankings;
 		public Matrix correlations;
+		public List<String> participants1;
+		public List<String> participants2;
 	}
 
-	public DataComponents buildMatrix(List<QSort> list, boolean forced,
-			Set<Integer> filter) {
+	public DataComponents buildMatrix(List<QSort> list, Set<Integer> filter) {
 		if (list == null)
 			return null;
 		list = new ArrayList<QSort>(list);
@@ -346,18 +356,18 @@ public class Data implements Serializable {
 		// a ranking value
 		Set<QSort> removeThese = new HashSet<QSort>();
 		for (QSort q : list) {
-			if (q.getQResults(forced).size() == 0) {
+			if (q.getQResults().size() == 0) {
 				removeThese.add(q);
 			} else {
-				for (Double v : q.getQResults(forced)) {
+				for (Double v : q.getQResults()) {
 					if (v == null)
 						removeThese.add(q);
 				}
 			}
-			if (q.getRankings(forced).size() == 0)
+			if (q.getRankings().size() == 0)
 				removeThese.add(q);
 			else {
-				for (Double v : q.getRankings(forced)) {
+				for (Double v : q.getRankings()) {
 					if (v == null)
 						removeThese.add(q);
 				}
@@ -370,25 +380,25 @@ public class Data implements Serializable {
 			return null;
 		}
 		// make the matrix of the qResults
-		Matrix qSorts = new Matrix(list.size(), list.get(0).getQResults(forced)
+		Matrix qSorts = new Matrix(list.size(), list.get(0).getQResults()
 				.size());
 		for (int i = 0; i < list.size(); i++) {
 			QSort q = list.get(i);
-			qSorts.setRowLabel(i + 1, q.getParticipantId() + "");
-			for (int j = 0; j < q.getQResults(forced).size(); j++) {
-				qSorts.setValue(i + 1, j + 1, q.getQResults(forced).get(j));
+			qSorts.setRowLabel(i + 1, q.getParticipant().getId() + "");
+			for (int j = 0; j < q.getQResults().size(); j++) {
+				qSorts.setValue(i + 1, j + 1, q.getQResults().get(j));
 				qSorts.setColumnLabel(j + 1, "Q" + (j + 1));
 			}
 		}
 
 		// make the matrix of rankings
-		Matrix rankings = new Matrix(list.size(), list.get(0).getRankings(
-				forced).size());
+		Matrix rankings = new Matrix(list.size(), list.get(0).getRankings()
+				.size());
 		for (int i = 0; i < list.size(); i++) {
 			QSort q = list.get(i);
-			rankings.setRowLabel(i + 1, q.getParticipantId() + "");
-			for (int j = 0; j < q.getRankings(forced).size(); j++) {
-				rankings.setValue(i + 1, j + 1, q.getRankings(forced).get(j));
+			rankings.setRowLabel(i + 1, q.getParticipant().getId() + "");
+			for (int j = 0; j < q.getRankings().size(); j++) {
+				rankings.setValue(i + 1, j + 1, q.getRankings().get(j));
 				rankings.setColumnLabel(j + 1, "R" + (j + 1));
 			}
 		}
@@ -400,7 +410,9 @@ public class Data implements Serializable {
 				.getPearsonCorrelationMatrix();
 
 		// compare rankings and qSorts
-		Matrix m = new Matrix(1, 4);
+		List<String> participants1 = new ArrayList<String>();
+		List<String> participants2 = new ArrayList<String>();
+		Matrix m = new Matrix(1, 2);
 		for (int i = 1; i <= qSortsCorrelated.rowCount(); i++) {
 			for (int j = i + 1; j <= qSortsCorrelated.columnCount(); j++) {
 				boolean includeIt = filter == null
@@ -412,29 +424,27 @@ public class Data implements Serializable {
 				if (includeIt) {
 					if (i != 1 || j != 2)
 						m = m.addRow();
-					m.setValue(m.rowCount(), 1, Integer
-							.parseInt(qSortsCorrelated.getRowLabel(i)));
-					m.setValue(m.rowCount(), 2, Integer
-							.parseInt(qSortsCorrelated.getRowLabel(j)));
+					participants1.add(qSortsCorrelated.getRowLabel(i));
+					participants2.add(qSortsCorrelated.getRowLabel(j));
 					m
-							.setValue(m.rowCount(), 3, qSortsCorrelated
+							.setValue(m.rowCount(), 1, qSortsCorrelated
 									.getValue(i, j));
-					m.setValue(m.rowCount(), 4, rankingsCorrelated.getValue(i,
+					m.setValue(m.rowCount(), 2, rankingsCorrelated.getValue(i,
 							j));
 					m.setRowLabel(m.rowCount(), qSortsCorrelated.getRowLabel(i)
 							+ ":" + qSortsCorrelated.getRowLabel(j));
 				}
 			}
 		}
-		m.setColumnLabel(1, "participant1");
-		m.setColumnLabel(2, "participant2");
-		m.setColumnLabel(3, "qSort");
-		m.setColumnLabel(4, "ranking");
+		m.setColumnLabel(1, "qSort");
+		m.setColumnLabel(2, "ranking");
 
 		DataComponents dataComponents = new DataComponents();
 		dataComponents.list = list;
 		dataComponents.qSorts = qSorts;
 		dataComponents.rankings = rankings;
+		dataComponents.participants1 = participants1;
+		dataComponents.participants2 = participants2;
 		dataComponents.correlations = m;
 		return dataComponents;
 	}
@@ -444,24 +454,23 @@ public class Data implements Serializable {
 		os.flush();
 	}
 
-	public GraphPanel getGraphConnected(List<QSort>[] list, boolean forced,
+	public GraphPanel getGraphConnected(List<QSort>[] list,
 			boolean labelPoints, int size, Set<Integer> filter) {
 		List<Vector> vectors1 = new ArrayList<Vector>();
 		List<Vector> vectors2 = new ArrayList<Vector>();
 		for (int vi = 0; vi < list.length; vi++) {
-			DataComponents d = buildMatrix(list[vi], forced, filter);
+			DataComponents d = buildMatrix(list[vi], filter);
 			if (d == null)
 				return null;
 			Matrix m = d.correlations;
 			if (m == null)
 				return null;
 
-			Vector v1 = m.getColumnVector(3);
-			Vector v2 = m.getColumnVector(4);
+			Vector v1 = m.getColumnVector(1);
+			Vector v2 = m.getColumnVector(2);
 			for (int i = 1; i <= v1.rowCount(); i++) {
-				DecimalFormat df3 = new DecimalFormat("0");
-				v1.setRowLabel(i, df3.format(m.getValue(i, 2)));
-				v2.setRowLabel(i, df3.format(m.getValue(i, 1)));
+				v1.setRowLabel(i, d.participants2.get(i - 1));
+				v2.setRowLabel(i, d.participants1.get(i - 1));
 			}
 			vectors1.add(v1);
 			vectors2.add(v2);
@@ -478,10 +487,10 @@ public class Data implements Serializable {
 		return gp;
 	}
 
-	public GraphPanel getGraph(List<QSort> list, boolean forced,
-			boolean labelPoints, int size, Set<Integer> filter,
-			final String bands, boolean includeRegressionLines) {
-		DataComponents d = buildMatrix(list, forced, filter);
+	public GraphPanel getGraph(List<QSort> list, boolean labelPoints, int size,
+			Set<Integer> filter, final String bands,
+			boolean includeRegressionLines) {
+		DataComponents d = buildMatrix(list, filter);
 		if (d == null)
 			return null;
 		Matrix m = d.correlations;
@@ -490,12 +499,11 @@ public class Data implements Serializable {
 		// if (textOutputStream != null)
 		// textOutputStream.write(m.getDelimited(TAB, true).getBytes());
 
-		final Vector v1 = m.getColumnVector(3);
-		final Vector v2 = m.getColumnVector(4);
+		final Vector v1 = m.getColumnVector(1);
+		final Vector v2 = m.getColumnVector(2);
 		for (int i = 1; i <= v1.rowCount(); i++) {
-			DecimalFormat df3 = new DecimalFormat("0");
-			v1.setRowLabel(i, df3.format(m.getValue(i, 2)));
-			v2.setRowLabel(i, df3.format(m.getValue(i, 1)));
+			v1.setRowLabel(i, d.participants2.get(i - 1));
+			v2.setRowLabel(i, d.participants1.get(i - 1));
 		}
 
 		GraphPanel gp = new GraphPanel(v1, v2);
@@ -544,25 +552,24 @@ public class Data implements Serializable {
 		return gp;
 	}
 
-	public Set<Integer> getParticipantIds(boolean forced, String participantType) {
-		Set<Integer> result = new HashSet<Integer>();
-		for (QSort q : restrictList(forced, participantType, "all", null)) {
-			result.add(q.getParticipantId());
+	public Set<String> getParticipantIds(String participantType) {
+		Set<String> result = new HashSet<String>();
+		for (QSort q : restrictList(participantType, "all", null)) {
+			result.add(q.getParticipant().getId());
 		}
 		return result;
 	}
 
-	private void graph(List<QSort> list, boolean forced,
-			OutputStream imageOutputStream, boolean labelPoints, int size,
-			Set<Integer> filter, String bands) throws IOException {
+	private void graph(List<QSort> list, OutputStream imageOutputStream,
+			boolean labelPoints, int size, Set<Integer> filter, String bands)
+			throws IOException {
 
-		GraphPanel gp = getGraph(list, forced, labelPoints, size, filter,
-				bands, true);
+		GraphPanel gp = getGraph(list, labelPoints, size, filter, bands, true);
 		if (gp != null)
 			writeImage(gp, size, imageOutputStream);
 	}
 
-	private void graphConnected(List<QSort> list, boolean forced,
+	private void graphConnected(List<QSort> list,
 			OutputStream imageOutputStream, boolean labelPoints, int size,
 			Set<Integer> filter) throws IOException {
 		// split the list into separate lists by stage
@@ -574,7 +581,7 @@ public class Data implements Serializable {
 		}
 
 		GraphPanel gp = getGraphConnected(map.values()
-				.toArray(new ArrayList[1]), forced, labelPoints, size, filter);
+				.toArray(new ArrayList[1]), labelPoints, size, filter);
 
 		if (gp != null) {
 			gp.setDisplayMeans(true);
@@ -601,47 +608,44 @@ public class Data implements Serializable {
 	public void writeMatrix(boolean forced, String participantType,
 			String stage, Set<Integer> exclusions, Set<Integer> filter,
 			OutputStream os) throws IOException {
-		List<QSort> list = restrictList(forced, participantType, stage,
-				exclusions);
-		Matrix matrix = buildMatrix(list, forced, filter).correlations;
+		List<QSort> list = restrictList(participantType, stage, exclusions);
+		Matrix matrix = buildMatrix(list, filter).correlations;
 		if (matrix != null)
 			writeMatrix(matrix, os);
 	}
 
 	public Matrix getRawData(DataCombination dataCombination,
 			Set<Integer> exclusions, Set<Integer> filter, int dataSet) {
-		return getRawData(dataCombination.getForced(), dataCombination
-				.getParticipantType(), dataCombination.getStage(), exclusions,
-				filter, dataSet);
+		return getRawData(dataCombination.getParticipantType(), dataCombination
+				.getStage(), exclusions, filter, dataSet);
 	}
 
-	public Matrix getRawData(boolean forced, String participantType,
-			String stage, Set<Integer> exclusions, Set<Integer> filter,
-			int dataSet) {
-		List<QSort> subList = restrictList(forced, participantType, stage,
-				exclusions);
+	public Matrix getRawData(String participantType, String stage,
+			Set<Integer> exclusions, Set<Integer> filter, int dataSet) {
+		List<QSort> subList = restrictList(participantType, stage, exclusions);
 
 		if (subList.size() == 0) {
 			return null;
 		}
 
-		int numRows = subList.get(0).getQResults(forced).size();
+		int numRows = subList.get(0).getQResults().size();
 		if (dataSet == 2)
-			numRows = subList.get(0).getRankings(forced).size();
+			numRows = subList.get(0).getRankings().size();
 		if (numRows == 0)
 			return null;
 		Matrix m = new Matrix(numRows, subList.size());
 		int col = 1;
 		for (QSort q : subList) {
 			int row = 1;
-			List<Double> items = q.getQResults(forced);
+			List<Double> items = q.getQResults();
 			if (dataSet == 2)
-				items = q.getRankings(forced);
+				items = q.getRankings();
 			for (double value : items) {
 				m.setValue(row, col, value);
 				row++;
 			}
-			m.setColumnLabel(col, participantPrefix + q.getParticipantId());
+			m.setColumnLabel(col, participantPrefix
+					+ q.getParticipant().getId());
 			col++;
 		}
 		if (dataSet == 1)
@@ -667,8 +671,8 @@ public class Data implements Serializable {
 			return;
 		}
 
-		Matrix m = getRawData(forced, participantType, stage, exclusions,
-				filter, dataSet);
+		Matrix m = getRawData(participantType, stage, exclusions, filter,
+				dataSet);
 		if (m == null) {
 			f.header("Error", true);
 			f.blockStart();
@@ -699,7 +703,7 @@ public class Data implements Serializable {
 		}
 	}
 
-	public Set<Integer> getExcludeParticipants() {
+	public Set<String> getExcludeParticipants() {
 		return excludeParticipants;
 	}
 

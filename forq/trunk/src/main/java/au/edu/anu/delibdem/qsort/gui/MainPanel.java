@@ -41,8 +41,9 @@ public class MainPanel extends JPanel {
 
 								// Create a file chooser
 								final JFileChooser fc = new JFileChooser();
-								String directoryName = prefs.get(
-										PREF_OPEN_STUDY_CURRENT_DIRECTORY, null);
+								String directoryName = prefs
+										.get(PREF_OPEN_STUDY_CURRENT_DIRECTORY,
+												null);
 								if (directoryName != null)
 									fc.setCurrentDirectory(new File(
 											directoryName));
@@ -56,9 +57,10 @@ public class MainPanel extends JPanel {
 														new FileInputStream(
 																file))));
 									}
-									prefs.put(PREF_OPEN_STUDY_CURRENT_DIRECTORY, fc
-											.getCurrentDirectory()
-											.getAbsolutePath());
+									prefs.put(
+											PREF_OPEN_STUDY_CURRENT_DIRECTORY,
+											fc.getCurrentDirectory()
+													.getAbsolutePath());
 								}
 							} catch (Exception e) {
 								throw new Error(e);
@@ -84,16 +86,16 @@ public class MainPanel extends JPanel {
 
 	private void addSampleTabs(JTabbedPane tabs) throws IOException {
 
+		// addTab(tabs, new Data(getClass().getResourceAsStream(
+		// "/studies/New Mexico.txt")));
+		// addTab(tabs, new Data(getClass().getResourceAsStream(
+		// "/studies/UBC Biobank.txt")));
+		// addTab(tabs, new Data(getClass().getResourceAsStream(
+		// "/studies/Fremantle.txt")));
+		// addTab(tabs, new Data(getClass().getResourceAsStream(
+		// "/studies/Lipset.txt")));
 		addTab(tabs, new Data(getClass().getResourceAsStream(
-				"/studies/New Mexico.txt")));
-		addTab(tabs, new Data(getClass().getResourceAsStream(
-				"/studies/UBC Biobank.txt")));
-		addTab(tabs, new Data(getClass().getResourceAsStream(
-				"/studies/Fremantle.txt")));
-		addTab(tabs, new Data(getClass().getResourceAsStream(
-				"/studies/Lipset.txt")));
-		addTab(tabs, new Data(getClass().getResourceAsStream(
-				"/studies/Bloomfield Track.txt")));
+				"/studies/Bloomfield Track v2.txt")));
 	}
 
 	private void addTab(JTabbedPane tabs, Data data) {

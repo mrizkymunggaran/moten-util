@@ -27,8 +27,8 @@ public class ParticipantsPanel extends JPanel {
 		add(selectAll);
 		add(selectNone);
 		JCheckBoxList list = new JCheckBoxList();
-		final Integer[] participants = data.getParticipants().toArray(
-				new Integer[0]);
+		final String[] participants = data.getParticipants().toArray(
+				new String[0]);
 		final Object[] checkBoxes = new Object[participants.length];
 		for (int i = 0; i < participants.length; i++) {
 			final JCheckBox checkBox = new JCheckBox("" + participants[i]);

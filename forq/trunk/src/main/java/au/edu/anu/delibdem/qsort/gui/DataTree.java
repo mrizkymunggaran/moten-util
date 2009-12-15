@@ -62,10 +62,9 @@ public class DataTree extends JTree {
 					@Override
 					public Matrix getMatrix() {
 						List<QSort> list = data.restrictList(combination
-								.getForced(), combination.getParticipantType(),
-								combination.getStage(), null);
-						DataComponents d = data.buildMatrix(list, combination
-								.getForced(), null);
+								.getParticipantType(), combination.getStage(),
+								null);
+						DataComponents d = data.buildMatrix(list, null);
 						return d.correlations;
 					}
 
@@ -81,31 +80,27 @@ public class DataTree extends JTree {
 		Collection<String> stageTypes = data.getStageTypes();
 		Collection<String> participantTypes = data.getParticipantTypes();
 		DefaultMutableTreeNode root = new DefaultMutableTreeNode();
-		for (boolean forced : new boolean[] { true, false }) {
-			for (String participantType : participantTypes) {
-				for (String stage : stageTypes) {
-					DataCombination combination = new DataCombination(
-							participantType, stage, forced);
-					addDataCombinationNode(data, root, combination);
-				}
-				if (stageTypes.size() > 1) {
-					DataCombination combination = new DataCombination(
-							participantType, "all", forced);
-					addDataCombinationNode(data, root, combination);
-				}
-			}
-			if (participantTypes.size() > 1) {
-				for (String stage : data.getStageTypes()) {
-					DataCombination combination = new DataCombination("all",
-							stage, true);
-					addDataCombinationNode(data, root, combination);
-				}
-			}
-			if (participantTypes.size() > 1 && stageTypes.size() > 1) {
-				DataCombination combination = new DataCombination("all", "all",
-						forced);
+		for (String participantType : participantTypes) {
+			for (String stage : stageTypes) {
+				DataCombination combination = new DataCombination(
+						participantType, stage);
 				addDataCombinationNode(data, root, combination);
 			}
+			if (stageTypes.size() > 1) {
+				DataCombination combination = new DataCombination(
+						participantType, "all");
+				addDataCombinationNode(data, root, combination);
+			}
+		}
+		if (participantTypes.size() > 1) {
+			for (String stage : data.getStageTypes()) {
+				DataCombination combination = new DataCombination("all", stage);
+				addDataCombinationNode(data, root, combination);
+			}
+		}
+		if (participantTypes.size() > 1 && stageTypes.size() > 1) {
+			DataCombination combination = new DataCombination("all", "all");
+			addDataCombinationNode(data, root, combination);
 		}
 		return root;
 	}

@@ -140,15 +140,13 @@ public class FactorScoreAnalyzer {
 	public static void main(String[] args) throws IOException,
 			FactorAnalysisException {
 		Data data = new Data("src/New Mexico.txt");
-		boolean forced = true;
 		String participantType = "all";
 		String stage = "all";
 		int axis = 1;
 		double threshold = 1;
 		boolean doPca = true;
 		boolean doCentroid = false;
-		Matrix raw = data.getRawData(forced, participantType, stage, null,
-				null, axis);
+		Matrix raw = data.getRawData(participantType, stage, null, null, axis);
 
 		FactorAnalysisResults results = raw
 				.analyzeFactors(

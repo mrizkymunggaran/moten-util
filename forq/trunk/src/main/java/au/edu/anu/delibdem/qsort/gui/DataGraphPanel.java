@@ -129,8 +129,8 @@ public class DataGraphPanel extends JPanel {
 	}
 
 	public JPanel getGraphPanelStatic() {
-		List<QSort> list = data.restrictList(combination.getForced(),
-				combination.getParticipantType(), combination.getStage(), null);
+		List<QSort> list = data.restrictList(combination.getParticipantType(),
+				combination.getStage(), null);
 		boolean labelPoints = false;
 		JPanel panel = new JPanel();
 		SpringLayout layout = new SpringLayout();
@@ -141,8 +141,8 @@ public class DataGraphPanel extends JPanel {
 		final LinkButton analyze = new LinkButton("Analyze");
 		panel.add(analyze);
 		boolean showRegressionLines = true;
-		gp = data.getGraph(list, combination.getForced(), labelPoints, 200,
-				null, null, showRegressionLines);
+		gp = data.getGraph(list, labelPoints, 200, null, null,
+				showRegressionLines);
 		if (gp != null) {
 			gp.setBackground(getBackground());
 			panel.add(gp);
@@ -187,8 +187,8 @@ public class DataGraphPanel extends JPanel {
 
 	@SuppressWarnings("unchecked")
 	public JPanel getGraphPanelAll() {
-		List<QSort> list = data.restrictList(combination.getForced(),
-				combination.getParticipantType(), "all", null);
+		List<QSort> list = data.restrictList(combination.getParticipantType(),
+				"all", null);
 		// split the list into separate lists by stage
 		final Map<String, List<QSort>> map = new LinkedHashMap<String, List<QSort>>();
 		for (QSort q : list) {
@@ -202,7 +202,7 @@ public class DataGraphPanel extends JPanel {
 		panel.setLayout(layout);
 
 		gp = data.getGraphConnected(map.values().toArray(new ArrayList[1]),
-				combination.getForced(), false, size, null);
+				false, size, null);
 		if (gp != null) {
 			panel.add(gp);
 			gp.setBackground(getBackground());

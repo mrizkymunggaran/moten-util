@@ -33,9 +33,9 @@ public class FactorTreePanel extends JPanel {
 
 	private static final long serialVersionUID = -1191102361903304632L;
 
-	private JTree tree;
+	private final JTree tree;
 
-	private List<EventManager> eventManagers = new ArrayList<EventManager>();
+	private final List<EventManager> eventManagers = new ArrayList<EventManager>();
 
 	public FactorTreePanel(FactorAnalysisResults results) {
 		setLayout(new GridLayout(1, 1));
@@ -71,8 +71,8 @@ public class FactorTreePanel extends JPanel {
 					else if (result instanceof Double) {
 						Matrix m = new Matrix(
 								new double[][] { { (Double) result } });
-						m.setRowLabel(1,"Item");
-						m.setColumnLabel(1,"Value");
+						m.setRowLabel(1, "Item");
+						m.setColumnLabel(1, "Value");
 						return m;
 					} else
 						throw new Error("not sure how to implement " + result);
@@ -143,9 +143,8 @@ public class FactorTreePanel extends JPanel {
 	public static void main(String[] args) throws FileNotFoundException,
 			IOException, FactorAnalysisException {
 		Data data = new Data(new FileInputStream("src/New Mexico.txt"));
-		Matrix matrix = data.getRawData(true, data.getParticipantTypes()
-				.iterator().next(), data.getStageTypes().iterator().next(),
-				null, null, 1);
+		Matrix matrix = data.getRawData(data.getParticipantTypes().iterator()
+				.next(), data.getStageTypes().iterator().next(), null, null, 1);
 		Set<RotationMethod> set = new HashSet<RotationMethod>();
 		set.add(RotationMethod.NONE);
 		FactorAnalysisResults r = matrix.analyzeFactors(
