@@ -303,7 +303,7 @@ public class DataGraphPanel extends JPanel {
 				}
 			}
 		});
-		animate.doClick();
+		// animate.doClick();
 		final JPopupMenu popup = createPopupMenu();
 		analyze.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {

@@ -151,18 +151,17 @@ public class MainFrame extends JFrame {
 						dialog.setIconImage(LookAndFeel.getPersonIcon()
 								.getImage());
 						dialog.setTitle("Participants");
-						dialog.setSize(150, frame.getHeight() * 2 / 3);
+						dialog.setSize(300, frame.getHeight() * 2 / 3);
 						dialog.getContentPane().setLayout(new GridLayout(1, 1));
 						dialog.getContentPane()
 								.add(
 										new ParticipantsPanel((Data) event
 												.getObject()));
 						dialog.setModal(false);
-						dialog.setLocation(frame.getLocation().x
-								+ frame.getWidth() - dialog.getWidth() - 50,
-								frame.getLocation().y + 150);
+						int x = frame.getLocation().x + frame.getWidth() - 2
+								* dialog.getWidth() - 50;
+						dialog.setLocation(x, frame.getLocation().y + 150);
 						dialog.setVisible(true);
-
 					}
 				});
 	}

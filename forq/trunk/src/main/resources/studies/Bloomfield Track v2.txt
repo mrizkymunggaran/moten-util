@@ -8,21 +8,21 @@
 ########################################################################################################																																																
 :Title	Bloomfield Track																																															
 :Participants	12																																															
-:Variables	1				
+:Variables	2				
 # For each participant there should be NumVariables columns after the id column: 																			
-#Participant	Type																																															
-ADV	Lay																																															
-ASW	Stakeholder																																															
-BOA	Lay																																															
-JAN	Stakeholder																																															
-JUL	Lay																																															
-KEI	Lay																																															
-KOD	Stakeholder																																															
-MAT	Lay																																															
-PEA	Lay																																															
-RAS	Stakeholder																																															
-SNO	Stakeholder																																															
-TAM	Lay					
+#Participant	Type	Age																																															
+ADV	Type - Lay	Age - Young																																															
+ASW	Type - Stakeholder	Age - Young																																															
+BOA	Type - Lay	Age - Old																																															
+JAN	Type - Stakeholder	Age - Old																																															
+JUL	Type - Lay	Age - Young																																															
+KEI	Type - Lay	Age - Young																																															
+KOD	Type - Stakeholder	Age - Old																																															
+MAT	Type - Lay	Age - Old																																															
+PEA	Type - Lay	Age - Young																																															
+RAS	Type - Stakeholder	Age - Old																																																
+SNO	Type - Stakeholder	Age - Old																																															
+TAM	Type - Lay	Age - Young					
 
 :Q Statements	42																																															
 :P Statements	5	
