@@ -30,6 +30,8 @@ public class DataTree extends JTree {
 	public DataTree(Data data) {
 		super(getRoot(data));
 		this.data = data;
+		this.setEditable(true);
+		this.setCellEditor(new MyCellEditor());
 		setRootVisible(false);
 		setShowsRootHandles(true);
 		DefaultTreeCellRenderer renderer = new MyRenderer();

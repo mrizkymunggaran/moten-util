@@ -100,6 +100,35 @@ public class Data implements Serializable {
 	private static enum Marker {
 		STARTED, TITLE_READ, NUM_PARTICIPANTS_READ, NUM_VARIABLES_READ, PARTICIPANT_DATA_READ, NUM_Q_STATEMENTS_READ, NUM_P_STATEMENTS_READ, DATA_READ, STATEMENTS_READ, STATEMENTS_DATA_READ;
 	}
+	
+	private boolean isCommand(String line) {
+		return line.startsWith(":");
+	}
+	
+	private boolean isTitle(String line) {
+		return line.startsWith(":Title");
+	}
+	
+	private boolean isStatements(String line) {
+		return line.startsWith(":Statements");
+	}
+
+	private boolean isPStatements(String line) {
+		return line.startsWith(":P Statements");
+	}
+
+	private boolean isQStatements(String line) {
+		return line.startsWith(":Q Statements");
+	}
+
+	private boolean isVariables(String line) {
+		return line.startsWith(":Variables");
+	}
+
+	private boolean isParticipants(String line) {
+		return line.startsWith(":Participants");
+	}
+
 
 	public void load(InputStream is) throws IOException {
 		log.info("loading data..");
@@ -118,19 +147,22 @@ public class Data implements Serializable {
 		while ((line = nextLine(br)) != null) {
 			log.info(line);
 
-			if (marker.equals(Marker.STARTED) && line.startsWith(":Title")) {
+			if (marker.equals(Marker.STARTED) && isTitle(line)) {
+				//is title
 				title = getValue(line, 1);
 				marker = Marker.TITLE_READ;
 			} else if (marker.equals(Marker.TITLE_READ)
-					&& line.startsWith(":Participants")) {
+					&& isParticipants(line)) {
+				// is num participants
 				numParticipants = Integer.parseInt(getValue(line, 1));
 				marker = Marker.NUM_PARTICIPANTS_READ;
 			} else if (marker.equals(Marker.NUM_PARTICIPANTS_READ)
-					&& line.startsWith(":Variables")) {
+					&& isVariables(line)) {
+				// is num variables
 				numVariables = Integer.parseInt(getValue(line, 1));
 				marker = Marker.NUM_VARIABLES_READ;
 			} else if (marker.equals(Marker.NUM_VARIABLES_READ)
-					&& !line.startsWith(":")) {
+					&& !isCommand(line)) {
 				// is participant data
 				numParticipantsRead++;
 				String[] items = line.split(TAB);
@@ -141,7 +173,8 @@ public class Data implements Serializable {
 					participant.getTypes().add(value);
 				}
 			} else if (marker.equals(Marker.NUM_VARIABLES_READ)
-					&& line.startsWith(":Q Statements")) {
+					&& isQStatements(line)) {
+				// is num q statements
 				if (numParticipantsRead != numParticipants)
 					throw new RuntimeException(
 							"Number of participants doesn't match the declared value on the :Participants line (declared="
@@ -151,42 +184,48 @@ public class Data implements Serializable {
 				numQStatements = Integer.parseInt(getValue(line, 1));
 				marker = Marker.NUM_Q_STATEMENTS_READ;
 			} else if (marker.equals(Marker.NUM_Q_STATEMENTS_READ)
-					&& line.startsWith(":P Statements")) {
+					&& isPStatements(line)) {
+				// is num p statements
 				numPStatements = Integer.parseInt(getValue(line, 1));
 				marker = Marker.NUM_P_STATEMENTS_READ;
 			} else if (marker.equals(Marker.NUM_P_STATEMENTS_READ)
-					&& !line.startsWith(":")) {
+					&& !isCommand(line)) {
 				// is qsort data
-				String[] items = line.split(TAB);
-				QSort q = new QSort();
-				Participant participant = participants.get(items[0]);
-				if (participant == null)
-					throw new RuntimeException(
-							"Participant not found from line "
-									+ br.linesRead
-									+ ". Have you declared it in the participants section?");
-				q.setParticipant(participant);
-				q.setStage(items[1]);
-				for (int j = 2; j < 2 + numQStatements; j++)
-					q.getQResults().add(getDouble(items[j]));
-				for (int j = 2 + numQStatements; j < 2 + numQStatements
-						+ numPStatements; j++)
-					q.getRankings().add(getDouble(items[j]));
-				qSorts.add(q);
+				processQSortLine(line, numQStatements, numPStatements);
 			} else if (marker.equals(Marker.NUM_P_STATEMENTS_READ)
-					&& line.startsWith(":Statements")) {
+					&& isStatements(line)) {
 				marker = marker.STATEMENTS_READ;
 			} else if (marker.equals(Marker.STATEMENTS_READ)
-					&& !line.startsWith(":")) {
+					&& !isCommand(line)) {
 				// is statement data
 				String[] items = line.split(TAB);
 				statements.put(Integer.parseInt(items[0]), items[1]);
-			}
+			} else 
+				throw new RuntimeException("Line " + br.getLinesRead() + " was unexpected. Please compare your file to the example forq input file. Perhaps the lines are not in the right order?\n"+ line);
 		}
 		br.close();
 		isr.close();
 		is.close();
 		log.info("loaded");
+	}
+
+	
+	private void processQSortLine(String line, int numQStatements, int numPStatements) {
+
+		String[] items = line.split(TAB);
+		QSort q = new QSort();
+		Participant participant = participants.get(items[0]);
+		if (participant == null)
+			throw new RuntimeException(
+					"Participant " + items[0]+ " not found on qsort line. Have you declared it in the participants section?");
+		q.setParticipant(participant);
+		q.setStage(items[1]);
+		for (int j = 2; j < 2 + numQStatements; j++)
+			q.getQResults().add(getDouble(items[j]));
+		for (int j = 2 + numQStatements; j < 2 + numQStatements
+				+ numPStatements; j++)
+			q.getRankings().add(getDouble(items[j]));
+		qSorts.add(q);		
 	}
 
 	/**

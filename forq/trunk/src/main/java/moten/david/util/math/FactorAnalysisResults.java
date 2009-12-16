@@ -34,7 +34,7 @@ public class FactorAnalysisResults {
 	private long rotationTimeMs;
 
 	private String title;
-	
+
 	public String getTitle() {
 		return title;
 	}
@@ -76,12 +76,13 @@ public class FactorAnalysisResults {
 
 	}
 
+	@Override
 	public String toString() {
-//		StringOutputStream sos = new StringOutputStream();
-//		final PrintWriter out = new PrintWriter(sos);
-//		SimpleHeirarchicalFormatter f = getTextFormatter(out);
-//		process(initial, f);
-//		return sos.toString();
+		// StringOutputStream sos = new StringOutputStream();
+		// final PrintWriter out = new PrintWriter(sos);
+		// SimpleHeirarchicalFormatter f = getTextFormatter(out);
+		// process(initial, f);
+		// return sos.toString();
 		return title;
 	}
 
@@ -171,6 +172,15 @@ public class FactorAnalysisResults {
 		return eigenvalues;
 	}
 
+	public Matrix getEigenvaluesVector() {
+		Vector matrix = eigenvalues.getDiagonal();
+		for (int i = 1; i <= matrix.rowCount(); i++) {
+			matrix.setRowLabel(i, eigenvalues.getRowLabel(i));
+		}
+		matrix.setColumnLabel(1, "Eigenvalue");
+		return matrix;
+	}
+
 	public Matrix getEigenvectors() {
 		return eigenvectors;
 	}
@@ -185,6 +195,15 @@ public class FactorAnalysisResults {
 
 	public Matrix getPrincipalEigenvalues() {
 		return principalEigenvalues;
+	}
+
+	public Matrix getPrincipalEigenvaluesVector() {
+		Vector matrix = principalEigenvalues.getDiagonal();
+		for (int i = 1; i <= matrix.rowCount(); i++) {
+			matrix.setRowLabel(i, principalEigenvalues.getRowLabel(i));
+		}
+		matrix.setColumnLabel(1, "Eigenvalue");
+		return matrix;
 	}
 
 	public Matrix getPrincipalEigenvectors() {
@@ -266,4 +285,5 @@ public class FactorAnalysisResults {
 	public void setRotationTimeMs(long rotationTimeMs) {
 		this.rotationTimeMs = rotationTimeMs;
 	}
+
 }

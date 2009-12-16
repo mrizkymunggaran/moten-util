@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
@@ -27,6 +28,9 @@ import moten.david.util.math.gui.GraphPanel;
 import au.edu.anu.delibdem.qsort.gui.Rotations;
 
 public class LoadingsGraphsPanel extends JPanel {
+	
+	private static final Logger log = Logger
+			.getLogger(LoadingsGraphsPanel.class.getName());
 
 	private static final long serialVersionUID = -5440895661166009687L;
 
@@ -84,8 +88,6 @@ public class LoadingsGraphsPanel extends JPanel {
 									int direction = -1;
 									if (e.getKeyCode() == 37)
 										direction = 1;
-									System.out.println(System
-											.currentTimeMillis());
 									rotations.addRotation(new MatrixRotation(
 											map.get(gp).x, map.get(gp).y,
 											direction));

@@ -95,7 +95,9 @@ public class MainPanel extends JPanel {
 		// addTab(tabs, new Data(getClass().getResourceAsStream(
 		// "/studies/Lipset.txt")));
 		addTab(tabs, new Data(getClass().getResourceAsStream(
-				"/studies/Bloomfield Track v2.txt")));
+				"/studies2/Bloomfield Track.txt")));
+		addTab(tabs, new Data(getClass().getResourceAsStream(
+				"/studies2/Bloomfield Track - No Prefs.txt")));
 	}
 
 	private void addTab(JTabbedPane tabs, Data data) {

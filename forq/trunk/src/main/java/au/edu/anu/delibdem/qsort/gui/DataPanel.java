@@ -6,6 +6,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -35,6 +36,9 @@ import au.edu.anu.delibdem.qsort.DataCombination;
 import au.edu.anu.delibdem.qsort.gui.loadings.LoadingsPanel;
 
 public class DataPanel extends JPanel {
+
+	private static final Logger log = Logger.getLogger(DataPanel.class
+			.getName());
 
 	private static final long serialVersionUID = -5460095692478216872L;
 
@@ -260,7 +264,7 @@ public class DataPanel extends JPanel {
 				if (node == null)
 					return;
 				Object o = node.getUserObject();
-				System.out.println(o);
+				log.info((o == null ? null : o.toString()));
 				if (o instanceof DataCombination) {
 					updateDataViewer((DataCombination) o);
 				} else if (o instanceof RotatedLoadings) {
@@ -439,25 +443,41 @@ public class DataPanel extends JPanel {
 
 			public synchronized void notify(final Event event) {
 
-				FactorAnalysisResults r = (FactorAnalysisResults) event
+				FactorAnalysisResults[] results = (FactorAnalysisResults[]) event
 						.getObject();
 				DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree
 						.getLastSelectedPathComponent();
 
 				if (node != null
 						&& node.getUserObject() instanceof DataCombination) {
-					DefaultMutableTreeNode newNode = new DefaultMutableTreeNode(
-							r);
 
+					// get the tree model
 					DefaultTreeModel treeModel = (DefaultTreeModel) tree
 							.getModel();
-					treeModel.insertNodeInto(newNode, node, node
+
+					// create the parent node for all the results called New
+					// Analysis
+					DefaultMutableTreeNode newAnalysisNode = new DefaultMutableTreeNode(
+							new ObjectDecorator(null, "New Analysis"));
+					treeModel.insertNodeInto(newAnalysisNode, node, node
 							.getChildCount());
-					DefaultMutableTreeNode newNode2 = FactorTreePanel
-							.createNodes(r);
-					treeModel.insertNodeInto(newNode2, newNode, newNode
-							.getChildCount());
-					tree.scrollPathToVisible(new TreePath(newNode2.getPath()));
+
+					for (FactorAnalysisResults result : results) {
+						// create a new node for the factor analysis result
+						DefaultMutableTreeNode newNode = new DefaultMutableTreeNode(
+								result);
+						// add the node to the currently selected path
+						treeModel.insertNodeInto(newNode, newAnalysisNode,
+								newAnalysisNode.getChildCount());
+						// add children to the new node
+						DefaultMutableTreeNode newNode2 = FactorTreePanel
+								.createNodes(result);
+						treeModel.insertNodeInto(newNode2, newNode, newNode
+								.getChildCount());
+						// make the new node visible
+						tree.scrollPathToVisible(new TreePath(newNode2
+								.getPath()));
+					}
 				}
 			}
 		};

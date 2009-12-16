@@ -8,6 +8,7 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import moten.david.util.event.Event;
@@ -170,11 +171,21 @@ public class MainFrame extends JFrame {
 			InstantiationException, IllegalAccessException,
 			UnsupportedLookAndFeelException {
 		LookAndFeel.setLookAndFeel();
-		MainFrame frame = new MainFrame();
+		final MainFrame frame = new MainFrame();
 		frame.setTitle("ForQ");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		SwingUtil.centre(frame);
-		frame.setVisible(true);
+
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				SwingUtil.centre(frame);
+				frame.setVisible(true);
+			}
+		});
+
+		if ("true".equals(System.getProperty("openSamples")))
+			EventManager.getInstance().notify(
+					new Event(null, Events.OPEN_SAMPLES));
 
 	}
 }

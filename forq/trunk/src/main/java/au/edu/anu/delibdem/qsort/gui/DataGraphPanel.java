@@ -78,20 +78,31 @@ public class DataGraphPanel extends JPanel {
 		invalidate();
 	}
 
-	private void doit(final String title, final FactorExtractionMethod method,
-			final boolean isIntersubjective) {
+	private void doit(final AnalysisConfiguration... analyses) {
 		Thread t = new Thread(new Runnable() {
 			public void run() {
-				Status.setStatus("Performing " + method.toString() + "...");
-				FactorAnalysisResults r = getFactorAnalysisResults(data,
-						combination, isIntersubjective, method);
-				if (r != null) {
-					r.setTitle(title);
-					for (EventManager eventManager : eventManagers) {
-						eventManager.notify(new Event(r, Events.ANALYZE));
+				List<FactorAnalysisResults> results = new ArrayList<FactorAnalysisResults>();
+
+				for (AnalysisConfiguration analysis : analyses) {
+					Status
+							.setStatus("Performing "
+									+ analysis.getExtractionMethod().toString()
+									+ "...");
+					FactorAnalysisResults r = getFactorAnalysisResults(data,
+							combination, analysis.isIntersubjective(), analysis
+									.getExtractionMethod());
+
+					if (r != null) {
+						r.setTitle(analysis.getTitle());
+						results.add(r);
 					}
+					Status.finish();
 				}
-				Status.finish();
+				for (EventManager eventManager : eventManagers) {
+					eventManager.notify(new Event(results
+							.toArray(new FactorAnalysisResults[0]),
+							Events.ANALYZE));
+				}
 			}
 		});
 		t.start();
@@ -325,27 +336,55 @@ public class DataGraphPanel extends JPanel {
 		eventManagers.add(eventManager);
 	}
 
+	public static class AnalysisConfiguration {
+		private final String title;
+
+		public String getTitle() {
+			return title;
+		}
+
+		public FactorExtractionMethod getExtractionMethod() {
+			return extractionMethod;
+		}
+
+		public boolean isIntersubjective() {
+			return isIntersubjective;
+		}
+
+		public AnalysisConfiguration(String title,
+				FactorExtractionMethod extractionMethod,
+				boolean isIntersubjective) {
+			super();
+			this.title = title;
+			this.extractionMethod = extractionMethod;
+			this.isIntersubjective = isIntersubjective;
+		}
+
+		private final FactorExtractionMethod extractionMethod;
+		private final boolean isIntersubjective;
+	}
+
 	private JPopupMenu createPopupMenu() {
 		final JPopupMenu popup = new JPopupMenu();
 		JMenuItem item = new JMenuItem("Principal Components Analysis");
 		popup.add(item);
 		item.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				doit("Preferences",
+				doit(new AnalysisConfiguration("Q Sorts",
 						FactorExtractionMethod.PRINCIPAL_COMPONENTS_ANALYSIS,
-						false);
-				doit("Subjective",
+						true), new AnalysisConfiguration("Preferences",
 						FactorExtractionMethod.PRINCIPAL_COMPONENTS_ANALYSIS,
-						true);
+						false));
 			}
 		});
 		item = new JMenuItem("Centroid Method");
 		popup.add(item);
 		item.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				doit("Preferences", FactorExtractionMethod.CENTROID_METHOD,
-						false);
-				doit("Subjective", FactorExtractionMethod.CENTROID_METHOD, true);
+				doit(new AnalysisConfiguration("Subjective",
+						FactorExtractionMethod.CENTROID_METHOD, true),
+						new AnalysisConfiguration("Preferences",
+								FactorExtractionMethod.CENTROID_METHOD, false));
 			}
 		});
 		return popup;

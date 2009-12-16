@@ -4,7 +4,6 @@ import java.awt.GridLayout;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -50,11 +49,10 @@ public class FactorTreePanel extends JPanel {
 		return Character.toUpperCase(s.charAt(0)) + s.substring(1);
 	}
 
-	private static DefaultMutableTreeNode createFieldNode(final String name,
+	private static DefaultMutableTreeNode createGetterNode(final String name,
 			final Object o, String fieldName) throws SecurityException,
 			NoSuchFieldException {
-		final Field field = o.getClass().getDeclaredField(fieldName);
-		String methodName = "get" + getCapitalized(field.getName());
+		String methodName = "get" + getCapitalized(fieldName);
 		final Method method;
 		try {
 			method = o.getClass().getMethod(methodName, new Class[] {});
@@ -95,22 +93,23 @@ public class FactorTreePanel extends JPanel {
 		DefaultMutableTreeNode top = new DefaultMutableTreeNode(
 				new ObjectDecorator(results, results.extractionMethod
 						.toString()));
-		
+
 		try {
-			top.add(createFieldNode("Raw Data", results, "initial"));
-			top.add(createFieldNode("Correlations", results, "correlations"));
-			top.add(createFieldNode("Eigenvalues", results, "eigenvalues"));
-			top.add(createFieldNode("Eigenvectors", results, "eigenvectors"));
-			top.add(createFieldNode("Loadings", results, "loadings"));
-			top.add(createFieldNode("Percent Variance", results,
+			top.add(createGetterNode("Raw Data", results, "initial"));
+			top.add(createGetterNode("Correlations", results, "correlations"));
+			top.add(createGetterNode("Eigenvalues", results,
+					"eigenvaluesVector"));
+			top.add(createGetterNode("Eigenvectors", results, "eigenvectors"));
+			top.add(createGetterNode("Loadings", results, "loadings"));
+			top.add(createGetterNode("Percent Variance", results,
 					"percentVariance"));
-			top.add(createFieldNode("Eigenvalue Threshold", results,
+			top.add(createGetterNode("Eigenvalue Threshold", results,
 					"eigenvalueThreshold"));
-			top.add(createFieldNode("Principal Eigenvalues", results,
-					"principalEigenvalues"));
-			top.add(createFieldNode("Principal Eigenvectors", results,
+			top.add(createGetterNode("Principal Eigenvalues", results,
+					"principalEigenvaluesVector"));
+			top.add(createGetterNode("Principal Eigenvectors", results,
 					"principalEigenvectors"));
-			top.add(createFieldNode("Principal Loadings", results,
+			top.add(createGetterNode("Principal Loadings", results,
 					"principalLoadings"));
 		} catch (Exception e) {
 			throw new Error(e);
