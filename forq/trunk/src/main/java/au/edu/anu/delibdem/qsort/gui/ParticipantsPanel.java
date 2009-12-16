@@ -82,14 +82,14 @@ public class ParticipantsPanel extends JPanel {
 
 	private Component createParticipantList(final Data data,
 			LinkButton selectAll, LinkButton selectNone) {
-		final String[] participants = data.getParticipants().toArray(
+		final String[] participantIds = data.getParticipantIds().toArray(
 				new String[0]);
-		final Object[] checkBoxes = new Object[participants.length];
+		final Object[] checkBoxes = new Object[participantIds.length];
 		JCheckBoxList list = new JCheckBoxList();
-		for (int i = 0; i < participants.length; i++) {
-			final JCheckBox checkBox = new JCheckBox("" + participants[i]);
-			checkBox.setSelected(!data.getExcludeParticipants().contains(
-					participants[i]));
+		for (int i = 0; i < participantIds.length; i++) {
+			final JCheckBox checkBox = new JCheckBox("" + participantIds[i]);
+			checkBox.setSelected(data.getParticipantIds().contains(
+					participantIds[i]));
 
 			checkBoxes[i] = checkBox;
 			final Integer finalI = i;
@@ -97,10 +97,9 @@ public class ParticipantsPanel extends JPanel {
 				@Override
 				public void stateChanged(ChangeEvent e) {
 					if (checkBox.isSelected())
-						data.getExcludeParticipants().remove(
-								participants[finalI]);
+						data.getFilter().add(participantIds[finalI]);
 					else
-						data.getExcludeParticipants().add(participants[finalI]);
+						data.getFilter().remove(participantIds[finalI]);
 					EventManager.getInstance().notify(
 							new Event(data, Events.DATA_CHANGED));
 				}
@@ -122,8 +121,7 @@ public class ParticipantsPanel extends JPanel {
 		JCheckBoxList list = new JCheckBoxList();
 		for (int i = 0; i < participantTypes.length; i++) {
 			final JCheckBox checkBox = new JCheckBox("" + participantTypes[i]);
-			checkBox.setSelected(!data.getExcludeParticipants().contains(
-					participantTypes[i]));
+			checkBox.setSelected(false);
 
 			checkBoxes[i] = checkBox;
 			final Integer finalI = i;
@@ -131,11 +129,9 @@ public class ParticipantsPanel extends JPanel {
 				@Override
 				public void stateChanged(ChangeEvent e) {
 					if (checkBox.isSelected())
-						data.getExcludeParticipants().remove(
-								participantTypes[finalI]);
+						;
 					else
-						data.getExcludeParticipants().add(
-								participantTypes[finalI]);
+						;
 					EventManager.getInstance().notify(
 							new Event(data, Events.DATA_CHANGED));
 				}

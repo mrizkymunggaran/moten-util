@@ -22,15 +22,10 @@ import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
 
-import moten.david.util.math.FactorAnalysisException;
-import moten.david.util.math.FactorAnalysisResults;
-import moten.david.util.math.FactorExtractionMethod;
 import moten.david.util.math.Function;
 import moten.david.util.math.Matrix;
 import moten.david.util.math.RegressionIntervalFunction;
-import moten.david.util.math.SimpleHeirarchicalFormatter;
 import moten.david.util.math.Vector;
-import moten.david.util.math.Varimax.RotationMethod;
 import moten.david.util.math.gui.GraphPanel;
 
 import org.apache.commons.math.stat.regression.SimpleRegression;
@@ -48,37 +43,39 @@ public class Data implements Serializable {
 	public static final String PREDICTION_INTERVAL_95 = "Prediction_Interval_95";
 
 	private final Map<String, Participant> participants = new HashMap<String, Participant>();
-	private final Set<String> excludeParticipants = new TreeSet<String>();
+	private final Set<String> filter = new TreeSet<String>();
 
-	public List<String> getParticipants() {
+	public Set<String> getParticipantIds() {
 		TreeSet<String> set = new TreeSet<String>();
 		for (QSort q : qSorts) {
 			set.add(q.getParticipant().getId());
 		}
-		return new ArrayList<String>(set);
+		return set;
+	}
+
+	public Set<String> getParticipantIds(String participantType) {
+		TreeSet<String> set = new TreeSet<String>();
+		for (QSort q : qSorts) {
+			if (q.getParticipant().getTypes().contains(participantType))
+				set.add(q.getParticipant().getId());
+		}
+		return set;
 	}
 
 	private List<QSort> qSorts;
 	private String title = "Untitled";
 
 	public Data(String name) throws IOException {
-		System.out.println("loading " + name);
-		InputStream is = new FileInputStream(name);
-		load(is);
-		is.close();
+		this(new File(name));
 	}
 
 	public Data(File file) throws IOException {
-		InputStream is = new FileInputStream(file);
-		load(is);
-		is.close();
+		this(new FileInputStream(file));
 	}
 
 	public Data(InputStream is) throws IOException {
+		log.info("loading");
 		load(is);
-	}
-
-	public Data() throws IOException {
 	}
 
 	public Set<String> getStageTypes() {
@@ -208,6 +205,7 @@ public class Data implements Serializable {
 		br.close();
 		isr.close();
 		is.close();
+		filter.addAll(getParticipantIds());
 		log.info("loaded");
 	}
 
@@ -321,17 +319,16 @@ public class Data implements Serializable {
 	public List<QSort> getQSorts() {
 		List<QSort> list = new ArrayList<QSort>(qSorts);
 		for (int i = list.size() - 1; i >= 0; i--)
-			if (excludeParticipants.contains(list.get(i).getParticipant()
-					.getId())) {
+			if (!filter.contains(list.get(i).getParticipant().getId())) {
 				list.remove(i);
 			}
 		return list;
 	}
 
-	public void graph(String participantType, String stage, String bands,
+	public void graph(String stage, String bands,
 			OutputStream imageOutputStream, boolean labelPoints, int size,
-			Set<Integer> exclusions, Set<Integer> filter) throws IOException {
-		List<QSort> subList = restrictList(participantType, stage, exclusions);
+			Set<String> filter) throws IOException {
+		List<QSort> subList = restrictList(stage, filter);
 		if (stage.equals("all"))
 			graphConnected(subList, imageOutputStream, labelPoints, size,
 					filter);
@@ -339,19 +336,14 @@ public class Data implements Serializable {
 			graph(subList, imageOutputStream, labelPoints, size, filter, bands);
 	}
 
-	public DataComponents getDataComponents(String participantType,
-			String stage, Set<Integer> exclusions, Set<Integer> filter) {
-		List<QSort> subList = restrictList(participantType, stage, exclusions);
-		return buildMatrix(subList, filter);
+	public DataComponents getDataComponents(String stage,
+			Set<String> participantFilter) {
+		List<QSort> subList = restrictList(stage, participantFilter);
+		return buildMatrix(subList, participantFilter);
 
 	}
 
-	private Set<String> getParticipantTypes(String participantId) {
-		return participants.get(participantId).getTypes();
-	}
-
-	public List<QSort> restrictList(String participantType, String stage,
-			Set<Integer> exclusions) {
+	public List<QSort> restrictList(String stage, Set<String> participantFilter) {
 		// read data
 		List<QSort> list = getQSorts();
 
@@ -359,11 +351,8 @@ public class Data implements Serializable {
 		for (QSort q : list) {
 			if ((stage.equalsIgnoreCase("all") || q.getStage().trim()
 					.equalsIgnoreCase(stage))
-					&& (participantType.equalsIgnoreCase("all") || getParticipantTypes(
-							q.getParticipant().getId()).contains(
-							participantType))
-					&& (exclusions == null || !exclusions.contains(q
-							.getParticipant().getId()))) {
+					&& (participantFilter == null || participantFilter
+							.contains(q.getParticipant().getId()))) {
 
 				boolean alreadyGotIt = false;
 				for (QSort q2 : subList) {
@@ -390,7 +379,7 @@ public class Data implements Serializable {
 		public List<String> participants2;
 	}
 
-	public DataComponents buildMatrix(List<QSort> list, Set<Integer> filter) {
+	public DataComponents buildMatrix(List<QSort> list, Set<String> filter) {
 		if (list == null)
 			return null;
 		list = new ArrayList<QSort>(list);
@@ -458,12 +447,9 @@ public class Data implements Serializable {
 		Matrix m = new Matrix(1, 2);
 		for (int i = 1; i <= qSortsCorrelated.rowCount(); i++) {
 			for (int j = i + 1; j <= qSortsCorrelated.columnCount(); j++) {
-				boolean includeIt = filter == null
-						|| filter.size() == 0
-						|| filter.contains(Integer.parseInt(qSortsCorrelated
-								.getRowLabel(i)))
-						|| filter.contains(Integer.parseInt(qSortsCorrelated
-								.getRowLabel(j)));
+				boolean includeIt = filter == null || filter.size() == 0
+						|| filter.contains(qSortsCorrelated.getRowLabel(i))
+						|| filter.contains(qSortsCorrelated.getRowLabel(j));
 				if (includeIt) {
 					if (i != 1 || j != 2)
 						m = m.addRow();
@@ -498,7 +484,7 @@ public class Data implements Serializable {
 	}
 
 	public GraphPanel getGraphConnected(List<QSort>[] list,
-			boolean labelPoints, int size, Set<Integer> filter) {
+			boolean labelPoints, int size, Set<String> filter) {
 		List<Vector> vectors1 = new ArrayList<Vector>();
 		List<Vector> vectors2 = new ArrayList<Vector>();
 		for (int vi = 0; vi < list.length; vi++) {
@@ -531,7 +517,7 @@ public class Data implements Serializable {
 	}
 
 	public GraphPanel getGraph(List<QSort> list, boolean labelPoints, int size,
-			Set<Integer> filter, final String bands,
+			Set<String> filter, final String bands,
 			boolean includeRegressionLines) {
 		DataComponents d = buildMatrix(list, filter);
 		if (d == null)
@@ -595,16 +581,8 @@ public class Data implements Serializable {
 		return gp;
 	}
 
-	public Set<String> getParticipantIds(String participantType) {
-		Set<String> result = new HashSet<String>();
-		for (QSort q : restrictList(participantType, "all", null)) {
-			result.add(q.getParticipant().getId());
-		}
-		return result;
-	}
-
 	private void graph(List<QSort> list, OutputStream imageOutputStream,
-			boolean labelPoints, int size, Set<Integer> filter, String bands)
+			boolean labelPoints, int size, Set<String> filter, String bands)
 			throws IOException {
 
 		GraphPanel gp = getGraph(list, labelPoints, size, filter, bands, true);
@@ -614,7 +592,7 @@ public class Data implements Serializable {
 
 	private void graphConnected(List<QSort> list,
 			OutputStream imageOutputStream, boolean labelPoints, int size,
-			Set<Integer> filter) throws IOException {
+			Set<String> filter) throws IOException {
 		// split the list into separate lists by stage
 		Map<String, List<QSort>> map = new LinkedHashMap<String, List<QSort>>();
 		for (QSort q : list) {
@@ -648,24 +626,14 @@ public class Data implements Serializable {
 		gp.writeAnimatedImage(imageOs);
 	}
 
-	public void writeMatrix(boolean forced, String participantType,
-			String stage, Set<Integer> exclusions, Set<Integer> filter,
-			OutputStream os) throws IOException {
-		List<QSort> list = restrictList(participantType, stage, exclusions);
-		Matrix matrix = buildMatrix(list, filter).correlations;
-		if (matrix != null)
-			writeMatrix(matrix, os);
-	}
-
 	public Matrix getRawData(DataCombination dataCombination,
 			Set<Integer> exclusions, int dataSet) {
-		return getRawData(dataCombination.getParticipantType(), dataCombination
-				.getStage(), exclusions, dataSet);
+		return getRawData(dataCombination.getStage(), dataCombination
+				.getFilter(), dataSet);
 	}
 
-	public Matrix getRawData(String participantType, String stage,
-			Set<Integer> exclusions, int dataSet) {
-		List<QSort> subList = restrictList(participantType, stage, exclusions);
+	public Matrix getRawData(String stage, Set<String> filter, int dataSet) {
+		List<QSort> subList = restrictList(stage, filter);
 
 		if (subList.size() == 0) {
 			return null;
@@ -701,52 +669,8 @@ public class Data implements Serializable {
 		return m;
 	}
 
-	public void analyze(boolean forced, String participantType, String stage,
-			Set<Integer> exclusions, int dataSet, double threshold,
-			boolean doPca, boolean doCentroid,
-			Set<RotationMethod> rotationMethods, SimpleHeirarchicalFormatter f) {
-
-		if (!forced) {
-			f.header("Error", true);
-			f.blockStart();
-			f.item("Factor analysis of unforced not implemented");
-			f.blockFinish();
-			return;
-		}
-
-		Matrix m = getRawData(participantType, stage, exclusions, dataSet);
-		if (m == null) {
-			f.header("Error", true);
-			f.blockStart();
-			f.item("No data to analyze");
-			f.blockFinish();
-			return;
-		}
-
-		FactorAnalysisResults results;
-		try {
-			if (doPca) {
-				results = m.analyzeFactors(
-						FactorExtractionMethod.PRINCIPAL_COMPONENTS_ANALYSIS,
-						threshold, rotationMethods);
-				results.process(results.getInitial(), f);
-			}
-			if (doCentroid) {
-				results = m.analyzeFactors(
-						FactorExtractionMethod.CENTROID_METHOD, threshold,
-						rotationMethods);
-				results.process(results.getInitial(), f);
-			}
-		} catch (FactorAnalysisException e) {
-			f.header("Error", true);
-			f.blockStart();
-			f.item(e.getMessage());
-			f.blockFinish();
-		}
-	}
-
-	public Set<String> getExcludeParticipants() {
-		return excludeParticipants;
+	public Set<String> getFilter() {
+		return filter;
 	}
 
 	public Map<Integer, String> getStatements() {

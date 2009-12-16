@@ -140,8 +140,8 @@ public class DataGraphPanel extends JPanel {
 	}
 
 	public JPanel getGraphPanelStatic() {
-		List<QSort> list = data.restrictList(combination.getParticipantType(),
-				combination.getStage(), null);
+		List<QSort> list = data.restrictList(combination.getStage(),
+				combination.getFilter());
 		boolean labelPoints = false;
 		JPanel panel = new JPanel();
 		SpringLayout layout = new SpringLayout();
@@ -198,8 +198,7 @@ public class DataGraphPanel extends JPanel {
 
 	@SuppressWarnings("unchecked")
 	public JPanel getGraphPanelAll() {
-		List<QSort> list = data.restrictList(combination.getParticipantType(),
-				"all", null);
+		List<QSort> list = data.restrictList("all", combination.getFilter());
 		// split the list into separate lists by stage
 		final Map<String, List<QSort>> map = new LinkedHashMap<String, List<QSort>>();
 		for (QSort q : list) {

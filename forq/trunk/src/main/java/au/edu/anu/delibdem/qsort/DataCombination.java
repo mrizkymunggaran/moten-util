@@ -1,22 +1,19 @@
 package au.edu.anu.delibdem.qsort;
 
+import java.util.Set;
+
 public class DataCombination {
 
-	private String participantType;
 	private String stage;
+	private final Set<String> filter;
 
-	public DataCombination(String participantType, String stage) {
-		super();
-		this.participantType = participantType;
+	public Set<String> getFilter() {
+		return filter;
+	}
+
+	public DataCombination(Set<String> filter, String stage) {
+		this.filter = filter;
 		this.stage = stage;
-	}
-
-	public String getParticipantType() {
-		return participantType;
-	}
-
-	public void setParticipantType(String participantType) {
-		this.participantType = participantType;
 	}
 
 	public String getStage() {
@@ -29,9 +26,6 @@ public class DataCombination {
 
 	@Override
 	public String toString() {
-		return ("all".equalsIgnoreCase(participantType) ? "All Participants"
-				: participantType)
-				+ " " + ("all".equalsIgnoreCase(stage) ? "All Stages" : stage);
+		return ("all".equalsIgnoreCase(stage) ? "All Stages" : stage);
 	}
-
 }

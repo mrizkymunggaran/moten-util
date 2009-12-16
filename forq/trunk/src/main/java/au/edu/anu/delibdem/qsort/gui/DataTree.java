@@ -63,8 +63,7 @@ public class DataTree extends JTree {
 					@Override
 					public Matrix getMatrix() {
 						List<QSort> list = data.restrictList(combination
-								.getParticipantType(), combination.getStage(),
-								null);
+								.getStage(), combination.getFilter());
 						DataComponents d = data.buildMatrix(list, null);
 						return d.correlations;
 					}
@@ -81,29 +80,31 @@ public class DataTree extends JTree {
 		Collection<String> stageTypes = data.getStageTypes();
 		Collection<String> participantTypes = data.getParticipantTypes();
 		DefaultMutableTreeNode root = new DefaultMutableTreeNode();
-		Configuration configuration = ApplicationInjector
-				.getInjector().getInstance(Configuration.class);
+		Configuration configuration = ApplicationInjector.getInjector()
+				.getInstance(Configuration.class);
 		if (configuration.provideDataCombinationForEveryVariable())
 			for (String participantType : participantTypes) {
 				for (String stage : stageTypes) {
-					DataCombination combination = new DataCombination(
-							participantType, stage);
+					DataCombination combination = new DataCombination(data
+							.getParticipantIds(participantType), stage);
 					addDataCombinationNode(data, root, combination);
 				}
 				if (stageTypes.size() > 1) {
-					DataCombination combination = new DataCombination(
-							participantType, "all");
+					DataCombination combination = new DataCombination(data
+							.getParticipantIds(participantType), "all");
 					addDataCombinationNode(data, root, combination);
 				}
 			}
 		if (participantTypes.size() > 1) {
 			for (String stage : data.getStageTypes()) {
-				DataCombination combination = new DataCombination("all", stage);
+				DataCombination combination = new DataCombination(data
+						.getParticipantIds(), stage);
 				addDataCombinationNode(data, root, combination);
 			}
 		}
 		if (participantTypes.size() > 1 && stageTypes.size() > 1) {
-			DataCombination combination = new DataCombination("all", "all");
+			DataCombination combination = new DataCombination(data
+					.getParticipantIds(), "all");
 			addDataCombinationNode(data, root, combination);
 		}
 		return root;

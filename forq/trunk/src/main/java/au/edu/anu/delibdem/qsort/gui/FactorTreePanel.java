@@ -1,16 +1,10 @@
 package au.edu.anu.delibdem.qsort.gui;
 
 import java.awt.GridLayout;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTree;
 import javax.swing.event.TreeSelectionEvent;
@@ -20,13 +14,9 @@ import javax.swing.tree.TreeSelectionModel;
 
 import moten.david.util.event.Event;
 import moten.david.util.event.EventManager;
-import moten.david.util.math.FactorAnalysisException;
 import moten.david.util.math.FactorAnalysisResults;
-import moten.david.util.math.FactorExtractionMethod;
 import moten.david.util.math.Matrix;
 import moten.david.util.math.MatrixProvider;
-import moten.david.util.math.Varimax.RotationMethod;
-import au.edu.anu.delibdem.qsort.Data;
 
 public class FactorTreePanel extends JPanel {
 
@@ -138,19 +128,6 @@ public class FactorTreePanel extends JPanel {
 				}
 			}
 		});
-	}
-
-	public static void main(String[] args) throws FileNotFoundException,
-			IOException, FactorAnalysisException {
-		Data data = new Data(new FileInputStream("src/New Mexico.txt"));
-		Matrix matrix = data.getRawData(data.getParticipantTypes().iterator()
-				.next(), data.getStageTypes().iterator().next(), null, 1);
-		Set<RotationMethod> set = new HashSet<RotationMethod>();
-		set.add(RotationMethod.NONE);
-		FactorAnalysisResults r = matrix.analyzeFactors(
-				FactorExtractionMethod.PRINCIPAL_COMPONENTS_ANALYSIS, set);
-		JFrame frame = new QuickFrame(new FactorPanel(r));
-		frame.setSize(600, frame.getSize().height);
 	}
 
 }
