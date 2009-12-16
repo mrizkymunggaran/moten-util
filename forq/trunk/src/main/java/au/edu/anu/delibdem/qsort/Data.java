@@ -100,15 +100,15 @@ public class Data implements Serializable {
 	private static enum Marker {
 		STARTED, TITLE_READ, NUM_PARTICIPANTS_READ, NUM_VARIABLES_READ, PARTICIPANT_DATA_READ, NUM_Q_STATEMENTS_READ, NUM_P_STATEMENTS_READ, DATA_READ, STATEMENTS_READ, STATEMENTS_DATA_READ;
 	}
-	
+
 	private boolean isCommand(String line) {
 		return line.startsWith(":");
 	}
-	
+
 	private boolean isTitle(String line) {
 		return line.startsWith(":Title");
 	}
-	
+
 	private boolean isStatements(String line) {
 		return line.startsWith(":Statements");
 	}
@@ -129,7 +129,6 @@ public class Data implements Serializable {
 		return line.startsWith(":Participants");
 	}
 
-
 	public void load(InputStream is) throws IOException {
 		log.info("loading data..");
 		InputStreamReader isr = new InputStreamReader(is);
@@ -148,11 +147,10 @@ public class Data implements Serializable {
 			log.info(line);
 
 			if (marker.equals(Marker.STARTED) && isTitle(line)) {
-				//is title
+				// is title
 				title = getValue(line, 1);
 				marker = Marker.TITLE_READ;
-			} else if (marker.equals(Marker.TITLE_READ)
-					&& isParticipants(line)) {
+			} else if (marker.equals(Marker.TITLE_READ) && isParticipants(line)) {
 				// is num participants
 				numParticipants = Integer.parseInt(getValue(line, 1));
 				marker = Marker.NUM_PARTICIPANTS_READ;
@@ -200,8 +198,12 @@ public class Data implements Serializable {
 				// is statement data
 				String[] items = line.split(TAB);
 				statements.put(Integer.parseInt(items[0]), items[1]);
-			} else 
-				throw new RuntimeException("Line " + br.getLinesRead() + " was unexpected. Please compare your file to the example forq input file. Perhaps the lines are not in the right order?\n"+ line);
+			} else
+				throw new RuntimeException(
+						"Line "
+								+ br.getLinesRead()
+								+ " was unexpected. Please compare your file to the example forq input file. Perhaps the lines are not in the right order?\n"
+								+ line);
 		}
 		br.close();
 		isr.close();
@@ -209,15 +211,17 @@ public class Data implements Serializable {
 		log.info("loaded");
 	}
 
-	
-	private void processQSortLine(String line, int numQStatements, int numPStatements) {
+	private void processQSortLine(String line, int numQStatements,
+			int numPStatements) {
 
 		String[] items = line.split(TAB);
 		QSort q = new QSort();
 		Participant participant = participants.get(items[0]);
 		if (participant == null)
 			throw new RuntimeException(
-					"Participant " + items[0]+ " not found on qsort line. Have you declared it in the participants section?");
+					"Participant "
+							+ items[0]
+							+ " not found on qsort line. Have you declared it in the participants section?");
 		q.setParticipant(participant);
 		q.setStage(items[1]);
 		for (int j = 2; j < 2 + numQStatements; j++)
@@ -225,7 +229,7 @@ public class Data implements Serializable {
 		for (int j = 2 + numQStatements; j < 2 + numQStatements
 				+ numPStatements; j++)
 			q.getRankings().add(getDouble(items[j]));
-		qSorts.add(q);		
+		qSorts.add(q);
 	}
 
 	/**
@@ -654,13 +658,13 @@ public class Data implements Serializable {
 	}
 
 	public Matrix getRawData(DataCombination dataCombination,
-			Set<Integer> exclusions, Set<Integer> filter, int dataSet) {
+			Set<Integer> exclusions, int dataSet) {
 		return getRawData(dataCombination.getParticipantType(), dataCombination
-				.getStage(), exclusions, filter, dataSet);
+				.getStage(), exclusions, dataSet);
 	}
 
 	public Matrix getRawData(String participantType, String stage,
-			Set<Integer> exclusions, Set<Integer> filter, int dataSet) {
+			Set<Integer> exclusions, int dataSet) {
 		List<QSort> subList = restrictList(participantType, stage, exclusions);
 
 		if (subList.size() == 0) {
@@ -698,8 +702,8 @@ public class Data implements Serializable {
 	}
 
 	public void analyze(boolean forced, String participantType, String stage,
-			Set<Integer> exclusions, Set<Integer> filter, int dataSet,
-			double threshold, boolean doPca, boolean doCentroid,
+			Set<Integer> exclusions, int dataSet, double threshold,
+			boolean doPca, boolean doCentroid,
 			Set<RotationMethod> rotationMethods, SimpleHeirarchicalFormatter f) {
 
 		if (!forced) {
@@ -710,8 +714,7 @@ public class Data implements Serializable {
 			return;
 		}
 
-		Matrix m = getRawData(participantType, stage, exclusions, filter,
-				dataSet);
+		Matrix m = getRawData(participantType, stage, exclusions, dataSet);
 		if (m == null) {
 			f.header("Error", true);
 			f.blockStart();

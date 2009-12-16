@@ -19,19 +19,24 @@ import moten.david.util.math.Matrix;
 import moten.david.util.math.MatrixProvider;
 import moten.david.util.math.gui.JMatrix;
 import au.edu.anu.delibdem.qsort.Data;
+import au.edu.anu.delibdem.qsort.gui.injection.ApplicationInjector;
+
+import com.google.inject.Inject;
 
 public class MainFrame extends JFrame {
 
 	private static final long serialVersionUID = 7824719192824923010L;
+	private final EventManager eventManager;
 
-	public MainFrame() {
+	@Inject
+	public MainFrame(MainPanel mainPanel, EventManager eventManager) {
+		this.eventManager = eventManager;
 		setSize(800, 600);
 
 		getContentPane().setLayout(new BorderLayout());
 
 		createMenuBar();
 
-		MainPanel mainPanel = new MainPanel();
 		getContentPane().add(mainPanel, BorderLayout.CENTER);
 
 		createStatusBar();
@@ -50,7 +55,7 @@ public class MainFrame extends JFrame {
 	}
 
 	private void createEditPreferencesListener() {
-		EventManager.getInstance().addListener(Events.PREFERENCES,
+		eventManager.addListener(Events.PREFERENCES,
 				new EventManagerListener() {
 					@Override
 					public void notify(Event event) {
@@ -62,22 +67,21 @@ public class MainFrame extends JFrame {
 	}
 
 	private void createSetReferenceListener() {
-		EventManager.getInstance().addListener(Events.SET_REFERENCE,
+		eventManager.addListener(Events.SET_REFERENCE,
 				new EventManagerListener() {
 					@Override
 					public void notify(Event event) {
 						Model.getInstance().setReference(
 								(MatrixProvider) event.getObject());
-						EventManager.getInstance().notify(
-								new Event(event.getObject(),
-										Events.REFERENCE_SET));
+						eventManager.notify(new Event(event.getObject(),
+								Events.REFERENCE_SET));
 					}
 				});
 	}
 
 	private void createOpenObjectListener() {
 		final JFrame frame = this;
-		EventManager.getInstance().addListener(Events.OPEN_OBJECT,
+		eventManager.addListener(Events.OPEN_OBJECT,
 				new EventManagerListener() {
 					@Override
 					public void notify(Event event) {
@@ -104,7 +108,7 @@ public class MainFrame extends JFrame {
 	}
 
 	private void createExitListener() {
-		EventManager.getInstance().addListener(Events.APPLICATION_EXIT,
+		eventManager.addListener(Events.APPLICATION_EXIT,
 				new EventManagerListener() {
 
 					public void notify(Event arg0) {
@@ -121,15 +125,14 @@ public class MainFrame extends JFrame {
 		final JLabel status = new JLabel(" ");
 		final Stack<String> messages = new Stack<String>();
 		getContentPane().add(status, BorderLayout.PAGE_END);
-		EventManager.getInstance().addListener(Events.STATUS,
-				new EventManagerListener() {
-					public void notify(Event event) {
-						String message = (String) event.getObject();
-						messages.push(message);
-						status.setText(message);
-					}
-				});
-		EventManager.getInstance().addListener(Events.STATUS_FINISHED,
+		eventManager.addListener(Events.STATUS, new EventManagerListener() {
+			public void notify(Event event) {
+				String message = (String) event.getObject();
+				messages.push(message);
+				status.setText(message);
+			}
+		});
+		eventManager.addListener(Events.STATUS_FINISHED,
 				new EventManagerListener() {
 					public void notify(Event event) {
 						messages.pop();
@@ -144,7 +147,24 @@ public class MainFrame extends JFrame {
 
 	private void createFilterListener() {
 		final JFrame frame = this;
-		EventManager.getInstance().addListener(Events.FILTER,
+		eventManager.addListener(Events.FILTER, new EventManagerListener() {
+			@Override
+			public void notify(Event event) {
+				JDialog dialog = new JDialog(frame);
+				dialog.setIconImage(LookAndFeel.getPersonIcon().getImage());
+				dialog.setTitle("Participants");
+				dialog.setSize(300, frame.getHeight() * 2 / 3);
+				dialog.getContentPane().setLayout(new GridLayout(1, 1));
+				dialog.getContentPane().add(
+						new ParticipantsPanel((Data) event.getObject()));
+				dialog.setModal(false);
+				int x = frame.getLocation().x + frame.getWidth() - 2
+						* dialog.getWidth() - 50;
+				dialog.setLocation(x, frame.getLocation().y + 150);
+				dialog.setVisible(true);
+			}
+		});
+		eventManager.addListener(Events.NEW_DATA_COMBINATION,
 				new EventManagerListener() {
 					@Override
 					public void notify(Event event) {
@@ -165,13 +185,17 @@ public class MainFrame extends JFrame {
 						dialog.setVisible(true);
 					}
 				});
+
 	}
 
 	public static void main(String[] args) throws ClassNotFoundException,
 			InstantiationException, IllegalAccessException,
 			UnsupportedLookAndFeelException {
 		LookAndFeel.setLookAndFeel();
-		final MainFrame frame = new MainFrame();
+		final MainFrame frame = ApplicationInjector.getInjector().getInstance(
+				MainFrame.class);
+		final EventManager eventManager = ApplicationInjector.getInjector()
+				.getInstance(EventManager.class);
 		frame.setTitle("ForQ");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -180,12 +204,10 @@ public class MainFrame extends JFrame {
 			public void run() {
 				SwingUtil.centre(frame);
 				frame.setVisible(true);
+				if ("true".equals(System.getProperty("openSamples")))
+					eventManager.notify(new Event(null, Events.OPEN_SAMPLES));
 			}
 		});
-
-		if ("true".equals(System.getProperty("openSamples")))
-			EventManager.getInstance().notify(
-					new Event(null, Events.OPEN_SAMPLES));
 
 	}
 }

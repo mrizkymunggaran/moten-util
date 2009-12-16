@@ -18,6 +18,7 @@ import au.edu.anu.delibdem.qsort.Data;
 import au.edu.anu.delibdem.qsort.DataCombination;
 import au.edu.anu.delibdem.qsort.QSort;
 import au.edu.anu.delibdem.qsort.Data.DataComponents;
+import au.edu.anu.delibdem.qsort.gui.injection.ApplicationInjector;
 
 public class DataTree extends JTree {
 
@@ -25,13 +26,11 @@ public class DataTree extends JTree {
 
 	private DefaultMutableTreeNode referenceNode;
 
-	private final Data data;
-
 	public DataTree(Data data) {
 		super(getRoot(data));
-		this.data = data;
 		this.setEditable(true);
 		this.setCellEditor(new MyCellEditor());
+
 		setRootVisible(false);
 		setShowsRootHandles(true);
 		DefaultTreeCellRenderer renderer = new MyRenderer();
@@ -82,18 +81,21 @@ public class DataTree extends JTree {
 		Collection<String> stageTypes = data.getStageTypes();
 		Collection<String> participantTypes = data.getParticipantTypes();
 		DefaultMutableTreeNode root = new DefaultMutableTreeNode();
-		for (String participantType : participantTypes) {
-			for (String stage : stageTypes) {
-				DataCombination combination = new DataCombination(
-						participantType, stage);
-				addDataCombinationNode(data, root, combination);
+		Configuration configuration = ApplicationInjector
+				.getInjector().getInstance(Configuration.class);
+		if (configuration.provideDataCombinationForEveryVariable())
+			for (String participantType : participantTypes) {
+				for (String stage : stageTypes) {
+					DataCombination combination = new DataCombination(
+							participantType, stage);
+					addDataCombinationNode(data, root, combination);
+				}
+				if (stageTypes.size() > 1) {
+					DataCombination combination = new DataCombination(
+							participantType, "all");
+					addDataCombinationNode(data, root, combination);
+				}
 			}
-			if (stageTypes.size() > 1) {
-				DataCombination combination = new DataCombination(
-						participantType, "all");
-				addDataCombinationNode(data, root, combination);
-			}
-		}
 		if (participantTypes.size() > 1) {
 			for (String stage : data.getStageTypes()) {
 				DataCombination combination = new DataCombination("all", stage);
@@ -106,5 +108,4 @@ public class DataTree extends JTree {
 		}
 		return root;
 	}
-
 }

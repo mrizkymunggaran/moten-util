@@ -1,7 +1,5 @@
 package moten.david.util.math;
 
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -13,9 +11,6 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import moten.david.util.math.Matrix.FactorScoreCombination;
-import moten.david.util.math.Matrix.FactorScoreStrategy;
-import moten.david.util.math.Varimax.RotationMethod;
-import au.edu.anu.delibdem.qsort.Data;
 
 public class FactorScoreAnalyzer {
 
@@ -135,31 +130,6 @@ public class FactorScoreAnalyzer {
 			}
 		}
 		return map;
-	}
-
-	public static void main(String[] args) throws IOException,
-			FactorAnalysisException {
-		Data data = new Data("src/New Mexico.txt");
-		String participantType = "all";
-		String stage = "all";
-		int axis = 1;
-		double threshold = 1;
-		boolean doPca = true;
-		boolean doCentroid = false;
-		Matrix raw = data.getRawData(participantType, stage, null, null, axis);
-
-		FactorAnalysisResults results = raw
-				.analyzeFactors(
-						FactorExtractionMethod.PRINCIPAL_COMPONENTS_ANALYSIS,
-						1.0, null);
-		double scoresThreshold = 2.58 / Math.sqrt(raw.rowCount());
-		Matrix m = raw.getFactorScores(results.getRotatedLoadings().get(
-				RotationMethod.VARIMAX), scoresThreshold,
-				FactorScoreStrategy.ZERO_ROWS_WITH_MORE_THAN_ONE_ENTRY);
-
-		FactorScoreAnalyzer a = new FactorScoreAnalyzer(m);
-		a.format(FactorAnalysisResults.getTextFormatter(new PrintWriter(
-				System.out)));
 	}
 
 	public void format2(SimpleHeirarchicalFormatter f) {

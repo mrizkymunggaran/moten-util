@@ -18,12 +18,18 @@ import moten.david.util.event.EventManager;
 import moten.david.util.event.EventManagerListener;
 import au.edu.anu.delibdem.qsort.Data;
 
+import com.google.inject.Inject;
+
 public class MainPanel extends JPanel {
 
 	private static final String PREF_OPEN_STUDY_CURRENT_DIRECTORY = "open.study.current.directory";
 	private static final long serialVersionUID = -4881720973156188291L;
+	private final EventManager eventManager;
 
-	public MainPanel() {
+	@Inject
+	public MainPanel(EventManager eventManager) {
+		this.eventManager = eventManager;
+
 		setLayout(new GridLayout(1, 1));
 
 		final JTabbedPane tabs = new JTabbedPane();
@@ -32,43 +38,36 @@ public class MainPanel extends JPanel {
 		try {
 
 			final Component owner = this;
-			EventManager.getInstance().addListener(Events.OPEN,
-					new EventManagerListener() {
-						public void notify(Event arg0) {
-							try {
-								Preferences prefs = java.util.prefs.Preferences
-										.userNodeForPackage(this.getClass());
+			eventManager.addListener(Events.OPEN, new EventManagerListener() {
+				public void notify(Event arg0) {
+					try {
+						Preferences prefs = java.util.prefs.Preferences
+								.userNodeForPackage(this.getClass());
 
-								// Create a file chooser
-								final JFileChooser fc = new JFileChooser();
-								String directoryName = prefs
-										.get(PREF_OPEN_STUDY_CURRENT_DIRECTORY,
-												null);
-								if (directoryName != null)
-									fc.setCurrentDirectory(new File(
-											directoryName));
-								fc.setMultiSelectionEnabled(true);
-								// In response to a button click:
-								if (fc.showOpenDialog(owner) == JFileChooser.APPROVE_OPTION) {
-									File[] files = fc.getSelectedFiles();
-									for (File file : files) {
-										tabs.addTab(file.getName(),
-												new DataPanel(new Data(
-														new FileInputStream(
-																file))));
-									}
-									prefs.put(
-											PREF_OPEN_STUDY_CURRENT_DIRECTORY,
-											fc.getCurrentDirectory()
-													.getAbsolutePath());
-								}
-							} catch (Exception e) {
-								throw new Error(e);
+						// Create a file chooser
+						final JFileChooser fc = new JFileChooser();
+						String directoryName = prefs.get(
+								PREF_OPEN_STUDY_CURRENT_DIRECTORY, null);
+						if (directoryName != null)
+							fc.setCurrentDirectory(new File(directoryName));
+						fc.setMultiSelectionEnabled(true);
+						// In response to a button click:
+						if (fc.showOpenDialog(owner) == JFileChooser.APPROVE_OPTION) {
+							File[] files = fc.getSelectedFiles();
+							for (File file : files) {
+								tabs.addTab(file.getName(), new DataPanel(
+										new Data(new FileInputStream(file))));
 							}
+							prefs.put(PREF_OPEN_STUDY_CURRENT_DIRECTORY, fc
+									.getCurrentDirectory().getAbsolutePath());
 						}
-					});
+					} catch (Exception e) {
+						throw new Error(e);
+					}
+				}
+			});
 
-			EventManager.getInstance().addListener(Events.OPEN_SAMPLES,
+			eventManager.addListener(Events.OPEN_SAMPLES,
 					new EventManagerListener() {
 						public void notify(Event event) {
 							try {

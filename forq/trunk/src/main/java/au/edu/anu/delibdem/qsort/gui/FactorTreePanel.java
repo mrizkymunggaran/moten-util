@@ -144,7 +144,7 @@ public class FactorTreePanel extends JPanel {
 			IOException, FactorAnalysisException {
 		Data data = new Data(new FileInputStream("src/New Mexico.txt"));
 		Matrix matrix = data.getRawData(data.getParticipantTypes().iterator()
-				.next(), data.getStageTypes().iterator().next(), null, null, 1);
+				.next(), data.getStageTypes().iterator().next(), null, 1);
 		Set<RotationMethod> set = new HashSet<RotationMethod>();
 		set.add(RotationMethod.NONE);
 		FactorAnalysisResults r = matrix.analyzeFactors(

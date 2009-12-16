@@ -110,8 +110,8 @@ public class DataGraphPanel extends JPanel {
 
 	private Matrix getMatrix(Data data, DataCombination combination,
 			boolean isIntersubjective) {
-		Matrix m = data.getRawData(combination, null, null,
-				(isIntersubjective ? 1 : 2));
+		Matrix m = data.getRawData(combination, null, (isIntersubjective ? 1
+				: 2));
 		return m;
 	}
 
