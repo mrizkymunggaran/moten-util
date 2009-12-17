@@ -21,18 +21,21 @@ import java.util.Set;
 
 import javax.swing.JFrame;
 
-import org.apache.commons.math.MathException;
-import org.apache.commons.math.distribution.TDistribution;
-import org.apache.commons.math.distribution.TDistributionImpl;
-
 import moten.david.util.StringOutputStream;
 import moten.david.util.math.Varimax.RotationMethod;
 import moten.david.util.math.gui.GraphPanel;
 import moten.david.util.permutation.Possibility;
 import moten.david.util.permutation.Processor;
 import moten.david.util.web.html.Html;
+
+import org.apache.commons.math.MathException;
+import org.apache.commons.math.distribution.TDistribution;
+import org.apache.commons.math.distribution.TDistributionImpl;
+
 import Jama.EigenvalueDecomposition;
 import Jama.SingularValueDecomposition;
+import au.edu.anu.delibdem.qsort.gui.EigenvalueThreshold;
+import au.edu.anu.delibdem.qsort.gui.EigenvalueThreshold.PrincipalFactorCriterion;
 
 /**
  * @author dave
@@ -582,7 +585,7 @@ public class Matrix implements Html, Serializable, MatrixProvider {
 		// c.setValue(10, 10, 0.82);
 
 		m.analyzeFactors(FactorExtractionMethod.PRINCIPAL_COMPONENTS_ANALYSIS,
-				0.5, null);
+				new EigenvalueThreshold(0.5), null);
 
 		m = new Matrix(new double[][] { { 1, 2, 3 }, { 2, 3, 4 }, { 4, 7, 9 } });
 		Matrix m2 = new Matrix(new double[][] { { 1, 1.5, 4 }, { 3, 4, 5 },
@@ -600,11 +603,11 @@ public class Matrix implements Html, Serializable, MatrixProvider {
 
 	public FactorAnalysisResults analyzeFactors(
 			FactorExtractionMethod extractionMethod,
-			double eigenvalueLowerLimit, Set<RotationMethod> rotationMethods)
-			throws FactorAnalysisException {
+			EigenvalueThreshold eigenvalueThreshold,
+			Set<RotationMethod> rotationMethods) throws FactorAnalysisException {
 		Matrix c = getPearsonCorrelationMatrix();
 		FactorAnalysisResults r = c.analyzeCorrelationMatrixFactors(
-				extractionMethod, eigenvalueLowerLimit, rotationMethods);
+				extractionMethod, eigenvalueThreshold, rotationMethods);
 		r.setInitial(this);
 		return r;
 	}
@@ -686,14 +689,14 @@ public class Matrix implements Html, Serializable, MatrixProvider {
 		// return analyzeCorrelationMatrixFactors(extractionMethod, 2.5 * 1 /
 		// Math
 		// .sqrt(rowCount()));
-		return analyzeCorrelationMatrixFactors(extractionMethod, 1.0,
-				rotationMethods);
+		return analyzeCorrelationMatrixFactors(extractionMethod,
+				new EigenvalueThreshold(1.0), rotationMethods);
 	}
 
 	public FactorAnalysisResults analyzeCorrelationMatrixFactors(
 			FactorExtractionMethod extractionMethod,
-			double eigenvalueThreshold, Set<RotationMethod> rotationMethods)
-			throws FactorAnalysisException {
+			EigenvalueThreshold eigenvalueThreshold,
+			Set<RotationMethod> rotationMethods) throws FactorAnalysisException {
 		final FactorAnalysisResults r = new FactorAnalysisResults();
 		r.extractionMethod = extractionMethod;
 		r.setCorrelations(this);
@@ -715,8 +718,15 @@ public class Matrix implements Html, Serializable, MatrixProvider {
 			r.getEigenvectors().setColumnLabelPattern("F<reverse-index>");
 			r.setPrincipalEigenvalues(r.getEigenvalues().copy());
 			r.setPrincipalEigenvectors(r.getEigenvectors().copy());
-			for (int i = r.getEigenvalues().rowCount(); i >= 1; i--) {
-				if (r.getEigenvalues().getValue(i, i) < eigenvalueThreshold) {
+			for (int i = 1; i <= r.getEigenvalues().rowCount(); i++) {
+				if (eigenvalueThreshold.getPrincipalFactorCriterion().equals(
+						PrincipalFactorCriterion.MIN_EIGENVALUE)
+						&& r.getEigenvalues().getValue(i, i) < eigenvalueThreshold
+								.getMinEigenvalue()
+						|| eigenvalueThreshold.getPrincipalFactorCriterion()
+								.equals(PrincipalFactorCriterion.MAX_FACTORS)
+						&& r.getPrincipalEigenvalues().rowCount() > eigenvalueThreshold
+								.getMaxFactors()) {
 					r.setPrincipalEigenvalues(r.getPrincipalEigenvalues()
 							.removeRow(i).removeColumn(i));
 					r.setPrincipalEigenvectors(r.getPrincipalEigenvectors()
@@ -755,8 +765,11 @@ public class Matrix implements Html, Serializable, MatrixProvider {
 			r.setPrincipalEigenvalues(results.eigenvalues);
 			r.setPrincipalEigenvectors(results.eigenvectors);
 			Matrix loadings = results.loadings;
-			for (int i = loadings.columnCount(); i >= 1; i--) {
-				if (loadings.getColumnVector(i).getSquare().getSum() < eigenvalueThreshold) {
+			for (int i = 1; i <= loadings.columnCount(); i++) {
+				if (eigenvalueThreshold.getPrincipalFactorCriterion().equals(
+						PrincipalFactorCriterion.MIN_EIGENVALUE)
+						&& loadings.getColumnVector(i).getSquare().getSum() < eigenvalueThreshold
+								.getMinEigenvalue()) {
 					loadings = loadings.removeColumn(i);
 					r.setPrincipalEigenvalues(r.getPrincipalEigenvalues()
 							.removeRow(i));
@@ -765,6 +778,30 @@ public class Matrix implements Html, Serializable, MatrixProvider {
 					r.setPrincipalEigenvectors(r.getPrincipalEigenvectors()
 							.removeColumn(i));
 				}
+			}
+			// no apply the max factors criterion if set
+			if (eigenvalueThreshold.getPrincipalFactorCriterion().equals(
+					PrincipalFactorCriterion.MAX_FACTORS)
+					&& r.getPrincipalEigenvalues().rowCount() > eigenvalueThreshold
+							.getMaxFactors()) {
+				// for each extraneous row
+				int extraRows = r.getPrincipalEigenvalues().rowCount()
+						- eigenvalueThreshold.getMaxFactors();
+				for (int j = 1; j <= extraRows; j++) {
+					// remove the row and col from loadings,
+					// principalEigenvalues and principalEigenvectors if
+					// it contains the smallest eigenvalue
+					Point pos = r.getPrincipalEigenvalues().getDiagonal()
+							.getPositionOfMinValue();
+					loadings = loadings.removeColumn(pos.x);
+					r.setPrincipalEigenvalues(r.getPrincipalEigenvalues()
+							.removeRow(pos.x));
+					r.setPrincipalEigenvalues(r.getPrincipalEigenvalues()
+							.removeColumn(pos.x));
+					r.setPrincipalEigenvectors(r.getPrincipalEigenvectors()
+							.removeColumn(pos.x));
+				}
+
 			}
 			r.setPrincipalLoadings(loadings);
 		}
@@ -862,8 +899,8 @@ public class Matrix implements Html, Serializable, MatrixProvider {
 	}
 
 	/**
-	 * @param pattern -
-	 *            the value <column> is substituted with the column number
+	 * @param pattern
+	 *            - the value <column> is substituted with the column number
 	 */
 	public Matrix setColumnLabelPattern(String pattern) {
 		for (int i = 1; i <= columnCount(); i++) {
@@ -875,8 +912,8 @@ public class Matrix implements Html, Serializable, MatrixProvider {
 	}
 
 	/**
-	 * @param pattern -
-	 *            the value <column> is substituted with the column number
+	 * @param pattern
+	 *            - the value <column> is substituted with the column number
 	 */
 	public Matrix setRowLabelPattern(String pattern) {
 		for (int i = 1; i <= rowCount(); i++) {
@@ -1201,6 +1238,20 @@ public class Matrix implements Html, Serializable, MatrixProvider {
 				if (getValue(i, j) > max) {
 					p = new Point(i, j);
 					max = getValue(i, j);
+				}
+			}
+		}
+		return p;
+	}
+
+	public Point getPositionOfMinValue() {
+		Point p = new Point(1, 1);
+		double min = getValue(1, 1);
+		for (int i = 1; i <= rowCount(); i++) {
+			for (int j = 1; j <= columnCount(); j++) {
+				if (getValue(i, j) < min) {
+					p = new Point(i, j);
+					min = getValue(i, j);
 				}
 			}
 		}

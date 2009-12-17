@@ -1,5 +1,7 @@
 package au.edu.anu.delibdem.qsort.gui;
 
+import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -12,9 +14,8 @@ import java.util.Set;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.JSlider;
 import javax.swing.SpringLayout;
 import javax.swing.Timer;
@@ -30,14 +31,14 @@ import moten.david.util.math.Matrix;
 import moten.david.util.math.Varimax.RotationMethod;
 import moten.david.util.math.gui.GraphPanel;
 import au.edu.anu.delibdem.qsort.Data;
-import au.edu.anu.delibdem.qsort.DataCombination;
+import au.edu.anu.delibdem.qsort.DataSelection;
 import au.edu.anu.delibdem.qsort.QSort;
 
 public class DataGraphPanel extends JPanel {
 
 	private static final long serialVersionUID = 998590047676207490L;
 	private Data data;
-	private DataCombination combination;
+	private DataSelection combination;
 	private final List<EventManager> eventManagers = new ArrayList<EventManager>();
 
 	private GraphPanel gp;
@@ -46,11 +47,11 @@ public class DataGraphPanel extends JPanel {
 		return gp;
 	}
 
-	public DataCombination getCombination() {
+	public DataSelection getCombination() {
 		return combination;
 	}
 
-	public void setCombination(DataCombination combination) {
+	public void setCombination(DataSelection combination) {
 		this.combination = combination;
 	}
 
@@ -58,10 +59,12 @@ public class DataGraphPanel extends JPanel {
 		this.data = data;
 	}
 
-	public DataGraphPanel(Data data, DataCombination combination) {
+	public DataGraphPanel(Data data, DataSelection combination) {
 		super();
 		this.data = data;
 		this.combination = combination;
+		setBackground(Color.white);
+		setOpaque(true);
 		update();
 	}
 
@@ -90,7 +93,8 @@ public class DataGraphPanel extends JPanel {
 									+ "...");
 					FactorAnalysisResults r = getFactorAnalysisResults(data,
 							combination, analysis.isIntersubjective(), analysis
-									.getExtractionMethod());
+									.getExtractionMethod(), analysis
+									.getEigenvalueThreshold());
 
 					if (r != null) {
 						r.setTitle(analysis.getTitle());
@@ -101,14 +105,14 @@ public class DataGraphPanel extends JPanel {
 				for (EventManager eventManager : eventManagers) {
 					eventManager.notify(new Event(results
 							.toArray(new FactorAnalysisResults[0]),
-							Events.ANALYZE));
+							Events.ANALYZED));
 				}
 			}
 		});
 		t.start();
 	}
 
-	private Matrix getMatrix(Data data, DataCombination combination,
+	private Matrix getMatrix(Data data, DataSelection combination,
 			boolean isIntersubjective) {
 		Matrix m = data.getRawData(combination, null, (isIntersubjective ? 1
 				: 2));
@@ -116,24 +120,18 @@ public class DataGraphPanel extends JPanel {
 	}
 
 	private FactorAnalysisResults getFactorAnalysisResults(Data data,
-			DataCombination dataCombination, boolean isIntersubjective,
-			FactorExtractionMethod method) {
+			DataSelection dataSelection, boolean isIntersubjective,
+			FactorExtractionMethod method,
+			EigenvalueThreshold eigenvalueThreshold) {
 		Set<RotationMethod> rotationMethods = new HashSet<RotationMethod>();
 		rotationMethods.add(RotationMethod.VARIMAX);
 		try {
-			Matrix m = getMatrix(data, dataCombination, isIntersubjective);
+			Matrix m = getMatrix(data, dataSelection, isIntersubjective);
 			if (m == null)
 				return null;
-			return m
-					.analyzeFactors(
-							method,
-							Preferences
-									.getInstance()
-									.getDouble(
-											Preferences.EIGENVALUE_THRESHOLD,
-											Double
-													.parseDouble(Preferences.EIGENVALUE_THRESHOLD_DEFAULT)),
-							rotationMethods);
+
+			return m.analyzeFactors(method, eigenvalueThreshold,
+					rotationMethods);
 		} catch (FactorAnalysisException e) {
 			throw new Error(e);
 		}
@@ -155,7 +153,7 @@ public class DataGraphPanel extends JPanel {
 		gp = data.getGraph(list, labelPoints, 200, null, null,
 				showRegressionLines);
 		if (gp != null) {
-			gp.setBackground(getBackground());
+			gp.setOpaque(false);
 			panel.add(gp);
 		}
 		showLabels.setVisible(gp != null);
@@ -187,13 +185,28 @@ public class DataGraphPanel extends JPanel {
 				gp.repaint();
 			}
 		});
-		final JPopupMenu popup = createPopupMenu();
-		analyze.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				popup.show(analyze, 0, analyze.getHeight());
-			}
-		});
+		analyze.addActionListener(createAnalyzeActionListener());
 		return panel;
+	}
+
+	private ActionListener createAnalyzeActionListener() {
+		return new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				AnalyzeOptionsPanel options = new AnalyzeOptionsPanel();
+				options.setPreferredSize(new Dimension(300, 80));
+				int choice = JOptionPane.showOptionDialog(null, options,
+						"Analysis Options", JOptionPane.OK_CANCEL_OPTION,
+						JOptionPane.PLAIN_MESSAGE, null, null, null);
+				if (choice == JOptionPane.OK_OPTION) {
+					doit(new AnalysisConfiguration("Q Sorts", options
+							.getFactorExtractionMethod(), options
+							.getEigenvalueThreshold(), true),
+							new AnalysisConfiguration("Preferences", options
+									.getFactorExtractionMethod(), options
+									.getEigenvalueThreshold(), false));
+				}
+			}
+		};
 	}
 
 	@SuppressWarnings("unchecked")
@@ -314,12 +327,7 @@ public class DataGraphPanel extends JPanel {
 			}
 		});
 		// animate.doClick();
-		final JPopupMenu popup = createPopupMenu();
-		analyze.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				popup.show(analyze, 0, analyze.getHeight());
-			}
-		});
+		analyze.addActionListener(createAnalyzeActionListener());
 		return panel;
 	}
 
@@ -337,6 +345,11 @@ public class DataGraphPanel extends JPanel {
 
 	public static class AnalysisConfiguration {
 		private final String title;
+		private final EigenvalueThreshold eigenvalueThreshold;
+
+		public EigenvalueThreshold getEigenvalueThreshold() {
+			return eigenvalueThreshold;
+		}
 
 		public String getTitle() {
 			return title;
@@ -352,41 +365,17 @@ public class DataGraphPanel extends JPanel {
 
 		public AnalysisConfiguration(String title,
 				FactorExtractionMethod extractionMethod,
+				EigenvalueThreshold eigenvalueThreshold,
 				boolean isIntersubjective) {
 			super();
 			this.title = title;
 			this.extractionMethod = extractionMethod;
+			this.eigenvalueThreshold = eigenvalueThreshold;
 			this.isIntersubjective = isIntersubjective;
 		}
 
 		private final FactorExtractionMethod extractionMethod;
 		private final boolean isIntersubjective;
-	}
-
-	private JPopupMenu createPopupMenu() {
-		final JPopupMenu popup = new JPopupMenu();
-		JMenuItem item = new JMenuItem("Principal Components Analysis");
-		popup.add(item);
-		item.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				doit(new AnalysisConfiguration("Q Sorts",
-						FactorExtractionMethod.PRINCIPAL_COMPONENTS_ANALYSIS,
-						true), new AnalysisConfiguration("Preferences",
-						FactorExtractionMethod.PRINCIPAL_COMPONENTS_ANALYSIS,
-						false));
-			}
-		});
-		item = new JMenuItem("Centroid Method");
-		popup.add(item);
-		item.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				doit(new AnalysisConfiguration("Subjective",
-						FactorExtractionMethod.CENTROID_METHOD, true),
-						new AnalysisConfiguration("Preferences",
-								FactorExtractionMethod.CENTROID_METHOD, false));
-			}
-		});
-		return popup;
 	}
 
 }

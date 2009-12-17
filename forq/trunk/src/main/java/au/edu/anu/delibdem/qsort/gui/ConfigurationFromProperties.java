@@ -3,8 +3,7 @@ package au.edu.anu.delibdem.qsort.gui;
 import java.io.IOException;
 import java.util.Properties;
 
-public class ConfigurationFromProperties implements
-		Configuration {
+public class ConfigurationFromProperties implements Configuration {
 
 	private static final String CONFIGURATION_RESOURCE = "/configuration.properties";
 	private final Properties props;
@@ -21,8 +20,8 @@ public class ConfigurationFromProperties implements
 	}
 
 	@Override
-	public boolean provideDataCombinationForEveryVariable() {
-		return getBoolean("provide.data.combination.for.every.variable");
+	public boolean provideDataSelectionForEveryVariable() {
+		return getBoolean("provide.data.selection.for.every.variable");
 	}
 
 	private boolean getBoolean(String name) {

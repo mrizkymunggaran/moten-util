@@ -138,7 +138,7 @@ public class GraphPanel extends JPanel {
 		this.vector2 = vector2;
 		this.proportionDrawn = proportionDrawn;
 		UIDefaults uiDefaults = UIManager.getDefaults();
-		this.setBackground(uiDefaults.getColor("TextArea.background"));
+		this.setBackground(uiDefaults.getColor("TextBox.background"));
 		setLayout(new GridLayout(1, 1));
 		SpringLayout layout = new SpringLayout();
 		setLayout(layout);

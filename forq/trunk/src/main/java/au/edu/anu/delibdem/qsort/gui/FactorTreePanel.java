@@ -17,6 +17,7 @@ import moten.david.util.event.EventManager;
 import moten.david.util.math.FactorAnalysisResults;
 import moten.david.util.math.Matrix;
 import moten.david.util.math.MatrixProvider;
+import au.edu.anu.delibdem.qsort.gui.EigenvalueThreshold.PrincipalFactorCriterion;
 
 public class FactorTreePanel extends JPanel {
 
@@ -62,11 +63,28 @@ public class FactorTreePanel extends JPanel {
 						m.setRowLabel(1, "Item");
 						m.setColumnLabel(1, "Value");
 						return m;
+					} else if (result instanceof EigenvalueThreshold) {
+						EigenvalueThreshold et = (EigenvalueThreshold) result;
+						return getMatrix(et);
 					} else
 						throw new Error("not sure how to implement " + result);
 				} catch (Exception e) {
 					throw new Error(e);
 				}
+			}
+
+			private Matrix getMatrix(EigenvalueThreshold et) {
+				Matrix m = new Matrix(new double[][] { { 0 } });
+				m.setColumnLabel(1, "Value");
+				if (et.getPrincipalFactorCriterion().equals(
+						PrincipalFactorCriterion.MAX_FACTORS)) {
+					m.setValue(1, 1, et.getMaxFactors());
+					m.setRowLabel(1, "Max factors");
+				} else {
+					m.setValue(1, 1, et.getMinEigenvalue());
+					m.setRowLabel(1, "Min eigenvalue");
+				}
+				return m;
 			}
 
 			@Override

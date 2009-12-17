@@ -2,7 +2,7 @@ package au.edu.anu.delibdem.qsort;
 
 import java.util.Set;
 
-public class DataCombination {
+public class DataSelection {
 
 	private String stage;
 	private final Set<String> filter;
@@ -11,7 +11,7 @@ public class DataCombination {
 		return filter;
 	}
 
-	public DataCombination(Set<String> filter, String stage) {
+	public DataSelection(Set<String> filter, String stage) {
 		this.filter = filter;
 		this.stage = stage;
 	}

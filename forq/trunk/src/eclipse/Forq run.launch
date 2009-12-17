@@ -14,5 +14,5 @@
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="au.edu.anu.delibdem.qsort.gui.MainFrame"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="forq"/>
 <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.maven.ide.eclipse.launchconfig.sourcepathProvider"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-DopenSamples=true"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-DopenSamples=true -DsystemLookAndFeel=false"/>
 </launchConfiguration>

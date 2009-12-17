@@ -13,21 +13,30 @@ import au.edu.anu.delibdem.qsort.gui.images.ResourceLocator;
 
 public class LookAndFeel {
 	public static void setLookAndFeel() {
-		// try {
-		// UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		// } catch (Exception e) {
-		// e.printStackTrace();
-		// }
-		SwingUtil.setUIFont(new FontUIResource("Arial", Font.PLAIN, 11));
-		UIManager.put("Panel.background", Color.white);
-		UIManager.put("CheckBox.background", UIManager.get("Panel.background"));
-		UIManager.put("Slider.background", UIManager.get("Panel.background"));
-		UIManager.put("List.background", UIManager.get("Panel.background"));
-		ImageIcon plus = ResourceLocator.getInstance().getImageIcon("plus.gif");
-		ImageIcon minus = ResourceLocator.getInstance().getImageIcon(
-				"minus.gif");
-		UIManager.put("Tree.expandedIcon", minus);
-		UIManager.put("Tree.collapsedIcon", plus);
+
+		if ("true".equalsIgnoreCase(System.getProperty("systemLookAndFeel"))) {
+			try {
+				UIManager.setLookAndFeel(UIManager
+						.getSystemLookAndFeelClassName());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		} else {
+			SwingUtil.setUIFont(new FontUIResource("Arial", Font.PLAIN, 11));
+			UIManager.put("Panel.background", Color.white);
+			Object panelBackground = UIManager.get("Panel.background");
+			UIManager.put("CheckBox.background", panelBackground);
+			UIManager.put("RadioButton.background", panelBackground);
+			UIManager.put("RadioButton.background", panelBackground);
+			UIManager.put("Slider.background", panelBackground);
+			UIManager.put("List.background", panelBackground);
+			ImageIcon plus = ResourceLocator.getInstance().getImageIcon(
+					"plus.gif");
+			ImageIcon minus = ResourceLocator.getInstance().getImageIcon(
+					"minus.gif");
+			UIManager.put("Tree.expandedIcon", minus);
+			UIManager.put("Tree.collapsedIcon", plus);
+		}
 	}
 
 	public static ImageIcon getPrimaryIcon() {
@@ -104,7 +113,8 @@ public class LookAndFeel {
 	}
 
 	public static Icon getRotationMethodIcon() {
-		ImageIcon icon = ResourceLocator.getInstance().getImageIcon("rotation-method.gif");
+		ImageIcon icon = ResourceLocator.getInstance().getImageIcon(
+				"rotation-method.gif");
 		return icon;
 
 	}

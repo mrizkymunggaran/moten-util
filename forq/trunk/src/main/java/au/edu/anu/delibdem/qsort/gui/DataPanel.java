@@ -32,7 +32,7 @@ import moten.david.util.math.Vector;
 import moten.david.util.math.gui.JMatrixViewer;
 import moten.david.util.math.gui.NamedMatrix;
 import au.edu.anu.delibdem.qsort.Data;
-import au.edu.anu.delibdem.qsort.DataCombination;
+import au.edu.anu.delibdem.qsort.DataSelection;
 import au.edu.anu.delibdem.qsort.gui.loadings.LoadingsPanel;
 
 public class DataPanel extends JPanel {
@@ -63,8 +63,9 @@ public class DataPanel extends JPanel {
 		tree = new DataTree(data);
 		LinkButton filter = new LinkButton("Filter Participants...");
 		left.add(filter);
-		LinkButton newDataCombination = new LinkButton("New...");
-		left.add(newDataCombination);
+		LinkButton newDataSelection = new LinkButton("New...");
+		left.add(newDataSelection);
+		newDataSelection.setVisible(false);
 		JScrollPane scroll = new JScrollPane(tree);
 		scroll.setBorder(BorderFactory.createEmptyBorder());
 		left.add(scroll);
@@ -76,7 +77,7 @@ public class DataPanel extends JPanel {
 			}
 		});
 
-		newDataCombination.addActionListener(new ActionListener() {
+		newDataSelection.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				EventManager.getInstance().notify(
 						new Event(data, Events.NEW_DATA_COMBINATION));
@@ -87,17 +88,17 @@ public class DataPanel extends JPanel {
 				left);
 		layout.putConstraint(SpringLayout.WEST, filter, 6, SpringLayout.WEST,
 				left);
-		layout.putConstraint(SpringLayout.NORTH, newDataCombination, 5,
+		layout.putConstraint(SpringLayout.NORTH, newDataSelection, 5,
 				SpringLayout.SOUTH, filter);
-		layout.putConstraint(SpringLayout.WEST, newDataCombination, 6,
+		layout.putConstraint(SpringLayout.WEST, newDataSelection, 6,
 				SpringLayout.WEST, left);
 		layout.putConstraint(SpringLayout.NORTH, scroll, 5, SpringLayout.SOUTH,
-				newDataCombination);
+				newDataSelection);
 		layout.putConstraint(SpringLayout.SOUTH, scroll, 0, SpringLayout.SOUTH,
 				left);
-		layout.putConstraint(SpringLayout.WEST, scroll, 0, SpringLayout.WEST,
+		layout.putConstraint(SpringLayout.WEST, scroll, 5, SpringLayout.WEST,
 				left);
-		layout.putConstraint(SpringLayout.EAST, scroll, 0, SpringLayout.EAST,
+		layout.putConstraint(SpringLayout.EAST, scroll, -5, SpringLayout.EAST,
 				left);
 
 		JSplitPane split = new JSplitPane();
@@ -115,7 +116,7 @@ public class DataPanel extends JPanel {
 		split.setDividerLocation(250);
 		tree.setSelectionInterval(0, 0);
 		tree.requestFocus();
-		localEventManager.addListener(Events.ANALYZE, createAnalyzeListener());
+		localEventManager.addListener(Events.ANALYZED, createAnalyzeListener());
 		localEventManager.addListener(Events.MATRIX, createMatrixListener());
 		localEventManager.addListener(Events.ROTATIONS,
 				createRotationListener());
@@ -239,8 +240,8 @@ public class DataPanel extends JPanel {
 				if (node == null)
 					return;
 				Object o = node.getUserObject();
-				if (o instanceof DataCombination) {
-					updateDataViewer((DataCombination) o);
+				if (o instanceof DataSelection) {
+					updateDataViewer((DataSelection) o);
 				}
 			}
 		};
@@ -279,8 +280,8 @@ public class DataPanel extends JPanel {
 					return;
 				Object o = node.getUserObject();
 				log.info((o == null ? null : o.toString()));
-				if (o instanceof DataCombination) {
-					updateDataViewer((DataCombination) o);
+				if (o instanceof DataSelection) {
+					updateDataViewer((DataSelection) o);
 				} else if (o instanceof RotatedLoadings) {
 					RotatedLoadings rotatedLoadings = (RotatedLoadings) o;
 					localEventManager.notify(new Event(rotatedLoadings,
@@ -452,6 +453,12 @@ public class DataPanel extends JPanel {
 		};
 	}
 
+	private static int analysisNumber = 0;
+
+	private static synchronized int nextAnalysisNumber() {
+		return ++analysisNumber;
+	}
+
 	private EventManagerListener createAnalyzeListener() {
 		return new EventManagerListener() {
 
@@ -463,7 +470,7 @@ public class DataPanel extends JPanel {
 						.getLastSelectedPathComponent();
 
 				if (node != null
-						&& node.getUserObject() instanceof DataCombination) {
+						&& node.getUserObject() instanceof DataSelection) {
 
 					// get the tree model
 					DefaultTreeModel treeModel = (DefaultTreeModel) tree
@@ -472,7 +479,8 @@ public class DataPanel extends JPanel {
 					// create the parent node for all the results called New
 					// Analysis
 					DefaultMutableTreeNode newAnalysisNode = new DefaultMutableTreeNode(
-							new ObjectDecorator(null, "New Analysis"));
+							new ObjectDecorator(null, "Analysis "
+									+ nextAnalysisNumber()));
 					treeModel.insertNodeInto(newAnalysisNode, node, node
 							.getChildCount());
 
@@ -508,7 +516,7 @@ public class DataPanel extends JPanel {
 		}
 	}
 
-	private void updateDataViewer(DataCombination c) {
+	private void updateDataViewer(DataSelection c) {
 		DataGraphExtendedPanel d = new DataGraphExtendedPanel(data);
 		d.getDataGraphPanel().setCombination(c);
 		d.getDataGraphPanel().update();

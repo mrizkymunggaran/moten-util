@@ -43,7 +43,7 @@ public class MainFrame extends JFrame {
 
 		createExitListener();
 
-		createFilterListener();
+		createMoreListeners();
 
 		createOpenObjectListener();
 
@@ -145,18 +145,21 @@ public class MainFrame extends JFrame {
 
 	}
 
-	private void createFilterListener() {
-		final JFrame frame = this;
+	private void createMoreListeners() {
+		final JFrame frame = MainFrame.this;
 		eventManager.addListener(Events.FILTER, new EventManagerListener() {
 			@Override
 			public void notify(Event event) {
+
 				JDialog dialog = new JDialog(frame);
 				dialog.setIconImage(LookAndFeel.getPersonIcon().getImage());
 				dialog.setTitle("Participants");
-				dialog.setSize(300, frame.getHeight() * 2 / 3);
+
 				dialog.getContentPane().setLayout(new GridLayout(1, 1));
-				dialog.getContentPane().add(
-						new ParticipantsPanel((Data) event.getObject()));
+				JPanel panel = new ParticipantsPanel((Data) event.getObject(),
+						frame);
+				dialog.getContentPane().add(panel);
+				dialog.setSize(panel.getPreferredSize());
 				dialog.setModal(false);
 				int x = frame.getLocation().x + frame.getWidth() - 2
 						* dialog.getWidth() - 50;
@@ -164,25 +167,32 @@ public class MainFrame extends JFrame {
 				dialog.setVisible(true);
 			}
 		});
+
 		eventManager.addListener(Events.NEW_DATA_COMBINATION,
 				new EventManagerListener() {
 					@Override
 					public void notify(Event event) {
-						JDialog dialog = new JDialog(frame);
-						dialog.setIconImage(LookAndFeel.getPersonIcon()
+						Data data = (Data) event.getObject();
+						final JDialog dialog = new JDialog(frame);
+						dialog.setIconImage(LookAndFeel.getPrimaryIcon()
 								.getImage());
-						dialog.setTitle("Participants");
-						dialog.setSize(300, frame.getHeight() * 2 / 3);
+						dialog.setTitle("New Data Selection");
+
+						DataSelectionPanel panel = new DataSelectionPanel(data,
+								frame);
+						panel.addDataSelectionPanelListener(new DataSelectionPanel.Listener() {
+							@Override
+							public void closed() {
+								dialog.setVisible(false);
+							}
+						});
 						dialog.getContentPane().setLayout(new GridLayout(1, 1));
-						dialog.getContentPane()
-								.add(
-										new ParticipantsPanel((Data) event
-												.getObject()));
-						dialog.setModal(false);
-						int x = frame.getLocation().x + frame.getWidth() - 2
-								* dialog.getWidth() - 50;
-						dialog.setLocation(x, frame.getLocation().y + 150);
+						dialog.getContentPane().add(panel);
+						dialog.setSize(400, frame.getHeight() * 2 / 3);
+						SwingUtil.centre(dialog);
+						dialog.setModal(true);
 						dialog.setVisible(true);
+						dialog.dispose();
 					}
 				});
 

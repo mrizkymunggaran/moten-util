@@ -44,6 +44,23 @@ public class Data implements Serializable {
 
 	private final Map<String, Participant> participants = new HashMap<String, Participant>();
 	private final Set<String> filter = new TreeSet<String>();
+	private final Set<String> stageFilter = new TreeSet<String>();
+
+	private List<QSort> qSorts;
+	private String title = "Untitled";
+
+	public Data(String name) throws IOException {
+		this(new File(name));
+	}
+
+	public Data(File file) throws IOException {
+		this(new FileInputStream(file));
+	}
+
+	public Data(InputStream is) throws IOException {
+		log.info("loading");
+		load(is);
+	}
 
 	public Set<String> getParticipantIds() {
 		TreeSet<String> set = new TreeSet<String>();
@@ -62,22 +79,6 @@ public class Data implements Serializable {
 		return set;
 	}
 
-	private List<QSort> qSorts;
-	private String title = "Untitled";
-
-	public Data(String name) throws IOException {
-		this(new File(name));
-	}
-
-	public Data(File file) throws IOException {
-		this(new FileInputStream(file));
-	}
-
-	public Data(InputStream is) throws IOException {
-		log.info("loading");
-		load(is);
-	}
-
 	public Set<String> getStageTypes() {
 		Set<String> set = new TreeSet<String>();
 		for (QSort q : qSorts) {
@@ -92,38 +93,6 @@ public class Data implements Serializable {
 			set.addAll(participants.get(q.getParticipant().getId()).getTypes());
 		}
 		return set;
-	}
-
-	private static enum Marker {
-		STARTED, TITLE_READ, NUM_PARTICIPANTS_READ, NUM_VARIABLES_READ, PARTICIPANT_DATA_READ, NUM_Q_STATEMENTS_READ, NUM_P_STATEMENTS_READ, DATA_READ, STATEMENTS_READ, STATEMENTS_DATA_READ;
-	}
-
-	private boolean isCommand(String line) {
-		return line.startsWith(":");
-	}
-
-	private boolean isTitle(String line) {
-		return line.startsWith(":Title");
-	}
-
-	private boolean isStatements(String line) {
-		return line.startsWith(":Statements");
-	}
-
-	private boolean isPStatements(String line) {
-		return line.startsWith(":P Statements");
-	}
-
-	private boolean isQStatements(String line) {
-		return line.startsWith(":Q Statements");
-	}
-
-	private boolean isVariables(String line) {
-		return line.startsWith(":Variables");
-	}
-
-	private boolean isParticipants(String line) {
-		return line.startsWith(":Participants");
 	}
 
 	public void load(InputStream is) throws IOException {
@@ -164,7 +133,7 @@ public class Data implements Serializable {
 				Participant participant = new Participant(items[0]);
 				participants.put(participant.getId(), participant);
 				for (int i = 0; i < numVariables; i++) {
-					String value = items[i + 1];
+					String value = items[i + 1].trim();
 					participant.getTypes().add(value);
 				}
 			} else if (marker.equals(Marker.NUM_VARIABLES_READ)
@@ -194,7 +163,7 @@ public class Data implements Serializable {
 					&& !isCommand(line)) {
 				// is statement data
 				String[] items = line.split(TAB);
-				statements.put(Integer.parseInt(items[0]), items[1]);
+				statements.put(Integer.parseInt(items[0]), items[1].trim());
 			} else
 				throw new RuntimeException(
 						"Line "
@@ -206,7 +175,40 @@ public class Data implements Serializable {
 		isr.close();
 		is.close();
 		filter.addAll(getParticipantIds());
+		stageFilter.addAll(getStageTypes());
 		log.info("loaded");
+	}
+
+	private static enum Marker {
+		STARTED, TITLE_READ, NUM_PARTICIPANTS_READ, NUM_VARIABLES_READ, PARTICIPANT_DATA_READ, NUM_Q_STATEMENTS_READ, NUM_P_STATEMENTS_READ, DATA_READ, STATEMENTS_READ, STATEMENTS_DATA_READ;
+	}
+
+	private boolean isCommand(String line) {
+		return line.startsWith(":");
+	}
+
+	private boolean isTitle(String line) {
+		return line.startsWith(":Title");
+	}
+
+	private boolean isStatements(String line) {
+		return line.startsWith(":Statements");
+	}
+
+	private boolean isPStatements(String line) {
+		return line.startsWith(":P Statements");
+	}
+
+	private boolean isQStatements(String line) {
+		return line.startsWith(":Q Statements");
+	}
+
+	private boolean isVariables(String line) {
+		return line.startsWith(":Variables");
+	}
+
+	private boolean isParticipants(String line) {
+		return line.startsWith(":Participants");
 	}
 
 	private void processQSortLine(String line, int numQStatements,
@@ -214,14 +216,14 @@ public class Data implements Serializable {
 
 		String[] items = line.split(TAB);
 		QSort q = new QSort();
-		Participant participant = participants.get(items[0]);
+		Participant participant = participants.get(items[0].trim());
 		if (participant == null)
 			throw new RuntimeException(
 					"Participant "
 							+ items[0]
 							+ " not found on qsort line. Have you declared it in the participants section?");
 		q.setParticipant(participant);
-		q.setStage(items[1]);
+		q.setStage(items[1].trim());
 		for (int j = 2; j < 2 + numQStatements; j++)
 			q.getQResults().add(getDouble(items[j]));
 		for (int j = 2 + numQStatements; j < 2 + numQStatements
@@ -243,7 +245,7 @@ public class Data implements Serializable {
 			throw new RuntimeException("Could not read the " + (i + 1)
 					+ "th value from the line=" + line
 					+ ". Perhaps there is a value missing on this line?");
-		return items[i];
+		return items[i].trim();
 	}
 
 	private static class LineCountingReader {
@@ -626,10 +628,10 @@ public class Data implements Serializable {
 		gp.writeAnimatedImage(imageOs);
 	}
 
-	public Matrix getRawData(DataCombination dataCombination,
+	public Matrix getRawData(DataSelection dataSelection,
 			Set<Integer> exclusions, int dataSet) {
-		return getRawData(dataCombination.getStage(), dataCombination
-				.getFilter(), dataSet);
+		return getRawData(dataSelection.getStage(), dataSelection.getFilter(),
+				dataSet);
 	}
 
 	public Matrix getRawData(String stage, Set<String> filter, int dataSet) {
@@ -683,6 +685,10 @@ public class Data implements Serializable {
 
 	public void setTitle(String title) {
 		this.title = title;
+	}
+
+	public Set<String> getStageFilter() {
+		return stageFilter;
 	}
 
 }

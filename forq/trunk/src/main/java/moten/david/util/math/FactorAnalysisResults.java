@@ -3,6 +3,8 @@ package moten.david.util.math;
 import java.io.PrintWriter;
 import java.text.DecimalFormat;
 
+import au.edu.anu.delibdem.qsort.gui.EigenvalueThreshold;
+
 public class FactorAnalysisResults {
 
 	public FactorExtractionMethod extractionMethod;
@@ -17,7 +19,7 @@ public class FactorAnalysisResults {
 
 	private Vector percentVariance;
 
-	private double eigenvalueThreshold = 0;
+	private EigenvalueThreshold eigenvalueThreshold;
 
 	private Matrix principalEigenvalues;
 
@@ -189,10 +191,6 @@ public class FactorAnalysisResults {
 		return percentVariance;
 	}
 
-	public double getEigenvalueThreshold() {
-		return eigenvalueThreshold;
-	}
-
 	public Matrix getPrincipalEigenvalues() {
 		return principalEigenvalues;
 	}
@@ -246,10 +244,6 @@ public class FactorAnalysisResults {
 		this.percentVariance = percentVariance;
 	}
 
-	public void setEigenvalueThreshold(double eigenvalueThreshold) {
-		this.eigenvalueThreshold = eigenvalueThreshold;
-	}
-
 	public void setPrincipalEigenvalues(Matrix principalEigenvalues) {
 		this.principalEigenvalues = principalEigenvalues;
 	}
@@ -284,6 +278,14 @@ public class FactorAnalysisResults {
 
 	public void setRotationTimeMs(long rotationTimeMs) {
 		this.rotationTimeMs = rotationTimeMs;
+	}
+
+	public EigenvalueThreshold getEigenvalueThreshold() {
+		return eigenvalueThreshold;
+	}
+
+	public void setEigenvalueThreshold(EigenvalueThreshold eigenvalueThreshold) {
+		this.eigenvalueThreshold = eigenvalueThreshold;
 	}
 
 }

@@ -10,7 +10,7 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 
 import moten.david.util.math.FactorAnalysisResults;
 import moten.david.util.math.MatrixProvider;
-import au.edu.anu.delibdem.qsort.DataCombination;
+import au.edu.anu.delibdem.qsort.DataSelection;
 
 class MyRenderer extends DefaultTreeCellRenderer {
 
@@ -39,7 +39,7 @@ class MyRenderer extends DefaultTreeCellRenderer {
 				row, hasFocus);
 		setIcon(null);
 		Object userObject = ((DefaultMutableTreeNode) value).getUserObject();
-		if (userObject instanceof DataCombination) {
+		if (userObject instanceof DataSelection) {
 			setIcon(graphIcon);
 		} else if (userObject instanceof Rotations) {
 			setIcon(rotateIcon);

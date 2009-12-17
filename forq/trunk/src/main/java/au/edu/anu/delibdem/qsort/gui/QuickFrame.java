@@ -12,12 +12,16 @@ public class QuickFrame extends JFrame {
 	private static final long serialVersionUID = -2482700386414560817L;
 
 	public QuickFrame(JPanel panel) {
-		setLayout(new GridLayout(1,1));
+		this(panel, 1000, 600);
+	}
+
+	public QuickFrame(JPanel panel, int width, int height) {
+		setLayout(new GridLayout(1, 1));
 		add(panel);
-		setSize(1000,600);
+		setSize(width, height);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		SwingUtil.centre(this);
 		setVisible(true);
 	}
-	
+
 }

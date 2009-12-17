@@ -1,13 +1,12 @@
 package moten.david.util.math;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 import moten.david.util.math.Matrix.NullStrategy;
-import au.edu.anu.delibdem.qsort.Data;
+import au.edu.anu.delibdem.qsort.gui.EigenvalueThreshold;
 
 public class MatrixTestData {
 
@@ -162,7 +161,8 @@ public class MatrixTestData {
 
 		Matrix m = getBrownTable26();
 		FactorAnalysisResults results = m.analyzeFactors(
-				FactorExtractionMethod.CENTROID_METHOD, 1.0,null);
+				FactorExtractionMethod.CENTROID_METHOD,
+				new EigenvalueThreshold(1.0), null);
 		Matrix loadings = results.getLoadings().subMatrixColumns(1, 7);
 		String[] labels = loadings.getColumnLabels();
 		loadings = loadings.rotateDegrees(1, 2, 31);
@@ -202,9 +202,11 @@ public class MatrixTestData {
 			throw new Error(e);
 		}
 		FactorAnalysisResults results = m.analyzeFactors(
-				FactorExtractionMethod.PRINCIPAL_COMPONENTS_ANALYSIS, 1.0,null);
+				FactorExtractionMethod.PRINCIPAL_COMPONENTS_ANALYSIS,
+				new EigenvalueThreshold(1.0), null);
 		System.out.println(results);
-		results = m.analyzeFactors(FactorExtractionMethod.CENTROID_METHOD, 1.0,null);
+		results = m.analyzeFactors(FactorExtractionMethod.CENTROID_METHOD,
+				new EigenvalueThreshold(1.0), null);
 		System.out.println(results);
 	}
 
@@ -253,29 +255,30 @@ public class MatrixTestData {
 		Matrix m = getBrownTable26();
 
 		FactorAnalysisResults results = m.analyzeFactors(
-				FactorExtractionMethod.PRINCIPAL_COMPONENTS_ANALYSIS, 0.2,null);
+				FactorExtractionMethod.PRINCIPAL_COMPONENTS_ANALYSIS,
+				new EigenvalueThreshold(0.2), null);
 		System.out.println(results);
-//		results = m.analyzeFactors(FactorExtractionMethod.CENTROID_METHOD, 1.0);
-//		System.out.println(results);
-		
+		// results = m.analyzeFactors(FactorExtractionMethod.CENTROID_METHOD,
+		// 1.0);
+		// System.out.println(results);
 
-//		m = m.transpose();
-//		for (int i=1;i<=m.columnCount();i++) {
-//			m.setColumnLabel(i, Data.COLUMN_PREFIX_Q_RESULTS_FORCED + (i-2));
-//		}
-//		m = m.insertColumn().setColumnLabel(1, Data.COLUMN_PARTICIPANT_TYPE);
-//		for (int i = 1; i <= m.rowCount(); i++) {
-//			m.setValue(i, 1, 1);
-//		}
-//		m = m.insertColumn().setColumnLabel(1, Data.COLUMN_PARTICIPANT_NO);
-//		for (int i = 1; i <= m.rowCount(); i++) {
-//			m.setValue(i, 1, i);
-//		}
-//		m = m.insertColumn().setColumnLabel(1, Data.COLUMN_STAGE);
-//		for (int i = 1; i <= m.rowCount(); i++) {
-//			m.setValue(i, 1, 1);
-//		}
-//		m.writeToFile(new File("/temp.txt"), false);
+		// m = m.transpose();
+		// for (int i=1;i<=m.columnCount();i++) {
+		// m.setColumnLabel(i, Data.COLUMN_PREFIX_Q_RESULTS_FORCED + (i-2));
+		// }
+		// m = m.insertColumn().setColumnLabel(1, Data.COLUMN_PARTICIPANT_TYPE);
+		// for (int i = 1; i <= m.rowCount(); i++) {
+		// m.setValue(i, 1, 1);
+		// }
+		// m = m.insertColumn().setColumnLabel(1, Data.COLUMN_PARTICIPANT_NO);
+		// for (int i = 1; i <= m.rowCount(); i++) {
+		// m.setValue(i, 1, i);
+		// }
+		// m = m.insertColumn().setColumnLabel(1, Data.COLUMN_STAGE);
+		// for (int i = 1; i <= m.rowCount(); i++) {
+		// m.setValue(i, 1, 1);
+		// }
+		// m.writeToFile(new File("/temp.txt"), false);
 	}
 
 	public static Vector getVector(double x, double y) {
