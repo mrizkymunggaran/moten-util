@@ -24,6 +24,7 @@ import javax.swing.event.ChangeListener;
 
 import moten.david.util.event.Event;
 import moten.david.util.event.EventManager;
+import moten.david.util.math.EigenvalueThreshold;
 import moten.david.util.math.FactorAnalysisException;
 import moten.david.util.math.FactorAnalysisResults;
 import moten.david.util.math.FactorExtractionMethod;

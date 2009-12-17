@@ -3,7 +3,6 @@ package moten.david.util.math;
 import java.io.PrintWriter;
 import java.text.DecimalFormat;
 
-import au.edu.anu.delibdem.qsort.gui.EigenvalueThreshold;
 
 public class FactorAnalysisResults {
 

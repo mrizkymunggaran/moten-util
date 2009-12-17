@@ -14,10 +14,11 @@ import javax.swing.tree.TreeSelectionModel;
 
 import moten.david.util.event.Event;
 import moten.david.util.event.EventManager;
+import moten.david.util.math.EigenvalueThreshold;
 import moten.david.util.math.FactorAnalysisResults;
 import moten.david.util.math.Matrix;
 import moten.david.util.math.MatrixProvider;
-import au.edu.anu.delibdem.qsort.gui.EigenvalueThreshold.PrincipalFactorCriterion;
+import moten.david.util.math.EigenvalueThreshold.PrincipalFactorCriterion;
 
 public class FactorTreePanel extends JPanel {
 

@@ -22,6 +22,7 @@ import java.util.Set;
 import javax.swing.JFrame;
 
 import moten.david.util.StringOutputStream;
+import moten.david.util.math.EigenvalueThreshold.PrincipalFactorCriterion;
 import moten.david.util.math.Varimax.RotationMethod;
 import moten.david.util.math.gui.GraphPanel;
 import moten.david.util.permutation.Possibility;
@@ -34,8 +35,6 @@ import org.apache.commons.math.distribution.TDistributionImpl;
 
 import Jama.EigenvalueDecomposition;
 import Jama.SingularValueDecomposition;
-import au.edu.anu.delibdem.qsort.gui.EigenvalueThreshold;
-import au.edu.anu.delibdem.qsort.gui.EigenvalueThreshold.PrincipalFactorCriterion;
 
 /**
  * @author dave

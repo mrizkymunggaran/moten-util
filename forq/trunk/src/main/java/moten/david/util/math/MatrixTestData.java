@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import moten.david.util.math.Matrix.NullStrategy;
-import au.edu.anu.delibdem.qsort.gui.EigenvalueThreshold;
 
 public class MatrixTestData {
 

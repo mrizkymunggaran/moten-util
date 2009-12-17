@@ -13,8 +13,9 @@ import javax.swing.SpringLayout;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import moten.david.util.math.EigenvalueThreshold;
 import moten.david.util.math.FactorExtractionMethod;
-import au.edu.anu.delibdem.qsort.gui.EigenvalueThreshold.PrincipalFactorCriterion;
+import moten.david.util.math.EigenvalueThreshold.PrincipalFactorCriterion;
 
 public class AnalyzeOptionsPanel extends JPanel {
 

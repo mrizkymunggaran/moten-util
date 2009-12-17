@@ -1,4 +1,4 @@
-package au.edu.anu.delibdem.qsort.gui;
+package moten.david.util.math;
 
 public class EigenvalueThreshold {
 
