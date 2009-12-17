@@ -4,7 +4,7 @@
 	<groupId>au.edu.anu.delibdem</groupId>
 	<artifactId>forq</artifactId>
 	<name>ForQ</name>
-	<version>1.0.0</version>
+	<version>2.0.0</version>
 	<description>For Q-Methodology research</description>
 	<dependencies>
 		<dependency>
@@ -27,11 +27,6 @@
 			<groupId>gif4j</groupId>
 			<artifactId>gif4j-light-trial</artifactId>
 			<version>1.0</version>
-		</dependency>
-		<dependency>
-			<groupId>net.java.dev.flexdock</groupId>
-			<artifactId>flexdock</artifactId>
-			<version>0.5.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.moten.david</groupId>

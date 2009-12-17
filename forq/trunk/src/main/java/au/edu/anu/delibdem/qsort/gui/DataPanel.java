@@ -6,6 +6,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
@@ -63,9 +65,8 @@ public class DataPanel extends JPanel {
 		tree = new DataTree(data);
 		LinkButton filter = new LinkButton("Filter Participants...");
 		left.add(filter);
-		LinkButton newDataSelection = new LinkButton("New...");
-		left.add(newDataSelection);
-		newDataSelection.setVisible(false);
+		// LinkButton newDataSelection = new LinkButton("New...");
+		// left.add(newDataSelection);
 		JScrollPane scroll = new JScrollPane(tree);
 		scroll.setBorder(BorderFactory.createEmptyBorder());
 		left.add(scroll);
@@ -77,23 +78,23 @@ public class DataPanel extends JPanel {
 			}
 		});
 
-		newDataSelection.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				EventManager.getInstance().notify(
-						new Event(data, Events.NEW_DATA_COMBINATION));
-			}
-		});
+		// newDataSelection.addActionListener(new ActionListener() {
+		// public void actionPerformed(ActionEvent e) {
+		// EventManager.getInstance().notify(
+		// new Event(data, Events.NEW_DATA_COMBINATION));
+		// }
+		// });
 
 		layout.putConstraint(SpringLayout.NORTH, filter, 2, SpringLayout.NORTH,
 				left);
 		layout.putConstraint(SpringLayout.WEST, filter, 6, SpringLayout.WEST,
 				left);
-		layout.putConstraint(SpringLayout.NORTH, newDataSelection, 5,
-				SpringLayout.SOUTH, filter);
-		layout.putConstraint(SpringLayout.WEST, newDataSelection, 6,
-				SpringLayout.WEST, left);
+		// layout.putConstraint(SpringLayout.NORTH, newDataSelection, 5,
+		// SpringLayout.SOUTH, filter);
+		// layout.putConstraint(SpringLayout.WEST, newDataSelection, 6,
+		// SpringLayout.WEST, left);
 		layout.putConstraint(SpringLayout.NORTH, scroll, 5, SpringLayout.SOUTH,
-				newDataSelection);
+				filter);
 		layout.putConstraint(SpringLayout.SOUTH, scroll, 0, SpringLayout.SOUTH,
 				left);
 		layout.putConstraint(SpringLayout.WEST, scroll, 5, SpringLayout.WEST,
@@ -484,6 +485,7 @@ public class DataPanel extends JPanel {
 					treeModel.insertNodeInto(newAnalysisNode, node, node
 							.getChildCount());
 
+					List<DefaultMutableTreeNode> newLeaves = new ArrayList<DefaultMutableTreeNode>();
 					for (FactorAnalysisResults result : results) {
 						// create a new node for the factor analysis result
 						DefaultMutableTreeNode newNode = new DefaultMutableTreeNode(
@@ -496,10 +498,14 @@ public class DataPanel extends JPanel {
 								.createNodes(result);
 						treeModel.insertNodeInto(newNode2, newNode, newNode
 								.getChildCount());
-						// make the new node visible
-						tree.scrollPathToVisible(new TreePath(newNode2
-								.getPath()));
+						newLeaves.add(newNode2);
 					}
+
+					tree.expandPath(new TreePath(node.getPath()));
+					// tree.expandPath(new TreePath(newAnalysisNode.getPath()));
+					// tree.scrollPathToVisible(new TreePath(newAnalysisNode
+					// .getPath()));
+
 				}
 			}
 		};

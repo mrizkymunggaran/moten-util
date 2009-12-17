@@ -32,4 +32,22 @@ public class ConfigurationFromProperties implements Configuration {
 		return "true".equalsIgnoreCase(props.get(name).toString().trim());
 	}
 
+	private String getString(String name) {
+		if (props.get(name) == null)
+			throw new RuntimeException("property " + name
+					+ " not found in resource /configuration.properties"
+					+ CONFIGURATION_RESOURCE);
+		return props.get(name).toString();
+	}
+
+	@Override
+	public String getQFactorsTitle() {
+		return getString("qfactors.title");
+	}
+
+	@Override
+	public String getPreferencesTitle() {
+		return getString("preferences.title");
+	}
+
 }

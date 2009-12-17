@@ -34,6 +34,7 @@ import moten.david.util.math.gui.GraphPanel;
 import au.edu.anu.delibdem.qsort.Data;
 import au.edu.anu.delibdem.qsort.DataSelection;
 import au.edu.anu.delibdem.qsort.QSort;
+import au.edu.anu.delibdem.qsort.gui.injection.ApplicationInjector;
 
 public class DataGraphPanel extends JPanel {
 
@@ -154,7 +155,7 @@ public class DataGraphPanel extends JPanel {
 		gp = data.getGraph(list, labelPoints, 200, null, null,
 				showRegressionLines);
 		if (gp != null) {
-			gp.setOpaque(false);
+			gp.setOpaque(true);
 			panel.add(gp);
 		}
 		showLabels.setVisible(gp != null);
@@ -191,18 +192,23 @@ public class DataGraphPanel extends JPanel {
 	}
 
 	private ActionListener createAnalyzeActionListener() {
+
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				Configuration configuration = ApplicationInjector.getInjector()
+						.getInstance(Configuration.class);
 				AnalyzeOptionsPanel options = new AnalyzeOptionsPanel();
 				options.setPreferredSize(new Dimension(300, 80));
 				int choice = JOptionPane.showOptionDialog(null, options,
 						"Analysis Options", JOptionPane.OK_CANCEL_OPTION,
 						JOptionPane.PLAIN_MESSAGE, null, null, null);
 				if (choice == JOptionPane.OK_OPTION) {
-					doit(new AnalysisConfiguration("Q Sorts", options
+					doit(new AnalysisConfiguration(configuration
+							.getQFactorsTitle(), options
 							.getFactorExtractionMethod(), options
 							.getEigenvalueThreshold(), true),
-							new AnalysisConfiguration("Preferences", options
+							new AnalysisConfiguration(configuration
+									.getPreferencesTitle(), options
 									.getFactorExtractionMethod(), options
 									.getEigenvalueThreshold(), false));
 				}
@@ -229,7 +235,8 @@ public class DataGraphPanel extends JPanel {
 				false, size, null);
 		if (gp != null) {
 			panel.add(gp);
-			gp.setBackground(getBackground());
+			// gp.setBackground(getBackground());
+			gp.setOpaque(true);
 			gp.setProportionDrawn(1.0);
 			gp.setDisplayMeans(true);
 			gp.setDisplayRegression(true);

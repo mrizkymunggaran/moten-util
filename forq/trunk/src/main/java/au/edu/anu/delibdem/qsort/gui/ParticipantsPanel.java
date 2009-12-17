@@ -21,8 +21,13 @@ import au.edu.anu.delibdem.qsort.Data;
 public class ParticipantsPanel extends JPanel {
 
 	private static final long serialVersionUID = -5357822385951586019L;
+	private Object[] participantCheckBoxes;
+	private boolean updatingMultipleCheckBoxes;
+	private final Data data;
+	private JCheckBoxList participantList;
 
 	public ParticipantsPanel(final Data data, JFrame frame) {
+		this.data = data;
 		SpringLayout layout = new SpringLayout();
 		setLayout(layout);
 		LinkButton selectAll = new LinkButton("Select all");
@@ -88,21 +93,22 @@ public class ParticipantsPanel extends JPanel {
 			LinkButton selectAll, LinkButton selectNone) {
 		final String[] participantIds = data.getParticipantIds().toArray(
 				new String[0]);
-		final Object[] checkBoxes = new Object[participantIds.length];
-		JCheckBoxList list = new JCheckBoxList();
+		participantCheckBoxes = new Object[participantIds.length];
+		participantList = new JCheckBoxList();
 		for (int i = 0; i < participantIds.length; i++) {
 			final JCheckBox checkBox = new JCheckBox("" + participantIds[i]);
 			checkBox.setSelected(data.getFilter().contains(participantIds[i]));
-			checkBoxes[i] = checkBox;
+			participantCheckBoxes[i] = checkBox;
 			checkBox.addChangeListener(createChangeListener(checkBox, data,
 					participantIds[i]));
 		}
-		list.setListData(checkBoxes);
+		participantList.setListData(participantCheckBoxes);
 		// event listeners
-		selectAll.addActionListener(createSelectAllActionListener(checkBoxes));
+		selectAll
+				.addActionListener(createSelectAllActionListener(participantCheckBoxes));
 		selectNone
-				.addActionListener(createSelectNoneActionListener(checkBoxes));
-		return list;
+				.addActionListener(createSelectNoneActionListener(participantCheckBoxes));
+		return participantList;
 	}
 
 	private ChangeListener createChangeListener(final JCheckBox checkBox,
@@ -114,8 +120,9 @@ public class ParticipantsPanel extends JPanel {
 					data.getFilter().add(participantId);
 				else
 					data.getFilter().remove(participantId);
-				EventManager.getInstance().notify(
-						new Event(data, Events.DATA_CHANGED));
+				if (!updatingMultipleCheckBoxes)
+					EventManager.getInstance().notify(
+							new Event(data, Events.DATA_CHANGED));
 			}
 		};
 	}
@@ -134,17 +141,37 @@ public class ParticipantsPanel extends JPanel {
 			checkBox.addChangeListener(new ChangeListener() {
 				@Override
 				public void stateChanged(ChangeEvent e) {
-					if (checkBox.isSelected())
-						;
-					else
-						;
+					if (checkBox.isSelected()) {
+						for (String participantId : data
+								.getParticipantIds(participantTypes[finalI])) {
+							data.getFilter().add(participantId);
+						}
+					} else
+						for (String participantId : data
+								.getParticipantIds(participantTypes[finalI])) {
+							data.getFilter().remove(participantId);
+						}
+					refreshParticipantList();
 					EventManager.getInstance().notify(
 							new Event(data, Events.DATA_CHANGED));
 				}
+
 			});
 		}
 		list.setListData(checkBoxes);
 		return list;
+	}
+
+	private void refreshParticipantList() {
+
+		updatingMultipleCheckBoxes = true;
+		for (Object o : participantCheckBoxes) {
+			JCheckBox checkBox = (JCheckBox) o;
+			checkBox.setSelected(data.getFilter().contains(checkBox.getText()));
+		}
+		updatingMultipleCheckBoxes = false;
+		participantList.setListData(participantCheckBoxes);
+		EventManager.getInstance().notify(new Event(data, Events.DATA_CHANGED));
 	}
 
 	private ActionListener createSelectAllActionListener(
