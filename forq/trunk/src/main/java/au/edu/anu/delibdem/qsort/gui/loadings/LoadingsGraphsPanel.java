@@ -44,6 +44,8 @@ public class LoadingsGraphsPanel extends JPanel {
 
 	private StringFilter rowLabelFilter = null;
 
+	private Rotations rotations;
+
 	public LoadingsGraphsPanel(Component parent) {
 		this.parent = parent;
 	}
@@ -59,6 +61,7 @@ public class LoadingsGraphsPanel extends JPanel {
 	}
 
 	public void setRotations(final Rotations rotations) {
+		this.rotations = rotations;
 		if (graphPanels.size() == 0) {
 			final Matrix loadings = rotations.getRotatedLoadings();
 			int numGraphs = loadings.columnCount()
@@ -170,5 +173,9 @@ public class LoadingsGraphsPanel extends JPanel {
 		for (GraphPanel gp : graphPanels) {
 			gp.setPreferredSize(new Dimension(i, i));
 		}
+	}
+
+	public void redraw() {
+		setRotations(rotations);
 	}
 }

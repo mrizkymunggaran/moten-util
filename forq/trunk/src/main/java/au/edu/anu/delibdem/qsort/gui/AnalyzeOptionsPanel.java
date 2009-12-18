@@ -1,6 +1,8 @@
 package au.edu.anu.delibdem.qsort.gui;
 
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JComboBox;
@@ -10,8 +12,6 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import javax.swing.SpringLayout;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 import moten.david.util.math.EigenvalueThreshold;
 import moten.david.util.math.FactorExtractionMethod;
@@ -38,9 +38,9 @@ public class AnalyzeOptionsPanel extends JPanel {
 		minEigenvalueField = new JTextField(getDefaultMinEigenvalue() + "", 5);
 		group.add(maxFactors);
 		group.add(minEigenvalue);
-		ChangeListener selectionChangeListener = createSelectionChangeListener();
-		maxFactors.addChangeListener(selectionChangeListener);
-		minEigenvalue.addChangeListener(selectionChangeListener);
+		ActionListener selectionActionListener = createSelectionActionListener();
+		maxFactors.addActionListener(selectionActionListener);
+		minEigenvalue.addActionListener(selectionActionListener);
 		maxFactors.setSelected(true);
 
 		method = createMethodComboBox();
@@ -79,6 +79,8 @@ public class AnalyzeOptionsPanel extends JPanel {
 		layout.putConstraint(SpringLayout.WEST, minEigenvalueField, 5,
 				SpringLayout.EAST, minEigenvalue);
 
+		updateDisplay();
+
 	}
 
 	private double getDefaultMinEigenvalue() {
@@ -95,19 +97,19 @@ public class AnalyzeOptionsPanel extends JPanel {
 		return combo;
 	}
 
-	private ChangeListener createSelectionChangeListener() {
-		return new ChangeListener() {
+	private ActionListener createSelectionActionListener() {
+		return new ActionListener() {
 
 			@Override
-			public void stateChanged(ChangeEvent e) {
+			public void actionPerformed(ActionEvent e) {
 				updateDisplay();
 			}
-
-			private void updateDisplay() {
-				maxFactorsField.setEnabled(maxFactors.isSelected());
-				minEigenvalueField.setEnabled(minEigenvalue.isSelected());
-			}
 		};
+	}
+
+	private void updateDisplay() {
+		maxFactorsField.setEnabled(maxFactors.isSelected());
+		minEigenvalueField.setEnabled(minEigenvalue.isSelected());
 	}
 
 	public EigenvalueThreshold getEigenvalueThreshold() {

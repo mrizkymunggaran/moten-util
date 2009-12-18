@@ -59,6 +59,8 @@ public class LoadingsPanel extends JPanel {
 		// add(selectorPanel);
 		final LoadingsGraphsPanel graphs = new LoadingsGraphsPanel(this);
 
+		graphs.setRotations(rotations);
+
 		EventManager.getInstance().addListener(Events.DATA_CHANGED,
 				new EventManagerListener() {
 					@Override
@@ -66,9 +68,6 @@ public class LoadingsPanel extends JPanel {
 						graphs.setRotations(rotations);
 					}
 				});
-
-		graphs.setRotations(rotations);
-		graphs.setRowLabelFilter(rowLabelsFilter);
 
 		JScrollPane scroll = new JScrollPane(graphs);
 		scroll.setBorder(BorderFactory.createEmptyBorder());
@@ -96,6 +95,12 @@ public class LoadingsPanel extends JPanel {
 		final ReferencePanel referencePanel = new ReferencePanel(this);
 		controls.add(referencePanel);
 		referencePanel.update(rotations);
+		JCheckBox applyFilter = new JCheckBox("Filter");
+		controls.add(applyFilter);
+		applyFilter.setSelected(false);
+		graphs.setRowLabelFilter(null);
+		applyFilter.addActionListener(createApplyFilterActionListener(
+				applyFilter, graphs, rowLabelsFilter));
 
 		final JSlider slider = new JSlider(0, 100);
 		controls.add(slider);
@@ -195,8 +200,11 @@ public class LoadingsPanel extends JPanel {
 		showLabels.setSelected(rotations.isDisplayLabels());
 
 		JButton saveRotations = new JButton("Save...");
+		Insets inset = new Insets(2, 0, 2, 0);
+		saveRotations.setMargin(inset);
 		saveRotations.setToolTipText("Save rotations...");
 		JButton loadRotations = new JButton("Load...");
+		loadRotations.setMargin(inset);
 		loadRotations.setToolTipText("Load rotations...");
 		final JPanel owner = this;
 		saveRotations.addActionListener(new ActionListener() {
@@ -330,6 +338,10 @@ public class LoadingsPanel extends JPanel {
 				SpringLayout.NORTH, rotationSummaryScroll);
 		layoutControls.putConstraint(SpringLayout.WEST, loadRotations, 20,
 				SpringLayout.EAST, saveRotations);
+		layoutControls.putConstraint(SpringLayout.NORTH, applyFilter, 0,
+				SpringLayout.NORTH, rotationSummaryScroll);
+		layoutControls.putConstraint(SpringLayout.WEST, applyFilter, 10,
+				SpringLayout.EAST, loadRotations);
 
 		layout.putConstraint(SpringLayout.NORTH, controls, 5,
 				SpringLayout.NORTH, this);
@@ -346,5 +358,21 @@ public class LoadingsPanel extends JPanel {
 		layout.putConstraint(SpringLayout.EAST, scroll, 0, SpringLayout.EAST,
 				this);
 
+	}
+
+	private ActionListener createApplyFilterActionListener(
+			final JCheckBox applyFilter, final LoadingsGraphsPanel graphs,
+			final StringFilter rowLabelsFilter) {
+		return new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (applyFilter.isSelected())
+					graphs.setRowLabelFilter(rowLabelsFilter);
+				else
+					graphs.setRowLabelFilter(null);
+				graphs.redraw();
+			}
+		};
 	}
 }
