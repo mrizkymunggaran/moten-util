@@ -65,8 +65,8 @@ public class Test {
 				return s.equals("hello");
 			}
 		});
-		Assert.assertTrue(m.rowCount() == 3);
-		Assert.assertTrue(m2.rowCount() == 2);
+		Assert.assertEquals(3, m.rowCount());
+		Assert.assertEquals(1, m2.rowCount());
 	}
 
 	@org.junit.Test
