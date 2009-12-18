@@ -12,9 +12,12 @@ import moten.david.util.gui.swing.v1.SwingUtil;
 import au.edu.anu.delibdem.qsort.gui.images.ResourceLocator;
 
 public class LookAndFeel {
+
 	public static void setLookAndFeel() {
 
-		if ("true".equalsIgnoreCase(System.getProperty("systemLookAndFeel"))) {
+		if ("true".equalsIgnoreCase(System.getProperty("systemLookAndFeel"))
+				|| (System.getProperty("systemLookAndFeel") == null && Preferences
+						.getInstance().isSystemLookAndFeel())) {
 			try {
 				UIManager.setLookAndFeel(UIManager
 						.getSystemLookAndFeelClassName());

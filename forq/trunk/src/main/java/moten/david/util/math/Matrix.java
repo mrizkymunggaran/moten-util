@@ -717,21 +717,40 @@ public class Matrix implements Html, Serializable, MatrixProvider {
 			r.getEigenvectors().setColumnLabelPattern("F<reverse-index>");
 			r.setPrincipalEigenvalues(r.getEigenvalues().copy());
 			r.setPrincipalEigenvectors(r.getEigenvectors().copy());
-			for (int i = 1; i <= r.getEigenvalues().rowCount(); i++) {
+			for (int i = r.getEigenvalues().rowCount(); i >= 1; i--) {
 				if (eigenvalueThreshold.getPrincipalFactorCriterion().equals(
 						PrincipalFactorCriterion.MIN_EIGENVALUE)
 						&& r.getEigenvalues().getValue(i, i) < eigenvalueThreshold
-								.getMinEigenvalue()
-						|| eigenvalueThreshold.getPrincipalFactorCriterion()
-								.equals(PrincipalFactorCriterion.MAX_FACTORS)
-						&& r.getPrincipalEigenvalues().rowCount() > eigenvalueThreshold
-								.getMaxFactors()) {
+								.getMinEigenvalue()) {
 					r.setPrincipalEigenvalues(r.getPrincipalEigenvalues()
 							.removeRow(i).removeColumn(i));
 					r.setPrincipalEigenvectors(r.getPrincipalEigenvectors()
 							.removeColumn(i));
 				}
 			}
+			// no apply the max factors criterion if set
+			if (eigenvalueThreshold.getPrincipalFactorCriterion().equals(
+					PrincipalFactorCriterion.MAX_FACTORS)
+					&& r.getPrincipalEigenvalues().rowCount() > eigenvalueThreshold
+							.getMaxFactors()) {
+				// for each extraneous row
+				int extraRows = r.getPrincipalEigenvalues().rowCount()
+						- eigenvalueThreshold.getMaxFactors();
+				for (int j = 1; j <= extraRows; j++) {
+					// remove the row and col from loadings,
+					// principalEigenvalues and principalEigenvectors if
+					// it contains the smallest eigenvalue
+					Point pos = r.getPrincipalEigenvalues().getDiagonal()
+							.getPositionOfMinValue();
+					r.setPrincipalEigenvalues(r.getPrincipalEigenvalues()
+							.removeRow(pos.x));
+					r.setPrincipalEigenvalues(r.getPrincipalEigenvalues()
+							.removeColumn(pos.x));
+					r.setPrincipalEigenvectors(r.getPrincipalEigenvectors()
+							.removeColumn(pos.x));
+				}
+			}
+
 			r.setLoadings(r.getEigenvectors().times(
 					r.getEigenvalues().apply(new Function() {
 						public double f(int i, int j, double x) {
@@ -800,7 +819,6 @@ public class Matrix implements Html, Serializable, MatrixProvider {
 					r.setPrincipalEigenvectors(r.getPrincipalEigenvectors()
 							.removeColumn(pos.x));
 				}
-
 			}
 			r.setPrincipalLoadings(loadings);
 		}
@@ -1268,9 +1286,9 @@ public class Matrix implements Html, Serializable, MatrixProvider {
 	}
 
 	public enum FactorScoreStrategy {
-		ZERO_ROWS_WITH_MORE_THAN_ONE_ENTRY(
-				"Ignore participants with more than one significant factor loading"), ZERO_ROWS_WITH_MORE_THAN_TWO_ENTRIES(
-				"Ignore participants with more than two significant factor loadings"), USE_ALL_SIGNIFICANT(
+		ZERO_ROWS_WITH_MORE_THAN_ONE_SIGNIFICANT_FACTOR_LOADING(
+				"Exclude Confounding Sorts"), ZERO_ROWS_WITH_MORE_THAN_TWO_SIGNIFICANT_FACTOR_LOADINGS(
+				"Ignore participants with more than two significant factor loadings"), USE_ALL_SIGNIFICANT_FACTOR_LOADINGS(
 				"Use all participants with significant factor loadings");
 		private String name;
 
@@ -1286,8 +1304,11 @@ public class Matrix implements Html, Serializable, MatrixProvider {
 
 	public Matrix getFactorScores(Matrix loadings, double threshold,
 			List<Double> distribution) {
-		return getFactorScores(loadings, threshold, distribution,
-				FactorScoreStrategy.ZERO_ROWS_WITH_MORE_THAN_ONE_ENTRY);
+		return getFactorScores(
+				loadings,
+				threshold,
+				distribution,
+				FactorScoreStrategy.ZERO_ROWS_WITH_MORE_THAN_ONE_SIGNIFICANT_FACTOR_LOADING);
 	}
 
 	public List<MatrixEntry> getEntries() {
@@ -1323,10 +1344,10 @@ public class Matrix implements Html, Serializable, MatrixProvider {
 			FactorScoreStrategy strategy) {
 		Matrix m = loadings.getSignificant(threshold);
 		if (strategy
-				.equals(FactorScoreStrategy.ZERO_ROWS_WITH_MORE_THAN_ONE_ENTRY)) {
+				.equals(FactorScoreStrategy.ZERO_ROWS_WITH_MORE_THAN_ONE_SIGNIFICANT_FACTOR_LOADING)) {
 			m = m.zeroRowsWithMoreThanNEntries(1);
 		} else if (strategy
-				.equals(FactorScoreStrategy.ZERO_ROWS_WITH_MORE_THAN_TWO_ENTRIES)) {
+				.equals(FactorScoreStrategy.ZERO_ROWS_WITH_MORE_THAN_TWO_SIGNIFICANT_FACTOR_LOADINGS)) {
 			m = m.zeroRowsWithMoreThanNEntries(2);
 		}
 		// calculate factor weights
@@ -2051,6 +2072,15 @@ public class Matrix implements Html, Serializable, MatrixProvider {
 			if (!useRow[i - 1])
 				m = m.removeRow(i);
 		}
+		return m;
+	}
+
+	public Matrix removeRowsByLabel(StringFilter filter) {
+		Matrix m = this;
+		if (filter != null)
+			for (int k = m.rowCount(); k >= 1; k--)
+				if (!filter.accept(m.getRowLabel(k)))
+					m = m.removeRow(k);
 		return m;
 	}
 }

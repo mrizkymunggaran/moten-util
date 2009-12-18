@@ -30,6 +30,7 @@ import moten.david.util.event.EventManagerListener;
 import moten.david.util.math.FactorAnalysisResults;
 import moten.david.util.math.Matrix;
 import moten.david.util.math.MatrixProvider;
+import moten.david.util.math.StringFilter;
 import moten.david.util.math.Vector;
 import moten.david.util.math.gui.JMatrixViewer;
 import moten.david.util.math.gui.NamedMatrix;
@@ -306,8 +307,18 @@ public class DataPanel extends JPanel {
 		return new EventManagerListener() {
 			public void notify(Event event) {
 				Rotations rotations = (Rotations) event.getObject();
-				LoadingsPanel panel = new LoadingsPanel(rotations);
+				LoadingsPanel panel = new LoadingsPanel(rotations,
+						createRowLabelsFilter());
 				dataViewer.setContent(panel);
+			}
+
+			private StringFilter createRowLabelsFilter() {
+				return new StringFilter() {
+					@Override
+					public boolean accept(String s) {
+						return data.getFilter().contains(s);
+					}
+				};
 			}
 		};
 	}

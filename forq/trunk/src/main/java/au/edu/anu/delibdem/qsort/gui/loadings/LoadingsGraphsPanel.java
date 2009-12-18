@@ -24,11 +24,12 @@ import javax.swing.event.ChangeListener;
 
 import moten.david.util.math.Matrix;
 import moten.david.util.math.MatrixRotation;
+import moten.david.util.math.StringFilter;
 import moten.david.util.math.gui.GraphPanel;
 import au.edu.anu.delibdem.qsort.gui.Rotations;
 
 public class LoadingsGraphsPanel extends JPanel {
-	
+
 	private static final Logger log = Logger
 			.getLogger(LoadingsGraphsPanel.class.getName());
 
@@ -41,6 +42,8 @@ public class LoadingsGraphsPanel extends JPanel {
 
 	private final List<ChangeListener> changeListeners = new ArrayList<ChangeListener>();
 
+	private StringFilter rowLabelFilter = null;
+
 	public LoadingsGraphsPanel(Component parent) {
 		this.parent = parent;
 	}
@@ -49,6 +52,10 @@ public class LoadingsGraphsPanel extends JPanel {
 		for (GraphPanel gp : graphPanels) {
 			gp.setLabelsVisible(display);
 		}
+	}
+
+	public void setRowLabelFilter(StringFilter rowLabelFilter) {
+		this.rowLabelFilter = rowLabelFilter;
 	}
 
 	public void setRotations(final Rotations rotations) {
@@ -122,10 +129,13 @@ public class LoadingsGraphsPanel extends JPanel {
 		Matrix rotatedLoadings = rotations.getRotatedLoadings();
 		for (int i = 1; i < rotatedLoadings.columnCount(); i++) {
 			for (int j = i + 1; j <= rotatedLoadings.columnCount(); j++) {
+
 				Matrix m = new Matrix(rotatedLoadings.rowCount(), 2);
 				m.setRowLabels(rotatedLoadings.getRowLabels());
 				m.setColumnVector(1, rotatedLoadings.getColumnVector(i));
 				m.setColumnVector(2, rotatedLoadings.getColumnVector(j));
+				if (rowLabelFilter != null)
+					m = m.removeRowsByLabel(rowLabelFilter);
 				graphPanels.get(count).setMatrix(m);
 				graphPanels.get(count).repaint();
 				count++;

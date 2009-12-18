@@ -29,8 +29,10 @@ import javax.swing.filechooser.FileFilter;
 
 import moten.david.util.event.Event;
 import moten.david.util.event.EventManager;
+import moten.david.util.event.EventManagerListener;
 import moten.david.util.math.Matrix;
 import moten.david.util.math.MatrixRotation;
+import moten.david.util.math.StringFilter;
 import moten.david.util.math.Varimax.RotationMethod;
 import au.edu.anu.delibdem.qsort.gui.Events;
 import au.edu.anu.delibdem.qsort.gui.LookAndFeel;
@@ -48,7 +50,7 @@ public class LoadingsPanel extends JPanel {
 
 	private final Rotations rotations;
 
-	public LoadingsPanel(Rotations rots) {
+	public LoadingsPanel(Rotations rots, StringFilter rowLabelsFilter) {
 		this.rotations = rots;
 		SpringLayout layout = new SpringLayout();
 		setLayout(layout);
@@ -57,7 +59,17 @@ public class LoadingsPanel extends JPanel {
 		// add(selectorPanel);
 		final LoadingsGraphsPanel graphs = new LoadingsGraphsPanel(this);
 
+		EventManager.getInstance().addListener(Events.DATA_CHANGED,
+				new EventManagerListener() {
+					@Override
+					public void notify(Event arg0) {
+						graphs.setRotations(rotations);
+					}
+				});
+
 		graphs.setRotations(rotations);
+		graphs.setRowLabelFilter(rowLabelsFilter);
+
 		JScrollPane scroll = new JScrollPane(graphs);
 		scroll.setBorder(BorderFactory.createEmptyBorder());
 		add(scroll);

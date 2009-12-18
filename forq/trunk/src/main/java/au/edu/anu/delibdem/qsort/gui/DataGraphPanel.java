@@ -262,10 +262,10 @@ public class DataGraphPanel extends JPanel {
 
 		layout.putConstraint(SpringLayout.WEST, showLabels, 20,
 				SpringLayout.WEST, panel);
-		layout.putConstraint(SpringLayout.NORTH, showLabels, 0,
-				SpringLayout.NORTH, slider);
-		layout.putConstraint(SpringLayout.SOUTH, showLabels, 0,
-				SpringLayout.SOUTH, slider);
+		layout.putConstraint(SpringLayout.VERTICAL_CENTER, showLabels, 0,
+				SpringLayout.VERTICAL_CENTER, slider);
+		layout.putConstraint(SpringLayout.VERTICAL_CENTER, analyze, 0,
+				SpringLayout.VERTICAL_CENTER, slider);
 		layout.putConstraint(SpringLayout.WEST, analyze, 20, SpringLayout.EAST,
 				showLabels);
 		layout.putConstraint(SpringLayout.WEST, slider, 20, SpringLayout.EAST,
@@ -279,21 +279,15 @@ public class DataGraphPanel extends JPanel {
 					panel);
 			layout.putConstraint(SpringLayout.EAST, gp, 0, SpringLayout.EAST,
 					panel);
-			layout.putConstraint(SpringLayout.NORTH, gp, 0, SpringLayout.SOUTH,
-					animate);
+			layout.putConstraint(SpringLayout.NORTH, gp, 10,
+					SpringLayout.SOUTH, slider);
 			layout.putConstraint(SpringLayout.SOUTH, gp, 0, SpringLayout.SOUTH,
 					panel);
 		}
-		layout.putConstraint(SpringLayout.NORTH, analyze, 15,
-				SpringLayout.NORTH, panel);
-		layout.putConstraint(SpringLayout.NORTH, slider, 0, SpringLayout.NORTH,
-				animate);
-		layout.putConstraint(SpringLayout.SOUTH, slider, 0, SpringLayout.SOUTH,
-				animate);
-		layout.putConstraint(SpringLayout.NORTH, animate, 0,
-				SpringLayout.NORTH, analyze);
-		layout.putConstraint(SpringLayout.SOUTH, animate, 0,
-				SpringLayout.SOUTH, analyze);
+		layout.putConstraint(SpringLayout.NORTH, slider, 5, SpringLayout.NORTH,
+				panel);
+		layout.putConstraint(SpringLayout.VERTICAL_CENTER, animate, 0,
+				SpringLayout.VERTICAL_CENTER, slider);
 
 		slider.addChangeListener(new ChangeListener() {
 

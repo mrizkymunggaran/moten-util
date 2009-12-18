@@ -33,7 +33,8 @@ public class AnalyzeOptionsPanel extends JPanel {
 		maxFactors = new JRadioButton("Maximum number of factors:");
 		minEigenvalue = new JRadioButton("Minimum eigenvalue:");
 		// TODO make maxFactors configurable
-		maxFactorsField = new JTextField("8", 5);
+		int maxFactorsDefault = Preferences.getInstance().getMaxFactors();
+		maxFactorsField = new JTextField(maxFactorsDefault + "", 5);
 		minEigenvalueField = new JTextField(getDefaultMinEigenvalue() + "", 5);
 		group.add(maxFactors);
 		group.add(minEigenvalue);
@@ -60,30 +61,28 @@ public class AnalyzeOptionsPanel extends JPanel {
 				SpringLayout.VERTICAL_CENTER, methodLabel);
 		layout.putConstraint(SpringLayout.WEST, method, 5, SpringLayout.EAST,
 				methodLabel);
-		layout.putConstraint(SpringLayout.NORTH, maxFactors, 5,
+		layout.putConstraint(SpringLayout.NORTH, maxFactorsField, 5,
 				SpringLayout.SOUTH, method);
 		layout.putConstraint(SpringLayout.WEST, maxFactors, 5,
 				SpringLayout.WEST, this);
-		layout.putConstraint(SpringLayout.NORTH, maxFactorsField, 0,
-				SpringLayout.NORTH, maxFactors);
+		layout.putConstraint(SpringLayout.VERTICAL_CENTER, maxFactors, 0,
+				SpringLayout.VERTICAL_CENTER, maxFactorsField);
 		layout.putConstraint(SpringLayout.WEST, maxFactorsField, 5,
 				SpringLayout.EAST, maxFactors);
 
-		layout.putConstraint(SpringLayout.NORTH, minEigenvalue, 5,
-				SpringLayout.SOUTH, maxFactors);
+		layout.putConstraint(SpringLayout.VERTICAL_CENTER, minEigenvalue, 0,
+				SpringLayout.VERTICAL_CENTER, minEigenvalueField);
 		layout.putConstraint(SpringLayout.WEST, minEigenvalue, 0,
 				SpringLayout.WEST, maxFactors);
-		layout.putConstraint(SpringLayout.NORTH, minEigenvalueField, 0,
-				SpringLayout.NORTH, minEigenvalue);
+		layout.putConstraint(SpringLayout.NORTH, minEigenvalueField, 5,
+				SpringLayout.SOUTH, maxFactorsField);
 		layout.putConstraint(SpringLayout.WEST, minEigenvalueField, 5,
 				SpringLayout.EAST, minEigenvalue);
 
 	}
 
 	private double getDefaultMinEigenvalue() {
-		double minEigenvalue = Preferences.getInstance().getDouble(
-				Preferences.EIGENVALUE_THRESHOLD,
-				Double.parseDouble(Preferences.EIGENVALUE_THRESHOLD_DEFAULT));
+		double minEigenvalue = Preferences.getInstance().getMinEigenvalue();
 		return minEigenvalue;
 	}
 
@@ -133,7 +132,7 @@ public class AnalyzeOptionsPanel extends JPanel {
 	public static void main(String[] args) {
 		LookAndFeel.setLookAndFeel();
 		AnalyzeOptionsPanel panel = new AnalyzeOptionsPanel();
-		panel.setPreferredSize(new Dimension(300, 80));
+		panel.setPreferredSize(new Dimension(300, 200));
 		JOptionPane.showOptionDialog(null, panel, "Analysis Options",
 				JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null,
 				null, null);

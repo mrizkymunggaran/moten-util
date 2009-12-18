@@ -19,7 +19,7 @@ public class VennInfo {
 	private int selectedIndex;
 	private float confidence = 95;
 	private float thresholdSE = 1.0f;
-	private FactorScoreStrategy strategy = FactorScoreStrategy.ZERO_ROWS_WITH_MORE_THAN_ONE_ENTRY;
+	private FactorScoreStrategy strategy = FactorScoreStrategy.ZERO_ROWS_WITH_MORE_THAN_ONE_SIGNIFICANT_FACTOR_LOADING;
 	private final Map<Integer, String> statements;
 	private boolean[] selected;
 

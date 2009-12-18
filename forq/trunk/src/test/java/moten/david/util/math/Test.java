@@ -55,6 +55,21 @@ public class Test {
 	}
 
 	@org.junit.Test
+	public void testRemoveRowsByLabel() {
+		Matrix m = new Matrix(new double[][] { { 1, 2 }, { 2, 3 }, { 3, 4 } });
+		m.setRowLabels(new String[] { "hello", "what", "hey" });
+		Matrix m2 = m.removeRowsByLabel(new StringFilter() {
+
+			@Override
+			public boolean accept(String s) {
+				return s.equals("hello");
+			}
+		});
+		Assert.assertTrue(m.rowCount() == 3);
+		Assert.assertTrue(m2.rowCount() == 2);
+	}
+
+	@org.junit.Test
 	public void testGradientProjectionOrthogonal() throws IOException {
 		InputStream is = getClass().getResourceAsStream(
 				"test-thurstones-box.txt");

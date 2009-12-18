@@ -11,12 +11,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SpringLayout;
 
 import moten.david.util.event.Event;
+import moten.david.util.event.EventManager;
 import moten.david.util.event.EventManagerListener;
 import moten.david.util.event.EventType;
 
@@ -47,7 +50,9 @@ public class PreferencesPanel extends JPanel {
 		final String[][] keys = {
 				{ Preferences.EIGENVALUE_THRESHOLD,
 						Preferences.EIGENVALUE_THRESHOLD_DEFAULT },
-				{ Preferences.VENN_MAX_STANDARD_ERRORS, "3.0" } };
+				{ Preferences.VENN_MAX_STANDARD_ERRORS, "3.0" },
+				{ Preferences.MAX_PRINCIPAL_FACTORS,
+						Preferences.MAX_PRINCIPAL_FACTORS_DEFAULT } };
 		for (String[] o : keys) {
 			final String key = o[0];
 			final String defaultValue = o[1];
@@ -82,6 +87,27 @@ public class PreferencesPanel extends JPanel {
 			add(field);
 			rows++;
 		}
+
+		final JCheckBox systemLookAndFeel = new JCheckBox(
+				"System Look and Feel");
+		systemLookAndFeel.setSelected(Preferences.getInstance()
+				.isSystemLookAndFeel());
+		systemLookAndFeel.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JOptionPane
+						.showMessageDialog(PreferencesPanel.this,
+								"You will need to restart Forq for this to take effect");
+				Preferences.getInstance().setSystemLookAndFeel(
+						systemLookAndFeel.isSelected());
+				EventManager.getInstance().notify(
+						new Event(null, Events.UPDATE_LOOK_AND_FEEL));
+			}
+		});
+		add(systemLookAndFeel);
+		add(new JLabel(" "));
+		rows++;
+
 		add(new JLabel(" "));
 		close = new JButton("Close");
 		close.setDefaultCapable(true);
@@ -99,7 +125,8 @@ public class PreferencesPanel extends JPanel {
 		SpringUtilities.makeCompactGrid(this, // parent
 				rows, cols, 3, 3, // initX, initY
 				3, 3); // xPad, yPad
-		setPreferredSize(new Dimension(220, 25 * rows));
+		setPreferredSize(new Dimension(220, 25 * rows
+				+ close.getPreferredSize().height));
 	}
 
 	private void fireClosed() {

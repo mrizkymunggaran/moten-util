@@ -34,7 +34,7 @@ public class Data implements Serializable {
 
 	private static Logger log = Logger.getLogger(Data.class.getName());
 
-	public static final String participantPrefix = "P";
+	public static final String participantPrefix = "";
 	private static final long serialVersionUID = -8216642174736641063L;
 	private static final String TAB = "\t";
 
@@ -462,8 +462,8 @@ public class Data implements Serializable {
 									.getValue(i, j));
 					m.setValue(m.rowCount(), 2, rankingsCorrelated.getValue(i,
 							j));
-					m.setRowLabel(m.rowCount(), qSortsCorrelated.getRowLabel(i)
-							+ ":" + qSortsCorrelated.getRowLabel(j));
+					m.setRowLabel(m.rowCount(), combineLabels(qSortsCorrelated
+							.getRowLabel(i), qSortsCorrelated.getRowLabel(j)));
 				}
 			}
 		}
@@ -478,6 +478,14 @@ public class Data implements Serializable {
 		dataComponents.participants2 = participants2;
 		dataComponents.correlations = m;
 		return dataComponents;
+	}
+
+	private static String combineLabels(String a, String b) {
+		return a + ":" + b;
+	}
+
+	public static String[] separateLabels(String s) {
+		return s.split(":");
 	}
 
 	public void writeMatrix(Matrix m, OutputStream os) throws IOException {

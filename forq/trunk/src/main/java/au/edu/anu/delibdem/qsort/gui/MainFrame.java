@@ -51,7 +51,19 @@ public class MainFrame extends JFrame {
 
 		createEditPreferencesListener();
 
+		createLookAndFeelListener();
+
 		setIcon();
+	}
+
+	private void createLookAndFeelListener() {
+		eventManager.addListener(Events.UPDATE_LOOK_AND_FEEL,
+				new EventManagerListener() {
+					@Override
+					public void notify(Event event) {
+						LookAndFeel.setLookAndFeel();
+					}
+				});
 	}
 
 	private void createEditPreferencesListener() {
@@ -180,12 +192,13 @@ public class MainFrame extends JFrame {
 
 						DataSelectionPanel panel = new DataSelectionPanel(data,
 								frame);
-						panel.addDataSelectionPanelListener(new DataSelectionPanel.Listener() {
-							@Override
-							public void closed() {
-								dialog.setVisible(false);
-							}
-						});
+						panel
+								.addDataSelectionPanelListener(new DataSelectionPanel.Listener() {
+									@Override
+									public void closed() {
+										dialog.setVisible(false);
+									}
+								});
 						dialog.getContentPane().setLayout(new GridLayout(1, 1));
 						dialog.getContentPane().add(panel);
 						dialog.setSize(400, frame.getHeight() * 2 / 3);
