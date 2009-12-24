@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -20,10 +21,12 @@ public class ScheduleSerialized implements Schedule {
 	private static Logger log = Logger.getLogger(ScheduleSerialized.class
 			.getName());
 	private final File scheduleFile;
+	private final long expiryTime;
 
 	@Inject
 	public ScheduleSerialized(Configuration configuration) {
 		scheduleFile = configuration.getScheduleFile();
+		expiryTime = configuration.getScheduleItemExpiryTimeMs();
 	}
 
 	@Override
@@ -37,6 +40,7 @@ public class ScheduleSerialized implements Schedule {
 						new FileInputStream(scheduleFile));
 				Set<ScheduleItem> set = (Set<ScheduleItem>) is.readObject();
 				is.close();
+				removeExpiredItems(set);
 				return set;
 			}
 		} catch (FileNotFoundException e) {
@@ -46,6 +50,16 @@ public class ScheduleSerialized implements Schedule {
 		} catch (ClassNotFoundException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	private void removeExpiredItems(Set<ScheduleItem> set) {
+		Set<ScheduleItem> removeThese = new HashSet<ScheduleItem>();
+		for (ScheduleItem item : set) {
+			if (item.getEndDate().before(
+					new Date(System.currentTimeMillis() - expiryTime)))
+				removeThese.add(item);
+		}
+		set.removeAll(removeThese);
 	}
 
 	@Override

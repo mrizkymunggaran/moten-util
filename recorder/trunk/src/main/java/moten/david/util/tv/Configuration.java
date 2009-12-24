@@ -59,4 +59,9 @@ public class Configuration {
 		// 5 mins
 		return 1000 * 60 * 5;
 	}
+
+	public long getScheduleItemExpiryTimeMs() {
+		// one day
+		return 24 * 3600 * 1000l;
+	}
 }

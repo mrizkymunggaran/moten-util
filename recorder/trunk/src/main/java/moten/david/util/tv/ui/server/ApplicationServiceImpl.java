@@ -83,7 +83,7 @@ public class ApplicationServiceImpl extends RemoteServiceServlet implements
 					list.add(p);
 				}
 			}
-			log.info("obtained programme");
+			log.info("obtained programme of " + list.size() + " items");
 			return list.toArray(new MyProgrammeItem[] {});
 		} catch (RuntimeException e) {
 			log.log(Level.SEVERE, e.getMessage(), e);

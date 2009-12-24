@@ -146,6 +146,9 @@ public class ProgrammePanel extends VerticalPanel {
 					Application.getInstance().getController().event(
 							new ProgrammeLoaded());
 				} catch (RuntimeException e) {
+					// ByteArrayOutputStream bytes = new
+					// ByteArrayOutputStream();
+					// e.printStackTrace(new PrintStream(bytes));
 					add(new Label(e.toString()));
 				}
 			}
