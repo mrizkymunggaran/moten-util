@@ -342,14 +342,18 @@ public class DataPanel extends JPanel {
 					throw new Error("unexpected object to display as Matrix:"
 							+ event.getObject());
 				NamedMatrix namedMatrix = new NamedMatrix("", matrix);
-				JMatrixViewer matrixViewer = new JMatrixViewer();
-				matrixViewer.setNamedMatrix(namedMatrix);
-				if (checked != null)
-					matrixViewer.setChecked(checked);
-				else
-					matrixViewer.removeCheckBoxColumn();
-				dataViewer.setContent(matrixViewer);
-				matrixViewer.addEventManager(localEventManager);
+				if (namedMatrix.getMatrix() == null) {
+					dataViewer.removeAll();
+				} else {
+					JMatrixViewer matrixViewer = new JMatrixViewer();
+					matrixViewer.setNamedMatrix(namedMatrix);
+					if (checked != null)
+						matrixViewer.setChecked(checked);
+					else
+						matrixViewer.removeCheckBoxColumn();
+					dataViewer.setContent(matrixViewer);
+					matrixViewer.addEventManager(localEventManager);
+				}
 			}
 		};
 	}

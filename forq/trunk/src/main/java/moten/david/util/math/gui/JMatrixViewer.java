@@ -42,21 +42,21 @@ public class JMatrixViewer extends JPanel {
 
 	private boolean useCheckBoxes = false;
 
-	private JButton copy;
+	private final JButton copy;
 
-	private SpringLayout layout;
+	private final SpringLayout layout;
 
-	private JButton rotate;
+	private final JButton rotate;
 
-	private JButton reference;
+	private final JButton reference;
 
-	private List<EventManager> eventManagers = new ArrayList<EventManager>();
+	private final List<EventManager> eventManagers = new ArrayList<EventManager>();
 
-	private JToggleButton standardError1;
+	private final JToggleButton standardError1;
 
-	private JToggleButton standardError2;
+	private final JToggleButton standardError2;
 
-	private JToggleButton digits;
+	private final JToggleButton digits;
 
 	public boolean getUseCheckBoxes() {
 		return useCheckBoxes;
@@ -143,7 +143,7 @@ public class JMatrixViewer extends JPanel {
 				}
 			}
 		});
-		
+
 		digits = new JToggleButton();
 		digits.setToolTipText("Show two digits only");
 		digits.setMargin(new Insets(0, 0, 0, 0));
@@ -156,8 +156,7 @@ public class JMatrixViewer extends JPanel {
 				jMatrix.repaint();
 			}
 		});
-		
-		
+
 		SelectionManager.getInstance().addSelectionListener(
 				new SelectionListener() {
 
@@ -190,10 +189,10 @@ public class JMatrixViewer extends JPanel {
 				SpringLayout.NORTH, rotate);
 		layout.putConstraint(SpringLayout.WEST, standardError2, 20,
 				SpringLayout.EAST, standardError1);
-		layout.putConstraint(SpringLayout.NORTH, digits, 0,
-				SpringLayout.NORTH, rotate);
-		layout.putConstraint(SpringLayout.WEST, digits, 20,
-				SpringLayout.EAST, standardError2);
+		layout.putConstraint(SpringLayout.NORTH, digits, 0, SpringLayout.NORTH,
+				rotate);
+		layout.putConstraint(SpringLayout.WEST, digits, 20, SpringLayout.EAST,
+				standardError2);
 	}
 
 	protected double getStandardError() {
@@ -258,7 +257,9 @@ public class JMatrixViewer extends JPanel {
 			layout.putConstraint(SpringLayout.SOUTH, scrollPane, 0,
 					SpringLayout.SOUTH, this);
 		}
-		if (namedMatrix.getMatrix().getAbsoluteValue().getMaximum() < 1.1) {
+
+		if (namedMatrix.getMatrix() != null
+				&& namedMatrix.getMatrix().getAbsoluteValue().getMaximum() < 1.1) {
 			standardError1.setSelected(true);
 			standardError2.setSelected(true);
 		}

@@ -215,6 +215,9 @@ public class Data implements Serializable {
 			int numPStatements) {
 
 		String[] items = line.split(TAB);
+		if (items.length < numQStatements + numPStatements + 2)
+			throw new RuntimeException("not enough columns: " + items.length
+					+ "\n" + line);
 		QSort q = new QSort();
 		Participant participant = participants.get(items[0].trim());
 		if (participant == null)
