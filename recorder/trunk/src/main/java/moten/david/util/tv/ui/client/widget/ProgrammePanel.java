@@ -61,6 +61,7 @@ public class ProgrammePanel extends VerticalPanel {
 		channels.add("Ten-Can");
 		channels.add("WIN-Can");
 		channels.add("GO");
+
 		loading = new Label("Loading...");
 	}
 
@@ -76,6 +77,8 @@ public class ProgrammePanel extends VerticalPanel {
 
 			@Override
 			public void onSuccess(MyProgrammeItem[] items) {
+				MyProgrammeItem current = null;
+				int currentCol = -99999;
 				try {
 					// each cell is 5 mins wide
 					final int cellWidthMinutes = 5;
@@ -87,6 +90,7 @@ public class ProgrammePanel extends VerticalPanel {
 					int index = 0;
 					// insert the items into the table
 					for (final MyProgrammeItem item : items) {
+						current = item;
 						if (item.getStop().after(bestStartTime)) {
 							// reset span count if channel has changed because
 							// that means we have moved to the another row
@@ -95,6 +99,10 @@ public class ProgrammePanel extends VerticalPanel {
 
 							// get the row corresponding to the channel
 							int row = channels.indexOf(item.getChannelId());
+							if (row < 0)
+								throw new RuntimeException(
+										"channel id not found: "
+												+ item.getChannelId());
 
 							// set the row channel label
 							table.setWidget(row, 0, getChannelLabel(item));
@@ -103,6 +111,7 @@ public class ProgrammePanel extends VerticalPanel {
 									.getTime())
 									/ (cellWidthMinutes * minuteMs) + 1);
 							col -= totalExtraSpan;
+							currentCol = col;
 							// calculate stop time based on next programme item
 							// start time
 							Date stopTime = item.getStop();
@@ -149,7 +158,11 @@ public class ProgrammePanel extends VerticalPanel {
 					// ByteArrayOutputStream bytes = new
 					// ByteArrayOutputStream();
 					// e.printStackTrace(new PrintStream(bytes));
-					add(new Label(e.toString()));
+					e.printStackTrace();
+					add(new Label("Programme callback error: " + e.toString()
+							+ " current=" + current.getChannelId()
+							+ current.getTitle() + current.getStart() + " col="
+							+ currentCol));
 				}
 			}
 
@@ -167,8 +180,9 @@ public class ProgrammePanel extends VerticalPanel {
 				vp.add(labelTime);
 				DisclosurePanel disclosureTitle = new DisclosurePanel();
 				Label labelTitle = new Label(item.getTitle());
-				if ((item.getCategories() != null && contains(item
-						.getCategories(), "Movie"))
+				if (item.getCategories() != null
+						&& (contains(item.getCategories(), "Movie") || contains(
+								item.getCategories(), CYCLING))
 						|| item.getDescription().toUpperCase()
 								.contains(CYCLING)
 						|| item.getTitle().toUpperCase().contains(CYCLING))

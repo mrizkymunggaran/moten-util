@@ -181,7 +181,8 @@ public class ApplicationServiceImpl extends RemoteServiceServlet implements
 			ArrayList<MyChannel> list = new ArrayList<MyChannel>();
 			for (Channel channel : channelsProvider.getChannels()) {
 				MyChannel c = new MyChannel();
-				c.setName(channel.getDisplayName());
+				c.setName(channel.getDisplayName() + " <" + channel.getId()
+						+ ">");
 				list.add(c);
 			}
 			return list.toArray(new MyChannel[] {});
