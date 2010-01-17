@@ -12,6 +12,15 @@ public class MyProgrammeItem implements Serializable {
 	private String description;
 	private String[] categories;
 	private String date;
+	private boolean highlighted;
+
+	public boolean isHighlighted() {
+		return highlighted;
+	}
+
+	public void setHighlighted(boolean highlighted) {
+		this.highlighted = highlighted;
+	}
 
 	public String getDate() {
 		return date;

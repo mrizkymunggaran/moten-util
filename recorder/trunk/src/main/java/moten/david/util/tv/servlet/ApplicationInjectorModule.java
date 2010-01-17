@@ -11,6 +11,8 @@ import moten.david.util.tv.recorder.Recorder;
 import moten.david.util.tv.recorder.RecorderLinux;
 import moten.david.util.tv.schedule.Schedule;
 import moten.david.util.tv.schedule.ScheduleSerialized;
+import moten.david.util.tv.search.SearchPatterns;
+import moten.david.util.tv.search.SearchPatternsSerialized;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
@@ -28,6 +30,7 @@ public class ApplicationInjectorModule extends AbstractModule {
 		bind(AliasProvider.class).to(AliasProviderImpl.class).in(
 				Scopes.SINGLETON);
 		bind(Schedule.class).to(ScheduleSerialized.class).in(Scopes.SINGLETON);
+		bind(SearchPatterns.class).to(SearchPatternsSerialized.class).in(
+				Scopes.SINGLETON);
 	}
-
 }

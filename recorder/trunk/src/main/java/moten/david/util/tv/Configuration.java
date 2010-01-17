@@ -64,4 +64,8 @@ public class Configuration {
 		// one day
 		return 24 * 3600 * 1000l;
 	}
+
+	public File getSearchPatternsFilename() {
+		return new File(getDataDirectory(), "search-patterns");
+	}
 }

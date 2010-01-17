@@ -6,6 +6,8 @@ import java.util.Date;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import moten.david.util.tv.Channel;
 import moten.david.util.tv.ChannelsProvider;
@@ -16,6 +18,7 @@ import moten.david.util.tv.programme.ProgrammeProvider;
 import moten.david.util.tv.recorder.Recorder;
 import moten.david.util.tv.schedule.Schedule;
 import moten.david.util.tv.schedule.ScheduleItem;
+import moten.david.util.tv.search.SearchPatterns;
 import moten.david.util.tv.servlet.ApplicationInjector;
 import moten.david.util.tv.ui.client.ApplicationService;
 import moten.david.util.tv.ui.client.MyChannel;
@@ -39,6 +42,8 @@ public class ApplicationServiceImpl extends RemoteServiceServlet implements
 	private Recorder recorder;
 	@Inject
 	private Schedule schedule;
+	@Inject
+	private SearchPatterns searchPatterns;
 
 	private final Channel[] allChannels;
 
@@ -80,7 +85,26 @@ public class ApplicationServiceImpl extends RemoteServiceServlet implements
 									scheduledItems, item));
 					if (p.isScheduledForRecording())
 						log.info(item.getTitle() + " is scheduled");
+
+					// is highlighted
+					p.setHighlighted(false);
+					for (String patternString : searchPatterns
+							.getSearchPatterns()) {
+						Pattern pattern = Pattern.compile(patternString);
+						for (String category : p.getCategories()) {
+							Matcher matcher = pattern.matcher(category);
+							if (matcher.matches())
+								p.setHighlighted(true);
+						}
+						Matcher matcher = pattern.matcher(item.getTitle() + " "
+								+ item.getSubTitle() + " "
+								+ item.getDescription());
+						if (matcher.matches())
+							p.setHighlighted(true);
+					}
+
 					list.add(p);
+
 				}
 			}
 			log.info("obtained programme of " + list.size() + " items");
@@ -205,7 +229,6 @@ public class ApplicationServiceImpl extends RemoteServiceServlet implements
 
 	@Override
 	public void setSelectedChannelIds(String[] channelIds) {
-		// TODO Auto-generated method stub
 
 	}
 
