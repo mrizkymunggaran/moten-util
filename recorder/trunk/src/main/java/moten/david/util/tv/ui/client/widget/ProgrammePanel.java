@@ -140,8 +140,8 @@ public class ProgrammePanel extends VerticalPanel {
 								"channelCell");
 						int span = 1;
 						int col = 1;
-						while (table.getWidget(row, col) == null
-								&& col < table.getCellCount(row)) {
+						while (col < table.getCellCount(row)
+								&& table.getWidget(row, col) == null) {
 							table.getFlexCellFormatter().setStyleName(row, col,
 									"programmeItemEmpty");
 							span++;
@@ -158,10 +158,11 @@ public class ProgrammePanel extends VerticalPanel {
 					// ByteArrayOutputStream();
 					// e.printStackTrace(new PrintStream(bytes));
 					e.printStackTrace();
+					int line = e.getStackTrace()[0].getLineNumber();
 					add(new Label("Programme callback error: " + e.toString()
 							+ " current=" + current.getChannelId()
 							+ current.getTitle() + current.getStart() + " col="
-							+ currentCol));
+							+ currentCol + " stackTrace line no = " + line));
 				}
 			}
 
