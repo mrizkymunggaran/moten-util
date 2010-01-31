@@ -6,6 +6,11 @@
 	<name>Programme Updater</name>
 	<version>1.0.0-SNAPSHOT</version>
 	<description>Updates a local repository of tv programme xml files from the OzList provider or others</description>
+	<scm>
+		<connection>scm:svn:http://moten-util.googlecode.com/svn/updater/trunk</connection>
+		<developerConnection>scm:svn:https://moten-util.googlecode.com/svn/updater/trunk</developerConnection>
+		<url>http://code.google.com/p/moten-util/source/browse/#svn/updater/trunk</url>
+	</scm>
 	<dependencies>
 		<dependency>
 			<groupId>com.google.inject</groupId>
@@ -26,7 +31,21 @@
 					<target>1.5</target>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-scm-plugin</artifactId>
+				<version>1.3</version>
+				<configuration>
+					<goals>install</goals>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
-	s
+	<distributionManagement>
+		<repository>
+			<uniqueVersion>false</uniqueVersion>
+			<id>googlecode</id>
+			<url>svn:https://moten-util.googlecode.com/svn/repo</url>
+		</repository>
+	</distributionManagement>
 </project>
