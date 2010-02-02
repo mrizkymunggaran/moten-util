@@ -2,8 +2,6 @@ package moten.david.util.tv.ui.client;
 
 import moten.david.util.tv.ui.client.controller.Controller;
 
-import com.google.gwt.core.client.GWT;
-
 public class Application {
 
 	private static Application application;
@@ -15,13 +13,6 @@ public class Application {
 	}
 
 	private Controller controller = new Controller();
-
-	/**
-	 * Create a remote service proxy to talk to the server-side Greeting
-	 * service.
-	 */
-	private final ApplicationServiceAsync applicationService = GWT
-			.create(ApplicationService.class);
 
 	public Controller getController() {
 		return controller;
