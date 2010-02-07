@@ -56,5 +56,22 @@ public class CheckTest {
 			Map<Check, moten.david.util.monitoring.Level> map = monitor.check();
 			Assert.assertEquals(Level.OK, map.get(check));
 		}
+		{
+			List<Check> checks = new ArrayList<Check>();
+			BooleanExpression e = Bool.FALSE;
+			final DefaultCheck checkBase = new DefaultCheck(
+					"base thing available", null, e, Level.SEVERE, null, null);
+			Set<Check> deps = new HashSet<Check>() {
+				{
+					add(checkBase);
+				}
+			};
+			DefaultCheck check = new DefaultCheck("processing time ok", null,
+					e, Level.WARNING, deps, null);
+			checks.add(check);
+			Monitor monitor = new Monitor(checks, Level.OK, Level.UNKNOWN);
+			Map<Check, moten.david.util.monitoring.Level> map = monitor.check();
+			Assert.assertEquals(Level.UNKNOWN, map.get(check));
+		}
 	}
 }
