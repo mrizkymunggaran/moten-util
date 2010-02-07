@@ -1,7 +1,7 @@
 package moten.david.util.monitoring.example;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -44,11 +44,7 @@ public class CheckTest {
 			BooleanExpression e = Bool.TRUE;
 			final DefaultCheck checkBase = new DefaultCheck(
 					"base thing available", null, e, Level.SEVERE, null, null);
-			Set<Check> deps = new HashSet<Check>() {
-				{
-					add(checkBase);
-				}
-			};
+			Set<Check> deps = Collections.singleton((Check) checkBase);
 			DefaultCheck check = new DefaultCheck("processing time ok", null,
 					e, Level.WARNING, deps, null);
 			checks.add(check);
@@ -61,11 +57,7 @@ public class CheckTest {
 			BooleanExpression e = Bool.FALSE;
 			final DefaultCheck checkBase = new DefaultCheck(
 					"base thing available", null, e, Level.SEVERE, null, null);
-			Set<Check> deps = new HashSet<Check>() {
-				{
-					add(checkBase);
-				}
-			};
+			Set<Check> deps = Collections.singleton((Check) checkBase);
 			DefaultCheck check = new DefaultCheck("processing time ok", null,
 					e, Level.WARNING, deps, null);
 			checks.add(check);
