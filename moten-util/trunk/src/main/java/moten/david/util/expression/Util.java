@@ -21,6 +21,10 @@ public class Util {
 		return new Eq(a, b);
 	}
 
+	public static BooleanExpression neq(NumericExpression a, NumericExpression b) {
+		return new Neq(a, b);
+	}
+
 	public static BooleanExpression gt(NumericExpression a, NumericExpression b) {
 		return new Gt(a, b);
 	}
