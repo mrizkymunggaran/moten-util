@@ -1,5 +1,8 @@
 package moten.david.util.monitoring.example;
 
+import static moten.david.util.expression.Util.and;
+import static moten.david.util.expression.Util.or;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -41,7 +44,7 @@ public class CheckTest {
 		}
 		{
 			List<Check> checks = new ArrayList<Check>();
-			BooleanExpression e = Bool.TRUE;
+			BooleanExpression e = or(Bool.TRUE, Bool.FALSE);
 			final DefaultCheck checkBase = new DefaultCheck(
 					"base thing available", null, e, Level.SEVERE, null, null);
 			Set<Check> deps = Collections.singleton((Check) checkBase);
@@ -54,7 +57,7 @@ public class CheckTest {
 		}
 		{
 			List<Check> checks = new ArrayList<Check>();
-			BooleanExpression e = Bool.FALSE;
+			BooleanExpression e = and(Bool.FALSE, Bool.TRUE);
 			final DefaultCheck checkBase = new DefaultCheck(
 					"base thing available", null, e, Level.SEVERE, null, null);
 			Set<Check> deps = Collections.singleton((Check) checkBase);
