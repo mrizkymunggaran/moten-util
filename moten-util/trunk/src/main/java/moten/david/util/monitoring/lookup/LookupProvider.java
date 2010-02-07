@@ -6,7 +6,8 @@ import java.lang.reflect.InvocationTargetException;
 import com.google.inject.Provider;
 
 /**
- * Provides threadLocal specific storage of a lookup
+ * Provides threadLocal storage of a lookup based on a String key. T must
+ * satisfy that it has a constructor that takes a single string parameter.
  * 
  * @author dave
  * 
@@ -22,8 +23,14 @@ public class LookupProvider<T> implements Provider<T> {
 
 	private static final ThreadLocal<Lookup> threadLocal = new ThreadLocal<Lookup>();
 
-	public static void setLookup(Lookup map) {
-		threadLocal.set(map);
+	/**
+	 * Being static this makes the assumption that every LookupProvider being
+	 * used will use the same source
+	 * 
+	 * @param lookup
+	 */
+	public static void setLookup(Lookup lookup) {
+		threadLocal.set(lookup);
 	}
 
 	private final String key;
@@ -53,15 +60,15 @@ public class LookupProvider<T> implements Provider<T> {
 		}
 	}
 
-	private Constructor getSingleStringConstructor(Constructor<?>[] constructors) {
-		for (Constructor constructor : constructors) {
+	private Constructor<?> getSingleStringConstructor(
+			Constructor<?>[] constructors) {
+		for (Constructor<?> constructor : constructors) {
 			if (constructor.getParameterTypes().length == 1
 					&& constructor.getParameterTypes()[0].equals(String.class))
 				return constructor;
 		}
 		throw new RuntimeException(
 				"didn't find single argument String constructor");
-
 	}
 
 	@Override

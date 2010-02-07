@@ -94,6 +94,7 @@ public class CheckTest {
 			assertFalse(neq(num(20), num("threshold")));
 			assertTrue(neq(num(19.2), num("threshold")));
 			assertTrue(isNull("not-there"));
+			assertFalse(isNull("threshold"));
 
 		}
 
