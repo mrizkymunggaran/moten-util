@@ -4,7 +4,7 @@
 	<groupId>org.moten.david</groupId>
 	<artifactId>moten-util</artifactId>
 	<name>MotenUtil</name>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.2-SNAPSHOT</version>
 	<description>Utility classes across a range of topics</description>
 	<url>http://code.google.com/p/moten-util</url>
 	<dependencies>
