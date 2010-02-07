@@ -1,7 +1,8 @@
 package moten.david.util.expression;
 
-import moten.david.util.monitoring.MappedBooleanProvider;
-import moten.david.util.monitoring.MappedNumericProvider;
+import java.math.BigDecimal;
+
+import moten.david.util.monitoring.MappedProvider;
 
 public class Util {
 
@@ -42,11 +43,12 @@ public class Util {
 	}
 
 	public static NumericExpression num(String name) {
-		return new Numeric(new MappedNumericProvider(name));
+		return new Numeric(new MappedProvider<BigDecimal>(BigDecimal.class,
+				name));
 	}
 
 	public static BooleanExpression isTrue(String name) {
-		return new Bool(new MappedBooleanProvider(name));
+		return new Bool(new MappedProvider<Boolean>(Boolean.class, name));
 	}
 
 	public static NumericExpression num(long value) {

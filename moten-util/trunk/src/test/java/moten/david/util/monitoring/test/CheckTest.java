@@ -20,8 +20,7 @@ import moten.david.util.expression.Bool;
 import moten.david.util.expression.BooleanExpression;
 import moten.david.util.monitoring.Check;
 import moten.david.util.monitoring.DefaultCheck;
-import moten.david.util.monitoring.MappedBooleanProvider;
-import moten.david.util.monitoring.MappedNumericProvider;
+import moten.david.util.monitoring.MappedProvider;
 import moten.david.util.monitoring.Monitor;
 
 import org.junit.Assert;
@@ -82,8 +81,7 @@ public class CheckTest {
 			Map<String, String> map = new HashMap<String, String>();
 			map.put("threshold", "20");
 
-			MappedBooleanProvider.setMap(map);
-			MappedNumericProvider.setMap(map);
+			MappedProvider.setMap(map);
 
 			{
 				boolean result = gt(num(30), num("threshold")).evaluate();
