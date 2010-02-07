@@ -1,5 +1,8 @@
 package moten.david.util.expression;
 
+import moten.david.util.monitoring.MappedBooleanProvider;
+import moten.david.util.monitoring.MappedNumericProvider;
+
 public class Util {
 
 	public static BooleanExpression and(BooleanExpression a, BooleanExpression b) {
@@ -33,4 +36,21 @@ public class Util {
 	public static BooleanExpression lte(NumericExpression a, NumericExpression b) {
 		return new Lte(a, b);
 	}
+
+	public static NumericExpression num(String name) {
+		return new Numeric(new MappedNumericProvider(name));
+	}
+
+	public static BooleanExpression isTrue(String name) {
+		return new Bool(new MappedBooleanProvider(name));
+	}
+
+	public static NumericExpression num(long value) {
+		return new Numeric(value);
+	}
+
+	public static NumericExpression num(double value) {
+		return new Numeric(value);
+	}
+
 }
