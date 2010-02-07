@@ -42,7 +42,7 @@ public interface Check {
 	 * On failure policies are mapped (presumably) to actions by a monitoring system
 	 * @return
 	 */
-	List<Policy> getFailurePolicies();
+	Set<Policy> getFailurePolicies();
 
 	/**
 	 * This check returns unknown if any dependency does not return OK
