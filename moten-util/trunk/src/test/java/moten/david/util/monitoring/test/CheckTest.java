@@ -4,6 +4,7 @@ import static moten.david.util.expression.Util.and;
 import static moten.david.util.expression.Util.eq;
 import static moten.david.util.expression.Util.gt;
 import static moten.david.util.expression.Util.gte;
+import static moten.david.util.expression.Util.isNull;
 import static moten.david.util.expression.Util.lt;
 import static moten.david.util.expression.Util.lte;
 import static moten.david.util.expression.Util.neq;
@@ -92,6 +93,8 @@ public class CheckTest {
 			assertFalse(eq(num(21), num("threshold")));
 			assertFalse(neq(num(20), num("threshold")));
 			assertTrue(neq(num(19.2), num("threshold")));
+			assertTrue(isNull("not-there"));
+
 		}
 
 		assertTrue(gt(num(3), num(2)));

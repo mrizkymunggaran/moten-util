@@ -59,4 +59,8 @@ public class Util {
 		return new Numeric(value);
 	}
 
+	public static BooleanExpression isNull(String name) {
+		return new IsNull(new LookupProvider<String>(String.class, name));
+	}
+
 }

@@ -5,8 +5,14 @@ import java.lang.reflect.InvocationTargetException;
 
 import com.google.inject.Provider;
 
+/**
+ * Provides threadLocal specific storage of a lookup
+ * 
+ * @author dave
+ * 
+ * @param <T>
+ */
 public class LookupProvider<T> implements Provider<T> {
-
 	private final Class<T> cls;
 
 	public LookupProvider(Class<T> cls, String key) {
@@ -28,8 +34,12 @@ public class LookupProvider<T> implements Provider<T> {
 		if (lookup == null)
 			throw new RuntimeException("map has not been set");
 		try {
-			return (T) getSingleStringConstructor(cls.getConstructors())
-					.newInstance(lookup.get(key));
+			String value = lookup.get(key);
+			if (value == null)
+				return null;
+			else
+				return (T) getSingleStringConstructor(cls.getConstructors())
+						.newInstance(value);
 		} catch (IllegalArgumentException e) {
 			throw new RuntimeException(e);
 		} catch (SecurityException e) {
