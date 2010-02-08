@@ -1,9 +1,14 @@
 package moten.david.util.expression;
 
 import java.math.BigDecimal;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.TimeZone;
 
 import moten.david.util.monitoring.MonitoringLookups;
 import moten.david.util.monitoring.lookup.LookupProvider;
+
+import com.google.inject.Provider;
 
 public class Util {
 
@@ -65,6 +70,52 @@ public class Util {
 
 	public static NumericExpression num(double value) {
 		return new Numeric(value);
+	}
+
+	public static Date date(Calendar calendar) {
+		return new Date(calendar);
+	}
+
+	public static Date now() {
+		return new Date(new Provider<Calendar>() {
+			@Override
+			public Calendar get() {
+				Calendar cal = GregorianCalendar.getInstance();
+				return cal;
+			}
+		});
+	}
+
+	public static Date date(final String key) {
+
+		return new Date(new Provider<Calendar>() {
+			@Override
+			public Calendar get() {
+				String value = lookups.getMonitoringLookupThreadLocal().get()
+						.get(key);
+				long millis = Long.parseLong(value);
+				Calendar calendar = new GregorianCalendar(TimeZone
+						.getTimeZone("GMT"));
+				calendar.setTimeInMillis(millis);
+				return calendar;
+			}
+		});
+	}
+
+	public static Date configuredDate(final String key) {
+
+		return new Date(new Provider<Calendar>() {
+			@Override
+			public Calendar get() {
+				String value = lookups.getConfigurationLookupThreadLocal()
+						.get().get(key);
+				long millis = Long.parseLong(value);
+				Calendar calendar = new GregorianCalendar(TimeZone
+						.getTimeZone("GMT"));
+				calendar.setTimeInMillis(millis);
+				return calendar;
+			}
+		});
 	}
 
 	public static BooleanExpression isNull(String name) {

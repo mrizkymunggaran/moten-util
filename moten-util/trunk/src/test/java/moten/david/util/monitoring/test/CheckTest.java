@@ -3,6 +3,7 @@ package moten.david.util.monitoring.test;
 import static moten.david.util.expression.Util.and;
 import static moten.david.util.expression.Util.configuredNum;
 import static moten.david.util.expression.Util.configuredTrue;
+import static moten.david.util.expression.Util.date;
 import static moten.david.util.expression.Util.eq;
 import static moten.david.util.expression.Util.gt;
 import static moten.david.util.expression.Util.gte;
@@ -10,6 +11,7 @@ import static moten.david.util.expression.Util.isNull;
 import static moten.david.util.expression.Util.lt;
 import static moten.david.util.expression.Util.lte;
 import static moten.david.util.expression.Util.neq;
+import static moten.david.util.expression.Util.now;
 import static moten.david.util.expression.Util.num;
 import static moten.david.util.expression.Util.or;
 
@@ -110,6 +112,9 @@ public class CheckTest {
 			assertFalse(configuredTrue("enabled"));
 			conf.put("enabled", "true");
 			assertTrue(configuredTrue("enabled"));
+
+			map.put("lastRunTimestampMs", "25000");
+			assertTrue(gt(now(), date("lastRunTimestampMs")));
 		}
 
 		assertTrue(gt(num(3), num(2)));
