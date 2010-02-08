@@ -2,7 +2,7 @@ package moten.david.util.expression;
 
 import java.math.BigDecimal;
 
-public class Plus implements NumericExpression {
+public class Plus implements NumericExpression, Operation {
 
 	private final NumericExpression a;
 	private final NumericExpression b;
@@ -15,6 +15,11 @@ public class Plus implements NumericExpression {
 	@Override
 	public BigDecimal evaluate() {
 		return a.evaluate().add(b.evaluate());
+	}
+
+	@Override
+	public Expression[] getExpressions() {
+		return new Expression[] { a, b };
 	}
 
 }

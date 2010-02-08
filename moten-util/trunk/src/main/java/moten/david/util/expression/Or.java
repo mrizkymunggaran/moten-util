@@ -1,6 +1,6 @@
 package moten.david.util.expression;
 
-public class Or implements BooleanExpression {
+public class Or implements BooleanExpression, Operation {
 
 	private final BooleanExpression a;
 	private final BooleanExpression b;
@@ -15,4 +15,8 @@ public class Or implements BooleanExpression {
 		return a.evaluate() || b.evaluate();
 	}
 
+	@Override
+	public Expression[] getExpressions() {
+		return new Expression[] { a, b };
+	}
 }

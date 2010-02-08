@@ -2,7 +2,7 @@ package moten.david.util.expression;
 
 import java.math.BigDecimal;
 
-public class Divide implements NumericExpression {
+public class Divide implements NumericExpression, Operation {
 
 	private final NumericExpression a;
 	private final NumericExpression b;
@@ -17,4 +17,8 @@ public class Divide implements NumericExpression {
 		return a.evaluate().divide(b.evaluate());
 	}
 
+	@Override
+	public Expression[] getExpressions() {
+		return new Expression[] { a, b };
+	}
 }

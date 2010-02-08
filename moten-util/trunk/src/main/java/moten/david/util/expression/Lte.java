@@ -1,6 +1,6 @@
 package moten.david.util.expression;
 
-public class Lte implements BooleanExpression {
+public class Lte implements BooleanExpression, Operation {
 
 	private final NumericExpression a;
 	private final NumericExpression b;
@@ -15,4 +15,8 @@ public class Lte implements BooleanExpression {
 		return a.evaluate().compareTo(b.evaluate()) <= 0;
 	}
 
+	@Override
+	public Expression[] getExpressions() {
+		return new Expression[] { a, b };
+	}
 }
