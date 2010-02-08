@@ -2,9 +2,13 @@ package moten.david.util.expression;
 
 import java.math.BigDecimal;
 
+import moten.david.util.monitoring.lookup.Lookup;
 import moten.david.util.monitoring.lookup.LookupProvider;
 
 public class Util {
+
+	public static ThreadLocal<Lookup> monitoringthreadLocal = new ThreadLocal<Lookup>();
+	public static ThreadLocal<Lookup> configurationThreadLocal = new ThreadLocal<Lookup>();
 
 	public static BooleanExpression and(BooleanExpression a, BooleanExpression b) {
 		return new And(a, b);
@@ -44,11 +48,12 @@ public class Util {
 
 	public static NumericExpression num(String name) {
 		return new Numeric(new LookupProvider<BigDecimal>(BigDecimal.class,
-				name));
+				name, monitoringthreadLocal));
 	}
 
 	public static BooleanExpression isTrue(String name) {
-		return new Bool(new LookupProvider<Boolean>(Boolean.class, name));
+		return new Bool(new LookupProvider<Boolean>(Boolean.class, name,
+				monitoringthreadLocal));
 	}
 
 	public static NumericExpression num(long value) {
@@ -60,7 +65,8 @@ public class Util {
 	}
 
 	public static BooleanExpression isNull(String name) {
-		return new IsNull(new LookupProvider<String>(String.class, name));
+		return new IsNull(new LookupProvider<String>(String.class, name,
+				monitoringthreadLocal));
 	}
 
 }

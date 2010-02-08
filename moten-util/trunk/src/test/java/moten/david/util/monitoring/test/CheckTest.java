@@ -20,10 +20,10 @@ import java.util.Set;
 
 import moten.david.util.expression.Bool;
 import moten.david.util.expression.BooleanExpression;
+import moten.david.util.expression.Util;
 import moten.david.util.monitoring.Check;
 import moten.david.util.monitoring.DefaultCheck;
 import moten.david.util.monitoring.Monitor;
-import moten.david.util.monitoring.lookup.LookupProvider;
 import moten.david.util.monitoring.lookup.MapLookup;
 
 import org.junit.Assert;
@@ -83,8 +83,7 @@ public class CheckTest {
 		{
 			Map<String, String> map = new HashMap<String, String>();
 			map.put("threshold", "20");
-
-			LookupProvider.setLookup(new MapLookup(map));
+			Util.monitoringthreadLocal.set(new MapLookup(map));
 
 			assertTrue(gt(num(30), num("threshold")));
 			assertFalse(lt(num(30), num("threshold")));

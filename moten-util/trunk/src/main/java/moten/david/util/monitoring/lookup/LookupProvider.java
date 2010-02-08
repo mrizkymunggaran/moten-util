@@ -15,22 +15,13 @@ import com.google.inject.Provider;
  */
 public class LookupProvider<T> implements Provider<T> {
 	private final Class<T> cls;
+	private final ThreadLocal<Lookup> threadLocal;
 
-	public LookupProvider(Class<T> cls, String key) {
+	public LookupProvider(Class<T> cls, String key,
+			ThreadLocal<Lookup> threadLocal) {
 		this.cls = cls;
 		this.key = key;
-	}
-
-	private static final ThreadLocal<Lookup> threadLocal = new ThreadLocal<Lookup>();
-
-	/**
-	 * Being static this makes the assumption that every LookupProvider being
-	 * used will use the same source
-	 * 
-	 * @param lookup
-	 */
-	public static void setLookup(Lookup lookup) {
-		threadLocal.set(lookup);
+		this.threadLocal = threadLocal;
 	}
 
 	private final String key;
