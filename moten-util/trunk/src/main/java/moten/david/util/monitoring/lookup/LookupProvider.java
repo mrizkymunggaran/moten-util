@@ -9,6 +9,9 @@ import com.google.inject.Provider;
  * Provides threadLocal storage of a lookup based on a String key. T must
  * satisfy that it has a constructor that takes a single string parameter.
  * 
+ * get method returns the string value corresponding to the constructor
+ * parameter key converted to type T
+ * 
  * @author dave
  * 
  * @param <T>
