@@ -6,13 +6,13 @@ import com.google.inject.Provider;
 
 public class Duration extends Numeric {
 
-	public Duration(Provider<BigDecimal> provider, DurationType type) {
-		this.provider = provider;
+	public Duration(final Provider<BigDecimal> provider, final DurationType type) {
+		super(new Provider<BigDecimal>() {
+			@Override
+			public BigDecimal get() {
+				return provider.get()
+						.multiply(new BigDecimal(type.getFactor()));
+			}
+		});
 	}
-
-	@Override
-	public BigDecimal evaluate() {
-		return a.evaluate().add(b.evaluate());
-	}
-
 }
