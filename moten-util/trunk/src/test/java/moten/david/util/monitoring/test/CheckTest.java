@@ -2,6 +2,7 @@ package moten.david.util.monitoring.test;
 
 import static moten.david.util.expression.Util.and;
 import static moten.david.util.expression.Util.configuredNum;
+import static moten.david.util.expression.Util.configuredTrue;
 import static moten.david.util.expression.Util.eq;
 import static moten.david.util.expression.Util.gt;
 import static moten.david.util.expression.Util.gte;
@@ -88,6 +89,7 @@ public class CheckTest {
 
 			Map<String, String> conf = new HashMap<String, String>();
 			conf.put("minimumValue", "23");
+			conf.put("enabled", "false");
 
 			MonitoringLookups lookups = new MonitoringLookups();
 			lookups.setConfigurationLookup(new MapLookup(conf));
@@ -105,7 +107,9 @@ public class CheckTest {
 			assertFalse(isNull("threshold"));
 
 			assertTrue(eq(num(23), configuredNum("minimumValue")));
-
+			assertFalse(configuredTrue("enabled"));
+			conf.put("enabled", "true");
+			assertTrue(configuredTrue("enabled"));
 		}
 
 		assertTrue(gt(num(3), num(2)));

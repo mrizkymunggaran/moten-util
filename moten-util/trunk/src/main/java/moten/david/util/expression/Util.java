@@ -77,4 +77,9 @@ public class Util {
 				lookups.getMonitoringLookupThreadLocal()));
 	}
 
+	public static BooleanExpression configuredTrue(String name) {
+		return new Bool(new LookupProvider<Boolean>(Boolean.class, name,
+				lookups.getConfigurationLookupThreadLocal()));
+	}
+
 }
