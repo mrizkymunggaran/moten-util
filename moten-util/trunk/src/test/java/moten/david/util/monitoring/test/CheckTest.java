@@ -1,6 +1,7 @@
 package moten.david.util.monitoring.test;
 
 import static moten.david.util.expression.Util.and;
+import static moten.david.util.expression.Util.configuredNum;
 import static moten.david.util.expression.Util.eq;
 import static moten.david.util.expression.Util.gt;
 import static moten.david.util.expression.Util.gte;
@@ -24,6 +25,7 @@ import moten.david.util.expression.Util;
 import moten.david.util.monitoring.Check;
 import moten.david.util.monitoring.DefaultCheck;
 import moten.david.util.monitoring.Monitor;
+import moten.david.util.monitoring.MonitoringLookups;
 import moten.david.util.monitoring.lookup.MapLookup;
 
 import org.junit.Assert;
@@ -83,7 +85,14 @@ public class CheckTest {
 		{
 			Map<String, String> map = new HashMap<String, String>();
 			map.put("threshold", "20");
-			Util.monitoringthreadLocal.set(new MapLookup(map));
+
+			Map<String, String> conf = new HashMap<String, String>();
+			conf.put("minimumValue", "23");
+
+			MonitoringLookups lookups = new MonitoringLookups();
+			lookups.setConfigurationLookup(new MapLookup(conf));
+			lookups.setMonitoringLookup(new MapLookup(map));
+			Util.setLookups(lookups);
 
 			assertTrue(gt(num(30), num("threshold")));
 			assertFalse(lt(num(30), num("threshold")));
@@ -94,6 +103,8 @@ public class CheckTest {
 			assertTrue(neq(num(19.2), num("threshold")));
 			assertTrue(isNull("not-there"));
 			assertFalse(isNull("threshold"));
+
+			assertTrue(eq(num(23), configuredNum("minimumValue")));
 
 		}
 
