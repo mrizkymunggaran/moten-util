@@ -1,6 +1,6 @@
 package moten.david.util.expression;
 
-public class Neq implements BooleanExpression, Operation {
+public class Neq implements BooleanExpression, Comparison {
 	private final NumericExpression a;
 	private final NumericExpression b;
 

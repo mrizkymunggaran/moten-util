@@ -8,12 +8,7 @@ import com.google.inject.Provider;
 public class Date extends Numeric {
 
 	public Date(final Calendar calendar) {
-		this(new Provider<Calendar>() {
-			@Override
-			public Calendar get() {
-				return calendar;
-			}
-		});
+		this(new ConstantProvider<Calendar>(calendar));
 	}
 
 	public Date(final Provider<Calendar> provider) {

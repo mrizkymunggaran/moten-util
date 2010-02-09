@@ -2,7 +2,7 @@ package moten.david.util.expression;
 
 import java.math.BigDecimal;
 
-public class Times implements NumericExpression, Operation {
+public class Times implements NumericExpression, InfixOperation {
 
 	private final NumericExpression a;
 	private final NumericExpression b;

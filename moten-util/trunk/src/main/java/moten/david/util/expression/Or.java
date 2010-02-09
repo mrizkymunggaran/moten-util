@@ -1,6 +1,6 @@
 package moten.david.util.expression;
 
-public class Or implements BooleanExpression, Operation {
+public class Or implements BooleanExpression, InfixOperation {
 
 	private final BooleanExpression a;
 	private final BooleanExpression b;

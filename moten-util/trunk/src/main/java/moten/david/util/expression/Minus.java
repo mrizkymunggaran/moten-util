@@ -2,7 +2,7 @@ package moten.david.util.expression;
 
 import java.math.BigDecimal;
 
-public class Minus implements NumericExpression, Operation {
+public class Minus implements NumericExpression, InfixOperation {
 
 	private final NumericExpression a;
 	private final NumericExpression b;

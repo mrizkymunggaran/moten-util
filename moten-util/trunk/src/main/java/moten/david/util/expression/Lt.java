@@ -1,6 +1,6 @@
 package moten.david.util.expression;
 
-public class Lt implements BooleanExpression, Operation {
+public class Lt implements BooleanExpression, Comparison {
 
 	private final NumericExpression a;
 	private final NumericExpression b;
