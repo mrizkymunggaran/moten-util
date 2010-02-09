@@ -2,7 +2,7 @@ package moten.david.util.expression;
 
 import com.google.inject.Provider;
 
-public class Bool implements BooleanExpression {
+public class Bool implements BooleanExpression, Provided<Boolean> {
 
 	private final Provider<Boolean> provider;
 
@@ -21,6 +21,11 @@ public class Bool implements BooleanExpression {
 	@Override
 	public boolean evaluate() {
 		return provider.get();
+	}
+
+	@Override
+	public Provider<Boolean> getProvider() {
+		return provider;
 	}
 
 }

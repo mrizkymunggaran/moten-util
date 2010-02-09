@@ -27,6 +27,10 @@ public class LookupProvider<T> implements Provider<T> {
 		this.threadLocal = threadLocal;
 	}
 
+	public String getKey() {
+		return key;
+	}
+
 	private final String key;
 
 	@Override

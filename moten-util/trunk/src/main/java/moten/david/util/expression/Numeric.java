@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 
 import com.google.inject.Provider;
 
-public class Numeric implements NumericExpression {
+public class Numeric implements NumericExpression, Provided<BigDecimal> {
 
 	private final Provider<BigDecimal> provider;
 
@@ -27,6 +27,11 @@ public class Numeric implements NumericExpression {
 	@Override
 	public BigDecimal evaluate() {
 		return provider.get();
+	}
+
+	@Override
+	public Provider<BigDecimal> getProvider() {
+		return provider;
 	}
 
 }

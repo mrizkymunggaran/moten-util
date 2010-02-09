@@ -54,6 +54,26 @@ public class Util {
 		return new Lte(a, b);
 	}
 
+	public static NumericExpression plus(NumericExpression a,
+			NumericExpression b) {
+		return new Plus(a, b);
+	}
+
+	public static NumericExpression minus(NumericExpression a,
+			NumericExpression b) {
+		return new Minus(a, b);
+	}
+
+	public static NumericExpression times(NumericExpression a,
+			NumericExpression b) {
+		return new Times(a, b);
+	}
+
+	public static NumericExpression divide(NumericExpression a,
+			NumericExpression b) {
+		return new Divide(a, b);
+	}
+
 	public static NumericExpression configuredNum(String name) {
 		return new Numeric(new LookupProvider<BigDecimal>(BigDecimal.class,
 				name, lookups.getConfigurationLookupThreadLocal()));
