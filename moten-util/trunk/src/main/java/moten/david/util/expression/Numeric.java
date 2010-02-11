@@ -2,6 +2,8 @@ package moten.david.util.expression;
 
 import java.math.BigDecimal;
 
+import moten.david.util.guice.ConstantProvider;
+
 import com.google.inject.Provider;
 
 public class Numeric implements NumericExpression, Provided<BigDecimal> {

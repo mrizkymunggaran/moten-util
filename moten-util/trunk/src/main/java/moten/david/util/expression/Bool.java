@@ -1,5 +1,7 @@
 package moten.david.util.expression;
 
+import moten.david.util.guice.ConstantProvider;
+
 import com.google.inject.Provider;
 
 public class Bool implements BooleanExpression, Provided<Boolean> {

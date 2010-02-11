@@ -1,6 +1,5 @@
 package moten.david.util.monitoring;
 
-import java.util.List;
 import java.util.Set;
 
 import moten.david.util.expression.BooleanExpression;
@@ -9,7 +8,7 @@ import moten.david.util.expression.BooleanExpression;
  * An item to be monitored
  * 
  * @author dave
- *
+ * 
  */
 public interface Check {
 	/**
@@ -21,6 +20,7 @@ public interface Check {
 
 	/**
 	 * Describes the check
+	 * 
 	 * @return
 	 */
 	String getDescription();
@@ -34,12 +34,15 @@ public interface Check {
 
 	/**
 	 * returns the failure level if check fails
+	 * 
 	 * @return
 	 */
 	Level getFailureLevel();
 
 	/**
-	 * On failure policies are mapped (presumably) to actions by a monitoring system
+	 * On failure policies are mapped (presumably) to actions by a monitoring
+	 * system
+	 * 
 	 * @return
 	 */
 	Set<Policy> getFailurePolicies();

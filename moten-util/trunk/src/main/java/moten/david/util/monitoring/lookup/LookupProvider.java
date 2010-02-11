@@ -33,6 +33,7 @@ public class LookupProvider<T> implements Provider<T> {
 
 	private final String key;
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public T get() {
 		Lookup lookup = threadLocal.get();

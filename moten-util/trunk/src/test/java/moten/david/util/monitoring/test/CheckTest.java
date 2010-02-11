@@ -30,9 +30,14 @@ import moten.david.util.monitoring.DefaultCheck;
 import moten.david.util.monitoring.Monitor;
 import moten.david.util.monitoring.MonitoringLookups;
 import moten.david.util.monitoring.lookup.MapLookup;
+import moten.david.util.monitoring.lookup.MapLookupFactory;
+import moten.david.util.monitoring.lookup.ThreadLocalLookupRecorder;
 
 import org.junit.Assert;
 import org.junit.Test;
+
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 
 public class CheckTest {
 
@@ -132,6 +137,44 @@ public class CheckTest {
 		assertFalse(lte(num(3), num(2)));
 		assertTrue(lte(num(3), num(3)));
 		assertTrue(lte(num(2), num(3)));
+
+	}
+
+	@Test
+	public void testLookupRecorder() {
+
+		Injector injector = Guice.createInjector(new InjectorModule());
+
+		// use aop to record lookups
+		ThreadLocalLookupRecorder lookupRecorder = moten.david.util.monitoring.Util
+				.getLookupRecorder();
+		lookupRecorder.clear();
+
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("threshold", "20");
+
+		MapLookupFactory factory = injector.getInstance(MapLookupFactory.class);
+		MapLookup lookup = factory.create(map);
+
+		// next call should be recorded via aop
+		lookup.get("threshold");
+
+		// check if recorded
+		Assert.assertEquals(map, lookupRecorder.getLookups());
+
+		lookupRecorder.clear();
+
+		Assert
+				.assertEquals(Collections.EMPTY_MAP, lookupRecorder
+						.getLookups());
+
+		map.put("name", "fred");
+
+		lookup.get("threshold");
+		lookup.get("name");
+
+		// check if recorded
+		Assert.assertEquals(map, lookupRecorder.getLookups());
 
 	}
 
