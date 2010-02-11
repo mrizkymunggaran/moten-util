@@ -91,12 +91,9 @@ public class CheckTest {
 		}
 
 		{
-			Map<String, String> map = new HashMap<String, String>();
-			map.put("threshold", "20");
-
-			Map<String, String> conf = new HashMap<String, String>();
-			conf.put("minimumValue", "23");
-			conf.put("enabled", "false");
+			Map<String, String> map = createMap("threshold", "20");
+			Map<String, String> conf = createMap("minimumValue", "23",
+					"enabled", "false");
 
 			MonitoringLookups lookups = new MonitoringLookups();
 			lookups.setConfigurationLookup(new MapLookup(conf));
@@ -140,6 +137,14 @@ public class CheckTest {
 
 	}
 
+	private Map<String, String> createMap(String... items) {
+		Map<String, String> map = new HashMap<String, String>();
+		for (int i = 0; i < items.length; i += 2) {
+			map.put(items[i], items[i + 1]);
+		}
+		return map;
+	}
+
 	@Test
 	public void testLookupRecorder() {
 
@@ -150,8 +155,7 @@ public class CheckTest {
 				.getLookupRecorder();
 		lookupRecorder.clear();
 
-		Map<String, String> map = new HashMap<String, String>();
-		map.put("threshold", "20");
+		Map<String, String> map = createMap("threshold", "20");
 
 		MapLookupFactory factory = injector.getInstance(MapLookupFactory.class);
 		MapLookup lookup = factory.create(map);
@@ -181,12 +185,10 @@ public class CheckTest {
 		// each has an expression, a url to obtain properties from, failure
 		// policies
 
-		Map<String, String> map = new HashMap<String, String>();
-		map.put("threshold", "20");
+		Map<String, String> map = createMap("threshold", "20");
 
-		Map<String, String> conf = new HashMap<String, String>();
-		conf.put("minimumValue", "23");
-		conf.put("enabled", "false");
+		Map<String, String> conf = createMap("minimumValue", "23", "enabled",
+				"false");
 
 		MonitoringLookups lookups = new MonitoringLookups();
 		lookups.setConfigurationLookup(new MapLookup(conf));
