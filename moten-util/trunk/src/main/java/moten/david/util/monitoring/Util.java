@@ -3,6 +3,8 @@ package moten.david.util.monitoring;
 import moten.david.util.monitoring.lookup.Lookup;
 import moten.david.util.monitoring.lookup.MapLookup;
 import moten.david.util.monitoring.lookup.MapLookupFactory;
+import moten.david.util.monitoring.lookup.PropertiesLookup;
+import moten.david.util.monitoring.lookup.PropertiesLookupFactory;
 import moten.david.util.monitoring.lookup.ThreadLocalLookupRecorder;
 
 import com.google.inject.Binder;
@@ -25,5 +27,8 @@ public class Util {
 		binder.bind(MapLookupFactory.class).toProvider(
 				FactoryProvider.newFactory(MapLookupFactory.class,
 						MapLookup.class));
+		binder.bind(PropertiesLookupFactory.class).toProvider(
+				FactoryProvider.newFactory(PropertiesLookupFactory.class,
+						PropertiesLookup.class));
 	}
 }
