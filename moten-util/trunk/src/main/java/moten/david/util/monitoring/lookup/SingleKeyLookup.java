@@ -16,11 +16,11 @@ import com.google.inject.Provider;
  * 
  * @param <T>
  */
-public class LookupProvider<T> implements Provider<T> {
+public class SingleKeyLookup<T> implements Provider<T> {
 	private final Class<T> cls;
 	private final ThreadLocal<Lookup> threadLocal;
 
-	public LookupProvider(Class<T> cls, String key,
+	public SingleKeyLookup(Class<T> cls, String key,
 			ThreadLocal<Lookup> threadLocal) {
 		this.cls = cls;
 		this.key = key;

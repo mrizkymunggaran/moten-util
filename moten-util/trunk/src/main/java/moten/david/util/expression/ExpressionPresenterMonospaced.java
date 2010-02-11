@@ -1,7 +1,7 @@
 package moten.david.util.expression;
 
 import moten.david.util.guice.ConstantProvider;
-import moten.david.util.monitoring.lookup.LookupProvider;
+import moten.david.util.monitoring.lookup.SingleKeyLookup;
 
 import com.google.inject.Provider;
 
@@ -31,8 +31,8 @@ public class ExpressionPresenterMonospaced implements ExpressionPresenter {
 			if (provider instanceof ConstantProvider<?>) {
 				Object value = ((ConstantProvider<?>) provider).get();
 				return value.toString();
-			} else if (provider instanceof LookupProvider<?>) {
-				return named(((LookupProvider<?>) provider).getKey());
+			} else if (provider instanceof SingleKeyLookup<?>) {
+				return named(((SingleKeyLookup<?>) provider).getKey());
 			} else
 				throw new RuntimeException("unknown provider type");
 		} else

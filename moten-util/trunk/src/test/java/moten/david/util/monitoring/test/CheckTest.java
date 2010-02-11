@@ -164,9 +164,7 @@ public class CheckTest {
 
 		lookupRecorder.clear();
 
-		Assert
-				.assertEquals(Collections.EMPTY_MAP, lookupRecorder
-						.getLookups());
+		Assert.assertEquals(Collections.EMPTY_MAP, lookupRecorder.getLookups());
 
 		map.put("name", "fred");
 
@@ -175,6 +173,25 @@ public class CheckTest {
 
 		// check if recorded
 		Assert.assertEquals(map, lookupRecorder.getLookups());
+
+	}
+
+	public void testUrlLookup() {
+		// multiple checks
+		// each has an expression, a url to obtain properties from, failure
+		// policies
+
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("threshold", "20");
+
+		Map<String, String> conf = new HashMap<String, String>();
+		conf.put("minimumValue", "23");
+		conf.put("enabled", "false");
+
+		MonitoringLookups lookups = new MonitoringLookups();
+		lookups.setConfigurationLookup(new MapLookup(conf));
+		lookups.setMonitoringLookup(new MapLookup(map));
+		Util.setLookups(lookups);
 
 	}
 

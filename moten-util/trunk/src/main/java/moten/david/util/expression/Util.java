@@ -6,7 +6,7 @@ import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
 import moten.david.util.monitoring.MonitoringLookups;
-import moten.david.util.monitoring.lookup.LookupProvider;
+import moten.david.util.monitoring.lookup.SingleKeyLookup;
 
 import com.google.inject.Provider;
 
@@ -75,12 +75,12 @@ public class Util {
 	}
 
 	public static NumericExpression configuredNum(String name) {
-		return new Numeric(new LookupProvider<BigDecimal>(BigDecimal.class,
+		return new Numeric(new SingleKeyLookup<BigDecimal>(BigDecimal.class,
 				name, lookups.getConfigurationLookupThreadLocal()));
 	}
 
 	public static NumericExpression num(String name) {
-		return new Numeric(new LookupProvider<BigDecimal>(BigDecimal.class,
+		return new Numeric(new SingleKeyLookup<BigDecimal>(BigDecimal.class,
 				name, lookups.getMonitoringLookupThreadLocal()));
 	}
 
@@ -139,17 +139,17 @@ public class Util {
 	}
 
 	public static BooleanExpression isNull(String name) {
-		return new IsNull(new LookupProvider<String>(String.class, name,
+		return new IsNull(new SingleKeyLookup<String>(String.class, name,
 				lookups.getMonitoringLookupThreadLocal()));
 	}
 
 	public static BooleanExpression isTrue(String name) {
-		return new Bool(new LookupProvider<Boolean>(Boolean.class, name,
+		return new Bool(new SingleKeyLookup<Boolean>(Boolean.class, name,
 				lookups.getMonitoringLookupThreadLocal()));
 	}
 
 	public static BooleanExpression configuredTrue(String name) {
-		return new Bool(new LookupProvider<Boolean>(Boolean.class, name,
+		return new Bool(new SingleKeyLookup<Boolean>(Boolean.class, name,
 				lookups.getConfigurationLookupThreadLocal()));
 	}
 
