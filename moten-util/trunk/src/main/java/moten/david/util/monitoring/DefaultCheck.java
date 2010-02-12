@@ -1,12 +1,12 @@
 package moten.david.util.monitoring;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import moten.david.util.expression.BooleanExpression;
 import moten.david.util.monitoring.lookup.Lookup;
 import moten.david.util.monitoring.lookup.LookupType;
-
-import com.google.inject.Provider;
 
 public class DefaultCheck implements Check {
 	private final String name;
@@ -15,19 +15,19 @@ public class DefaultCheck implements Check {
 	private final Level failureLevel;
 	private final Set<Check> dependencies;
 	private final Set<Policy> failurePolicies;
-	private final Provider<Lookup> monitoringLookup;
-	private final Provider<Lookup> configurationLookup;
+	private final Map<LookupType, Lookup> lookups;
+	private final LookupType lookupTypeDefault;
 
 	public DefaultCheck(String name, String description,
-			BooleanExpression expression, Provider<Lookup> monitoringLookup,
-			Provider<Lookup> configurationLookup, Level failureLevel,
+			BooleanExpression expression, Map<LookupType, Lookup> lookups,
+			LookupType lookupTypeDefault, Level failureLevel,
 			Set<Check> dependencies, Set<Policy> failurePolicies) {
 		super();
 		this.name = name;
 		this.description = description;
 		this.expression = expression;
-		this.monitoringLookup = monitoringLookup;
-		this.configurationLookup = configurationLookup;
+		this.lookups = lookups;
+		this.lookupTypeDefault = lookupTypeDefault;
 		this.failureLevel = failureLevel;
 		this.dependencies = dependencies;
 		this.failurePolicies = failurePolicies;
@@ -36,15 +36,8 @@ public class DefaultCheck implements Check {
 	public DefaultCheck(String name, BooleanExpression expression,
 			Level failureLevel, Set<Check> dependencies,
 			Set<Policy> failurePolicies) {
-		this(name, null, expression, null, null, failureLevel, dependencies,
-				failurePolicies);
-	}
-
-	public Provider<Lookup> getLookup(LookupType type) {
-		if (LookupType.MONITORING.equals(type))
-			return monitoringLookup;
-		else
-			return configurationLookup;
+		this(name, null, expression, new HashMap<LookupType, Lookup>(), null,
+				failureLevel, dependencies, failurePolicies);
 	}
 
 	public String getName() {
@@ -69,5 +62,15 @@ public class DefaultCheck implements Check {
 
 	public Set<Policy> getFailurePolicies() {
 		return failurePolicies;
+	}
+
+	@Override
+	public Map<LookupType, Lookup> getLookups() {
+		return lookups;
+	}
+
+	@Override
+	public LookupType getLookupTypeDefault() {
+		return lookupTypeDefault;
 	}
 }

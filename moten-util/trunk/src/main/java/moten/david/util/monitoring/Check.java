@@ -1,12 +1,11 @@
 package moten.david.util.monitoring;
 
+import java.util.Map;
 import java.util.Set;
 
 import moten.david.util.expression.BooleanExpression;
 import moten.david.util.monitoring.lookup.Lookup;
 import moten.david.util.monitoring.lookup.LookupType;
-
-import com.google.inject.Provider;
 
 /**
  * An item to be monitored
@@ -63,6 +62,14 @@ public interface Check {
 	 * 
 	 * @return
 	 */
-	Provider<Lookup> getLookup(LookupType type);
+	Map<LookupType, Lookup> getLookups();
+
+	/**
+	 * The default lookup type (normally corresponding to the lookup of the
+	 * application status). i.e. LookupType.MONITORING
+	 * 
+	 * @return
+	 */
+	LookupType getLookupTypeDefault();
 
 }
