@@ -6,6 +6,7 @@ import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
 import moten.david.util.monitoring.MonitoringLookups;
+import moten.david.util.monitoring.lookup.LookupType;
 import moten.david.util.monitoring.lookup.SingleKeyLookup;
 
 import com.google.inject.Provider;
@@ -74,14 +75,13 @@ public class Util {
 		return new Divide(a, b);
 	}
 
-	public static NumericExpression configuredNum(String name) {
-		return new Numeric(new SingleKeyLookup<BigDecimal>(BigDecimal.class,
-				name, lookups.getConfigurationLookupThreadLocal()));
+	public static NumericExpression num(String name) {
+		return num(name, lookups.getDefaultType());
 	}
 
-	public static NumericExpression num(String name) {
+	public static NumericExpression num(String name, LookupType lookupType) {
 		return new Numeric(new SingleKeyLookup<BigDecimal>(BigDecimal.class,
-				name, lookups.getMonitoringLookupThreadLocal()));
+				name, lookups.getLookupThreadLocal(lookupType)));
 	}
 
 	public static NumericExpression num(long value) {
@@ -106,12 +106,16 @@ public class Util {
 		});
 	}
 
-	public static Date date(final String key) {
+	public static Date date(String key) {
+		return date(key, lookups.getDefaultType());
+	}
+
+	public static Date date(final String key, final LookupType type) {
 
 		return new Date(new Provider<Calendar>() {
 			@Override
 			public Calendar get() {
-				String value = lookups.getMonitoringLookupThreadLocal().get()
+				String value = lookups.getLookupThreadLocal(type).get()
 						.get(key);
 				long millis = Long.parseLong(value);
 				Calendar calendar = new GregorianCalendar(TimeZone
@@ -122,35 +126,22 @@ public class Util {
 		});
 	}
 
-	public static Date configuredDate(final String key) {
-
-		return new Date(new Provider<Calendar>() {
-			@Override
-			public Calendar get() {
-				String value = lookups.getConfigurationLookupThreadLocal()
-						.get().get(key);
-				long millis = Long.parseLong(value);
-				Calendar calendar = new GregorianCalendar(TimeZone
-						.getTimeZone("GMT"));
-				calendar.setTimeInMillis(millis);
-				return calendar;
-			}
-		});
+	public static BooleanExpression isNull(String name) {
+		return isNull(name, lookups.getDefaultType());
 	}
 
-	public static BooleanExpression isNull(String name) {
+	public static BooleanExpression isNull(String name, LookupType type) {
 		return new IsNull(new SingleKeyLookup<String>(String.class, name,
-				lookups.getMonitoringLookupThreadLocal()));
+				lookups.getLookupThreadLocal(type)));
 	}
 
 	public static BooleanExpression isTrue(String name) {
-		return new Bool(new SingleKeyLookup<Boolean>(Boolean.class, name,
-				lookups.getMonitoringLookupThreadLocal()));
+		return isTrue(name, lookups.getDefaultType());
 	}
 
-	public static BooleanExpression configuredTrue(String name) {
+	public static BooleanExpression isTrue(String name, LookupType type) {
 		return new Bool(new SingleKeyLookup<Boolean>(Boolean.class, name,
-				lookups.getConfigurationLookupThreadLocal()));
+				lookups.getLookupThreadLocal(type)));
 	}
 
 }

@@ -1,35 +1,37 @@
 package moten.david.util.monitoring;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import moten.david.util.monitoring.lookup.Lookup;
+import moten.david.util.monitoring.lookup.LookupType;
 
 public class MonitoringLookups {
 
-	private final ThreadLocal<Lookup> monitoringLookupThreadLocal = new ThreadLocal<Lookup>();
+	private final LookupType defaultType;
 
-	public ThreadLocal<Lookup> getMonitoringLookupThreadLocal() {
-		return monitoringLookupThreadLocal;
+	public MonitoringLookups(LookupType defaultType) {
+		this.defaultType = defaultType;
 	}
 
-	public ThreadLocal<Lookup> getConfigurationLookupThreadLocal() {
-		return configurationLookupThreadLocal;
+	public LookupType getDefaultType() {
+		return defaultType;
 	}
 
-	private final ThreadLocal<Lookup> configurationLookupThreadLocal = new ThreadLocal<Lookup>();
+	private final Map<LookupType, ThreadLocal<Lookup>> map = new HashMap<LookupType, ThreadLocal<Lookup>>();
 
-	public void setMonitoringLookup(Lookup lookup) {
-		monitoringLookupThreadLocal.set(lookup);
+	private synchronized ThreadLocal<Lookup> getThreadLocal(LookupType type) {
+		if (map.get(type) == null)
+			map.put(type, new ThreadLocal<Lookup>());
+		return map.get(type);
 	}
 
-	public void setConfigurationLookup(Lookup lookup) {
-		configurationLookupThreadLocal.set(lookup);
+	public void setLookup(LookupType type, Lookup lookup) {
+		getThreadLocal(type).set(lookup);
 	}
 
-	public Lookup getConfigurationLookup() {
-		return configurationLookupThreadLocal.get();
-	}
-
-	public Lookup getMonitoringLookup() {
-		return monitoringLookupThreadLocal.get();
+	public ThreadLocal<Lookup> getLookupThreadLocal(LookupType type) {
+		return getThreadLocal(type);
 	}
 
 }

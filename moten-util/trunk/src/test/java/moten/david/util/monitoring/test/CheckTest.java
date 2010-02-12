@@ -1,19 +1,20 @@
 package moten.david.util.monitoring.test;
 
 import static moten.david.util.expression.Util.and;
-import static moten.david.util.expression.Util.configuredNum;
-import static moten.david.util.expression.Util.configuredTrue;
 import static moten.david.util.expression.Util.date;
 import static moten.david.util.expression.Util.eq;
 import static moten.david.util.expression.Util.gt;
 import static moten.david.util.expression.Util.gte;
 import static moten.david.util.expression.Util.isNull;
+import static moten.david.util.expression.Util.isTrue;
 import static moten.david.util.expression.Util.lt;
 import static moten.david.util.expression.Util.lte;
 import static moten.david.util.expression.Util.neq;
 import static moten.david.util.expression.Util.now;
 import static moten.david.util.expression.Util.num;
 import static moten.david.util.expression.Util.or;
+import static moten.david.util.monitoring.lookup.LookupType.CONFIGURATION;
+import static moten.david.util.monitoring.lookup.LookupType.MONITORING;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -95,9 +96,9 @@ public class CheckTest {
 			Map<String, String> conf = createMap("minimumValue", "23",
 					"enabled", "false");
 
-			MonitoringLookups lookups = new MonitoringLookups();
-			lookups.setConfigurationLookup(new MapLookup(conf));
-			lookups.setMonitoringLookup(new MapLookup(map));
+			MonitoringLookups lookups = new MonitoringLookups(MONITORING);
+			lookups.setLookup(CONFIGURATION, new MapLookup(conf));
+			lookups.setLookup(MONITORING, new MapLookup(map));
 			Util.setLookups(lookups);
 
 			assertTrue(gt(num(30), num("threshold")));
@@ -110,10 +111,10 @@ public class CheckTest {
 			assertTrue(isNull("not-there"));
 			assertFalse(isNull("threshold"));
 
-			assertTrue(eq(num(23), configuredNum("minimumValue")));
-			assertFalse(configuredTrue("enabled"));
+			assertTrue(eq(num(23), num("minimumValue", CONFIGURATION)));
+			assertFalse(isTrue("enabled", CONFIGURATION));
 			conf.put("enabled", "true");
-			assertTrue(configuredTrue("enabled"));
+			assertTrue(isTrue("enabled", CONFIGURATION));
 
 			map.put("lastRunTimestampMs", "25000");
 			assertTrue(gt(now(), date("lastRunTimestampMs")));
@@ -189,9 +190,9 @@ public class CheckTest {
 		Map<String, String> conf = createMap("minimumValue", "23", "enabled",
 				"false");
 
-		MonitoringLookups lookups = new MonitoringLookups();
-		lookups.setConfigurationLookup(new MapLookup(conf));
-		lookups.setMonitoringLookup(new MapLookup(map));
+		MonitoringLookups lookups = new MonitoringLookups(MONITORING);
+		lookups.setLookup(CONFIGURATION, new MapLookup(conf));
+		lookups.setLookup(MONITORING, new MapLookup(map));
 		Util.setLookups(lookups);
 
 	}
