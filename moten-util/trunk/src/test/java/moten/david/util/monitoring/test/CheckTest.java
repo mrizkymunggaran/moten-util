@@ -46,8 +46,8 @@ public class CheckTest {
 		{
 			List<Check> checks = new ArrayList<Check>();
 			BooleanExpression e = Bool.FALSE;
-			DefaultCheck check = new DefaultCheck("processing time ok", null,
-					e, Level.WARNING, null, null);
+			DefaultCheck check = new DefaultCheck("processing time ok", e,
+					Level.WARNING, null, null);
 			checks.add(check);
 			Monitor monitor = new Monitor(checks, Level.OK, Level.UNKNOWN);
 			Map<Check, moten.david.util.monitoring.Level> map = monitor.check();
@@ -56,8 +56,8 @@ public class CheckTest {
 		{
 			List<Check> checks = new ArrayList<Check>();
 			BooleanExpression e = Bool.TRUE;
-			DefaultCheck check = new DefaultCheck("processing time ok", null,
-					e, Level.WARNING, null, null);
+			DefaultCheck check = new DefaultCheck("processing time ok", e,
+					Level.WARNING, null, null);
 			checks.add(check);
 			Monitor monitor = new Monitor(checks, Level.OK, Level.UNKNOWN);
 			Map<Check, moten.david.util.monitoring.Level> map = monitor.check();
@@ -67,10 +67,10 @@ public class CheckTest {
 			List<Check> checks = new ArrayList<Check>();
 			BooleanExpression e = or(Bool.TRUE, Bool.FALSE);
 			final DefaultCheck checkBase = new DefaultCheck(
-					"base thing available", null, e, Level.SEVERE, null, null);
+					"base thing available", e, Level.SEVERE, null, null);
 			Set<Check> deps = Collections.singleton((Check) checkBase);
-			DefaultCheck check = new DefaultCheck("processing time ok", null,
-					e, Level.WARNING, deps, null);
+			DefaultCheck check = new DefaultCheck("processing time ok", e,
+					Level.WARNING, deps, null);
 			checks.add(check);
 			Monitor monitor = new Monitor(checks, Level.OK, Level.UNKNOWN);
 			Map<Check, moten.david.util.monitoring.Level> map = monitor.check();
@@ -80,10 +80,10 @@ public class CheckTest {
 			List<Check> checks = new ArrayList<Check>();
 			BooleanExpression e = and(Bool.FALSE, Bool.TRUE);
 			final DefaultCheck checkBase = new DefaultCheck(
-					"base thing available", null, e, Level.SEVERE, null, null);
+					"base thing available", e, Level.SEVERE, null, null);
 			Set<Check> deps = Collections.singleton((Check) checkBase);
-			DefaultCheck check = new DefaultCheck("processing time ok", null,
-					e, Level.WARNING, deps, null);
+			DefaultCheck check = new DefaultCheck("processing time ok", e,
+					Level.WARNING, deps, null);
 			checks.add(check);
 			Monitor monitor = new Monitor(checks, Level.OK, Level.UNKNOWN);
 			Map<Check, moten.david.util.monitoring.Level> map = monitor.check();
@@ -186,7 +186,6 @@ public class CheckTest {
 		// policies
 
 		Map<String, String> map = createMap("threshold", "20");
-
 		Map<String, String> conf = createMap("minimumValue", "23", "enabled",
 				"false");
 

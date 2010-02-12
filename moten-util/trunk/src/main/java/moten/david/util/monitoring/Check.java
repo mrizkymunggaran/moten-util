@@ -3,6 +3,10 @@ package moten.david.util.monitoring;
 import java.util.Set;
 
 import moten.david.util.expression.BooleanExpression;
+import moten.david.util.monitoring.lookup.Lookup;
+import moten.david.util.monitoring.lookup.LookupType;
+
+import com.google.inject.Provider;
 
 /**
  * An item to be monitored
@@ -53,4 +57,12 @@ public interface Check {
 	 * @return
 	 */
 	Set<Check> getDependencies();
+
+	/**
+	 * Provides lookup for the
+	 * 
+	 * @return
+	 */
+	Provider<Lookup> getLookup(LookupType type);
+
 }
