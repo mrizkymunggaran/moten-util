@@ -181,6 +181,7 @@ public class CheckTest {
 
 		Injector injector = Guice.createInjector(new InjectorModule());
 
+		// get the configuration lookup
 		Lookup confLookup = createConfLookup(injector);
 
 		Expressions u = injector.getInstance(Expressions.class);
@@ -188,18 +189,15 @@ public class CheckTest {
 		// set up a caching url provider
 		CachingUrlPropertiesProvider urlPropertiesProvider = new CachingUrlPropertiesProvider();
 
-		// initialize the list of checks
-		List<Check> checks = new ArrayList<Check>();
-
-		// get the Url Factory
-		UrlFactory urlFactory = injector.getInstance(UrlFactory.class);
-		PropertiesLookup monitoringLookup = new PropertiesLookup(
-				urlPropertiesProvider.getPropertiesProvider(urlFactory,
-						"/test1.properties"));
+		Lookup monitoringLookup = createMonitoringLookup(u,
+				urlPropertiesProvider, injector);
 
 		// set lookups
 		u.getLookups().put(MONITORING, monitoringLookup);
 		u.getLookups().put(LookupType.CONFIGURATION, confLookup);
+
+		// initialize the list of checks
+		List<Check> checks = new ArrayList<Check>();
 
 		// add a check
 		checks.add(new DefaultCheck("one", null, u.eq(u.num("num.years"), u
@@ -214,6 +212,17 @@ public class CheckTest {
 
 		// do the check
 		System.out.println(monitor.check());
+	}
+
+	private Lookup createMonitoringLookup(Expressions u,
+			CachingUrlPropertiesProvider urlPropertiesProvider,
+			Injector injector) {
+
+		UrlFactory urlFactory = injector.getInstance(UrlFactory.class);
+		PropertiesLookup monitoringLookup = new PropertiesLookup(
+				urlPropertiesProvider.getPropertiesProvider(urlFactory,
+						"/test1.properties"));
+		return monitoringLookup;
 	}
 
 	private Lookup createConfLookup(Injector injector) {
