@@ -18,13 +18,12 @@ import com.google.inject.Provider;
  */
 public class SingleKeyLookup<T> implements Provider<T> {
 	private final Class<T> cls;
-	private final ThreadLocal<Lookup> threadLocal;
+	private final Lookup lookup;
 
-	public SingleKeyLookup(Class<T> cls, String key,
-			ThreadLocal<Lookup> threadLocal) {
+	public SingleKeyLookup(Class<T> cls, String key, Lookup lookup) {
 		this.cls = cls;
 		this.key = key;
-		this.threadLocal = threadLocal;
+		this.lookup = lookup;
 	}
 
 	public String getKey() {
@@ -36,7 +35,6 @@ public class SingleKeyLookup<T> implements Provider<T> {
 	@SuppressWarnings("unchecked")
 	@Override
 	public T get() {
-		Lookup lookup = threadLocal.get();
 		if (lookup == null)
 			throw new RuntimeException("map has not been set");
 		try {

@@ -44,11 +44,9 @@ public class Monitor {
 				map.put(check, unknown);
 			else {
 				// set up the lookups
-				MonitoringLookups lookups = new MonitoringLookups(check
-						.getLookupTypeDefault());
+				MonitoringLookups lookups = expressions.getLookups();
 				for (LookupType type : check.getLookups().keySet())
-					lookups.setLookup(type, check.getLookups().get(type));
-				expressions.setLookups(lookups);
+					lookups.put(type, check.getLookups().get(type));
 
 				if (check.getExpression().evaluate())
 					map.put(check, ok);

@@ -8,15 +8,20 @@ import java.util.Map;
 
 import moten.david.util.monitoring.MonitoringLookups;
 import moten.david.util.monitoring.lookup.MapLookup;
+import moten.david.util.monitoring.test.InjectorModule;
 
 import org.junit.Assert;
 import org.junit.Test;
+
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 
 public class ExpressionPresenterMonospacedTest {
 
 	@Test
 	public void test() {
-		Expressions e = new Expressions();
+		Injector injector = Guice.createInjector(new InjectorModule());
+		Expressions e = injector.getInstance(Expressions.class);
 
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("threshold", "20");
@@ -25,10 +30,9 @@ public class ExpressionPresenterMonospacedTest {
 		conf.put("minimumValue", "23");
 		conf.put("enabled", "false");
 
-		MonitoringLookups lookups = new MonitoringLookups(MONITORING);
-		lookups.setLookup(CONFIGURATION, new MapLookup(conf));
-		lookups.setLookup(MONITORING, new MapLookup(map));
-		e.setLookups(lookups);
+		MonitoringLookups lookups = e.getLookups();
+		lookups.put(CONFIGURATION, new MapLookup(conf));
+		lookups.put(MONITORING, new MapLookup(map));
 
 		ExpressionPresenter presenter = new ExpressionPresenterMonospaced();
 		Assert.assertEquals("20", presenter.toString(e.num(20)));

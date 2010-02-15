@@ -9,14 +9,24 @@ import moten.david.util.monitoring.MonitoringLookups;
 import moten.david.util.monitoring.lookup.LookupType;
 import moten.david.util.monitoring.lookup.SingleKeyLookup;
 
+import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.google.inject.name.Named;
 
 public class Expressions {
 
-	private  MonitoringLookups lookups;
+	private final LookupType lookupTypeDefault;
+	private final MonitoringLookups lookups;
 
-	public void setLookups(MonitoringLookups lookups) {
+	@Inject
+	public Expressions(@Named("default") LookupType lookupTypeDefault,
+			MonitoringLookups lookups) {
+		this.lookupTypeDefault = lookupTypeDefault;
 		this.lookups = lookups;
+	}
+
+	public MonitoringLookups getLookups() {
+		return lookups;
 	}
 
 	public BooleanExpression and(BooleanExpression a, BooleanExpression b) {
@@ -55,33 +65,29 @@ public class Expressions {
 		return new Lte(a, b);
 	}
 
-	public NumericExpression plus(NumericExpression a,
-			NumericExpression b) {
+	public NumericExpression plus(NumericExpression a, NumericExpression b) {
 		return new Plus(a, b);
 	}
 
-	public NumericExpression minus(NumericExpression a,
-			NumericExpression b) {
+	public NumericExpression minus(NumericExpression a, NumericExpression b) {
 		return new Minus(a, b);
 	}
 
-	public NumericExpression times(NumericExpression a,
-			NumericExpression b) {
+	public NumericExpression times(NumericExpression a, NumericExpression b) {
 		return new Times(a, b);
 	}
 
-	public NumericExpression divide(NumericExpression a,
-			NumericExpression b) {
+	public NumericExpression divide(NumericExpression a, NumericExpression b) {
 		return new Divide(a, b);
 	}
 
 	public NumericExpression num(String name) {
-		return num(name, lookups.getDefaultType());
+		return num(name, this.lookupTypeDefault);
 	}
 
 	public NumericExpression num(String name, LookupType lookupType) {
 		return new Numeric(new SingleKeyLookup<BigDecimal>(BigDecimal.class,
-				name, lookups.getLookupThreadLocal(lookupType)));
+				name, lookups.get(lookupType)));
 	}
 
 	public NumericExpression num(long value) {
@@ -107,7 +113,7 @@ public class Expressions {
 	}
 
 	public Date date(String key) {
-		return date(key, lookups.getDefaultType());
+		return date(key, lookupTypeDefault);
 	}
 
 	public Date date(final String key, final LookupType type) {
@@ -115,8 +121,7 @@ public class Expressions {
 		return new Date(new Provider<Calendar>() {
 			@Override
 			public Calendar get() {
-				String value = lookups.getLookupThreadLocal(type).get()
-						.get(key);
+				String value = lookups.get(type).get(key);
 				long millis = Long.parseLong(value);
 				Calendar calendar = new GregorianCalendar(TimeZone
 						.getTimeZone("GMT"));
@@ -127,21 +132,21 @@ public class Expressions {
 	}
 
 	public BooleanExpression isNull(String name) {
-		return isNull(name, lookups.getDefaultType());
+		return isNull(name, lookupTypeDefault);
 	}
 
 	public BooleanExpression isNull(String name, LookupType type) {
 		return new IsNull(new SingleKeyLookup<String>(String.class, name,
-				lookups.getLookupThreadLocal(type)));
+				lookups.get(type)));
 	}
 
 	public BooleanExpression isTrue(String name) {
-		return isTrue(name, lookups.getDefaultType());
+		return isTrue(name, lookupTypeDefault);
 	}
 
 	public BooleanExpression isTrue(String name, LookupType type) {
 		return new Bool(new SingleKeyLookup<Boolean>(Boolean.class, name,
-				lookups.getLookupThreadLocal(type)));
+				lookups.get(type)));
 	}
 
 }

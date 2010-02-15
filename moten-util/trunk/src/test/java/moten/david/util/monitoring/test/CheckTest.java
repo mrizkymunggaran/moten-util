@@ -36,7 +36,8 @@ public class CheckTest {
 
 	@Test
 	public void test() {
-		Expressions u = new Expressions();
+		Injector injector = Guice.createInjector(new InjectorModule());
+		Expressions u = injector.getInstance(Expressions.class);
 		{
 			List<Check> checks = new ArrayList<Check>();
 			BooleanExpression e = Bool.FALSE;
@@ -88,14 +89,12 @@ public class CheckTest {
 			Map<String, String> map = createMap("threshold", "20");
 			Map<String, String> conf = createMap("minimumValue", "23",
 					"enabled", "false");
-			Injector injector = Guice.createInjector(new InjectorModule());
 			MapLookupFactory factory = injector
 					.getInstance(MapLookupFactory.class);
 
-			MonitoringLookups lookups = new MonitoringLookups(MONITORING);
-			lookups.setLookup(CONFIGURATION, factory.create(conf));
-			lookups.setLookup(MONITORING, factory.create(map));
-			u.setLookups(lookups);
+			MonitoringLookups lookups = u.getLookups();
+			lookups.put(CONFIGURATION, factory.create(conf));
+			lookups.put(MONITORING, factory.create(map));
 
 			assertTrue(u.gt(u.num(30), u.num("threshold")));
 			assertFalse(u.lt(u.num(30), u.num("threshold")));
@@ -180,29 +179,28 @@ public class CheckTest {
 	@Test
 	public void testUrlLookup() {
 
-		Map<String, String> map = createMap("threshold", "20");
 		Map<String, String> conf = createMap("minimumValue", "23", "enabled",
 				"false");
 		Injector injector = Guice.createInjector(new InjectorModule());
 		MapLookupFactory factory = injector.getInstance(MapLookupFactory.class);
 		Lookup confLookup = factory.create(conf);
 
-		Expressions u = new Expressions();
-
-		// Set the default lookup type
-		// u.getLookups(MONITORING);
+		Expressions u = injector.getInstance(Expressions.class);
 
 		// set up a caching url provider
 		CachingUrlPropertiesProvider urlPropertiesProvider = new CachingUrlPropertiesProvider();
+
 		// initialize the list of checks
 		List<Check> checks = new ArrayList<Check>();
 
-		UrlFactory urlFactory = injector.getInstance(UrlFactory.class);
+		Map<LookupType, Lookup> lookups = getLookups(injector,
+				"/test1.properties", confLookup);
+		u.getLookups().putAll(lookups);
+
 		// add a check
 		checks.add(new DefaultCheck("one", null, u.eq(u.num("num.years"), u
-				.num(10)),
-				getLookups(injector, "/test1.properties", confLookup),
-				LookupType.MONITORING, Level.SEVERE, null, null));
+				.num(10)), lookups, LookupType.MONITORING, Level.SEVERE, null,
+				null));
 
 		// create a monitor for the checks
 		Monitor monitor = new Monitor(u, checks, Level.OK, Level.UNKNOWN);
