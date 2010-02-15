@@ -179,11 +179,9 @@ public class CheckTest {
 	@Test
 	public void testUrlLookup() {
 
-		Map<String, String> conf = createMap("minimumValue", "23", "enabled",
-				"false");
 		Injector injector = Guice.createInjector(new InjectorModule());
-		MapLookupFactory factory = injector.getInstance(MapLookupFactory.class);
-		Lookup confLookup = factory.create(conf);
+
+		Lookup confLookup = createConfLookup(injector);
 
 		Expressions u = injector.getInstance(Expressions.class);
 
@@ -193,33 +191,37 @@ public class CheckTest {
 		// initialize the list of checks
 		List<Check> checks = new ArrayList<Check>();
 
-		Map<LookupType, Lookup> lookups = getLookups(injector,
-				"/test1.properties", confLookup);
-		u.getLookups().putAll(lookups);
+		// get the Url Factory
+		UrlFactory urlFactory = injector.getInstance(UrlFactory.class);
+		PropertiesLookup monitoringLookup = new PropertiesLookup(
+				urlPropertiesProvider.getPropertiesProvider(urlFactory,
+						"/test1.properties"));
+
+		// set lookups
+		u.getLookups().put(MONITORING, monitoringLookup);
+		u.getLookups().put(LookupType.CONFIGURATION, confLookup);
 
 		// add a check
 		checks.add(new DefaultCheck("one", null, u.eq(u.num("num.years"), u
-				.num(10)), lookups, LookupType.MONITORING, Level.SEVERE, null,
-				null));
+				.num(10)), u.getLookups(), LookupType.MONITORING, Level.SEVERE,
+				null, null));
 
 		// create a monitor for the checks
 		Monitor monitor = new Monitor(u, checks, Level.OK, Level.UNKNOWN);
+
 		// reset url cache
 		urlPropertiesProvider.reset();
+
 		// do the check
 		System.out.println(monitor.check());
 	}
 
-	private Map<LookupType, Lookup> getLookups(Injector injector, String path,
-			Lookup confLookup) {
-		CachingUrlPropertiesProvider urlPropertiesProvider = injector
-				.getInstance(CachingUrlPropertiesProvider.class);
-		UrlFactory urlFactory = injector.getInstance(UrlFactory.class);
-		Map<LookupType, Lookup> lookups = new HashMap<LookupType, Lookup>();
-		lookups.put(MONITORING, new PropertiesLookup(urlPropertiesProvider
-				.getPropertiesProvider(urlFactory, path)));
-		lookups.put(CONFIGURATION, confLookup);
-		return lookups;
+	private Lookup createConfLookup(Injector injector) {
+		Map<String, String> conf = createMap("minimumValue", "23", "enabled",
+				"false");
+		MapLookupFactory factory = injector.getInstance(MapLookupFactory.class);
+		Lookup confLookup = factory.create(conf);
+		return confLookup;
 	}
 
 	private void assertTrue(BooleanExpression e) {
