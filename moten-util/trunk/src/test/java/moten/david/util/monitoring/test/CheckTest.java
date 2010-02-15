@@ -1,18 +1,5 @@
 package moten.david.util.monitoring.test;
 
-import static moten.david.util.expression.Util.and;
-import static moten.david.util.expression.Util.date;
-import static moten.david.util.expression.Util.eq;
-import static moten.david.util.expression.Util.gt;
-import static moten.david.util.expression.Util.gte;
-import static moten.david.util.expression.Util.isNull;
-import static moten.david.util.expression.Util.isTrue;
-import static moten.david.util.expression.Util.lt;
-import static moten.david.util.expression.Util.lte;
-import static moten.david.util.expression.Util.neq;
-import static moten.david.util.expression.Util.now;
-import static moten.david.util.expression.Util.num;
-import static moten.david.util.expression.Util.or;
 import static moten.david.util.monitoring.lookup.LookupType.CONFIGURATION;
 import static moten.david.util.monitoring.lookup.LookupType.MONITORING;
 
@@ -25,14 +12,19 @@ import java.util.Set;
 
 import moten.david.util.expression.Bool;
 import moten.david.util.expression.BooleanExpression;
-import moten.david.util.expression.Util;
+import moten.david.util.expression.Expressions;
 import moten.david.util.monitoring.Check;
 import moten.david.util.monitoring.DefaultCheck;
 import moten.david.util.monitoring.Monitor;
 import moten.david.util.monitoring.MonitoringLookups;
+import moten.david.util.monitoring.lookup.CachingUrlPropertiesProvider;
+import moten.david.util.monitoring.lookup.Lookup;
+import moten.david.util.monitoring.lookup.LookupType;
 import moten.david.util.monitoring.lookup.MapLookup;
 import moten.david.util.monitoring.lookup.MapLookupFactory;
+import moten.david.util.monitoring.lookup.PropertiesLookup;
 import moten.david.util.monitoring.lookup.ThreadLocalLookupRecorder;
+import moten.david.util.monitoring.lookup.UrlFactory;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -44,13 +36,14 @@ public class CheckTest {
 
 	@Test
 	public void test() {
+		Expressions u = new Expressions();
 		{
 			List<Check> checks = new ArrayList<Check>();
 			BooleanExpression e = Bool.FALSE;
 			DefaultCheck check = new DefaultCheck("processing time ok", e,
 					Level.WARNING, null, null);
 			checks.add(check);
-			Monitor monitor = new Monitor(checks, Level.OK, Level.UNKNOWN);
+			Monitor monitor = new Monitor(u, checks, Level.OK, Level.UNKNOWN);
 			Map<Check, moten.david.util.monitoring.Level> map = monitor.check();
 			Assert.assertEquals(Level.WARNING, map.get(check));
 		}
@@ -60,33 +53,33 @@ public class CheckTest {
 			DefaultCheck check = new DefaultCheck("processing time ok", e,
 					Level.WARNING, null, null);
 			checks.add(check);
-			Monitor monitor = new Monitor(checks, Level.OK, Level.UNKNOWN);
+			Monitor monitor = new Monitor(u, checks, Level.OK, Level.UNKNOWN);
 			Map<Check, moten.david.util.monitoring.Level> map = monitor.check();
 			Assert.assertEquals(Level.OK, map.get(check));
 		}
 		{
 			List<Check> checks = new ArrayList<Check>();
-			BooleanExpression e = or(Bool.TRUE, Bool.FALSE);
+			BooleanExpression e = u.or(Bool.TRUE, Bool.FALSE);
 			final DefaultCheck checkBase = new DefaultCheck(
 					"base thing available", e, Level.SEVERE, null, null);
 			Set<Check> deps = Collections.singleton((Check) checkBase);
 			DefaultCheck check = new DefaultCheck("processing time ok", e,
 					Level.WARNING, deps, null);
 			checks.add(check);
-			Monitor monitor = new Monitor(checks, Level.OK, Level.UNKNOWN);
+			Monitor monitor = new Monitor(u, checks, Level.OK, Level.UNKNOWN);
 			Map<Check, moten.david.util.monitoring.Level> map = monitor.check();
 			Assert.assertEquals(Level.OK, map.get(check));
 		}
 		{
 			List<Check> checks = new ArrayList<Check>();
-			BooleanExpression e = and(Bool.FALSE, Bool.TRUE);
+			BooleanExpression e = u.and(Bool.FALSE, Bool.TRUE);
 			final DefaultCheck checkBase = new DefaultCheck(
 					"base thing available", e, Level.SEVERE, null, null);
 			Set<Check> deps = Collections.singleton((Check) checkBase);
 			DefaultCheck check = new DefaultCheck("processing time ok", e,
 					Level.WARNING, deps, null);
 			checks.add(check);
-			Monitor monitor = new Monitor(checks, Level.OK, Level.UNKNOWN);
+			Monitor monitor = new Monitor(u, checks, Level.OK, Level.UNKNOWN);
 			Map<Check, moten.david.util.monitoring.Level> map = monitor.check();
 			Assert.assertEquals(Level.UNKNOWN, map.get(check));
 		}
@@ -95,46 +88,49 @@ public class CheckTest {
 			Map<String, String> map = createMap("threshold", "20");
 			Map<String, String> conf = createMap("minimumValue", "23",
 					"enabled", "false");
+			Injector injector = Guice.createInjector(new InjectorModule());
+			MapLookupFactory factory = injector
+					.getInstance(MapLookupFactory.class);
 
 			MonitoringLookups lookups = new MonitoringLookups(MONITORING);
-			lookups.setLookup(CONFIGURATION, new MapLookup(conf));
-			lookups.setLookup(MONITORING, new MapLookup(map));
-			Util.setLookups(lookups);
+			lookups.setLookup(CONFIGURATION, factory.create(conf));
+			lookups.setLookup(MONITORING, factory.create(map));
+			u.setLookups(lookups);
 
-			assertTrue(gt(num(30), num("threshold")));
-			assertFalse(lt(num(30), num("threshold")));
-			assertTrue(gte(num(30), num("threshold")));
-			assertTrue(eq(num(20), num("threshold")));
-			assertFalse(eq(num(21), num("threshold")));
-			assertFalse(neq(num(20), num("threshold")));
-			assertTrue(neq(num(19.2), num("threshold")));
-			assertTrue(isNull("not-there"));
-			assertFalse(isNull("threshold"));
+			assertTrue(u.gt(u.num(30), u.num("threshold")));
+			assertFalse(u.lt(u.num(30), u.num("threshold")));
+			assertTrue(u.gte(u.num(30), u.num("threshold")));
+			assertTrue(u.eq(u.num(20), u.num("threshold")));
+			assertFalse(u.eq(u.num(21), u.num("threshold")));
+			assertFalse(u.neq(u.num(20), u.num("threshold")));
+			assertTrue(u.neq(u.num(19.2), u.num("threshold")));
+			assertTrue(u.isNull("not-there"));
+			assertFalse(u.isNull("threshold"));
 
-			assertTrue(eq(num(23), num("minimumValue", CONFIGURATION)));
-			assertFalse(isTrue("enabled", CONFIGURATION));
+			assertTrue(u.eq(u.num(23), u.num("minimumValue", CONFIGURATION)));
+			assertFalse(u.isTrue("enabled", CONFIGURATION));
 			conf.put("enabled", "true");
-			assertTrue(isTrue("enabled", CONFIGURATION));
+			assertTrue(u.isTrue("enabled", CONFIGURATION));
 
 			map.put("lastRunTimestampMs", "25000");
-			assertTrue(gt(now(), date("lastRunTimestampMs")));
+			assertTrue(u.gt(u.now(), u.date("lastRunTimestampMs")));
 		}
 
-		assertTrue(gt(num(3), num(2)));
-		assertFalse(gt(num(3), num(3)));
-		assertFalse(gt(num(2), num(3)));
+		assertTrue(u.gt(u.num(3), u.num(2)));
+		assertFalse(u.gt(u.num(3), u.num(3)));
+		assertFalse(u.gt(u.num(2), u.num(3)));
 
-		assertTrue(gte(num(3), num(2)));
-		assertTrue(gte(num(3), num(3)));
-		assertFalse(gte(num(2), num(3)));
+		assertTrue(u.gte(u.num(3), u.num(2)));
+		assertTrue(u.gte(u.num(3), u.num(3)));
+		assertFalse(u.gte(u.num(2), u.num(3)));
 
-		assertFalse(lt(num(3), num(2)));
-		assertFalse(lt(num(3), num(3)));
-		assertTrue(lt(num(2), num(3)));
+		assertFalse(u.lt(u.num(3), u.num(2)));
+		assertFalse(u.lt(u.num(3), u.num(3)));
+		assertTrue(u.lt(u.num(2), u.num(3)));
 
-		assertFalse(lte(num(3), num(2)));
-		assertTrue(lte(num(3), num(3)));
-		assertTrue(lte(num(2), num(3)));
+		assertFalse(u.lte(u.num(3), u.num(2)));
+		assertTrue(u.lte(u.num(3), u.num(3)));
+		assertTrue(u.lte(u.num(2), u.num(3)));
 
 	}
 
@@ -181,20 +177,51 @@ public class CheckTest {
 
 	}
 
+	@Test
 	public void testUrlLookup() {
-		// multiple checks
-		// each has an expression, a url to obtain properties from, failure
-		// policies
 
 		Map<String, String> map = createMap("threshold", "20");
 		Map<String, String> conf = createMap("minimumValue", "23", "enabled",
 				"false");
+		Injector injector = Guice.createInjector(new InjectorModule());
+		MapLookupFactory factory = injector.getInstance(MapLookupFactory.class);
+		Lookup confLookup = factory.create(conf);
 
-		MonitoringLookups lookups = new MonitoringLookups(MONITORING);
-		lookups.setLookup(CONFIGURATION, new MapLookup(conf));
-		lookups.setLookup(MONITORING, new MapLookup(map));
-		Util.setLookups(lookups);
+		Expressions u = new Expressions();
 
+		// Set the default lookup type
+		// u.getLookups(MONITORING);
+
+		// set up a caching url provider
+		CachingUrlPropertiesProvider urlPropertiesProvider = new CachingUrlPropertiesProvider();
+		// initialize the list of checks
+		List<Check> checks = new ArrayList<Check>();
+
+		UrlFactory urlFactory = injector.getInstance(UrlFactory.class);
+		// add a check
+		checks.add(new DefaultCheck("one", null, u.eq(u.num("num.years"), u
+				.num(10)),
+				getLookups(injector, "/test1.properties", confLookup),
+				LookupType.MONITORING, Level.SEVERE, null, null));
+
+		// create a monitor for the checks
+		Monitor monitor = new Monitor(u, checks, Level.OK, Level.UNKNOWN);
+		// reset url cache
+		urlPropertiesProvider.reset();
+		// do the check
+		System.out.println(monitor.check());
+	}
+
+	private Map<LookupType, Lookup> getLookups(Injector injector, String path,
+			Lookup confLookup) {
+		CachingUrlPropertiesProvider urlPropertiesProvider = injector
+				.getInstance(CachingUrlPropertiesProvider.class);
+		UrlFactory urlFactory = injector.getInstance(UrlFactory.class);
+		Map<LookupType, Lookup> lookups = new HashMap<LookupType, Lookup>();
+		lookups.put(MONITORING, new PropertiesLookup(urlPropertiesProvider
+				.getPropertiesProvider(urlFactory, path)));
+		lookups.put(CONFIGURATION, confLookup);
+		return lookups;
 	}
 
 	private void assertTrue(BooleanExpression e) {

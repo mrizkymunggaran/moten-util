@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import moten.david.util.expression.Util;
+import moten.david.util.expression.Expressions;
 import moten.david.util.monitoring.lookup.LookupType;
 
 public class Monitor {
@@ -12,8 +12,11 @@ public class Monitor {
 	private final List<Check> checks;
 	private final Level unknown;
 	private final Level ok;
+	private final Expressions expressions;
 
-	public Monitor(List<Check> checks, Level ok, Level unknown) {
+	public Monitor(Expressions expressions, List<Check> checks, Level ok,
+			Level unknown) {
+		this.expressions = expressions;
 		this.checks = checks;
 		this.ok = ok;
 		this.unknown = unknown;
@@ -45,7 +48,7 @@ public class Monitor {
 						.getLookupTypeDefault());
 				for (LookupType type : check.getLookups().keySet())
 					lookups.setLookup(type, check.getLookups().get(type));
-				Util.setLookups(lookups);
+				expressions.setLookups(lookups);
 
 				if (check.getExpression().evaluate())
 					map.put(check, ok);
