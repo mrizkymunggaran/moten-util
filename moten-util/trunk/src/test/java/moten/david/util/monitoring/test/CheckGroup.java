@@ -19,12 +19,17 @@ import moten.david.util.monitoring.lookup.PropertiesLookup;
 import moten.david.util.monitoring.lookup.UrlFactory;
 
 import org.junit.Assert;
-import org.junit.Test;
 
-import com.google.inject.Guice;
 import com.google.inject.Inject;
-import com.google.inject.Injector;
 
+/**
+ * This test case is a more complete usage example with injected members and
+ * represents how monitoring would be used in a production environment. The
+ * logic for this example is split between this class and the InjectorModule
+ * 
+ * @author dxm
+ * 
+ */
 public class CheckGroup {
 
 	private final EvaluationContext u;
@@ -46,15 +51,21 @@ public class CheckGroup {
 
 	public void check() {
 
+		// initialize lookups to be used in the checks
 		Map<LookupType, Lookup> lookups = new HashMap<LookupType, Lookup>();
-		// set lookups
+
+		// set configuration lookup
 		lookups.put(LookupType.CONFIGURATION, createConfLookup());
 
+		// create some checks
 		// initialize the list of checks
 		List<Check> checks = new ArrayList<Check>();
 
-		// add a check
+		// set monitoring for this check to use /test1.properties as source
 		lookups.put(MONITORING, createMonitoringLookup("/test1.properties"));
+		// Note that the expression in the constructor below does not refer to a
+		// lookup type. The default lookup type is assumed which is set up in
+		// InjectorModule.
 		DefaultCheck one = new DefaultCheck("one", null, u.eq(u
 				.num("num.years"), u.num(40)), lookups, LookupType.MONITORING,
 				Level.SEVERE, null, null);

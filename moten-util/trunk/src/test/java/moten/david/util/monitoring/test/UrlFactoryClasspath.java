@@ -4,7 +4,13 @@ import java.net.URL;
 
 import moten.david.util.monitoring.lookup.UrlFactory;
 
-public class UrlFactoryImpl implements UrlFactory {
+/**
+ * Given a path returns a Url from the classpath
+ * 
+ * @author dxm
+ * 
+ */
+public class UrlFactoryClasspath implements UrlFactory {
 
 	@Override
 	public URL create(String path) {
