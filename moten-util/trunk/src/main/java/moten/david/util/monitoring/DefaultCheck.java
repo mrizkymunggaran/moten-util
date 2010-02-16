@@ -17,7 +17,6 @@ public class DefaultCheck implements Check {
 	private final Set<Check> dependencies;
 	private final Set<Policy> failurePolicies;
 	private final Map<LookupType, Lookup> lookups;
-	private final LookupType lookupTypeDefault;
 
 	/**
 	 * Creates a Check implementation based on the given parameters. Note that
@@ -35,14 +34,13 @@ public class DefaultCheck implements Check {
 	 */
 	public DefaultCheck(String name, String description,
 			BooleanExpression expression, Map<LookupType, Lookup> lookups,
-			LookupType lookupTypeDefault, Level failureLevel,
-			Set<Check> dependencies, Set<Policy> failurePolicies) {
+			Level failureLevel, Set<Check> dependencies,
+			Set<Policy> failurePolicies) {
 		super();
 		this.name = name;
 		this.description = description;
 		this.expression = expression;
 		this.lookups = new HashMap<LookupType, Lookup>(lookups);
-		this.lookupTypeDefault = lookupTypeDefault;
 		this.failureLevel = failureLevel;
 		this.dependencies = dependencies;
 		this.failurePolicies = failurePolicies;
@@ -51,7 +49,7 @@ public class DefaultCheck implements Check {
 	public DefaultCheck(String name, BooleanExpression expression,
 			Level failureLevel, Set<Check> dependencies,
 			Set<Policy> failurePolicies) {
-		this(name, null, expression, new HashMap<LookupType, Lookup>(), null,
+		this(name, null, expression, new HashMap<LookupType, Lookup>(),
 				failureLevel, dependencies, failurePolicies);
 	}
 
@@ -82,11 +80,6 @@ public class DefaultCheck implements Check {
 	@Override
 	public Map<LookupType, Lookup> getLookups() {
 		return lookups;
-	}
-
-	@Override
-	public LookupType getLookupTypeDefault() {
-		return lookupTypeDefault;
 	}
 
 	@Override

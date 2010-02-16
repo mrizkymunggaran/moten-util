@@ -6,7 +6,7 @@ import java.util.Map;
 
 import moten.david.util.monitoring.lookup.LookupType;
 
-public class Monitor {
+public class Checker {
 
 	private final List<Check> checks;
 	private final Level unknown;
@@ -14,7 +14,7 @@ public class Monitor {
 	private final EvaluationContext expressions;
 	private final Level exception;
 
-	public Monitor(EvaluationContext expressions, List<Check> checks, Level ok,
+	public Checker(EvaluationContext expressions, List<Check> checks, Level ok,
 			Level unknown, Level exception) {
 		this.expressions = expressions;
 		this.checks = checks;

@@ -1,7 +1,7 @@
 package moten.david.util.expression;
 
-import static moten.david.util.monitoring.lookup.LookupType.CONFIGURATION;
-import static moten.david.util.monitoring.lookup.LookupType.APPLICATION;
+import static moten.david.util.monitoring.test.MyLookupType.APPLICATION;
+import static moten.david.util.monitoring.test.MyLookupType.CONFIGURATION;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -64,12 +64,4 @@ public interface Check {
 	 */
 	Map<LookupType, Lookup> getLookups();
 
-	/**
-	 * The default lookup type (normally corresponding to the lookup of the
-	 * application status). i.e. LookupType.MONITORING
-	 * 
-	 * @return
-	 */
-	LookupType getLookupTypeDefault();
-
 }
