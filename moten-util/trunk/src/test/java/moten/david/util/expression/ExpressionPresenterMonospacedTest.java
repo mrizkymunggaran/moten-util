@@ -1,7 +1,7 @@
 package moten.david.util.expression;
 
 import static moten.david.util.monitoring.lookup.LookupType.CONFIGURATION;
-import static moten.david.util.monitoring.lookup.LookupType.MONITORING;
+import static moten.david.util.monitoring.lookup.LookupType.APPLICATION;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,39 +33,39 @@ public class ExpressionPresenterMonospacedTest {
 
 		MonitoringLookups lookups = e.getLookups();
 		lookups.put(CONFIGURATION, new MapLookup(conf));
-		lookups.put(MONITORING, new MapLookup(map));
+		lookups.put(APPLICATION, new MapLookup(map));
 
 		ExpressionPresenter presenter = new ExpressionPresenterMonospaced();
 		Assert.assertEquals("20", presenter.toString(e.num(20)));
 		Assert.assertEquals("the.name", presenter.toString(e.num("the.name",
-				MONITORING)));
+				APPLICATION)));
 		Assert.assertEquals("true", presenter.toString(Bool.TRUE));
 		Assert.assertEquals("false", presenter.toString(Bool.FALSE));
 		Assert.assertEquals("20 + 30", presenter.toString(e.plus(e.num(20), e
 				.num(30))));
 		Assert.assertEquals("20 + boo", presenter.toString(e.plus(e.num(20), e
-				.num("boo", MONITORING))));
+				.num("boo", APPLICATION))));
 		Assert.assertEquals("20 - boo", presenter.toString(e.minus(e.num(20), e
-				.num("boo", MONITORING))));
+				.num("boo", APPLICATION))));
 		Assert.assertEquals("20 * boo", presenter.toString(e.times(e.num(20), e
-				.num("boo", MONITORING))));
+				.num("boo", APPLICATION))));
 		Assert.assertEquals("20 / boo", presenter.toString(e.divide(e.num(20),
-				e.num("boo", MONITORING))));
+				e.num("boo", APPLICATION))));
 		Assert.assertEquals("1 + (20 / boo)", presenter.toString(e.plus(e
-				.num(1), e.divide(e.num(20), e.num("boo", MONITORING)))));
+				.num(1), e.divide(e.num(20), e.num("boo", APPLICATION)))));
 		Assert.assertEquals("1 + (20 / ((boo * 8) + 4))", presenter.toString(e
 				.plus(e.num(1), e.divide(e.num(20), e.plus(e.times(e.num("boo",
-						MONITORING), e.num(8)), e.num(4))))));
+						APPLICATION), e.num(8)), e.num(4))))));
 		Assert.assertEquals("20 = boo", presenter.toString(e.eq(e.num(20), e
-				.num("boo", MONITORING))));
+				.num("boo", APPLICATION))));
 		Assert.assertEquals("20 > boo", presenter.toString(e.gt(e.num(20), e
-				.num("boo", MONITORING))));
+				.num("boo", APPLICATION))));
 		Assert.assertEquals("20 < boo", presenter.toString(e.lt(e.num(20), e
-				.num("boo", MONITORING))));
+				.num("boo", APPLICATION))));
 		Assert.assertEquals("20 >= boo", presenter.toString(e.gte(e.num(20), e
-				.num("boo", MONITORING))));
+				.num("boo", APPLICATION))));
 		Assert.assertEquals("20 <= boo", presenter.toString(e.lte(e.num(20), e
-				.num("boo", MONITORING))));
+				.num("boo", APPLICATION))));
 		// Assert.assertEquals("isNull(boo)",
 		// presenter.toString(isNull("boo")));
 	}

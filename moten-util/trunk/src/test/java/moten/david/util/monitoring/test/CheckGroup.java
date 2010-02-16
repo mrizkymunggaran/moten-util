@@ -1,17 +1,21 @@
 package moten.david.util.monitoring.test;
 
-import static moten.david.util.monitoring.lookup.LookupType.MONITORING;
+import static moten.david.util.monitoring.lookup.LookupType.APPLICATION;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import moten.david.util.expression.BooleanExpression;
 import moten.david.util.expression.ExpressionPresenter;
 import moten.david.util.monitoring.Check;
+import moten.david.util.monitoring.CheckResult;
 import moten.david.util.monitoring.DefaultCheck;
 import moten.david.util.monitoring.EvaluationContext;
 import moten.david.util.monitoring.Monitor;
+import moten.david.util.monitoring.Policy;
 import moten.david.util.monitoring.lookup.CachingUrlPropertiesProvider;
 import moten.david.util.monitoring.lookup.Lookup;
 import moten.david.util.monitoring.lookup.LookupType;
@@ -70,26 +74,28 @@ public class CheckGroup {
 		// initialize the list of checks
 		List<Check> checks = new ArrayList<Check>();
 
-		// set monitoring for this check to use /test1.properties as source
-		lookups.put(MONITORING, createMonitoringLookup("/test1.properties"));
-		// Note that the expression in the constructor below does not refer to a
-		// lookup type. The default lookup type is assumed which is set up in
-		// InjectorModule.
-		DefaultCheck one = new DefaultCheck("one", null, u.eq(u
-				.num("num.years"), u.num(40)), lookups, LookupType.MONITORING,
-				Level.SEVERE, null, null);
+		// add a check - this one should fail
+		DefaultCheck one = createUrlDefaultCheck("/test1.properties", "one", u
+				.eq(u.num("num.years"), u.num(40)), lookups,
+				LookupType.APPLICATION, Level.SEVERE, null, null);
 		checks.add(one);
 
-		// add a check
-		lookups.put(LookupType.MONITORING,
-				createMonitoringLookup("/test2.properties"));
-		DefaultCheck two = new DefaultCheck("two", null, u.eq(u
-				.num("num.years"), u.num(40)), lookups, LookupType.MONITORING,
-				Level.SEVERE, null, null);
+		// add a check - this one should pass
+		DefaultCheck two = createUrlDefaultCheck("/test2.properties", "two", u
+				.eq(u.num("num.years"), u.num(40)), lookups,
+				LookupType.APPLICATION, Level.SEVERE, null, null);
 		checks.add(two);
 
+		// add a check - this one should have a null pointer exception on trying
+		// to read non existent test372.properties
+		DefaultCheck three = createUrlDefaultCheck("/test372.properties",
+				"two", u.eq(u.num("num.years"), u.num(40)), lookups,
+				LookupType.APPLICATION, Level.SEVERE, null, null);
+		checks.add(three);
+
 		// create a monitor for the checks
-		Monitor monitor = new Monitor(u, checks, Level.OK, Level.UNKNOWN);
+		Monitor monitor = new Monitor(u, checks, Level.OK, Level.UNKNOWN,
+				Level.EXCEPTION);
 
 		{
 			// This block would be repeatedly run in a real deployment
@@ -98,16 +104,31 @@ public class CheckGroup {
 			urlPropertiesProvider.reset();
 
 			// do the check
-			Map<Check, moten.david.util.monitoring.Level> results = monitor
-					.check();
+			Map<Check, CheckResult> results = monitor.check();
 			System.out.println(results);
-			Assert.assertEquals(Level.SEVERE, results.get(one));
-			Assert.assertEquals(Level.OK, results.get(two));
+			Assert.assertEquals(Level.SEVERE, results.get(one).getLevel());
+			Assert.assertEquals(Level.OK, results.get(two).getLevel());
+			Assert.assertEquals(Level.EXCEPTION, results.get(three).getLevel());
+			Assert.assertNotNull(results.get(three).getException());
 		}
 
 		System.out.println(one.present(presenter));
 		System.out.println(two.present(presenter));
 
+	}
+
+	private DefaultCheck createUrlDefaultCheck(String urlPath, String name,
+			BooleanExpression expression, Map<LookupType, Lookup> lookups,
+			LookupType lookupTypeDefault, Level failureLevel,
+			Set<Check> dependencies, Set<Policy> failurePolicies) {
+		// set monitoring for this check to use urlPath as source
+		lookups.put(APPLICATION, createMonitoringLookup(urlPath));
+		// Note that the expression in the constructor below does not refer to a
+		// lookup type. The default lookup type is assumed which is set up in
+		// InjectorModule.
+		DefaultCheck check = new DefaultCheck(name, null, expression, lookups,
+				lookupTypeDefault, failureLevel, dependencies, failurePolicies);
+		return check;
 	}
 
 	private Map<String, String> createMap(String... items) {

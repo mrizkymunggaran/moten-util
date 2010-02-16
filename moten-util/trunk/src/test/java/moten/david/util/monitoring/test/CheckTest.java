@@ -1,7 +1,7 @@
 package moten.david.util.monitoring.test;
 
 import static moten.david.util.monitoring.lookup.LookupType.CONFIGURATION;
-import static moten.david.util.monitoring.lookup.LookupType.MONITORING;
+import static moten.david.util.monitoring.lookup.LookupType.APPLICATION;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,6 +13,7 @@ import java.util.Set;
 import moten.david.util.expression.Bool;
 import moten.david.util.expression.BooleanExpression;
 import moten.david.util.monitoring.Check;
+import moten.david.util.monitoring.CheckResult;
 import moten.david.util.monitoring.DefaultCheck;
 import moten.david.util.monitoring.EvaluationContext;
 import moten.david.util.monitoring.Monitor;
@@ -44,9 +45,10 @@ public class CheckTest {
 			DefaultCheck check = new DefaultCheck("processing time ok", e,
 					Level.WARNING, null, null);
 			checks.add(check);
-			Monitor monitor = new Monitor(u, checks, Level.OK, Level.UNKNOWN);
-			Map<Check, moten.david.util.monitoring.Level> map = monitor.check();
-			Assert.assertEquals(Level.WARNING, map.get(check));
+			Monitor monitor = new Monitor(u, checks, Level.OK, Level.UNKNOWN,
+					Level.EXCEPTION);
+			Map<Check, CheckResult> map = monitor.check();
+			Assert.assertEquals(Level.WARNING, map.get(check).getLevel());
 		}
 		{
 			List<Check> checks = new ArrayList<Check>();
@@ -54,9 +56,10 @@ public class CheckTest {
 			DefaultCheck check = new DefaultCheck("processing time ok", e,
 					Level.WARNING, null, null);
 			checks.add(check);
-			Monitor monitor = new Monitor(u, checks, Level.OK, Level.UNKNOWN);
-			Map<Check, moten.david.util.monitoring.Level> map = monitor.check();
-			Assert.assertEquals(Level.OK, map.get(check));
+			Monitor monitor = new Monitor(u, checks, Level.OK, Level.UNKNOWN,
+					Level.EXCEPTION);
+			Map<Check, CheckResult> map = monitor.check();
+			Assert.assertEquals(Level.OK, map.get(check).getLevel());
 		}
 		{
 			List<Check> checks = new ArrayList<Check>();
@@ -67,9 +70,10 @@ public class CheckTest {
 			DefaultCheck check = new DefaultCheck("processing time ok", e,
 					Level.WARNING, deps, null);
 			checks.add(check);
-			Monitor monitor = new Monitor(u, checks, Level.OK, Level.UNKNOWN);
-			Map<Check, moten.david.util.monitoring.Level> map = monitor.check();
-			Assert.assertEquals(Level.OK, map.get(check));
+			Monitor monitor = new Monitor(u, checks, Level.OK, Level.UNKNOWN,
+					Level.EXCEPTION);
+			Map<Check, CheckResult> map = monitor.check();
+			Assert.assertEquals(Level.OK, map.get(check).getLevel());
 		}
 		{
 			List<Check> checks = new ArrayList<Check>();
@@ -80,9 +84,10 @@ public class CheckTest {
 			DefaultCheck check = new DefaultCheck("processing time ok", e,
 					Level.WARNING, deps, null);
 			checks.add(check);
-			Monitor monitor = new Monitor(u, checks, Level.OK, Level.UNKNOWN);
-			Map<Check, moten.david.util.monitoring.Level> map = monitor.check();
-			Assert.assertEquals(Level.UNKNOWN, map.get(check));
+			Monitor monitor = new Monitor(u, checks, Level.OK, Level.UNKNOWN,
+					Level.EXCEPTION);
+			Map<Check, CheckResult> map = monitor.check();
+			Assert.assertEquals(Level.UNKNOWN, map.get(check).getLevel());
 		}
 
 		{
@@ -94,7 +99,7 @@ public class CheckTest {
 
 			MonitoringLookups lookups = u.getLookups();
 			lookups.put(CONFIGURATION, factory.create(conf));
-			lookups.put(MONITORING, factory.create(map));
+			lookups.put(APPLICATION, factory.create(map));
 
 			assertTrue(u.gt(u.num(30), u.num("threshold")));
 			assertFalse(u.lt(u.num(30), u.num("threshold")));
@@ -194,7 +199,7 @@ public class CheckTest {
 		Map<LookupType, Lookup> lookups = new HashMap<LookupType, Lookup>();
 
 		// set lookups
-		lookups.put(MONITORING, monitoringLookup);
+		lookups.put(APPLICATION, monitoringLookup);
 		lookups.put(LookupType.CONFIGURATION, confLookup);
 
 		// initialize the list of checks
@@ -202,27 +207,28 @@ public class CheckTest {
 
 		// add a check
 		DefaultCheck one = new DefaultCheck("one", null, u.eq(u
-				.num("num.years"), u.num(25)), lookups, LookupType.MONITORING,
+				.num("num.years"), u.num(25)), lookups, LookupType.APPLICATION,
 				Level.SEVERE, null, null);
 		checks.add(one);
 
 		// add a check
 		DefaultCheck two = new DefaultCheck("two", null, u.eq(u
-				.num("num.years"), u.num(24)), lookups, LookupType.MONITORING,
+				.num("num.years"), u.num(24)), lookups, LookupType.APPLICATION,
 				Level.SEVERE, null, null);
 		checks.add(two);
 
 		// create a monitor for the checks
-		Monitor monitor = new Monitor(u, checks, Level.OK, Level.UNKNOWN);
+		Monitor monitor = new Monitor(u, checks, Level.OK, Level.UNKNOWN,
+				Level.EXCEPTION);
 
 		// reset url cache
 		urlPropertiesProvider.reset();
 
 		// do the check
-		Map<Check, moten.david.util.monitoring.Level> results = monitor.check();
+		Map<Check, CheckResult> results = monitor.check();
 		System.out.println(results);
-		Assert.assertEquals(Level.OK, results.get(one));
-		Assert.assertEquals(Level.SEVERE, results.get(two));
+		Assert.assertEquals(Level.OK, results.get(one).getLevel());
+		Assert.assertEquals(Level.SEVERE, results.get(two).getLevel());
 	}
 
 	private Lookup createMonitoringLookup(EvaluationContext u,

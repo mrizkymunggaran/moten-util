@@ -19,7 +19,7 @@ public class InjectorModule extends AbstractModule {
 		bind(UrlFactory.class).to(UrlFactoryClasspath.class).in(
 				Scopes.SINGLETON);
 		bind(LookupType.class).annotatedWith(Names.named("default"))
-				.toInstance(LookupType.MONITORING);
+				.toInstance(LookupType.APPLICATION);
 		bind(CachingUrlPropertiesProvider.class);// should not be singleton!
 		bind(ExpressionPresenter.class).to(ExpressionPresenterMonospaced.class)
 				.in(Scopes.SINGLETON);
