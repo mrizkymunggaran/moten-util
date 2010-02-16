@@ -2,6 +2,7 @@ package moten.david.util.monitoring.test;
 
 import moten.david.util.expression.ExpressionPresenter;
 import moten.david.util.expression.ExpressionPresenterMonospaced;
+import moten.david.util.monitoring.EvaluationContext;
 import moten.david.util.monitoring.Util;
 import moten.david.util.monitoring.lookup.CachingUrlPropertiesProvider;
 import moten.david.util.monitoring.lookup.LookupType;
@@ -23,6 +24,7 @@ public class InjectorModule extends AbstractModule {
 		bind(CachingUrlPropertiesProvider.class);// should not be singleton!
 		bind(ExpressionPresenter.class).to(ExpressionPresenterMonospaced.class)
 				.in(Scopes.SINGLETON);
+		bind(EvaluationContext.class);// should not be singleton!
 	}
 
 }

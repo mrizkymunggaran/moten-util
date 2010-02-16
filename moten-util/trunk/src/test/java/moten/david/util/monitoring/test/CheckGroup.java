@@ -36,6 +36,9 @@ import com.google.inject.Inject;
  * multiple instances of this class. Don't make CachingUrlPropertiesProvider a
  * singleton in the InjectorModule.
  * 
+ * EvaluationContext is not thread safe. Use a new EvaluationContext per
+ * instance of CheckGroup.
+ * 
  * @author dxm
  * 
  */
