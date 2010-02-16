@@ -104,20 +104,20 @@ public class EvaluationContext {
 		return num(name, this.lookupTypeDefault);
 	}
 
-	private Lookup createNestedLookup(final LookupType lookupType) {
+	private Lookup createNestedLookup(final LookupType type) {
 		return new Lookup() {
 			@Override
 			public String get(String key) {
-				return lookups.get(lookupType).get(key);
+				return lookups.get(type).get(key);
 			}
 		};
 	}
 
-	public NumericExpression num(String name, LookupType lookupType) {
+	public NumericExpression num(String name, LookupType type) {
 		// use a nested lookup because lookups may not have been specified till
 		// evaluate is called on the numeric expression returned by this method
 		return new Numeric(new SingleKeyLookup<BigDecimal>(BigDecimal.class,
-				name, createNestedLookup(lookupType)));
+				name, createNestedLookup(type), type));
 	}
 
 	public NumericExpression num(long value) {
@@ -169,7 +169,7 @@ public class EvaluationContext {
 		// use a nested lookup because lookups may not have been specified till
 		// evaluate is called on the numeric expression returned by this method
 		return new IsNull(new SingleKeyLookup<String>(String.class, name,
-				createNestedLookup(type)));
+				createNestedLookup(type), type));
 	}
 
 	public BooleanExpression isTrue(String name) {
@@ -180,7 +180,7 @@ public class EvaluationContext {
 		// use a nested lookup because lookups may not have been specified till
 		// evaluate is called on the numeric expression returned by this method
 		return new Bool(new SingleKeyLookup<Boolean>(Boolean.class, name,
-				createNestedLookup(type)));
+				createNestedLookup(type), type));
 	}
 
 }

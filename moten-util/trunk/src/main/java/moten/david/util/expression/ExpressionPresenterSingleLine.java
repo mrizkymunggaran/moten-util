@@ -1,11 +1,12 @@
 package moten.david.util.expression;
 
 import moten.david.util.guice.ConstantProvider;
+import moten.david.util.monitoring.lookup.LookupType;
 import moten.david.util.monitoring.lookup.SingleKeyLookup;
 
 import com.google.inject.Provider;
 
-public class ExpressionPresenterMonospaced implements ExpressionPresenter {
+public class ExpressionPresenterSingleLine implements ExpressionPresenter {
 
 	public String infix(InfixOperation infix, String symbol) {
 		return infix(infix.getExpressions(), symbol);
@@ -38,7 +39,9 @@ public class ExpressionPresenterMonospaced implements ExpressionPresenter {
 				Object value = ((ConstantProvider<?>) provider).get();
 				return value.toString();
 			} else if (provider instanceof SingleKeyLookup<?>) {
-				return named(((SingleKeyLookup<?>) provider).getKey());
+				SingleKeyLookup<?> singleKeyLookup = (SingleKeyLookup<?>) provider;
+				return named(singleKeyLookup.getLookupType(), singleKeyLookup
+						.getKey());
 			} else
 				throw new RuntimeException("unknown provider type");
 		} else
@@ -88,6 +91,10 @@ public class ExpressionPresenterMonospaced implements ExpressionPresenter {
 			return "/";
 		else
 			throw new RuntimeException("unknown expression type" + e);
+	}
+
+	private String named(LookupType lookupType, String name) {
+		return lookupType + "." + name;
 	}
 
 	private String named(String name) {

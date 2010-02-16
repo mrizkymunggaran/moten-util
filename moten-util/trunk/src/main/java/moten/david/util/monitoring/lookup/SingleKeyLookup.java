@@ -19,11 +19,18 @@ import com.google.inject.Provider;
 public class SingleKeyLookup<T> implements Provider<T> {
 	private final Class<T> cls;
 	private final Lookup lookup;
+	private final LookupType lookupType;
 
-	public SingleKeyLookup(Class<T> cls, String key, Lookup lookup) {
+	public LookupType getLookupType() {
+		return lookupType;
+	}
+
+	public SingleKeyLookup(Class<T> cls, String key, Lookup lookup,
+			LookupType lookupType) {
 		this.cls = cls;
 		this.key = key;
 		this.lookup = lookup;
+		this.lookupType = lookupType;
 	}
 
 	public String getKey() {
