@@ -56,6 +56,16 @@ public class ExpressionPresenterMonospacedTest {
 		Assert.assertEquals("1 + (20 / ((boo * 8) + 4))", presenter.toString(e
 				.plus(e.num(1), e.divide(e.num(20), e.plus(e.times(e.num("boo",
 						MONITORING), e.num(8)), e.num(4))))));
+		Assert.assertEquals("20 = boo", presenter.toString(e.eq(e.num(20), e
+				.num("boo", MONITORING))));
+		Assert.assertEquals("20 > boo", presenter.toString(e.gt(e.num(20), e
+				.num("boo", MONITORING))));
+		Assert.assertEquals("20 < boo", presenter.toString(e.lt(e.num(20), e
+				.num("boo", MONITORING))));
+		Assert.assertEquals("20 >= boo", presenter.toString(e.gte(e.num(20), e
+				.num("boo", MONITORING))));
+		Assert.assertEquals("20 <= boo", presenter.toString(e.lte(e.num(20), e
+				.num("boo", MONITORING))));
 		// Assert.assertEquals("isNull(boo)",
 		// presenter.toString(isNull("boo")));
 	}

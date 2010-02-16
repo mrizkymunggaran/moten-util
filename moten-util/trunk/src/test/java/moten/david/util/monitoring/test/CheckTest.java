@@ -201,15 +201,15 @@ public class CheckTest {
 		List<Check> checks = new ArrayList<Check>();
 
 		// add a check
-		Check one = new DefaultCheck("one", null, u.eq(u.num("num.years"), u
-				.num(25)), lookups, LookupType.MONITORING, Level.SEVERE, null,
-				null);
+		DefaultCheck one = new DefaultCheck("one", null, u.eq(u
+				.num("num.years"), u.num(25)), lookups, LookupType.MONITORING,
+				Level.SEVERE, null, null);
 		checks.add(one);
 
 		// add a check
-		Check two = new DefaultCheck("two", null, u.eq(u.num("num.years"), u
-				.num(24)), lookups, LookupType.MONITORING, Level.SEVERE, null,
-				null);
+		DefaultCheck two = new DefaultCheck("two", null, u.eq(u
+				.num("num.years"), u.num(24)), lookups, LookupType.MONITORING,
+				Level.SEVERE, null, null);
 		checks.add(two);
 
 		// create a monitor for the checks
@@ -223,7 +223,6 @@ public class CheckTest {
 		System.out.println(results);
 		Assert.assertEquals(Level.OK, results.get(one));
 		Assert.assertEquals(Level.SEVERE, results.get(two));
-
 	}
 
 	private Lookup createMonitoringLookup(EvaluationContext u,

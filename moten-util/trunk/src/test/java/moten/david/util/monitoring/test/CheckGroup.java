@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import moten.david.util.expression.ExpressionPresenter;
 import moten.david.util.monitoring.Check;
 import moten.david.util.monitoring.DefaultCheck;
 import moten.david.util.monitoring.EvaluationContext;
@@ -25,7 +26,11 @@ import com.google.inject.Inject;
 /**
  * This test case is a more complete usage example with injected members and
  * represents how monitoring would be used in a production environment. The
- * logic for this example is split between this class and the InjectorModule
+ * logic for this example is split between this class and the InjectorModule.
+ * 
+ * This class is not thread safe if urlPropertiesProvider is shared across
+ * multiple instances of this class. Don't make CachingUrlPropertiesProvider a
+ * singleton in the InjectorModule.
  * 
  * @author dxm
  * 
@@ -36,16 +41,19 @@ public class CheckGroup {
 	private final CachingUrlPropertiesProvider urlPropertiesProvider;
 	private final UrlFactory urlFactory;
 	private final MapLookupFactory mapLookupFactory;
+	private final ExpressionPresenter presenter;
 
 	@Inject
 	public CheckGroup(EvaluationContext u,
 			CachingUrlPropertiesProvider urlPropertiesProvider,
-			UrlFactory urlFactory, MapLookupFactory mapLookupFactory) {
+			UrlFactory urlFactory, MapLookupFactory mapLookupFactory,
+			ExpressionPresenter presenter) {
 
 		this.u = u;
 		this.urlPropertiesProvider = urlPropertiesProvider;
 		this.urlFactory = urlFactory;
 		this.mapLookupFactory = mapLookupFactory;
+		this.presenter = presenter;
 
 	}
 
@@ -58,6 +66,7 @@ public class CheckGroup {
 		lookups.put(LookupType.CONFIGURATION, createConfLookup());
 
 		// create some checks
+
 		// initialize the list of checks
 		List<Check> checks = new ArrayList<Check>();
 
@@ -95,6 +104,9 @@ public class CheckGroup {
 			Assert.assertEquals(Level.SEVERE, results.get(one));
 			Assert.assertEquals(Level.OK, results.get(two));
 		}
+
+		System.out.println(one.present(presenter));
+		System.out.println(two.present(presenter));
 
 	}
 

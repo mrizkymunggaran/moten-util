@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Set;
 
 import moten.david.util.expression.BooleanExpression;
+import moten.david.util.expression.ExpressionPresenter;
 import moten.david.util.monitoring.lookup.Lookup;
 import moten.david.util.monitoring.lookup.LookupType;
 
@@ -91,5 +92,13 @@ public class DefaultCheck implements Check {
 	@Override
 	public String toString() {
 		return name;
+	}
+
+	public String present(ExpressionPresenter presenter) {
+		StringBuffer s = new StringBuffer();
+		s.append(name);
+		s.append("\t");
+		s.append(presenter.toString(this.expression));
+		return s.toString();
 	}
 }

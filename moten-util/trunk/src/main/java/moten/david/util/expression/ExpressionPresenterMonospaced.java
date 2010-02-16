@@ -8,8 +8,12 @@ import com.google.inject.Provider;
 public class ExpressionPresenterMonospaced implements ExpressionPresenter {
 
 	public String infix(InfixOperation infix, String symbol) {
+		return infix(infix.getExpressions(), symbol);
+	}
+
+	private String infix(Expression[] expressions, String symbol) {
 		StringBuffer s = new StringBuffer();
-		for (Expression e : infix.getExpressions()) {
+		for (Expression e : expressions) {
 			if (s.length() > 0)
 				s.append(" " + symbol + " ");
 			s.append(string(e));
@@ -24,8 +28,10 @@ public class ExpressionPresenterMonospaced implements ExpressionPresenter {
 	protected String string(Expression e) {
 		if (e instanceof InfixOperation)
 			return infix((InfixOperation) e, getSymbol(e));
+		if (e instanceof Comparison)
+			return comparison((Comparison) e, getSymbol(e));
 		else if (e instanceof Operation)
-			return prefix(e, e.getClass().getSimpleName());
+			return prefix((Operation) e, e.getClass().getSimpleName());
 		else if (e instanceof Provided<?>) {
 			Provider<?> provider = ((Provided<?>) e).getProvider();
 			if (provider instanceof ConstantProvider<?>) {
@@ -37,6 +43,10 @@ public class ExpressionPresenterMonospaced implements ExpressionPresenter {
 				throw new RuntimeException("unknown provider type");
 		} else
 			throw new RuntimeException("unknown expression type");
+	}
+
+	private String comparison(Comparison e, String symbol) {
+		return infix(e.getExpressions(), symbol);
 	}
 
 	@Override
@@ -84,7 +94,13 @@ public class ExpressionPresenterMonospaced implements ExpressionPresenter {
 		return name;
 	}
 
-	private String prefix(Expression e, String name) {
-		return name + bracket(string(e));
+	private String prefix(Operation op, String name) {
+		StringBuffer s = new StringBuffer();
+		for (Expression part : op.getExpressions()) {
+			if (s.length() > 0)
+				s.append(",");
+			s.append(string(part));
+		}
+		return name + bracket(s.toString());
 	}
 }
