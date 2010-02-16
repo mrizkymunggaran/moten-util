@@ -18,6 +18,7 @@ import moten.david.util.monitoring.lookup.MapLookupFactory;
 import moten.david.util.monitoring.lookup.PropertiesLookup;
 import moten.david.util.monitoring.lookup.UrlFactory;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.google.inject.Guice;
@@ -47,21 +48,25 @@ public class CheckGroup {
 
 		Map<LookupType, Lookup> lookups = new HashMap<LookupType, Lookup>();
 		// set lookups
-		lookups.put(MONITORING, createMonitoringLookup("/test1.properties"));
 		lookups.put(LookupType.CONFIGURATION, createConfLookup());
 
 		// initialize the list of checks
 		List<Check> checks = new ArrayList<Check>();
 
 		// add a check
-		checks.add(new DefaultCheck("one", null, u.eq(u.num("num.years"), u
-				.num(10)), lookups, LookupType.MONITORING, Level.SEVERE, null,
-				null));
+		lookups.put(MONITORING, createMonitoringLookup("/test1.properties"));
+		DefaultCheck one = new DefaultCheck("one", null, u.eq(u
+				.num("num.years"), u.num(40)), lookups, LookupType.MONITORING,
+				Level.SEVERE, null, null);
+		checks.add(one);
 
 		// add a check
-		checks.add(new DefaultCheck("two", null, u.gt(u.num("num.years"), u
-				.num(30)), lookups, LookupType.MONITORING, Level.SEVERE, null,
-				null));
+		lookups.put(LookupType.MONITORING,
+				createMonitoringLookup("/test2.properties"));
+		DefaultCheck two = new DefaultCheck("two", null, u.eq(u
+				.num("num.years"), u.num(40)), lookups, LookupType.MONITORING,
+				Level.SEVERE, null, null);
+		checks.add(two);
 
 		// create a monitor for the checks
 		Monitor monitor = new Monitor(u, checks, Level.OK, Level.UNKNOWN);
@@ -73,7 +78,11 @@ public class CheckGroup {
 			urlPropertiesProvider.reset();
 
 			// do the check
-			System.out.println(monitor.check());
+			Map<Check, moten.david.util.monitoring.Level> results = monitor
+					.check();
+			System.out.println(results);
+			Assert.assertEquals(Level.SEVERE, results.get(one));
+			Assert.assertEquals(Level.OK, results.get(two));
 		}
 
 	}

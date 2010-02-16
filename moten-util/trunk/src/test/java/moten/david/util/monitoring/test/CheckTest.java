@@ -201,9 +201,16 @@ public class CheckTest {
 		List<Check> checks = new ArrayList<Check>();
 
 		// add a check
-		checks.add(new DefaultCheck("one", null, u.eq(u.num("num.years"), u
-				.num(10)), lookups, LookupType.MONITORING, Level.SEVERE, null,
-				null));
+		Check one = new DefaultCheck("one", null, u.eq(u.num("num.years"), u
+				.num(25)), lookups, LookupType.MONITORING, Level.SEVERE, null,
+				null);
+		checks.add(one);
+
+		// add a check
+		Check two = new DefaultCheck("two", null, u.eq(u.num("num.years"), u
+				.num(24)), lookups, LookupType.MONITORING, Level.SEVERE, null,
+				null);
+		checks.add(two);
 
 		// create a monitor for the checks
 		Monitor monitor = new Monitor(u, checks, Level.OK, Level.UNKNOWN);
@@ -212,7 +219,11 @@ public class CheckTest {
 		urlPropertiesProvider.reset();
 
 		// do the check
-		System.out.println(monitor.check());
+		Map<Check, moten.david.util.monitoring.Level> results = monitor.check();
+		System.out.println(results);
+		Assert.assertEquals(Level.OK, results.get(one));
+		Assert.assertEquals(Level.SEVERE, results.get(two));
+
 	}
 
 	private Lookup createMonitoringLookup(EvaluationContext u,
