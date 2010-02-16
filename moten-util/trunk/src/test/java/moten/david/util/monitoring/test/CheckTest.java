@@ -12,9 +12,9 @@ import java.util.Set;
 
 import moten.david.util.expression.Bool;
 import moten.david.util.expression.BooleanExpression;
-import moten.david.util.expression.Expressions;
 import moten.david.util.monitoring.Check;
 import moten.david.util.monitoring.DefaultCheck;
+import moten.david.util.monitoring.EvaluationContext;
 import moten.david.util.monitoring.Monitor;
 import moten.david.util.monitoring.MonitoringLookups;
 import moten.david.util.monitoring.lookup.CachingUrlPropertiesProvider;
@@ -37,7 +37,7 @@ public class CheckTest {
 	@Test
 	public void test() {
 		Injector injector = Guice.createInjector(new InjectorModule());
-		Expressions u = injector.getInstance(Expressions.class);
+		EvaluationContext u = injector.getInstance(EvaluationContext.class);
 		{
 			List<Check> checks = new ArrayList<Check>();
 			BooleanExpression e = Bool.FALSE;
@@ -184,25 +184,26 @@ public class CheckTest {
 		// get the configuration lookup
 		Lookup confLookup = createConfLookup(injector);
 
-		Expressions u = injector.getInstance(Expressions.class);
+		EvaluationContext u = injector.getInstance(EvaluationContext.class);
 
 		// set up a caching url provider
 		CachingUrlPropertiesProvider urlPropertiesProvider = new CachingUrlPropertiesProvider();
 
 		Lookup monitoringLookup = createMonitoringLookup(u,
 				urlPropertiesProvider, injector);
+		Map<LookupType, Lookup> lookups = new HashMap<LookupType, Lookup>();
 
 		// set lookups
-		u.getLookups().put(MONITORING, monitoringLookup);
-		u.getLookups().put(LookupType.CONFIGURATION, confLookup);
+		lookups.put(MONITORING, monitoringLookup);
+		lookups.put(LookupType.CONFIGURATION, confLookup);
 
 		// initialize the list of checks
 		List<Check> checks = new ArrayList<Check>();
 
 		// add a check
 		checks.add(new DefaultCheck("one", null, u.eq(u.num("num.years"), u
-				.num(10)), u.getLookups(), LookupType.MONITORING, Level.SEVERE,
-				null, null));
+				.num(10)), lookups, LookupType.MONITORING, Level.SEVERE, null,
+				null));
 
 		// create a monitor for the checks
 		Monitor monitor = new Monitor(u, checks, Level.OK, Level.UNKNOWN);
@@ -214,7 +215,7 @@ public class CheckTest {
 		System.out.println(monitor.check());
 	}
 
-	private Lookup createMonitoringLookup(Expressions u,
+	private Lookup createMonitoringLookup(EvaluationContext u,
 			CachingUrlPropertiesProvider urlPropertiesProvider,
 			Injector injector) {
 

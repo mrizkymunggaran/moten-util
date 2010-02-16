@@ -1,11 +1,30 @@
-package moten.david.util.expression;
+package moten.david.util.monitoring;
 
 import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
-import moten.david.util.monitoring.MonitoringLookups;
+import moten.david.util.expression.And;
+import moten.david.util.expression.Bool;
+import moten.david.util.expression.BooleanExpression;
+import moten.david.util.expression.Date;
+import moten.david.util.expression.Divide;
+import moten.david.util.expression.Eq;
+import moten.david.util.expression.Gt;
+import moten.david.util.expression.Gte;
+import moten.david.util.expression.IsNull;
+import moten.david.util.expression.Lt;
+import moten.david.util.expression.Lte;
+import moten.david.util.expression.Minus;
+import moten.david.util.expression.Neq;
+import moten.david.util.expression.Not;
+import moten.david.util.expression.Numeric;
+import moten.david.util.expression.NumericExpression;
+import moten.david.util.expression.Or;
+import moten.david.util.expression.Plus;
+import moten.david.util.expression.Times;
+import moten.david.util.monitoring.lookup.Lookup;
 import moten.david.util.monitoring.lookup.LookupType;
 import moten.david.util.monitoring.lookup.SingleKeyLookup;
 
@@ -13,13 +32,13 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 
-public class Expressions {
+public class EvaluationContext {
 
 	private final LookupType lookupTypeDefault;
 	private final MonitoringLookups lookups;
 
 	@Inject
-	public Expressions(@Named("default") LookupType lookupTypeDefault,
+	public EvaluationContext(@Named("default") LookupType lookupTypeDefault,
 			MonitoringLookups lookups) {
 		this.lookupTypeDefault = lookupTypeDefault;
 		this.lookups = lookups;
@@ -85,9 +104,20 @@ public class Expressions {
 		return num(name, this.lookupTypeDefault);
 	}
 
+	private Lookup createNestedLookup(final LookupType lookupType) {
+		return new Lookup() {
+			@Override
+			public String get(String key) {
+				return lookups.get(lookupType).get(key);
+			}
+		};
+	}
+
 	public NumericExpression num(String name, LookupType lookupType) {
+		// use a nested lookup because lookups may not have been specified till
+		// evaluate is called on the numeric expression returned by this method
 		return new Numeric(new SingleKeyLookup<BigDecimal>(BigDecimal.class,
-				name, lookups.get(lookupType)));
+				name, createNestedLookup(lookupType)));
 	}
 
 	public NumericExpression num(long value) {
@@ -136,8 +166,10 @@ public class Expressions {
 	}
 
 	public BooleanExpression isNull(String name, LookupType type) {
+		// use a nested lookup because lookups may not have been specified till
+		// evaluate is called on the numeric expression returned by this method
 		return new IsNull(new SingleKeyLookup<String>(String.class, name,
-				lookups.get(type)));
+				createNestedLookup(type)));
 	}
 
 	public BooleanExpression isTrue(String name) {
@@ -145,8 +177,10 @@ public class Expressions {
 	}
 
 	public BooleanExpression isTrue(String name, LookupType type) {
+		// use a nested lookup because lookups may not have been specified till
+		// evaluate is called on the numeric expression returned by this method
 		return new Bool(new SingleKeyLookup<Boolean>(Boolean.class, name,
-				lookups.get(type)));
+				createNestedLookup(type)));
 	}
 
 }

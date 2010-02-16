@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import moten.david.util.expression.Expressions;
 import moten.david.util.monitoring.lookup.LookupType;
 
 public class Monitor {
@@ -12,9 +11,9 @@ public class Monitor {
 	private final List<Check> checks;
 	private final Level unknown;
 	private final Level ok;
-	private final Expressions expressions;
+	private final EvaluationContext expressions;
 
-	public Monitor(Expressions expressions, List<Check> checks, Level ok,
+	public Monitor(EvaluationContext expressions, List<Check> checks, Level ok,
 			Level unknown) {
 		this.expressions = expressions;
 		this.checks = checks;

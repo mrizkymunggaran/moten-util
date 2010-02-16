@@ -6,6 +6,7 @@ import static moten.david.util.monitoring.lookup.LookupType.MONITORING;
 import java.util.HashMap;
 import java.util.Map;
 
+import moten.david.util.monitoring.EvaluationContext;
 import moten.david.util.monitoring.MonitoringLookups;
 import moten.david.util.monitoring.lookup.MapLookup;
 import moten.david.util.monitoring.test.InjectorModule;
@@ -21,7 +22,7 @@ public class ExpressionPresenterMonospacedTest {
 	@Test
 	public void test() {
 		Injector injector = Guice.createInjector(new InjectorModule());
-		Expressions e = injector.getInstance(Expressions.class);
+		EvaluationContext e = injector.getInstance(EvaluationContext.class);
 
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("threshold", "20");

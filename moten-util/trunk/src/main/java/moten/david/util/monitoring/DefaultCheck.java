@@ -18,6 +18,20 @@ public class DefaultCheck implements Check {
 	private final Map<LookupType, Lookup> lookups;
 	private final LookupType lookupTypeDefault;
 
+	/**
+	 * Creates a Check implementation based on the given parameters. Note that
+	 * DefaultCheck stores a copy of the lookups map so that changes to the
+	 * lookups parameter later don't affect the check.
+	 * 
+	 * @param name
+	 * @param description
+	 * @param expression
+	 * @param lookups
+	 * @param lookupTypeDefault
+	 * @param failureLevel
+	 * @param dependencies
+	 * @param failurePolicies
+	 */
 	public DefaultCheck(String name, String description,
 			BooleanExpression expression, Map<LookupType, Lookup> lookups,
 			LookupType lookupTypeDefault, Level failureLevel,
@@ -26,7 +40,7 @@ public class DefaultCheck implements Check {
 		this.name = name;
 		this.description = description;
 		this.expression = expression;
-		this.lookups = lookups;
+		this.lookups = new HashMap<LookupType, Lookup>(lookups);
 		this.lookupTypeDefault = lookupTypeDefault;
 		this.failureLevel = failureLevel;
 		this.dependencies = dependencies;
@@ -72,5 +86,10 @@ public class DefaultCheck implements Check {
 	@Override
 	public LookupType getLookupTypeDefault() {
 		return lookupTypeDefault;
+	}
+
+	@Override
+	public String toString() {
+		return name;
 	}
 }
