@@ -14,7 +14,7 @@ public class DefaultCheck implements Check {
 	private final String description;
 	private final BooleanExpression expression;
 	private final Level failureLevel;
-	private final Set<Check> dependencies;
+	private final Set<Dependency> dependencies;
 	private final Set<Policy> failurePolicies;
 	private final Map<LookupType, Lookup> lookups;
 
@@ -34,7 +34,7 @@ public class DefaultCheck implements Check {
 	 */
 	public DefaultCheck(String name, String description,
 			BooleanExpression expression, Map<LookupType, Lookup> lookups,
-			Level failureLevel, Set<Check> dependencies,
+			Level failureLevel, Set<Dependency> dependencies,
 			Set<Policy> failurePolicies) {
 		super();
 		this.name = name;
@@ -47,7 +47,7 @@ public class DefaultCheck implements Check {
 	}
 
 	public DefaultCheck(String name, BooleanExpression expression,
-			Level failureLevel, Set<Check> dependencies,
+			Level failureLevel, Set<Dependency> dependencies,
 			Set<Policy> failurePolicies) {
 		this(name, null, expression, new HashMap<LookupType, Lookup>(),
 				failureLevel, dependencies, failurePolicies);
@@ -69,7 +69,7 @@ public class DefaultCheck implements Check {
 		return failureLevel;
 	}
 
-	public Set<Check> getDependencies() {
+	public Set<Dependency> getDependencies() {
 		return dependencies;
 	}
 

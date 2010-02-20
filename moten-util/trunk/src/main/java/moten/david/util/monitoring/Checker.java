@@ -36,8 +36,8 @@ public class Checker {
 		if (map.get(check) == null) {
 			boolean depsOk = true;
 			if (check.getDependencies() != null)
-				for (Check dep : check.getDependencies()) {
-					CheckResult result = check(map, dep);
+				for (Dependency dep : check.getDependencies()) {
+					CheckResult result = check(map, dep.getCheck());
 					if (!result.getLevel().equals(ok))
 						depsOk = false;
 				}

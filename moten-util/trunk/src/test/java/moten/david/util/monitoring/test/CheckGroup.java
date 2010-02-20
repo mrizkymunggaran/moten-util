@@ -13,6 +13,7 @@ import moten.david.util.monitoring.Check;
 import moten.david.util.monitoring.CheckResult;
 import moten.david.util.monitoring.Checker;
 import moten.david.util.monitoring.DefaultCheck;
+import moten.david.util.monitoring.Dependency;
 import moten.david.util.monitoring.EvaluationContext;
 import moten.david.util.monitoring.Policy;
 import moten.david.util.monitoring.lookup.CachingUrlPropertiesProvider;
@@ -103,7 +104,8 @@ public class CheckGroup {
 		// return UNKNOWN
 		DefaultCheck four = createUrlDefaultCheck("/test372.properties",
 				"four", u.eq(u.num("num.years"), u.num(40)), lookups,
-				Level.SEVERE, Collections.singleton((Check) one), null);
+				Level.SEVERE, Collections
+						.singleton(new Dependency((Check) one)), null);
 		checks.add(four);
 
 		// create a monitor for the checks
@@ -133,7 +135,7 @@ public class CheckGroup {
 
 	private DefaultCheck createUrlDefaultCheck(String urlPath, String name,
 			BooleanExpression expression, Map<LookupType, Lookup> lookups,
-			Level failureLevel, Set<Check> dependencies,
+			Level failureLevel, Set<Dependency> dependencies,
 			Set<Policy> failurePolicies) {
 		// set monitoring for this check to use urlPath as source
 		lookups.put(lookupTypeDefault, createMonitoringLookup(urlPath));

@@ -55,7 +55,7 @@ public interface Check {
 	 * 
 	 * @return
 	 */
-	Set<Check> getDependencies();
+	Set<Dependency> getDependencies();
 
 	/**
 	 * Provides lookup for the

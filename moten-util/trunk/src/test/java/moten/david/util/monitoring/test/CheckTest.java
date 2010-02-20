@@ -16,6 +16,7 @@ import moten.david.util.monitoring.Check;
 import moten.david.util.monitoring.CheckResult;
 import moten.david.util.monitoring.Checker;
 import moten.david.util.monitoring.DefaultCheck;
+import moten.david.util.monitoring.Dependency;
 import moten.david.util.monitoring.EvaluationContext;
 import moten.david.util.monitoring.MonitoringLookups;
 import moten.david.util.monitoring.lookup.CachingUrlPropertiesProvider;
@@ -66,7 +67,8 @@ public class CheckTest {
 			BooleanExpression e = u.or(Bool.TRUE, Bool.FALSE);
 			final DefaultCheck checkBase = new DefaultCheck(
 					"base thing available", e, Level.SEVERE, null, null);
-			Set<Check> deps = Collections.singleton((Check) checkBase);
+			Set<Dependency> deps = Collections.singleton(new Dependency(
+					checkBase));
 			DefaultCheck check = new DefaultCheck("processing time ok", e,
 					Level.WARNING, deps, null);
 			checks.add(check);
@@ -80,7 +82,8 @@ public class CheckTest {
 			BooleanExpression e = u.and(Bool.FALSE, Bool.TRUE);
 			final DefaultCheck checkBase = new DefaultCheck(
 					"base thing available", e, Level.SEVERE, null, null);
-			Set<Check> deps = Collections.singleton((Check) checkBase);
+			Set<Dependency> deps = Collections.singleton(new Dependency(
+					checkBase));
 			DefaultCheck check = new DefaultCheck("processing time ok", e,
 					Level.WARNING, deps, null);
 			checks.add(check);
