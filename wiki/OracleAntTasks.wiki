@@ -8,7 +8,7 @@ I found it useful to have ant tasks for some common Oracle specific actions (lik
 ==Load Java==
 Instead of using loadjava shell scripts for uploading jars into Oracle I prefer to be independent of an oracle client install. To use the `LoadJava` ant task, include moten-util jar on the classpath and the aurora.jar dependency (see [http://code.google.com/p/moten-util/source/browse/moten-util/trunk/pom.xml pom.xml]).
 
-Here's an example of use within a ant build.xml file:
+Here's an example of use within a build.xml file:
 {{{
 <taskdef name="loadjava" classname="moten.david.util.database.oracle.LoadJavaTask" classpathref="libraries" />
 <loadjava failonerror="true" resolve="false" 
