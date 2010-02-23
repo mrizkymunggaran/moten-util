@@ -24,3 +24,36 @@ Here's an example of use within a build.xml file:
 }}}
 
 ==Sqlplus==
+Having used oracle and java for yonks I thought I'd improve my toolset a bit with this ant task. It's pretty useful especially as it detects errors in the running of the script and can optionally fail.
+
+This ant task provides all the options available for the sqlplus exe (and a few more).
+
+Note that the end of your script needs an exit, otherwise the task just hangs around.
+
+{{{
+  <target name="run.sqlplus">
+      <taskdef name="sqlplus" classname="moten.david.util.database.oracle.SqlPlusTask" classpathref="libraries" />
+      <sqlplus logon="scott/tiger@orcl" failonerror="false">
+           <sql>
+                update document set folder_id = 14 
+                where document_id in (
+                     select document_id 
+                     from message_details
+                     where message_id in 
+                     (5204249,5204257,5204258,5204260,5204273,5204274,
+                      5204280,5204287,5204288,5204290,5204291,5204297)
+                );
+      
+                update message_details 
+                set sent_received_dtg=sysdate
+                where message_id in 
+                (5204249,5204257,5204258,5204260,5204273,5204274,
+                 5204280,5204287,5204288,5204290,5204291,5204297);
+                
+                commit;
+                
+                exit;
+           </sql>
+      </sqlplus>
+ </target>
+}}}
