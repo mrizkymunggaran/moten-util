@@ -5,7 +5,7 @@ I found it useful to have ant tasks for some common Oracle specific actions (lik
   * `LoadJava` - loads jars into the database
   * `SqlPlus` - runs scripts using an existing sqlplus installation
 
-==LoadJava==
+==Load Java==
 Instead of using loadjava shell scripts for uploading jars into Oracle I prefer to be independent of an oracle client install. To use LoadJava ant task, include moten-util jar on the classpath and the aurora.jar dependency (see pom.xml).
 
 Here's an example of use within a ant build.xml file:
@@ -23,4 +23,4 @@ Here's an example of use within a ant build.xml file:
 </loadjava>
 }}}
 
-==SqlPlus==
+==Sqlplus==
