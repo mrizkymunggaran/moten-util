@@ -30,6 +30,19 @@
 			<version>4.4</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>com.oracle</groupId>
+			<artifactId>aurora</artifactId>
+			<version>10.2.0.2.0</version>
+			<scope>compile</scope>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.ant</groupId>
+			<artifactId>ant</artifactId>
+			<version>1.7.0</version>
+			<optional>true</optional>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>
