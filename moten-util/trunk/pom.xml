@@ -78,6 +78,13 @@
 		<url>http://download.java.net/maven/2/</url> </repository>
 		</repositories>
 	-->
+	<repositories>
+		<repository>
+			<id>googlecode-moten-util</id>
+			<url>http://moten-util.googlecode.com/svn/repo</url>
+		</repository>
+	</repositories>
+
 	<distributionManagement>
 		<repository>
 			<uniqueVersion>false</uniqueVersion>
