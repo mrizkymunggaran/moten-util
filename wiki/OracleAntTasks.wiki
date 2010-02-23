@@ -10,9 +10,7 @@ Instead of using loadjava shell scripts for uploading jars into Oracle I prefer 
 
 Here's an example of use within a build.xml file:
 {{{
-<path id="libraries">
-...
-</path>
+<path id="libraries">...</path>
 <taskdef name="loadjava" classname="moten.david.util.database.oracle.LoadJavaTask" classpathref="libraries" />
 <loadjava failonerror="true" resolve="false" 
     force="false" showchangesonly="false" showlog="true"
@@ -34,9 +32,7 @@ This ant task provides all the options available for the sqlplus exe (and a few 
 Note that the end of your script needs an exit, otherwise the task just hangs around.
 
 {{{
-  <path id="libraries">
-  ...
-  </path>
+  <path id="libraries">...</path>
   <target name="run.sqlplus">
       <taskdef name="sqlplus" classname="moten.david.util.database.oracle.SqlPlusTask" classpathref="libraries" />
       <sqlplus logon="scott/tiger@orcl" failonerror="false">
