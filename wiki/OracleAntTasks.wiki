@@ -1,0 +1,27 @@
+#summary Oracle ant tasks
+
+= Introduction =
+I found it useful to have ant tasks for some common Oracle specific actions (like loading jars and running scripts):
+  * LoadJava - loads jars into the database
+  * SqlPlus - runs scripts using an existing sqlplus installation
+
+==LoadJava==
+Instead of using loadjava shell scripts for uploading jars into Oracle I prefer to be independent of an oracle client install. To use LoadJava ant task, include moten-util jar on the classpath and the aurora.jar dependency (see pom.xml).
+
+Here's an example of use within a ant build.xml file:
+{{{
+<taskdef name="loadjava" classname="moten.david.util.database.oracle.LoadJavaTask" classpathref="libraries" />
+<loadjava failonerror="true" resolve="false" 
+    force="false" showchangesonly="false" showlog="true"
+    thin="true" user="scott/tiger@dbhost:1521:orcl">
+    <path>
+        <fileset dir="${lib}/axis1.4">
+             <include name="*.jar" />
+             <include name="log4j.properties" />
+        </fileset>
+    </path>
+</loadjava>
+}}}
+
+==SqlPlus==
+
