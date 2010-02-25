@@ -1,0 +1,153 @@
+
+.programme{
+	border:1px solid black;
+	border-collapse:collapse;
+	margin-top:2px;
+	margin-bottom:0px;
+}
+
+
+.scheduled {
+	color: white;
+	background: red;
+	width: 100%;	
+}
+
+.programmeItem {
+	border:1px solid black;
+	border-collapse:collapse;
+	padding-left:10px;
+	padding-right:10px;
+	padding-top:2px;
+	padding-bottom:2px;
+	font-size:80%;
+}
+
+.itemDescription {
+	min-width: 200px;
+}
+
+.programmeItemEmpty  {
+	border:none;
+	border-collapse:collapse;
+	background-color:#B8BDC2
+
+}
+
+.programmeRow {
+	max-height:100px;
+}
+
+.play {
+	font-size:80%;
+	color:blue; 
+	background-color:transparent; 
+	border:none;  
+}
+
+.about {
+	font-size:80%;
+	color:blue; 
+	background-color:transparent; 
+	border:none;  
+}
+
+.record {
+	font-size:80%;
+	color:blue; 
+	background-color:transparent; 
+	border:none;  
+}
+
+.channel {
+	font-size:100%;
+	font-weight:bold;
+	color:white;
+	padding-left:10px;
+	padding-right:-10px;
+}
+
+.channelCell {
+	background-color:red;
+}
+
+.noBorder{
+	border:none;
+	border-collapse:collapse;
+	margin-top:2px;
+	margin-bottom:0px;
+	width: 100%;
+}
+
+.noBorder td{
+	border:none;
+	border-collapse:collapse;
+	padding-left:10px;
+	padding-right:10px;
+	font-size:80%;
+}
+
+.information {
+	width:100%;
+}
+
+.currentTime {
+	font-weight:bold;
+	color:red;
+}
+
+.time {
+	color:gray;
+}
+
+.title{
+	font-size:120%;
+}
+
+
+.menuItem {
+	font-size:100%;
+	color:blue; 
+	background-color:transparent; 
+	text-decoration:none;
+	text-align:left;
+	border:none;  
+	margin-bottom:8px;
+	margin-left:20px;
+	margin-right:10px;
+	padding:0px;
+}
+
+.checkImage {
+	border:none;
+	margin-right:10px;	
+}
+
+.contentPanel {
+	width: 100%;
+}
+
+.tabs {
+	height:100%;
+	width:100%;
+}
+
+.mainPanel {
+	width:100%;
+}
+.headerPanel {
+	height:20px;
+}
+
+.bodyPanel {
+	width:100%;
+	margin-left:20px;
+	margin-right:50px;
+}
+.menuPanel {
+	/* visibility: hidden;*/
+}
+.titlePanel {
+	padding-left:20px;
+	padding-bottom:20px;
+}

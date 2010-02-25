@@ -5,9 +5,11 @@ import com.google.gwt.user.client.ui.Label;
 
 public class TitlePanel extends HorizontalPanel {
 
-	public TitlePanel() {
-		setStyleName("title");
-		add(new Label("Monitor"));
-	}
+    public TitlePanel() {
+        setStyleName("titlePanel");
+        Label label = new Label("MonitorOne");
+        label.setStyleName("title");
+        add(label);
+    }
 
 }
