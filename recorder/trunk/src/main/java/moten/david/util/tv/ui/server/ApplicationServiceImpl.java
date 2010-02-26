@@ -31,6 +31,8 @@ import com.google.inject.Inject;
 public class ApplicationServiceImpl extends RemoteServiceServlet implements
 		ApplicationService {
 
+	private static final long serialVersionUID = 1L;
+
 	private static Logger log = Logger.getLogger(ApplicationServiceImpl.class
 			.getName());
 
