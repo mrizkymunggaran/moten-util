@@ -8,60 +8,45 @@ import moten.david.util.monitoring.lookup.Lookup;
 import moten.david.util.monitoring.lookup.LookupType;
 
 /**
- * An item to be monitored
+ * An item whose status is to be checked
  * 
  * @author dave
  * 
  */
 public interface Check {
-	/**
-	 * Briefly describes the check
-	 * 
-	 * @return
-	 */
-	String getName();
+    /**
+     * Briefly describes the check
+     * 
+     * @return
+     */
+    String getName();
 
-	/**
-	 * Describes the check
-	 * 
-	 * @return
-	 */
-	String getDescription();
+    /**
+     * return true if check passes
+     * 
+     * @return
+     */
+    BooleanExpression getExpression();
 
-	/**
-	 * return true if check passes
-	 * 
-	 * @return
-	 */
-	BooleanExpression getExpression();
+    /**
+     * returns the failure level if check fails
+     * 
+     * @return
+     */
+    Level getFailureLevel();
 
-	/**
-	 * returns the failure level if check fails
-	 * 
-	 * @return
-	 */
-	Level getFailureLevel();
+    /**
+     * This check returns unknown if any dependency does not return OK
+     * 
+     * @return
+     */
+    Set<Dependency> getDependencies();
 
-	/**
-	 * On failure policies are mapped (presumably) to actions by a monitoring
-	 * system
-	 * 
-	 * @return
-	 */
-	Set<Policy> getFailurePolicies();
-
-	/**
-	 * This check returns unknown if any dependency does not return OK
-	 * 
-	 * @return
-	 */
-	Set<Dependency> getDependencies();
-
-	/**
-	 * Provides lookup for the
-	 * 
-	 * @return
-	 */
-	Map<LookupType, Lookup> getLookups();
+    /**
+     * Provides lookup for the check
+     * 
+     * @return
+     */
+    Map<LookupType, Lookup> getLookups();
 
 }

@@ -5,6 +5,7 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Tree;
+import com.google.gwt.user.client.ui.TreeItem;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -24,8 +25,8 @@ public class Check extends HorizontalPanel {
 
         VerticalPanel content = new VerticalPanel();
         Tree tree = new Tree();
-        tree.add(new Label("Expression: " + expression));
-        tree.add(new Label("Level: " + level));
+        tree.addItem(new TreeItem("Expression: " + expression));
+        tree.addItem(new TreeItem("Level: " + level));
         content.add(tree);
 
         d.setHeader(item);
