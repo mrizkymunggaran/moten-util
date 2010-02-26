@@ -12,16 +12,15 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 public class Check extends HorizontalPanel {
-	public Check(String name, String expression, String level, boolean ok,
-			List<String> failurePolicies, List<String> unknownPolicies,
-			List<String> exceptionPolicies, List<String> okPolicies) {
+	public Check(String name, String expression, String checkLevel,
+			String resultLevel, List<String> failurePolicies,
+			List<String> unknownPolicies, List<String> exceptionPolicies,
+			List<String> okPolicies) {
 
 		DisclosurePanel d = new DisclosurePanel();
 		{
 			HorizontalPanel item = new HorizontalPanel();
-			String imageName = "OK";
-			if (!ok)
-				imageName = level;
+			String imageName = resultLevel;
 			item.add(createImage(imageName));
 			{
 				Label label = new Label(name);
@@ -39,7 +38,12 @@ public class Check extends HorizontalPanel {
 		Tree tree = new Tree();
 		{
 			HorizontalPanel panel = new HorizontalPanel();
-			panel.add(createKeyValueWidget("Level:", level));
+			panel.add(createKeyValueWidget("Status:", resultLevel));
+			tree.addItem(new TreeItem(panel));
+		}
+		{
+			HorizontalPanel panel = new HorizontalPanel();
+			panel.add(createKeyValueWidget("Level:", checkLevel));
 			tree.addItem(new TreeItem(panel));
 		}
 		{

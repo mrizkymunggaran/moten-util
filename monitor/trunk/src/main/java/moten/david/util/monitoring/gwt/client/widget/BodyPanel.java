@@ -10,20 +10,20 @@ public class BodyPanel extends VerticalFlowPanel {
 		setStyleName("bodyPanel");
 		for (int i = 0; i < 5; i++) {
 			add(new Check("container available", "UrlAvailable(container.url)",
-					"SEVERE", true,
-					Collections.singletonList("NOTIFY_ON_CALL"),
+					"SEVERE", "SEVERE", Collections
+							.singletonList("NOTIFY_ON_CALL"),
 					Collections.EMPTY_LIST, list("NOTIFY_ON_CALL",
 							"NOTIFY_DEVELOPERS"), list("LOG")));
 			add(new Check("container memory", "container.memory.used<1500000",
-					"WARNING", false, Collections.EMPTY_LIST,
+					"WARNING", "WARNING", Collections.EMPTY_LIST,
 					Collections.EMPTY_LIST, Collections.EMPTY_LIST,
 					Collections.EMPTY_LIST));
 			add(new Check("container available", "UrlAvailable(container.url)",
-					"UNKNOWN", false, Collections.EMPTY_LIST,
+					"SEVERE", "UNKNOWN", Collections.EMPTY_LIST,
 					Collections.EMPTY_LIST, Collections.EMPTY_LIST,
 					Collections.EMPTY_LIST));
 			add(new Check("cts universal adapter available",
-					"UrlAvailable(container.url)", "SEVERE", false,
+					"UrlAvailable(container.url)", "SEVERE", "OK",
 					Collections.EMPTY_LIST, Collections.EMPTY_LIST,
 					Collections.EMPTY_LIST, Collections.EMPTY_LIST));
 		}
