@@ -174,3 +174,10 @@
 	border: solid 1px black;
 	font-family: monospace;
 }
+
+.checkLabel {
+	width:200px;
+}
+
+.levelLabel {
+}

@@ -15,13 +15,17 @@ public class BodyPanel extends VerticalFlowPanel {
 					Collections.EMPTY_LIST, list("NOTIFY_ON_CALL",
 							"NOTIFY_DEVELOPERS"), list("LOG")));
 			add(new Check("container memory", "container.memory.used<1500000",
-					"SEVERE", true, Collections.EMPTY_LIST,
+					"WARNING", false, Collections.EMPTY_LIST,
 					Collections.EMPTY_LIST, Collections.EMPTY_LIST,
 					Collections.EMPTY_LIST));
 			add(new Check("container available", "UrlAvailable(container.url)",
-					"WARNING", true, Collections.EMPTY_LIST,
+					"UNKNOWN", false, Collections.EMPTY_LIST,
 					Collections.EMPTY_LIST, Collections.EMPTY_LIST,
 					Collections.EMPTY_LIST));
+			add(new Check("cts universal adapter available",
+					"UrlAvailable(container.url)", "SEVERE", false,
+					Collections.EMPTY_LIST, Collections.EMPTY_LIST,
+					Collections.EMPTY_LIST, Collections.EMPTY_LIST));
 		}
 	}
 

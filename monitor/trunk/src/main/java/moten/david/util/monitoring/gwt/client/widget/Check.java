@@ -16,17 +16,24 @@ public class Check extends HorizontalPanel {
 			List<String> failurePolicies, List<String> unknownPolicies,
 			List<String> exceptionPolicies, List<String> okPolicies) {
 
-		HorizontalPanel item = new HorizontalPanel();
-
-		item.add(createImage("images/circle-green.jpg"));
-		item.add(new Label(name));
-
-		// TODO do alignment with css
-		item.setCellVerticalAlignment(item.getWidget(0), ALIGN_MIDDLE);
-		item.setCellVerticalAlignment(item.getWidget(1), ALIGN_MIDDLE);
-
 		DisclosurePanel d = new DisclosurePanel();
+		{
+			HorizontalPanel item = new HorizontalPanel();
+			String imageName = "OK";
+			if (!ok)
+				imageName = level;
+			item.add(createImage(imageName));
+			{
+				Label label = new Label(name);
+				label.setStyleName("checkLabel");
+				item.add(label);
+			}
+			// TODO do alignment with css
+			item.setCellVerticalAlignment(item.getWidget(0), ALIGN_MIDDLE);
+			item.setCellVerticalAlignment(item.getWidget(1), ALIGN_MIDDLE);
 
+			d.setHeader(item);
+		}
 		VerticalPanel content = new VerticalPanel();
 		content.setStyleName("checkContent");
 		Tree tree = new Tree();
@@ -63,7 +70,6 @@ public class Check extends HorizontalPanel {
 
 		content.add(tree);
 
-		d.setHeader(item);
 		d.setContent(content);
 		add(d);
 	}
@@ -84,8 +90,8 @@ public class Check extends HorizontalPanel {
 		return panel;
 	}
 
-	private Widget createImage(String url) {
-		Image image = new Image(url);
+	private Widget createImage(String level) {
+		Image image = new Image("images/" + level + ".jpg");
 		image.setStyleName("checkImage");
 		return image;
 	}
