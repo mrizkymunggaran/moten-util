@@ -59,9 +59,11 @@ public class Definition extends SystemBase {
 		{
 			{
 				AssociationEndPrimary primary = createAssociationEndPrimary(
-						lookup, Multiplicity.ZERO_ONE, "has latest");
+						lookup, "lookupNameForLatest", Multiplicity.ZERO_ONE,
+						"has latest");
 				AssociationEndSecondary secondary = createAssociationEndSecondary(
-						lookupName, Multiplicity.ZERO_ONE, "is latest for");
+						lookupName, "latestLookup", Multiplicity.ZERO_ONE,
+						"is latest for");
 				createAssociation("R3", primary, secondary);
 			}
 		}
