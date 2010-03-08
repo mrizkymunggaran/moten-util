@@ -1,14 +1,14 @@
 =UML2 Class Diagram Generator for Eclipse 3.5=
 Developed for Eclipse 3.5.1 and latest UML2 plugin from Galileo release
 
-Here's an example, run this JUnit test class: [http://code.google.com/p/moten-util/source/browse/moten-util/trunk/src/test/java/moten/david/util/uml/eclipse/UmlProducerTest.java UmlProducerTest.java]
+Here's an example, run this JUnit test class: [http://code.google.com/p/moten-util/source/browse/moten-util-parent/trunk/moten-util/src/test/java/moten/david/util/uml/eclipse/UmlProducerTest.java UmlProducerTest.java]
 
 This produces the xmi file _target/result.uml_.
 
 If you have UML2 installed then right mouse on _target/result.uml_ gives you:
 
-http://moten-util.googlecode.com/svn/moten-util/trunk/docs/initialize-class-diagram.png
+http://moten-util.googlecode.com/svn/moten-util-parent/trunk/moten-util/docs/initialize-class-diagram.png
 
 and you then end up with a file _result.umlclass_ which is opened by the UML2 editor and looks like:
 
-http://moten-util.googlecode.com/svn/moten-util/trunk/docs/demo.png
+http://moten-util.googlecode.com/svn/moten-util-parent/trunk/moten-util/docs/demo.png
