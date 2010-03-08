@@ -1,8 +1,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
+  	<parent>
+		<groupId>org.moten.david.util</groupId>
+		<artifactId>moten-util-parent</artifactId>
+		<version>0.0.2-SNAPSHOT</version>
+	</parent>
   <groupId>moten.david.util.monitoring</groupId>
   <artifactId>monitor-model-generated</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>${project.parent.version}</version>
   <properties>
 		<generated>${project.build.directory}/generated-source</generated>
 		<generated.resources>${project.build.directory}/generated-resources</generated.resources>
@@ -31,7 +36,7 @@
 		<dependency>
 			<groupId>moten.david.util.monitoring</groupId>
 			<artifactId>monitor-model</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>${project.parent.version}</version>
 		</dependency>
 	</dependencies>
 	<build>

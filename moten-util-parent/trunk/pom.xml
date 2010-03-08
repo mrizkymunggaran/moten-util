@@ -1,0 +1,15 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.moten.david.util</groupId>
+	<artifactId>moten-util-parent</artifactId>
+	<packaging>pom</packaging>
+	<name>Moten Util parent</name>
+	<version>0.0.2-SNAPSHOT</version>
+	<modules>
+		<module>moten-util</module>
+		<module>monitor-model</module>
+		<module>monitor-model-generated</module>
+		<module>monitor</module>
+	</modules>
+</project>
