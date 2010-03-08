@@ -5,6 +5,8 @@ I found it useful to have ant tasks for some common Oracle specific actions (lik
   * `LoadJava` - loads jars into the database
   * `SqlPlus` - runs scripts using an existing sqlplus installation
 
+Source code is [http://code.google.com/p/moten-util/source/browse/#svn/moten-util-parent/trunk/moten-util/src/main/java/moten/david/util/database/oracle here].
+
 ==Load Java==
 Instead of using loadjava shell scripts for uploading jars into Oracle I prefer to be independent of an oracle client install. To use the `LoadJava` ant task, include moten-util jar on the classpath and the aurora.jar dependency (see [http://code.google.com/p/moten-util/source/browse/moten-util-parent/trunk/moten-util/pom.xml pom.xml]).
 
