@@ -56,8 +56,8 @@
     <secondary name="LookupName lookupName" mandatory="true" verbClause="is categorized by" role="lookupName" derivedAttribute="//@package.0/@class.0/@attributeReferential.0" class="//@package.0/@class.1"/>
   </association>
   <association name="R3">
-    <primary name="Lookup lookup" verbClause="has latest" role="lookup" class="//@package.0/@class.0"/>
-    <secondary name="LookupName lookupName" verbClause="is latest for" role="lookupName" class="//@package.0/@class.1"/>
+    <primary name="Lookup lookupNameForLatest" verbClause="has latest" role="lookupNameForLatest" class="//@package.0/@class.0"/>
+    <secondary name="LookupName latestLookup" verbClause="is latest for" role="latestLookup" class="//@package.0/@class.1"/>
   </association>
   <association name="R1">
     <primary name="Lookup lookup" mandatory="true" verbClause="returned from" role="lookup" class="//@package.0/@class.0"/>
