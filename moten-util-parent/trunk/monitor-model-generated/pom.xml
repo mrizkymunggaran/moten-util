@@ -9,6 +9,7 @@
 	<groupId>moten.david.util.monitoring</groupId>
 	<artifactId>monitor-model-generated</artifactId>
 	<version>${project.parent.version}</version>
+	<name>Monitor Model Generated</name>
 	<properties>
 		<generated>${project.build.directory}/generated-source</generated>
 		<generated.resources>${project.build.directory}/generated-resources</generated.resources>
