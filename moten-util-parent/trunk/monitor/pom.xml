@@ -9,7 +9,6 @@
 	<groupId>moten.david.util.monitoring</groupId>
 	<artifactId>monitor</artifactId>
 	<packaging>war</packaging>
-	<version>0.0.2-SNAPSHOT</version>
 	<name>monitor webapp</name>
 	<url>http://moten-util.googlecode.com</url>
 	<scm>

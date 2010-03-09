@@ -8,7 +8,6 @@
 	</parent>
 	<groupId>moten.david.util.monitoring</groupId>
 	<artifactId>monitor-model</artifactId>
-	<version>0.0.2-SNAPSHOT</version>
 	<name>Monitor Model</name>
 	<description>Monitor data model definition using xuml-compiler</description>
 	<dependencies>
