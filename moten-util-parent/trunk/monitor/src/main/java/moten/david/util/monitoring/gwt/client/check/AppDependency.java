@@ -1,31 +1,33 @@
 package moten.david.util.monitoring.gwt.client.check;
 
-public class AppDependency {
+import java.io.Serializable;
 
-    /**
-     * The check being depended on
-     */
-    private AppCheck check;
-    /**
-     * whether a failure level of the check is passed on to the owner of the
-     * dependency
-     */
-    private boolean levelInherited;
+public class AppDependency implements Serializable {
 
-    public AppCheck getCheck() {
-        return check;
-    }
+	/**
+	 * The check being depended on
+	 */
+	private AppCheck check;
+	/**
+	 * whether a failure level of the check is passed on to the owner of the
+	 * dependency
+	 */
+	private boolean levelInherited;
 
-    public void setCheck(AppCheck check) {
-        this.check = check;
-    }
+	public AppCheck getCheck() {
+		return check;
+	}
 
-    public boolean isLevelInherited() {
-        return levelInherited;
-    }
+	public void setCheck(AppCheck check) {
+		this.check = check;
+	}
 
-    public void setLevelInherited(boolean levelInherited) {
-        this.levelInherited = levelInherited;
-    }
+	public boolean isLevelInherited() {
+		return levelInherited;
+	}
+
+	public void setLevelInherited(boolean levelInherited) {
+		this.levelInherited = levelInherited;
+	}
 
 }

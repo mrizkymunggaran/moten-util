@@ -6,21 +6,28 @@ import moten.david.util.monitoring.gwt.client.check.AppChecks;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 public class ApplicationServiceImpl extends RemoteServiceServlet implements
-        ApplicationService {
+		ApplicationService {
 
-    @Override
-    public String getApplicationName() {
-        return "application";
-    }
+	private final ApplicationServiceDummy service;
 
-    @Override
-    public void check() {
+	public ApplicationServiceImpl() {
+		service = new ApplicationServiceDummy();
+	}
 
-    }
+	@Override
+	public void check() {
+		service.check();
 
-    @Override
-    public AppChecks getResults() {
-        return null;
-    }
+	}
+
+	@Override
+	public String getApplicationName() {
+		return service.getApplicationName();
+	}
+
+	@Override
+	public AppChecks getResults() {
+		return service.getResults();
+	}
 
 }
