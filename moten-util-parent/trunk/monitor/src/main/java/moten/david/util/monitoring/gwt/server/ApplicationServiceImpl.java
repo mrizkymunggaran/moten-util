@@ -18,11 +18,11 @@ public class ApplicationServiceImpl extends RemoteServiceServlet implements
     private ApplicationService service;
 
     public ApplicationServiceImpl() {
-        String className = System.getProperty("applicationService");
+        String className = System.getProperty("serviceProvider");
         if (className == null) {
             className = ApplicationServiceDummyProvider.class.getName();
             log
-                    .info("System property applicationService not set, using dummy provider instead");
+                    .info("System property serviceProvider not set, using dummy provider instead");
         }
         log.info("instantiating ApplicationServiceProvider " + className);
         try {
