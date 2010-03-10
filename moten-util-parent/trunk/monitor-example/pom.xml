@@ -1,0 +1,60 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.moten.david.util</groupId>
+		<artifactId>moten-util-parent</artifactId>
+		<version>0.0.2-SNAPSHOT</version>
+	</parent>
+	<groupId>moten.david.util.monitoring</groupId>
+	<artifactId>monitor-example</artifactId>
+	<packaging>war</packaging>
+	<name>monitor-example webapp</name>
+	<url>http://maven.apache.org</url>
+	<dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>3.8.1</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>moten.david.util.monitoring</groupId>
+			<artifactId>monitor</artifactId>
+			<version>${project.parent.version}</version>
+			<type>war</type>
+		</dependency>
+	</dependencies>
+	<build>
+		<finalName>monitor-example</finalName>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.0.2</version>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.mortbay.jetty</groupId>
+				<artifactId>maven-jetty-plugin</artifactId>
+				<version>6.1.22</version>
+				<configuration>
+					<!--   cp -urv src/main/webapp/* target/monitor -->
+					<webAppSourceDirectory>${project.build.directory}/${project.build.finalName}</webAppSourceDirectory>
+					<scanIntervalSeconds>10</scanIntervalSeconds>
+					<stopPort>9967</stopPort>
+					<stopKey>foo</stopKey>
+					<connectors>
+						<connector implementation="org.mortbay.jetty.nio.SelectChannelConnector">
+							<port>8180</port>
+							<maxIdleTime>60000</maxIdleTime>
+						</connector>
+					</connectors>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>
