@@ -24,6 +24,12 @@
 			<version>${project.parent.version}</version>
 			<type>war</type>
 		</dependency>
+		<dependency>
+			<groupId>moten.david.util.monitoring</groupId>
+			<artifactId>monitor</artifactId>
+			<version>${project.parent.version}</version>
+			<classifier>client</classifier>
+		</dependency>
 	</dependencies>
 	<build>
 		<finalName>monitor-example</finalName>
@@ -56,7 +62,7 @@
 					<systemProperties>
 						<systemProperty>
 							<name>serviceProvider</name>
-							<value>moten.david.Boo</value>
+							<value>moten.david.util.monitoring.monitor.example.ServiceProvider</value>
 						</systemProperty>
 					</systemProperties>
 				</configuration>
