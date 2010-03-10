@@ -53,6 +53,12 @@
 							<maxIdleTime>60000</maxIdleTime>
 						</connector>
 					</connectors>
+					<systemProperties>
+						<systemProperty>
+							<name>serviceProvider</name>
+							<value>moten.david.Boo</value>
+						</systemProperty>
+					</systemProperties>
 				</configuration>
 			</plugin>
 		</plugins>

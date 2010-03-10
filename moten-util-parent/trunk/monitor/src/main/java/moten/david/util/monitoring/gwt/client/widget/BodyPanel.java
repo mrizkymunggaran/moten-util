@@ -8,44 +8,44 @@ import moten.david.util.monitoring.gwt.client.check.AppChecks;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.HTML;
 
 public class BodyPanel extends VerticalFlowPanel {
 
-	ApplicationServiceAsync service = (ApplicationServiceAsync) GWT
-			.create(ApplicationService.class);
+    ApplicationServiceAsync service = (ApplicationServiceAsync) GWT
+            .create(ApplicationService.class);
 
-	public BodyPanel() {
-		setStyleName("bodyPanel");
-		service.getResults(createResultsCallback());
-	}
+    public BodyPanel() {
+        setStyleName("bodyPanel");
+        service.getResults(createResultsCallback());
+    }
 
-	private AsyncCallback<AppChecks> createResultsCallback() {
-		return new AsyncCallback<AppChecks>() {
+    private AsyncCallback<AppChecks> createResultsCallback() {
+        return new AsyncCallback<AppChecks>() {
 
-			@Override
-			public void onFailure(Throwable t) {
-				add(new Label(t.getMessage()));
-			}
+            @Override
+            public void onFailure(Throwable t) {
+                add(new HTML(t.getMessage()));
+            }
 
-			@Override
-			public void onSuccess(AppChecks checks) {
-				if (checks != null) {
-					if (checks.getChecks() != null)
-						for (AppCheck c : checks.getChecks()) {
-							add(new CheckPanel(c, findResult(checks
-									.getResults(), c.getName())));
-						}
-				}
-			}
+            @Override
+            public void onSuccess(AppChecks checks) {
+                if (checks != null) {
+                    if (checks.getChecks() != null)
+                        for (AppCheck c : checks.getChecks()) {
+                            add(new CheckPanel(c, findResult(checks
+                                    .getResults(), c.getName())));
+                        }
+                }
+            }
 
-			private AppCheckResult findResult(AppCheckResult[] results,
-					String name) {
-				for (AppCheckResult result : results)
-					if (result.getName().equals(name))
-						return result;
-				return null;
-			}
-		};
-	}
+            private AppCheckResult findResult(AppCheckResult[] results,
+                    String name) {
+                for (AppCheckResult result : results)
+                    if (result.getName().equals(name))
+                        return result;
+                return null;
+            }
+        };
+    }
 }
