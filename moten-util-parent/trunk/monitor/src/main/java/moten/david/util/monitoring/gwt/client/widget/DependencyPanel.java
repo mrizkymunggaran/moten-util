@@ -7,6 +7,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 public class DependencyPanel extends VerticalPanel {
 	public DependencyPanel(AppDependency dependency, AppCheckResult[] results) {
-		add(new CheckPanel(dependency.getCheck(), results));
+		CheckPanel checkPanel = new CheckPanel(dependency.getCheck(), results);
+		add(checkPanel);
 	}
 }

@@ -71,6 +71,9 @@ public class CheckPanel extends HorizontalPanel {
 			for (AppDependency dep : check.getDependencies()) {
 				deps.addItem(new DependencyPanel(dep, results));
 			}
+		deps.setState(true);
+		if (deps.getChildCount() > 0)
+			tree.addItem(deps);
 	}
 
 	private void addPolicies(AppCheck check, Tree tree) {
