@@ -92,7 +92,7 @@
 				<version>6.1.22</version>
 				<configuration>
 					<!--   cp -urv src/main/webapp/* target/monitor -->
-					<webAppSourceDirectory>${project.build.directory}/monitor</webAppSourceDirectory>
+					<webAppSourceDirectory>${project.build.directory}/${project.build.finalName}</webAppSourceDirectory>
 					<scanIntervalSeconds>10</scanIntervalSeconds>
 					<stopPort>9967</stopPort>
 					<stopKey>foo</stopKey>

@@ -11,5 +11,6 @@
 		<module>monitor-model</module>
 		<module>monitor-model-generated</module>
 		<module>monitor</module>
+		<module>monitor-example</module>
 	</modules>
 </project>
