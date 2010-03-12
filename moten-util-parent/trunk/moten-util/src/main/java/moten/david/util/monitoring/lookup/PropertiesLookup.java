@@ -16,7 +16,7 @@ public class PropertiesLookup implements Lookup {
 	}
 
 	@Override
-	public String get(String key) {
+	public String get(String context, String key) {
 		return provider.get().getProperty(key);
 	}
 

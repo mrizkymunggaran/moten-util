@@ -19,7 +19,7 @@ public class MapLookup implements Lookup {
 	}
 
 	@Override
-	public String get(String key) {
+	public String get(String context, String key) {
 		return map.get(key);
 	}
 

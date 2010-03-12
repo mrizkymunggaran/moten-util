@@ -42,9 +42,10 @@ public class ThreadLocalLookupRecorder implements MethodInterceptor {
 	@Override
 	public Object invoke(MethodInvocation invocation) throws Throwable {
 		if (invocation.getMethod().getName().equals("get")
-				&& invocation.getArguments().length == 1) {
+				&& invocation.getArguments().length == 2) {
 			// Lookup only has one method
-			String key = (String) invocation.getArguments()[0];
+			String context = (String) invocation.getArguments()[0];
+			String key = (String) invocation.getArguments()[1];
 			String result = (String) invocation.proceed();
 			map.put(key, result);
 			return result;

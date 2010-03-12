@@ -45,7 +45,7 @@ public class SingleKeyLookup<T> implements Provider<T> {
 		if (lookup == null)
 			throw new RuntimeException("map has not been set");
 		try {
-			String value = lookup.get(key);
+			String value = lookup.get(null, key);
 			if (value == null)
 				return null;
 			else

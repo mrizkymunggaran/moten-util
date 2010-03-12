@@ -165,7 +165,7 @@ public class CheckTest {
 		MapLookup lookup = factory.create(map);
 
 		// next call should be recorded via aop
-		lookup.get("threshold");
+		lookup.get(null, "threshold");
 
 		// check if recorded
 		Assert.assertEquals(map, lookupRecorder.getLookups());
@@ -176,8 +176,8 @@ public class CheckTest {
 
 		map.put("name", "fred");
 
-		lookup.get("threshold");
-		lookup.get("name");
+		lookup.get(null, "threshold");
+		lookup.get(null, "name");
 
 		// check if recorded
 		Assert.assertEquals(map, lookupRecorder.getLookups());

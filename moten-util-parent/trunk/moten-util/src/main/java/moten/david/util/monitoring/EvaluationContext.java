@@ -107,8 +107,8 @@ public class EvaluationContext {
 	private Lookup createNestedLookup(final LookupType type) {
 		return new Lookup() {
 			@Override
-			public String get(String key) {
-				return lookups.get(type).get(key);
+			public String get(String context, String key) {
+				return lookups.get(type).get(context, key);
 			}
 		};
 	}
@@ -151,7 +151,7 @@ public class EvaluationContext {
 		return new Date(new Provider<Calendar>() {
 			@Override
 			public Calendar get() {
-				String value = lookups.get(type).get(key);
+				String value = lookups.get(type).get(null, key);
 				long millis = Long.parseLong(value);
 				Calendar calendar = new GregorianCalendar(TimeZone
 						.getTimeZone("GMT"));
