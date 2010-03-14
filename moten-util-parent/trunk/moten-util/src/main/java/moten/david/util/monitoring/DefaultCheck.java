@@ -6,7 +6,6 @@ import java.util.Set;
 import moten.david.util.expression.BooleanExpression;
 import moten.david.util.expression.ExpressionPresenter;
 import moten.david.util.monitoring.lookup.LookupParameters;
-import moten.david.util.monitoring.test.Level;
 
 public class DefaultCheck implements Check, HasPolicies {
 	private final String name;
