@@ -37,6 +37,11 @@ import com.google.inject.name.Named;
 public class EvaluationContext {
 
 	private final LookupType lookupTypeDefault;
+
+	public LookupType getLookupTypeDefault() {
+		return lookupTypeDefault;
+	}
+
 	private final Lookups lookups;
 	private LookupParameters parameters;
 
@@ -124,11 +129,21 @@ public class EvaluationContext {
 		};
 	}
 
-	public NumericExpression num(String name, LookupType type) {
+	private Provider<String> createContextProvider() {
+		return new Provider<String>() {
+
+			@Override
+			public String get() {
+				return parameters.get(lookupTypeDefault);
+			}
+		};
+	}
+
+	public NumericExpression num(String key, LookupType type) {
 		// use a nested lookup because lookups may not have been specified till
 		// evaluate is called on the numeric expression returned by this method
 		return new Numeric(new SingleKeyLookup<BigDecimal>(BigDecimal.class,
-				name, createNestedLookup(type), type));
+				createContextProvider(), key, createNestedLookup(type), type));
 	}
 
 	public NumericExpression num(long value) {
@@ -179,8 +194,8 @@ public class EvaluationContext {
 	public BooleanExpression isNull(String name, LookupType type) {
 		// use a nested lookup because lookups may not have been specified till
 		// evaluate is called on the numeric expression returned by this method
-		return new IsNull(new SingleKeyLookup<String>(String.class, name,
-				createNestedLookup(type), type));
+		return new IsNull(new SingleKeyLookup<String>(String.class,
+				createContextProvider(), name, createNestedLookup(type), type));
 	}
 
 	public BooleanExpression isTrue(String name) {
@@ -190,8 +205,8 @@ public class EvaluationContext {
 	public BooleanExpression isTrue(String name, LookupType type) {
 		// use a nested lookup because lookups may not have been specified till
 		// evaluate is called on the numeric expression returned by this method
-		return new Bool(new SingleKeyLookup<Boolean>(Boolean.class, name,
-				createNestedLookup(type), type));
+		return new Bool(new SingleKeyLookup<Boolean>(Boolean.class,
+				createContextProvider(), name, createNestedLookup(type), type));
 	}
 
 }

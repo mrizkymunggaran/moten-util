@@ -20,14 +20,16 @@ public class SingleKeyLookup<T> implements Provider<T> {
 	private final Class<T> cls;
 	private final Lookup lookup;
 	private final LookupType lookupType;
+	private final Provider<String> contextProvider;
 
 	public LookupType getLookupType() {
 		return lookupType;
 	}
 
-	public SingleKeyLookup(Class<T> cls, String key, Lookup lookup,
-			LookupType lookupType) {
+	public SingleKeyLookup(Class<T> cls, Provider<String> contextProvider,
+			String key, Lookup lookup, LookupType lookupType) {
 		this.cls = cls;
+		this.contextProvider = contextProvider;
 		this.key = key;
 		this.lookup = lookup;
 		this.lookupType = lookupType;
@@ -45,7 +47,7 @@ public class SingleKeyLookup<T> implements Provider<T> {
 		if (lookup == null)
 			throw new RuntimeException("map has not been set");
 		try {
-			String value = lookup.get(null, key);
+			String value = lookup.get(contextProvider.get(), key);
 			if (value == null)
 				return null;
 			else

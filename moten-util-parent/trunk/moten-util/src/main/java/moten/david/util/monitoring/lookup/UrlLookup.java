@@ -19,7 +19,9 @@ public class UrlLookup implements Lookup {
 	@Override
 	public String get(String context, String key) {
 		try {
-			Properties props = provider.getProperties(new URL(context));
+			System.out.println("getting " + context + "," + key);
+			URL url = new URL(context);
+			Properties props = provider.getProperties(url);
 			return props.getProperty(key);
 		} catch (MalformedURLException e) {
 			throw new RuntimeException(e);

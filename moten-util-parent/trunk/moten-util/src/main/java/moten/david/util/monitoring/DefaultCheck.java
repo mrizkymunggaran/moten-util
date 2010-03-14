@@ -6,6 +6,7 @@ import java.util.Set;
 import moten.david.util.expression.BooleanExpression;
 import moten.david.util.expression.ExpressionPresenter;
 import moten.david.util.monitoring.lookup.LookupParameters;
+import moten.david.util.monitoring.test.Level;
 
 public class DefaultCheck implements Check, HasPolicies {
 	private final String name;
@@ -47,6 +48,15 @@ public class DefaultCheck implements Check, HasPolicies {
 		this.failureLevel = failureLevel;
 		this.dependencies = dependencies;
 		this.failurePolicies = failurePolicies;
+	}
+
+	public DefaultCheck(String name, String description,
+			BooleanExpression expression, EvaluationContext context,
+			String url, Level failureLevel, Set<Dependency> dependencies,
+			Set<Policy> failurePolicies) {
+		this(name, description, expression, context, new LookupParameters(
+				context.getLookupTypeDefault(), url), failureLevel,
+				dependencies, failurePolicies);
 	}
 
 	@Override

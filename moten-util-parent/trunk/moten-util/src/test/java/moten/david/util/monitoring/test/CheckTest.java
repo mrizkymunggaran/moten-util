@@ -2,23 +2,22 @@ package moten.david.util.monitoring.test;
 
 import java.util.Map;
 
-import moten.david.util.expression.Bool;
 import moten.david.util.monitoring.Check;
 import moten.david.util.monitoring.CheckResult;
 import moten.david.util.monitoring.Checker;
 import moten.david.util.monitoring.DefaultCheck;
 import moten.david.util.monitoring.EvaluationContext;
-import moten.david.util.monitoring.lookup.LookupParameters;
 import moten.david.util.monitoring.lookup.Lookups;
 import moten.david.util.monitoring.lookup.UrlLookup;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 
-public class CheckGroupTest2 {
+public class CheckTest {
 
 	@Inject
 	private UrlLookup urlLookup;
@@ -40,16 +39,17 @@ public class CheckGroupTest2 {
 		EvaluationContext context = new EvaluationContext(
 				MyLookupType.APPLICATION, lookups);
 
-		LookupParameters parameters = new LookupParameters(
-				MyLookupType.APPLICATION, "classpath://boo");
-
-		DefaultCheck check = new DefaultCheck("test url lookup",
-				"does a test using a url properties lookup", new Bool(true),
-				context, parameters, Level.SEVERE, null, null);
+		DefaultCheck check1 = new DefaultCheck("test url lookup",
+				"does a test using a url properties lookup", context
+						.isTrue("enabled"), context, getClass().getResource(
+						"/test1.properties").toString(), Level.SEVERE, null,
+				null);
 
 		Checker checker = new Checker(Level.OK, Level.UNKNOWN, Level.EXCEPTION,
-				check);
+				check1);
 
 		Map<Check, CheckResult> results = checker.check();
+
+		Assert.assertEquals(Level.OK, results.get(check1).getLevel());
 	}
 }
