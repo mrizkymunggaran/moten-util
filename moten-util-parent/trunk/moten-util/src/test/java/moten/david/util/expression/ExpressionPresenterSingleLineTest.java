@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import moten.david.util.monitoring.EvaluationContext;
-import moten.david.util.monitoring.MonitoringLookups;
+import moten.david.util.monitoring.lookup.Lookups;
 import moten.david.util.monitoring.lookup.MapLookup;
 import moten.david.util.monitoring.test.InjectorModule;
 
@@ -31,7 +31,7 @@ public class ExpressionPresenterSingleLineTest {
 		conf.put("minimumValue", "23");
 		conf.put("enabled", "false");
 
-		MonitoringLookups lookups = e.getLookups();
+		Lookups lookups = e.getLookups();
 		lookups.put(CONFIGURATION, new MapLookup(conf));
 		lookups.put(APPLICATION, new MapLookup(map));
 

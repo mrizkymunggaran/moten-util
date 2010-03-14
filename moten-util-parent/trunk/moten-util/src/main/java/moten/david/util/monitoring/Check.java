@@ -1,11 +1,9 @@
 package moten.david.util.monitoring;
 
-import java.util.Map;
 import java.util.Set;
 
 import moten.david.util.expression.BooleanExpression;
-import moten.david.util.monitoring.lookup.Lookup;
-import moten.david.util.monitoring.lookup.LookupType;
+import moten.david.util.monitoring.lookup.LookupParameters;
 
 /**
  * An item whose status is to be checked
@@ -14,39 +12,46 @@ import moten.david.util.monitoring.lookup.LookupType;
  * 
  */
 public interface Check {
-    /**
-     * Briefly describes the check
-     * 
-     * @return
-     */
-    String getName();
+	/**
+	 * Briefly describes the check
+	 * 
+	 * @return
+	 */
+	String getName();
 
-    /**
-     * return true if check passes
-     * 
-     * @return
-     */
-    BooleanExpression getExpression();
+	/**
+	 * return true if check passes
+	 * 
+	 * @return
+	 */
+	BooleanExpression getExpression();
 
-    /**
-     * returns the failure level if check fails
-     * 
-     * @return
-     */
-    Level getFailureLevel();
+	/**
+	 * returns the failure level if check fails
+	 * 
+	 * @return
+	 */
+	Level getFailureLevel();
 
-    /**
-     * This check returns unknown if any dependency does not return OK
-     * 
-     * @return
-     */
-    Set<Dependency> getDependencies();
+	/**
+	 * This check returns unknown if any dependency does not return OK
+	 * 
+	 * @return
+	 */
+	Set<Dependency> getDependencies();
 
-    /**
-     * Provides lookup for the check
-     * 
-     * @return
-     */
-    Map<LookupType, Lookup> getLookups();
+	/**
+	 * Returns the evaluation context for the check.
+	 * 
+	 * @return
+	 */
+	EvaluationContext getEvaluationContext();
+
+	/**
+	 * Provides parameter for each lookup.
+	 * 
+	 * @return
+	 */
+	LookupParameters getParameters();
 
 }

@@ -25,7 +25,9 @@ import moten.david.util.expression.Or;
 import moten.david.util.expression.Plus;
 import moten.david.util.expression.Times;
 import moten.david.util.monitoring.lookup.Lookup;
+import moten.david.util.monitoring.lookup.LookupParameters;
 import moten.david.util.monitoring.lookup.LookupType;
+import moten.david.util.monitoring.lookup.Lookups;
 import moten.david.util.monitoring.lookup.SingleKeyLookup;
 
 import com.google.inject.Inject;
@@ -35,17 +37,26 @@ import com.google.inject.name.Named;
 public class EvaluationContext {
 
 	private final LookupType lookupTypeDefault;
-	private final MonitoringLookups lookups;
+	private final Lookups lookups;
+	private LookupParameters parameters;
 
 	@Inject
 	public EvaluationContext(@Named("default") LookupType lookupTypeDefault,
-			MonitoringLookups lookups) {
+			Lookups lookups) {
 		this.lookupTypeDefault = lookupTypeDefault;
 		this.lookups = lookups;
 	}
 
-	public MonitoringLookups getLookups() {
+	public Lookups getLookups() {
 		return lookups;
+	}
+
+	public LookupParameters getParameters() {
+		return parameters;
+	}
+
+	public void setParameters(LookupParameters parameters) {
+		this.parameters = parameters;
 	}
 
 	public BooleanExpression and(BooleanExpression a, BooleanExpression b) {
@@ -151,7 +162,7 @@ public class EvaluationContext {
 		return new Date(new Provider<Calendar>() {
 			@Override
 			public Calendar get() {
-				String value = lookups.get(type).get(null, key);
+				String value = lookups.get(type).get(parameters.get(type), key);
 				long millis = Long.parseLong(value);
 				Calendar calendar = new GregorianCalendar(TimeZone
 						.getTimeZone("GMT"));
