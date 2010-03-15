@@ -45,11 +45,25 @@ public class CheckTest {
 						"/test1.properties").toString(), Level.SEVERE, null,
 				null);
 
+		DefaultCheck check2 = new DefaultCheck("test url lookup 2",
+				"does a test using a url properties lookup", context.gte(
+						context.num("num.years"), context.num(20)), context,
+				getClass().getResource("/test1.properties").toString(),
+				Level.SEVERE, null, null);
+
+		DefaultCheck check3 = new DefaultCheck("test url lookup 3",
+				"does a test using a url properties lookup", context.gte(
+						context.num("num.years"), context.num(40)), context,
+				getClass().getResource("/test1.properties").toString(),
+				Level.WARNING, null, null);
+
 		Checker checker = new Checker(Level.OK, Level.UNKNOWN, Level.EXCEPTION,
-				check1);
+				check1, check2, check3);
 
 		Map<Check, CheckResult> results = checker.check();
 
 		Assert.assertEquals(Level.OK, results.get(check1).getLevel());
+		Assert.assertEquals(Level.OK, results.get(check2).getLevel());
+		Assert.assertEquals(Level.WARNING, results.get(check3).getLevel());
 	}
 }
