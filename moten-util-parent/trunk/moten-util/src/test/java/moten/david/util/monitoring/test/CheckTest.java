@@ -64,7 +64,7 @@ public class CheckTest {
 		int port = s.getLocalPort();
 		s.close();
 
-		System.out.println(port);
+		System.out.println("unused port " + port);
 
 		DefaultCheck check4 = new DefaultCheck("localhost socket", "", context
 				.socketAvailable("localhost", port), context, (String) null,
