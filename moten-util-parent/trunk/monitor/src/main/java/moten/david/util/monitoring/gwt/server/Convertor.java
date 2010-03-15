@@ -1,4 +1,4 @@
-package moten.david.util.monitoring.gwt.server.dummy;
+package moten.david.util.monitoring.gwt.server;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -44,7 +44,7 @@ public class Convertor {
             AppCheck appCheck = createAppCheck(check, results);
             appChecks.add(appCheck);
         }
-        all.setChecks(checks.toArray(new AppCheck[] {}));
+        all.setChecks(appChecks.toArray(new AppCheck[] {}));
 
         List<AppCheckResult> appCheckResults = new ArrayList<AppCheckResult>();
 
@@ -67,9 +67,13 @@ public class Convertor {
     }
 
     private String toString(Throwable t) {
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        t.printStackTrace(new PrintStream(bytes));
-        return bytes.toString();
+        if (t == null)
+            return null;
+        else {
+            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+            t.printStackTrace(new PrintStream(bytes));
+            return bytes.toString();
+        }
     }
 
     private AppCheck createAppCheck(Check check, Map<Check, CheckResult> results) {

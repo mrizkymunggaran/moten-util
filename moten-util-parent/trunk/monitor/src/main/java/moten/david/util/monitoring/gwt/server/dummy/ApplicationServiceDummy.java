@@ -8,6 +8,7 @@ import moten.david.util.monitoring.CheckResult;
 import moten.david.util.monitoring.Checker;
 import moten.david.util.monitoring.gwt.client.ApplicationService;
 import moten.david.util.monitoring.gwt.client.check.AppChecks;
+import moten.david.util.monitoring.gwt.server.Convertor;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
