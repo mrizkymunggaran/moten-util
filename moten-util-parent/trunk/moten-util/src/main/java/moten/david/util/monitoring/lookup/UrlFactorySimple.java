@@ -3,7 +3,7 @@ package moten.david.util.monitoring.lookup;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-public class UrlFactoryDefault implements UrlFactory{
+public class UrlFactorySimple implements UrlFactory{
 
 	@Override
 	public URL create(String path) {

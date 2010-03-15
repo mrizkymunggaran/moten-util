@@ -11,7 +11,7 @@ import moten.david.util.monitoring.lookup.Lookup;
 import moten.david.util.monitoring.lookup.LookupType;
 import moten.david.util.monitoring.lookup.LookupTypeDefault;
 import moten.david.util.monitoring.lookup.UrlFactory;
-import moten.david.util.monitoring.lookup.UrlFactoryDefault;
+import moten.david.util.monitoring.lookup.UrlFactorySimple;
 import moten.david.util.monitoring.lookup.UrlLookup;
 
 import com.google.inject.AbstractModule;
@@ -23,7 +23,7 @@ public class InjectorModule extends AbstractModule {
 	@Override
 	protected void configure() {
 		Util.bindDefaults(this.binder());
-		bind(UrlFactory.class).to(UrlFactoryDefault.class).in(
+		bind(UrlFactory.class).to(UrlFactorySimple.class).in(
 				Scopes.SINGLETON);
 		bind(LookupType.class).annotatedWith(Names.named("default"))
 				.toInstance(LookupTypeDefault.APPLICATION);

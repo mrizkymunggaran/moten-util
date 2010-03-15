@@ -1,6 +1,7 @@
 package moten.david.util.monitoring.gwt.server.dummy;
 
 import java.util.Map;
+import java.util.logging.Logger;
 
 import moten.david.util.monitoring.Check;
 import moten.david.util.monitoring.CheckResult;
@@ -12,30 +13,35 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 
 public class ApplicationServiceDummy implements ApplicationService {
-	private final Provider<Checker> checkerProvider;
-	private final Convertor convertor;
 
-	@Inject
-	public ApplicationServiceDummy(Provider<Checker> checkerProvider,Convertor convertor) {
-		this.checkerProvider = checkerProvider;
-		this.convertor = convertor;
-		
-	}
-	@Override
-	public String getApplicationName() {
-		return "application";
-	}
+    private static Logger log = Logger.getLogger(ApplicationServiceDummy.class
+            .getName());
+    private final Provider<Checker> checkerProvider;
+    private final Convertor convertor;
 
-	@Override
-	public void check() {
+    @Inject
+    public ApplicationServiceDummy(Provider<Checker> checkerProvider,
+            Convertor convertor) {
+        this.checkerProvider = checkerProvider;
+        this.convertor = convertor;
 
-	}
+    }
 
-	@Override
-	public AppChecks getResults() {
-		Checker checker = checkerProvider.get();
-		Map<Check, CheckResult> results = checker.check();
-		return convertor.getAppChecks(results);
-	}
+    @Override
+    public String getApplicationName() {
+        return "application";
+    }
+
+    @Override
+    public void check() {
+
+    }
+
+    @Override
+    public AppChecks getResults() {
+        Checker checker = checkerProvider.get();
+        Map<Check, CheckResult> results = checker.check();
+        return convertor.createAppChecks(checker.getChecks(), results);
+    }
 
 }

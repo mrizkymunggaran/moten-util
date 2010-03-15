@@ -1,5 +1,6 @@
 package moten.david.util.monitoring.gwt.server;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import moten.david.util.monitoring.gwt.client.ApplicationService;
@@ -52,7 +53,12 @@ public class ApplicationServiceImpl extends RemoteServiceServlet implements
 
     @Override
     public AppChecks getResults() {
-        return service.getResults();
+        try {
+            return service.getResults();
+        } catch (RuntimeException e) {
+            log.log(Level.SEVERE, e.getMessage(), e);
+            throw e;
+        }
     }
 
 }

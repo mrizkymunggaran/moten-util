@@ -6,38 +6,55 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 
-public class UrlAvailable implements BooleanExpression {
+import moten.david.util.guice.ConstantProvider;
 
-	private final String urlString;
-	private final long timeoutMs;
+import com.google.inject.Provider;
 
-	public UrlAvailable(String urlString, long timeoutMs) {
-		this.urlString = urlString;
-		this.timeoutMs = timeoutMs;
-	}
+public class UrlAvailable implements BooleanExpression, Provided<String> {
 
-	public UrlAvailable(String urlString) {
-		this(urlString, 500);
-	}
+    private final Provider<String> urlProvider;
+    private final Provider<Long> timeoutMsProvider;
 
-	@Override
-	public boolean evaluate() {
-		try {
-			if (urlString == null)
-				return false;
-			URL url = new URL(urlString);
-			URLConnection connection = url.openConnection();
-			connection.setConnectTimeout((int) timeoutMs);
-			if (connection instanceof HttpURLConnection) {
-				return ((HttpURLConnection) connection).getResponseCode() != HttpURLConnection.HTTP_ACCEPTED;
-			} else
-				return connection.getContentLength() > 0;
-		} catch (MalformedURLException e) {
-			throw new RuntimeException(e);
-		} catch (IOException e) {
-			return false;
-		}
+    public UrlAvailable(Provider<String> provider,
+            Provider<Long> timeoutMsProvider) {
+        this.urlProvider = provider;
+        this.timeoutMsProvider = timeoutMsProvider;
+    }
 
-	}
+    public UrlAvailable(String urlString, long timeoutMs) {
+        this(new ConstantProvider<String>(urlString),
+                new ConstantProvider<Long>(timeoutMs));
+    }
+
+    public UrlAvailable(String urlString) {
+        this(urlString, 500);
+    }
+
+    @Override
+    public boolean evaluate() {
+        try {
+            String urlString = urlProvider.get();
+            if (urlString == null)
+                throw new RuntimeException("url is null");
+            URL url = new URL(urlString);
+            URLConnection connection = url.openConnection();
+            long timeoutMs = timeoutMsProvider.get();
+            connection.setConnectTimeout((int) timeoutMs);
+            if (connection instanceof HttpURLConnection) {
+                return ((HttpURLConnection) connection).getResponseCode() != HttpURLConnection.HTTP_ACCEPTED;
+            } else
+                return connection.getContentLength() > 0;
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            return false;
+        }
+
+    }
+
+    @Override
+    public Provider<String> getProvider() {
+        return urlProvider;
+    }
 
 }
