@@ -51,10 +51,10 @@ public class DefaultCheck implements Check, HasPolicies {
 
 	public DefaultCheck(String name, String description,
 			BooleanExpression expression, EvaluationContext context,
-			String url, Level failureLevel, Set<Dependency> dependencies,
-			Set<Policy> failurePolicies) {
+			String defaultContext, Level failureLevel,
+			Set<Dependency> dependencies, Set<Policy> failurePolicies) {
 		this(name, description, expression, context, new LookupParameters(
-				context.getLookupTypeDefault(), url), failureLevel,
+				context.getLookupTypeDefault(), defaultContext), failureLevel,
 				dependencies, failurePolicies);
 	}
 
@@ -119,5 +119,9 @@ public class DefaultCheck implements Check, HasPolicies {
 	@Override
 	public EvaluationContext getEvaluationContext() {
 		return evaluationContext;
+	}
+
+	public String getDescription() {
+		return description;
 	}
 }

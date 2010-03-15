@@ -1,5 +1,7 @@
 package moten.david.util.monitoring.test;
 
+import java.io.IOException;
+import java.net.ServerSocket;
 import java.util.Map;
 
 import moten.david.util.monitoring.Check;
@@ -30,7 +32,7 @@ public class CheckTest {
 	}
 
 	@Test
-	public void test() {
+	public void test() throws IOException {
 
 		Lookups lookups = new Lookups();
 		lookups.put(MyLookupType.APPLICATION, urlLookup);
@@ -57,13 +59,31 @@ public class CheckTest {
 				getClass().getResource("/test1.properties").toString(),
 				Level.WARNING, null, null);
 
+		// find a free server socket
+		ServerSocket s = new ServerSocket(0);
+		int port = s.getLocalPort();
+		s.close();
+
+		System.out.println(port);
+
+		DefaultCheck check4 = new DefaultCheck("localhost socket", "", context
+				.socketAvailable("localhost", port), context, (String) null,
+				Level.SEVERE, null, null);
+
+		DefaultCheck check5 = new DefaultCheck("google search is available",
+				"", context.urlAvailable("http://localhost:" + port), context,
+				(String) null, Level.WARNING, null, null);
+
 		Checker checker = new Checker(Level.OK, Level.UNKNOWN, Level.EXCEPTION,
-				check1, check2, check3);
+				check1, check2, check3, check4, check5);
 
 		Map<Check, CheckResult> results = checker.check();
 
 		Assert.assertEquals(Level.OK, results.get(check1).getLevel());
 		Assert.assertEquals(Level.OK, results.get(check2).getLevel());
 		Assert.assertEquals(Level.WARNING, results.get(check3).getLevel());
+		Assert.assertEquals(Level.SEVERE, results.get(check4).getLevel());
+		Assert.assertEquals(Level.WARNING, results.get(check5).getLevel());
+
 	}
 }

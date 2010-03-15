@@ -23,7 +23,9 @@ import moten.david.util.expression.Numeric;
 import moten.david.util.expression.NumericExpression;
 import moten.david.util.expression.Or;
 import moten.david.util.expression.Plus;
+import moten.david.util.expression.SocketAvailable;
 import moten.david.util.expression.Times;
+import moten.david.util.expression.UrlAvailable;
 import moten.david.util.monitoring.lookup.Lookup;
 import moten.david.util.monitoring.lookup.LookupParameters;
 import moten.david.util.monitoring.lookup.LookupType;
@@ -207,6 +209,18 @@ public class EvaluationContext {
 		// evaluate is called on the numeric expression returned by this method
 		return new Bool(new SingleKeyLookup<Boolean>(Boolean.class,
 				createContextProvider(), name, createNestedLookup(type), type));
+	}
+
+	public BooleanExpression urlAvailable(String url) {
+		return new UrlAvailable(url);
+	}
+
+	public BooleanExpression socketAvailable(String host, int port, long timeout) {
+		return new SocketAvailable(host, port, timeout);
+	}
+
+	public BooleanExpression socketAvailable(String host, int port) {
+		return new SocketAvailable(host, port);
 	}
 
 }

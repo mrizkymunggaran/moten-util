@@ -4,8 +4,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 public class Checker {
+
+	private static Logger log = Logger.getLogger(Checker.class.getName());
 
 	private final List<Check> checks;
 	private final Level unknown;
@@ -49,6 +52,7 @@ public class Checker {
 			if (!depsOk)
 				map.put(check, new CheckResult(unknown));
 			else {
+				log.info("checking " + check.getName());
 				check.getEvaluationContext().setParameters(
 						check.getParameters());
 				try {
