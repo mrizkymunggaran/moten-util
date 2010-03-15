@@ -1,45 +1,38 @@
-package moten.david.util.monitoring.test;
+package moten.david.util.monitoring.gwt.server.dummy;
 
 import java.io.IOException;
 import java.net.ServerSocket;
-import java.util.Map;
+import java.util.ArrayList;
 
 import moten.david.util.monitoring.Check;
-import moten.david.util.monitoring.CheckResult;
-import moten.david.util.monitoring.Checker;
 import moten.david.util.monitoring.DefaultCheck;
 import moten.david.util.monitoring.EvaluationContext;
 import moten.david.util.monitoring.lookup.LevelDefault;
+import moten.david.util.monitoring.lookup.Lookup;
 import moten.david.util.monitoring.lookup.LookupTypeDefault;
 import moten.david.util.monitoring.lookup.Lookups;
-import moten.david.util.monitoring.lookup.UrlLookup;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
-import com.google.inject.Guice;
 import com.google.inject.Inject;
+import com.google.inject.name.Named;
 
-public class CheckTest {
+public class MyChecks extends ArrayList<Check>{
+	
+	private static final long serialVersionUID = -4842629078057680014L;
+	private final Lookup applicationLookup;
+	private final Lookup configurationLookup;
 
 	@Inject
-	private UrlLookup urlLookup;
-	@Inject
-	private ConfigurationLookup configurationLookup;
-
-	@Before
-	public void init() {
-		Guice.createInjector(new InjectorModule()).injectMembers(this);
+	public MyChecks(@Named("application") Lookup applicationLookup,@Named("configuration") Lookup configurationLookup) {
+		this.applicationLookup = applicationLookup;
+		this.configurationLookup = configurationLookup;
+		setup();
 	}
-
-	@Test
-	public void test() throws IOException {
-
+	
+	public void setup() {
 		Lookups lookups = new Lookups();
-		lookups.put(LookupTypeDefault.APPLICATION, urlLookup);
+		lookups.put(LookupTypeDefault.APPLICATION, applicationLookup);
 		lookups.put(LookupTypeDefault.CONFIGURATION, configurationLookup);
-
+		
 		EvaluationContext context = new EvaluationContext(
 				LookupTypeDefault.APPLICATION, lookups);
 
@@ -48,6 +41,8 @@ public class CheckTest {
 						.isTrue("enabled"), context, getClass().getResource(
 						"/test1.properties").toString(), LevelDefault.SEVERE, null,
 				null);
+		
+		add(check1);
 
 		DefaultCheck check2 = new DefaultCheck("test url lookup 2",
 				"does a test using a url properties lookup", context.gte(
@@ -55,16 +50,26 @@ public class CheckTest {
 				getClass().getResource("/test1.properties").toString(),
 				LevelDefault.SEVERE, null, null);
 
+		add(check2);
+		
 		DefaultCheck check3 = new DefaultCheck("test url lookup 3",
 				"does a test using a url properties lookup", context.gte(
 						context.num("num.years"), context.num(40)), context,
 				getClass().getResource("/test1.properties").toString(),
 				LevelDefault.WARNING, null, null);
 
+		add(check3);
+		
+		int port;
 		// find a free server socket
-		ServerSocket s = new ServerSocket(0);
-		int port = s.getLocalPort();
-		s.close();
+		try {
+			ServerSocket s;
+			s = new ServerSocket(0);
+			port = s.getLocalPort();
+			s.close();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 
 		System.out.println("unused port " + port);
 
@@ -72,20 +77,14 @@ public class CheckTest {
 				.socketAvailable("localhost", port), context, (String) null,
 				LevelDefault.SEVERE, null, null);
 
+		add(check4);
+		
 		DefaultCheck check5 = new DefaultCheck("google search is available",
 				"", context.urlAvailable("http://localhost:" + port), context,
 				(String) null, LevelDefault.WARNING, null, null);
 
-		Checker checker = new Checker(LevelDefault.OK, LevelDefault.UNKNOWN, LevelDefault.EXCEPTION,
-				check1, check2, check3, check4, check5);
-
-		Map<Check, CheckResult> results = checker.check();
-
-		Assert.assertEquals(LevelDefault.OK, results.get(check1).getLevel());
-		Assert.assertEquals(LevelDefault.OK, results.get(check2).getLevel());
-		Assert.assertEquals(LevelDefault.WARNING, results.get(check3).getLevel());
-		Assert.assertEquals(LevelDefault.SEVERE, results.get(check4).getLevel());
-		Assert.assertEquals(LevelDefault.WARNING, results.get(check5).getLevel());
-
+		add(check5);
+		
 	}
+
 }

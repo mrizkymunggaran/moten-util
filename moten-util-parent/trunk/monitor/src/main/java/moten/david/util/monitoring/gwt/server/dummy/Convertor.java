@@ -1,4 +1,4 @@
-package moten.david.util.monitoring.gwt.server;
+package moten.david.util.monitoring.gwt.server.dummy;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -53,7 +53,7 @@ public class Convertor{
 		}
 		return a;
 	}
-
+	
 	private List<String> createPolicies(Set<Policy> policies) {
 		ArrayList<String> list = new ArrayList<String>();
 		for (Policy policy:policies)

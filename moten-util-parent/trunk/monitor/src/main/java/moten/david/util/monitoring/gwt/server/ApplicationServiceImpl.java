@@ -4,6 +4,7 @@ import java.util.logging.Logger;
 
 import moten.david.util.monitoring.gwt.client.ApplicationService;
 import moten.david.util.monitoring.gwt.client.check.AppChecks;
+import moten.david.util.monitoring.gwt.server.dummy.ApplicationServiceDummyProvider;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 

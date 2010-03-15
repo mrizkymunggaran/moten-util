@@ -12,10 +12,6 @@ public class CachingUrlPropertiesProvider {
 
 	private final Map<URL, Properties> map = new ConcurrentHashMap<URL, Properties>();
 
-	public void reset() {
-		map.clear();
-	}
-
 	public Provider<Properties> getPropertiesProvider(
 			final UrlFactory urlFactory, final String path) {
 		return new Provider<Properties>() {

@@ -1,8 +1,7 @@
-package moten.david.util.monitoring.test;
+package moten.david.util.monitoring.lookup;
 
 import java.net.URL;
 
-import moten.david.util.monitoring.lookup.UrlFactory;
 
 /**
  * Given a path returns a Url from the classpath
