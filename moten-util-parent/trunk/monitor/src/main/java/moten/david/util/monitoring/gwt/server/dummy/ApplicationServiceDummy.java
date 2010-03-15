@@ -8,12 +8,14 @@ import moten.david.util.monitoring.Checker;
 import moten.david.util.monitoring.gwt.client.ApplicationService;
 import moten.david.util.monitoring.gwt.client.check.AppChecks;
 
+import com.google.inject.Inject;
 import com.google.inject.Provider;
 
 public class ApplicationServiceDummy implements ApplicationService {
 	private final Provider<Checker> checkerProvider;
 	private final Convertor convertor;
 
+	@Inject
 	public ApplicationServiceDummy(Provider<Checker> checkerProvider,Convertor convertor) {
 		this.checkerProvider = checkerProvider;
 		this.convertor = convertor;
