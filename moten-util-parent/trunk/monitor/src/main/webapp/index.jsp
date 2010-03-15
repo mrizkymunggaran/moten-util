@@ -8,7 +8,7 @@
 
 <html>
   <head>
-    <link rel="icon" type="image/png" href="images/lizard2.png">
+    <link rel="SHORTCUT ICON" type="image/png" href="images/lizard2.png">
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 
     <!--                                                               -->
