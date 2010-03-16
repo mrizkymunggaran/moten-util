@@ -9,8 +9,8 @@ import moten.david.util.monitoring.CheckResult;
 import moten.david.util.monitoring.Checker;
 import moten.david.util.monitoring.DefaultCheck;
 import moten.david.util.monitoring.EvaluationContext;
-import moten.david.util.monitoring.lookup.LevelDefault;
-import moten.david.util.monitoring.lookup.LookupTypeDefault;
+import moten.david.util.monitoring.lookup.DefaultLevel;
+import moten.david.util.monitoring.lookup.DefaultLookupType;
 import moten.david.util.monitoring.lookup.Lookups;
 import moten.david.util.monitoring.lookup.UrlLookup;
 
@@ -37,29 +37,29 @@ public class CheckTest {
 	public void test() throws IOException {
 
 		Lookups lookups = new Lookups();
-		lookups.put(LookupTypeDefault.APPLICATION, urlLookup);
-		lookups.put(LookupTypeDefault.CONFIGURATION, configurationLookup);
+		lookups.put(DefaultLookupType.APPLICATION, urlLookup);
+		lookups.put(DefaultLookupType.CONFIGURATION, configurationLookup);
 
 		EvaluationContext context = new EvaluationContext(
-				LookupTypeDefault.APPLICATION, lookups);
+				DefaultLookupType.APPLICATION, lookups);
 
 		DefaultCheck check1 = new DefaultCheck("test url lookup",
 				"does a test using a url properties lookup", context
 						.isTrue("enabled"), context, getClass().getResource(
-						"/test1.properties").toString(), LevelDefault.SEVERE, null,
+						"/test1.properties").toString(), DefaultLevel.SEVERE, null,
 				null);
 
 		DefaultCheck check2 = new DefaultCheck("test url lookup 2",
 				"does a test using a url properties lookup", context.gte(
 						context.num("num.years"), context.num(20)), context,
 				getClass().getResource("/test1.properties").toString(),
-				LevelDefault.SEVERE, null, null);
+				DefaultLevel.SEVERE, null, null);
 
 		DefaultCheck check3 = new DefaultCheck("test url lookup 3",
 				"does a test using a url properties lookup", context.gte(
 						context.num("num.years"), context.num(40)), context,
 				getClass().getResource("/test1.properties").toString(),
-				LevelDefault.WARNING, null, null);
+				DefaultLevel.WARNING, null, null);
 
 		// find a free server socket
 		ServerSocket s = new ServerSocket(0);
@@ -70,22 +70,22 @@ public class CheckTest {
 
 		DefaultCheck check4 = new DefaultCheck("localhost socket", "", context
 				.socketAvailable("localhost", port), context, (String) null,
-				LevelDefault.SEVERE, null, null);
+				DefaultLevel.SEVERE, null, null);
 
 		DefaultCheck check5 = new DefaultCheck("google search is available",
 				"", context.urlAvailable("http://localhost:" + port), context,
-				(String) null, LevelDefault.WARNING, null, null);
+				(String) null, DefaultLevel.WARNING, null, null);
 
-		Checker checker = new Checker(LevelDefault.OK, LevelDefault.UNKNOWN, LevelDefault.EXCEPTION,
+		Checker checker = new Checker(DefaultLevel.OK, DefaultLevel.UNKNOWN, DefaultLevel.EXCEPTION,
 				check1, check2, check3, check4, check5);
 
 		Map<Check, CheckResult> results = checker.check();
 
-		Assert.assertEquals(LevelDefault.OK, results.get(check1).getLevel());
-		Assert.assertEquals(LevelDefault.OK, results.get(check2).getLevel());
-		Assert.assertEquals(LevelDefault.WARNING, results.get(check3).getLevel());
-		Assert.assertEquals(LevelDefault.SEVERE, results.get(check4).getLevel());
-		Assert.assertEquals(LevelDefault.WARNING, results.get(check5).getLevel());
+		Assert.assertEquals(DefaultLevel.OK, results.get(check1).getLevel());
+		Assert.assertEquals(DefaultLevel.OK, results.get(check2).getLevel());
+		Assert.assertEquals(DefaultLevel.WARNING, results.get(check3).getLevel());
+		Assert.assertEquals(DefaultLevel.SEVERE, results.get(check4).getLevel());
+		Assert.assertEquals(DefaultLevel.WARNING, results.get(check5).getLevel());
 
 	}
 }

@@ -1,7 +1,7 @@
 package moten.david.util.monitoring.lookup;
 
 
-public enum LookupTypeDefault implements LookupType {
+public enum DefaultLookupType implements LookupType {
 	/**
 	 * Lookup for the application being monitored
 	 */

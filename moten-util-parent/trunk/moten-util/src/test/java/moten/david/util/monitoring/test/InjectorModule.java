@@ -6,7 +6,7 @@ import moten.david.util.monitoring.EvaluationContext;
 import moten.david.util.monitoring.Util;
 import moten.david.util.monitoring.lookup.CachingUrlPropertiesProvider;
 import moten.david.util.monitoring.lookup.LookupType;
-import moten.david.util.monitoring.lookup.LookupTypeDefault;
+import moten.david.util.monitoring.lookup.DefaultLookupType;
 import moten.david.util.monitoring.lookup.UrlFactory;
 import moten.david.util.monitoring.lookup.UrlFactoryClasspath;
 
@@ -22,7 +22,7 @@ public class InjectorModule extends AbstractModule {
 		bind(UrlFactory.class).to(UrlFactoryClasspath.class).in(
 				Scopes.SINGLETON);
 		bind(LookupType.class).annotatedWith(Names.named("default"))
-				.toInstance(LookupTypeDefault.APPLICATION);
+				.toInstance(DefaultLookupType.APPLICATION);
 		bind(CachingUrlPropertiesProvider.class);// should not be singleton!
 		bind(ExpressionPresenter.class).to(ExpressionPresenterSingleLine.class)
 				.in(Scopes.SINGLETON);

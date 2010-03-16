@@ -7,9 +7,9 @@ import java.util.ArrayList;
 import moten.david.util.monitoring.Check;
 import moten.david.util.monitoring.DefaultCheck;
 import moten.david.util.monitoring.EvaluationContext;
-import moten.david.util.monitoring.lookup.LevelDefault;
+import moten.david.util.monitoring.lookup.DefaultLevel;
 import moten.david.util.monitoring.lookup.Lookup;
-import moten.david.util.monitoring.lookup.LookupTypeDefault;
+import moten.david.util.monitoring.lookup.DefaultLookupType;
 import moten.david.util.monitoring.lookup.Lookups;
 
 import com.google.inject.Inject;
@@ -31,18 +31,18 @@ public class MyChecks extends ArrayList<Check> {
 
     public void setup() {
         Lookups lookups = new Lookups();
-        lookups.put(LookupTypeDefault.APPLICATION, applicationLookup);
-        lookups.put(LookupTypeDefault.CONFIGURATION, configurationLookup);
+        lookups.put(DefaultLookupType.APPLICATION, applicationLookup);
+        lookups.put(DefaultLookupType.CONFIGURATION, configurationLookup);
 
         EvaluationContext context = new EvaluationContext(
-                LookupTypeDefault.APPLICATION, lookups);
+                DefaultLookupType.APPLICATION, lookups);
 
         String properties = "/dummy.properties";
 
         DefaultCheck check1 = new DefaultCheck("test url lookup",
                 "does a test using a url properties lookup", context
                         .isTrue("enabled"), context, getClass().getResource(
-                        properties).toString(), LevelDefault.SEVERE, null, null);
+                        properties).toString(), DefaultLevel.SEVERE, null, null);
 
         add(check1);
 
@@ -50,7 +50,7 @@ public class MyChecks extends ArrayList<Check> {
                 "does a test using a url properties lookup", context.gte(
                         context.num("num.years"), context.num(20)), context,
                 getClass().getResource(properties).toString(),
-                LevelDefault.SEVERE, null, null);
+                DefaultLevel.SEVERE, null, null);
 
         add(check2);
 
@@ -58,7 +58,7 @@ public class MyChecks extends ArrayList<Check> {
                 "does a test using a url properties lookup", context.gte(
                         context.num("num.years"), context.num(40)), context,
                 getClass().getResource(properties).toString(),
-                LevelDefault.WARNING, null, null);
+                DefaultLevel.WARNING, null, null);
 
         add(check3);
 
@@ -77,13 +77,13 @@ public class MyChecks extends ArrayList<Check> {
 
         DefaultCheck check4 = new DefaultCheck("localhost socket", "", context
                 .socketAvailable("localhost", port), context, (String) null,
-                LevelDefault.SEVERE, null, null);
+                DefaultLevel.SEVERE, null, null);
 
         add(check4);
 
         DefaultCheck check5 = new DefaultCheck("google search is available",
                 "", context.urlAvailable("http://localhost:" + port), context,
-                (String) null, LevelDefault.WARNING, null, null);
+                (String) null, DefaultLevel.WARNING, null, null);
 
         add(check5);
 
