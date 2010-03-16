@@ -10,6 +10,7 @@ import moten.david.util.monitoring.DefaultChecker;
 import moten.david.util.monitoring.EvaluationContext;
 import moten.david.util.monitoring.Util;
 import moten.david.util.monitoring.gwt.client.ApplicationService;
+import moten.david.util.monitoring.gwt.server.ApplicationServiceGuice;
 import moten.david.util.monitoring.gwt.server.Convertor;
 import moten.david.util.monitoring.lookup.CachingUrlPropertiesProvider;
 import moten.david.util.monitoring.lookup.DefaultLookupType;
@@ -43,8 +44,8 @@ public class InjectorModule extends AbstractModule {
         bind(Convertor.class).in(Scopes.SINGLETON);
         bind(Checker.class).to(DefaultChecker.class);// should not be singleton!
         bind(new TypeLiteral<List<Check>>() {
-        }).to(MyChecks.class);
-        bind(ApplicationService.class).to(ApplicationServiceDummy.class).in(
+        }).to(Checks.class);
+        bind(ApplicationService.class).to(ApplicationServiceGuice.class).in(
                 Scopes.SINGLETON);
     }
 

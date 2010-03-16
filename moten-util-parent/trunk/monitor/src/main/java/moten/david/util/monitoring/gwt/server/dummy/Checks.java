@@ -8,21 +8,21 @@ import moten.david.util.monitoring.Check;
 import moten.david.util.monitoring.DefaultCheck;
 import moten.david.util.monitoring.EvaluationContext;
 import moten.david.util.monitoring.lookup.DefaultLevel;
-import moten.david.util.monitoring.lookup.Lookup;
 import moten.david.util.monitoring.lookup.DefaultLookupType;
+import moten.david.util.monitoring.lookup.Lookup;
 import moten.david.util.monitoring.lookup.Lookups;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
-public class MyChecks extends ArrayList<Check> {
+public class Checks extends ArrayList<Check> {
 
     private static final long serialVersionUID = -4842629078057680014L;
     private final Lookup applicationLookup;
     private final Lookup configurationLookup;
 
     @Inject
-    public MyChecks(@Named("application") Lookup applicationLookup,
+    public Checks(@Named("application") Lookup applicationLookup,
             @Named("configuration") Lookup configurationLookup) {
         this.applicationLookup = applicationLookup;
         this.configurationLookup = configurationLookup;

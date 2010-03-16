@@ -5,7 +5,6 @@ import java.util.logging.Logger;
 
 import moten.david.util.monitoring.gwt.client.ApplicationService;
 import moten.david.util.monitoring.gwt.client.check.AppChecks;
-import moten.david.util.monitoring.gwt.server.dummy.ApplicationServiceDummyProvider;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
@@ -22,7 +21,7 @@ public class ApplicationServiceImpl extends RemoteServiceServlet implements
     public ApplicationServiceImpl() {
         String className = System.getProperty("serviceProvider");
         if (className == null) {
-            className = ApplicationServiceDummyProvider.class.getName();
+            className = ApplicationServiceGuiceProvider.class.getName();
             log
                     .info("System property serviceProvider not set, using dummy provider instead");
         }
