@@ -22,7 +22,6 @@ public class InjectorModule extends AbstractModule {
 				UrlLookup.class);
 		bind(Lookup.class).annotatedWith(Names.named("configuration")).to(
 				ConfigurationLookup.class);
-
 	}
 
 }
