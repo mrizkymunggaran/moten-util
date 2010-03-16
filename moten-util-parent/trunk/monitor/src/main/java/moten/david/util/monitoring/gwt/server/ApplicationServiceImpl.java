@@ -19,7 +19,8 @@ public class ApplicationServiceImpl extends RemoteServiceServlet implements
     private ApplicationService service;
 
     public ApplicationServiceImpl() {
-        String className = System.getProperty("serviceProvider");
+        String className = System
+                .getProperty("moten.david.monitor.serviceProvider");
         if (className == null) {
             className = ApplicationServiceGuiceProvider.class.getName();
             log
