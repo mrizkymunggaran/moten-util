@@ -61,7 +61,7 @@
 					</connectors>
 					<systemProperties>
 						<systemProperty>
-							<name>serviceProvider</name>
+							<name>moten.david.monitor.serviceProviderr</name>
 							<value>moten.david.util.monitoring.monitor.example.ServiceProvider</value>
 						</systemProperty>
 					</systemProperties>
