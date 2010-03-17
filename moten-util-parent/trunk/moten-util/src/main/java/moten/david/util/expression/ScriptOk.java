@@ -1,32 +1,29 @@
 package moten.david.util.expression;
 
-import moten.david.util.guice.ConstantProvider;
 import moten.david.util.shell.Shell;
 
-import com.google.inject.Provider;
+public class ScriptOk implements BooleanExpression, Operation {
 
-public class ScriptOk implements BooleanExpression, Provided<String> {
+    private final StringExpression expression;
 
-    private final Provider<String> scriptProvider;
-
-    public ScriptOk(Provider<String> scriptProvider) {
-        this.scriptProvider = scriptProvider;
+    public ScriptOk(StringExpression expression) {
+        this.expression = expression;
     }
 
     public ScriptOk(String script) {
-        this(new ConstantProvider<String>(script));
+        this(new Stringy(script));
     }
 
     @Override
     public boolean evaluate() {
         Shell shell = new Shell();
-        int resultCode = shell.launch(".", scriptProvider.get());
+        int resultCode = shell.launch(".", expression.evaluate());
         return resultCode == 0;
     }
 
     @Override
-    public Provider<String> getProvider() {
-        return scriptProvider;
+    public Expression[] getExpressions() {
+        return new Expression[] { expression };
     }
 
 }

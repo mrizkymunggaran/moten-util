@@ -43,16 +43,21 @@ public class ExpressionPresenterSingleLine implements ExpressionPresenter {
             Provider<?> provider = ((Provided<?>) e).getProvider();
             if (provider instanceof ConstantProvider<?>) {
                 Object value = ((ConstantProvider<?>) provider).get();
-                return value.toString();
+                return clean(value.toString());
             } else if (provider instanceof SingleKeyLookup<?>) {
                 SingleKeyLookup<?> singleKeyLookup = (SingleKeyLookup<?>) provider;
-                return named(singleKeyLookup.getLookupType(), singleKeyLookup
-                        .getKey());
+                return clean(named(singleKeyLookup.getLookupType(),
+                        singleKeyLookup.getKey()));
             } else
                 throw new RuntimeException("unknown provider type");
         } else
             throw new RuntimeException("unknown expression type "
                     + e.getClass().getName());
+    }
+
+    private String clean(String string) {
+        return string.replace("\n", "\\n").replace("\t", "\\t").replace("\r",
+                "\\r");
     }
 
     private String comparison(Comparison e, String symbol) {
