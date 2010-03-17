@@ -65,7 +65,7 @@ public class CheckPanel extends HorizontalPanel {
             text.setText(result.getLog());
             text.setStyleName("log");
             itm.addItem(new TreeItem(text));
-            itm.setState(true);
+            itm.setState(false);
         }
         addPolicies(check, tree);
         addDependencies(check, results, tree);

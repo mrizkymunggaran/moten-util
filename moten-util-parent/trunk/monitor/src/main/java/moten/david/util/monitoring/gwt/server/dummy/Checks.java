@@ -94,6 +94,13 @@ public class Checks extends ArrayList<Check> {
 				null);
 
 		add(check6);
+		DefaultCheck check7 = new DefaultCheck("script test 2",
+				"does a test using a url properties lookup", context
+						.scriptOk("lszz -l"), context, getClass().getResource(
+						properties).toString(), DefaultLevel.WARNING, null,
+				null);
+
+		add(check7);
 
 	}
 }

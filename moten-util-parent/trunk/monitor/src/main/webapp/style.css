@@ -180,11 +180,11 @@
 	padding-right: 5px;
 	padding-top: 4px;
 	padding-bottom: 4px; 
-	background: #FADCDC;
+	background: #E8E6E6;
 	border: solid 1px black;
 	font-family: monospace;
 	font-size:small;
-	width: 600px;
+	width: 1000px;
 }
 
 .checkLabel {
