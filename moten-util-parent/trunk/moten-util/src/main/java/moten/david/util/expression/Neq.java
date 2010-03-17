@@ -1,21 +1,33 @@
 package moten.david.util.expression;
 
-public class Neq implements BooleanExpression, Comparison {
-	private final NumericExpression a;
-	private final NumericExpression b;
+/**
+ * Not equal to comparison.
+ * 
+ * @author dxm
+ * 
+ */
+public class Neq implements Comparison {
+    private final NumericExpression a;
+    private final NumericExpression b;
 
-	public Neq(NumericExpression a, NumericExpression b) {
-		this.a = a;
-		this.b = b;
-	}
+    /**
+     * a != b
+     * 
+     * @param a
+     * @param b
+     */
+    public Neq(NumericExpression a, NumericExpression b) {
+        this.a = a;
+        this.b = b;
+    }
 
-	@Override
-	public boolean evaluate() {
-		return a.evaluate().compareTo(b.evaluate()) != 0;
-	}
+    @Override
+    public boolean evaluate() {
+        return a.evaluate().compareTo(b.evaluate()) != 0;
+    }
 
-	@Override
-	public Expression[] getExpressions() {
-		return new Expression[] { a, b };
-	}
+    @Override
+    public Expression[] getExpressions() {
+        return new Expression[] { a, b };
+    }
 }

@@ -27,7 +27,6 @@ import moten.david.util.expression.ScriptOk;
 import moten.david.util.expression.SocketAvailable;
 import moten.david.util.expression.Times;
 import moten.david.util.expression.UrlAvailable;
-import moten.david.util.guice.ConstantProvider;
 import moten.david.util.monitoring.lookup.Lookup;
 import moten.david.util.monitoring.lookup.LookupParameters;
 import moten.david.util.monitoring.lookup.LookupType;
@@ -226,7 +225,7 @@ public class EvaluationContext {
     }
 
     public BooleanExpression scriptOk(String script) {
-        return new ScriptOk(new ConstantProvider<String>(script));
+        return new ScriptOk(script);
     }
 
 }

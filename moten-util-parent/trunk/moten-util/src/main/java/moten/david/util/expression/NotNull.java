@@ -2,22 +2,28 @@ package moten.david.util.expression;
 
 import com.google.inject.Provider;
 
+/**
+ * Not null test.
+ * 
+ * @author dxm
+ * 
+ */
 public class NotNull implements BooleanExpression, Provided {
 
-	private final Provider<?> provider;
+    private final Provider<?> provider;
 
-	public NotNull(Provider<?> provider) {
-		this.provider = provider;
-	}
+    public NotNull(Provider<?> provider) {
+        this.provider = provider;
+    }
 
-	@Override
-	public boolean evaluate() {
-		return provider.get() != null;
-	}
+    @Override
+    public boolean evaluate() {
+        return provider.get() != null;
+    }
 
-	@Override
-	public Provider<?> getProvider() {
-		return provider;
-	}
+    @Override
+    public Provider<?> getProvider() {
+        return provider;
+    }
 
 }

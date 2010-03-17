@@ -1,5 +1,12 @@
 package moten.david.util.expression;
 
-public interface Comparison extends Operation {
+/**
+ * A Comparison operation that takes non boolean operands and returns a boolean
+ * result
+ * 
+ * @author dxm
+ * 
+ */
+public interface Comparison extends Operation, BooleanExpression {
 
 }

@@ -6,6 +6,12 @@ import moten.david.util.monitoring.lookup.SingleKeyLookup;
 
 import com.google.inject.Provider;
 
+/**
+ * Formats an expression on a single line of text.
+ * 
+ * @author dxm
+ * 
+ */
 public class ExpressionPresenterSingleLine implements ExpressionPresenter {
 
     public String infix(InfixOperation infix, String symbol) {
