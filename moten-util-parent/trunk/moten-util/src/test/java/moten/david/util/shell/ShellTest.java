@@ -37,5 +37,6 @@ public class ShellTest {
         Recorder recorder = new Recorder();
         Assert.assertEquals(0, shell.launch(".", "ls", recorder));
         System.out.println(recorder);
+        Assert.assertTrue(recorder.toString().contains("pom.xml"));
     }
 }
