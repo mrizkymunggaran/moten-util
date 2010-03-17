@@ -1,36 +1,71 @@
 package moten.david.util.shell;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Runs scripts on the operating system.
+ * 
+ * @author dxm
+ * 
+ */
 public class Shell {
 
+    /**
+     * The wait time interval for testing that streams have finished and been
+     * closed.
+     */
+    private static final int CLOSE_STREAMS_WAIT_INTERVAL_MS = 50;
+
+    /**
+     * Logger
+     */
     private static Logger log = Logger.getLogger(Shell.class.getName());
 
-    private Executor executor;
+    /**
+     * singleton instance of Executor (single threaded)
+     */
+    private ExecutorService executor;
 
+    /**
+     * Get the singleton instance of the executor
+     * 
+     * @return
+     */
     private synchronized Executor getExecutor() {
         if (executor == null)
             executor = Executors.newSingleThreadExecutor();
         return executor;
     }
 
+    /**
+     * If using the default ExecutorService this call will shutdow the
+     * ExecutorService.
+     */
+    public void shutdown() {
+        if (executor != null)
+            executor.shutdownNow();
+    }
+
+    /**
+     * Is the underlying operating system Microsoft Windows
+     * 
+     * @return
+     */
     public static boolean isWindows() {
         return File.pathSeparatorChar == ';';
     }
 
+    /**
+     * Get the shell command for the operating system.
+     * 
+     * @return
+     */
     private static String getSh() {
         if (isWindows())
             return "run";
@@ -63,35 +98,88 @@ public class Shell {
         return s;
     }
 
-    public static interface LogListener {
-        void log(String message);
-
-        void finished();
-    }
-
+    /**
+     * Launch a script and wait for it to finish.
+     * 
+     * @param workingDirectory
+     * @param script
+     * @return the returnCode of the process. A return code !=0 means an error
+     *         occurred.
+     */
     public int launch(String workingDirectory, File script) {
-        return launch(getExecutor(), workingDirectory, script, new DefaultLog());
+        return launch(getExecutor(), workingDirectory, script,
+                new ProcessListenerLogging());
     }
 
+    /**
+     * Launch a script and wait for it to finish.
+     * 
+     * @param workingDirectory
+     * @param script
+     * @return the returnCode of the process. A return code !=0 means an error
+     *         occurred.
+     */
     public int launch(String workingDirectory, String script) {
         return launch(getExecutor(), workingDirectory,
-                createScriptFile(script), new DefaultLog());
+                createScriptFile(script), new ProcessListenerLogging());
     }
 
+    /**
+     * Launch a script and wait for it to finish.
+     * 
+     * @param executor
+     * @param workingDirectory
+     * @param script
+     * @param listener
+     * @return the returnCode of the process. A return code !=0 means an error
+     *         occurred.
+     */
     public int launch(Executor executor, String workingDirectory,
-            String script, LogListener listener) {
+            String script, ProcessListener listener) {
         return launch(executor, workingDirectory, createScriptFile(script),
                 listener);
     }
 
+    /**
+     * Launch a script and wait for it to finish.
+     * 
+     * @param workingDirectory
+     * @param script
+     * @param listener
+     * @return the returnCode of the process. A return code !=0 means an error
+     *         occurred.
+     */
     public int launch(String workingDirectory, String script,
-            LogListener listener) {
+            ProcessListener listener) {
         return launch(getExecutor(), workingDirectory,
                 createScriptFile(script), listener);
     }
 
+    /**
+     * Launch a script and wait for it to finish.
+     * 
+     * @param executor
+     * @param workingDirectory
+     * @param script
+     * @return
+     */
+    public int launch(Executor executor, String workingDirectory, String script) {
+        return launch(executor, workingDirectory, createScriptFile(script),
+                new ProcessListenerLogging());
+    }
+
+    /**
+     * Launch a script and wait for it to finish.
+     * 
+     * @param executor
+     * @param workingDirectory
+     * @param script
+     * @param listener
+     * @return the returnCode of the process. A return code !=0 means an error
+     *         occurred.
+     */
     public int launch(Executor executor, String workingDirectory, File script,
-            LogListener listener) {
+            ProcessListener listener) {
 
         ProcessBuilder builder = new ProcessBuilder(getSh(), "-xe", script
                 .getAbsolutePath());
@@ -100,8 +188,13 @@ public class Shell {
         log.info(builder.command().toString());
         try {
             Process process = builder.start();
-            executor.execute(new Log(process.getInputStream(), listener));
+            ProcessOutput logger = new ProcessOutput(process.getInputStream(),
+                    listener);
+            executor.execute(logger);
             int returnCode = process.waitFor();
+            // now wait for the streams to finish outputting
+            while (!logger.isFinished())
+                Thread.sleep(CLOSE_STREAMS_WAIT_INTERVAL_MS);
             return returnCode;
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -109,79 +202,24 @@ public class Shell {
             log.info("interrupted");
             return 1001001;
         }
-
     }
 
-    public static class Recorder implements LogListener {
-        private final ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        private final PrintWriter writer;
-
-        public Recorder() {
-            writer = new PrintWriter(new BufferedWriter(new OutputStreamWriter(
-                    bytes)));
-        }
-
-        @Override
-        public void finished() {
-            writer.close();
-        }
-
-        @Override
-        public void log(String message) {
-            writer.println(message);
-        }
-
-        @Override
-        public String toString() {
-            return bytes.toString();
-        }
-
-    }
-
-    public static class DefaultLog implements LogListener {
-
-        @Override
-        public void finished() {
-            log.info("finished stream logger");
-        }
-
-        @Override
-        public void log(String message) {
-            log.info(message);
-        }
-
-    }
-
-    private static class Log implements Runnable {
-
-        private final InputStream is;
-        private final LogListener listener;
-
-        public Log(InputStream is, LogListener listener) {
-            this.is = is;
-            this.listener = listener;
-        }
-
-        @Override
-        public void run() {
-            BufferedReader br = new BufferedReader(new InputStreamReader(is));
-            String line;
-            try {
-                while ((line = br.readLine()) != null) {
-                    listener.log(line);
-                }
-            } catch (IOException e) {
-                log.log(Level.SEVERE, e.getMessage(), e);
-            } finally {
-                listener.finished();
-            }
-        }
-    }
-
+    /**
+     * Fix a script so that it will be more likely to run.
+     * 
+     * @param script
+     * @return
+     */
     private String enhanceScript(String script) {
         return addCrForNonASCII(fixCrLf(script));
     }
 
+    /**
+     * Create a temporary file containing the enhanced script.
+     * 
+     * @param script
+     * @return
+     */
     private File createScriptFile(String script) {
 
         try {
@@ -194,11 +232,6 @@ public class Shell {
             throw new RuntimeException(e);
         }
 
-    }
-
-    public int launch(Executor executor, String workingDirectory, String script) {
-        return launch(executor, workingDirectory, createScriptFile(script),
-                new DefaultLog());
     }
 
 }

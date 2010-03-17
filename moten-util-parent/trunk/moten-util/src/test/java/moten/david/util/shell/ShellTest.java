@@ -3,8 +3,6 @@ package moten.david.util.shell;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import moten.david.util.shell.Shell.Recorder;
-
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -34,7 +32,7 @@ public class ShellTest {
             return;
 
         Shell shell = new Shell();
-        Recorder recorder = new Recorder();
+        ProcessOutputRecorder recorder = new ProcessOutputRecorder();
         Assert.assertEquals(0, shell.launch(".", "ls", recorder));
         System.out.println(recorder);
         Assert.assertTrue(recorder.toString().contains("pom.xml"));
