@@ -6,39 +6,29 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 
-import moten.david.util.guice.ConstantProvider;
+public class UrlAvailable implements BooleanExpression, Operation {
 
-import com.google.inject.Provider;
+    private final StringExpression urlString;
+	private final NumericExpression timeoutMs;
 
-public class UrlAvailable implements BooleanExpression, Provided<String> {
-
-    private final Provider<String> urlProvider;
-    private final Provider<Long> timeoutMsProvider;
-
-    public UrlAvailable(Provider<String> provider,
-            Provider<Long> timeoutMsProvider) {
-        this.urlProvider = provider;
-        this.timeoutMsProvider = timeoutMsProvider;
-    }
-
-    public UrlAvailable(String urlString, long timeoutMs) {
-        this(new ConstantProvider<String>(urlString),
-                new ConstantProvider<Long>(timeoutMs));
+	public UrlAvailable(StringExpression urlString, NumericExpression timeoutMs) {
+		this.urlString = urlString;
+		this.timeoutMs = timeoutMs;
     }
 
     public UrlAvailable(String urlString) {
-        this(urlString, 500);
+        this(new Stringy(urlString), new Numeric(500));
     }
 
     @Override
     public boolean evaluate() {
         try {
-            String urlString = urlProvider.get();
+            String urlString = this.urlString.evaluate();
             if (urlString == null)
                 throw new RuntimeException("url is null");
             URL url = new URL(urlString);
             URLConnection connection = url.openConnection();
-            long timeoutMs = timeoutMsProvider.get();
+            long timeoutMs = this.timeoutMs.evaluate().longValue();
             connection.setConnectTimeout((int) timeoutMs);
             if (connection instanceof HttpURLConnection) {
                 return ((HttpURLConnection) connection).getResponseCode() != HttpURLConnection.HTTP_ACCEPTED;
@@ -52,9 +42,10 @@ public class UrlAvailable implements BooleanExpression, Provided<String> {
 
     }
 
-    @Override
-    public Provider<String> getProvider() {
-        return urlProvider;
-    }
+	@Override
+	public Expression[] getExpressions() {
+		return new Expression[] {urlString, timeoutMs};
+	}
+
 
 }
