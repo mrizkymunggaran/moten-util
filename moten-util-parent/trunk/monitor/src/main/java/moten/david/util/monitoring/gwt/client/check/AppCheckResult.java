@@ -16,6 +16,15 @@ public class AppCheckResult implements Serializable {
 	private String level;
 	private String exception;
 	private boolean inherited;
+	private String log;
+
+	public String getLog() {
+		return log;
+	}
+
+	public void setLog(String log) {
+		this.log = log;
+	}
 
 	public boolean isInherited() {
 		return inherited;

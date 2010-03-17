@@ -60,6 +60,7 @@ public class Convertor {
             CheckResult checkResult) {
         AppCheckResult a = new AppCheckResult();
         a.setException(toString(checkResult.getException()));
+        a.setLog(checkResult.getLog());
         a.setInherited(checkResult.isInherited());
         a.setLevel(checkResult.getLevel().toString());
         a.setName(check.getName());

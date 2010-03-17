@@ -10,6 +10,7 @@ import com.google.gwt.user.client.ui.DisclosurePanel;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.Tree;
 import com.google.gwt.user.client.ui.TreeItem;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -54,6 +55,16 @@ public class CheckPanel extends HorizontalPanel {
             Label label = new Label(check.getExpression());
             label.setStyleName("expression");
             itm.addItem(new TreeItem(label));
+            itm.setState(true);
+        }
+        {
+            TreeItem itm = new TreeItem("Log");
+            tree.addItem(itm);
+            TextArea text= new TextArea();
+            text.setVisibleLines(10);
+            text.setText(result.getLog());
+            text.setStyleName("log");
+            itm.addItem(new TreeItem(text));
             itm.setState(true);
         }
         addPolicies(check, tree);

@@ -1,9 +1,13 @@
 package moten.david.util.monitoring;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Handler;
+import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 public class Checker {
@@ -39,8 +43,29 @@ public class Checker {
 		return map;
 	}
 
-	private CheckResult check(Map<Check, CheckResult> map, Check check) {
+	private Handler createHandler(final StringBuffer s) {
+		return new Handler() {
+			private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS");
+			@Override
+			public void close() throws SecurityException {
+			}
 
+			@Override
+			public void flush() {
+			}
+
+			@Override
+			public void publish(LogRecord record) {
+				if (s.length()>0) s.append("\n");
+				Date when = new Date(record.getMillis());
+				s.append(sdf.format(when) + " " + record.getLoggerName() + " " + record.getLevel().getName() + " - " +  record.getMessage());
+			}};
+	}
+	
+	private CheckResult check(Map<Check, CheckResult> map, Check check) {
+		StringBuffer s = new StringBuffer();
+		Handler handler = createHandler(s);
+		log.getParent().addHandler(handler);
 		if (map.get(check) == null) {
 			boolean depsOk = true;
 			if (check.getDependencies() != null)
@@ -68,6 +93,8 @@ public class Checker {
 				}
 			}
 		}
+		map.get(check).setLog(s.toString());
+		log.getParent().removeHandler(handler);
 		return map.get(check);
 	}
 
