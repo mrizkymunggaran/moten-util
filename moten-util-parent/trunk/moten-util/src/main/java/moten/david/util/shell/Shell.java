@@ -108,7 +108,7 @@ public class Shell {
      */
     public int launch(String workingDirectory, File script) {
         return launch(getExecutor(), workingDirectory, script,
-                new ProcessListenerLogging());
+                new LineListenerLogging());
     }
 
     /**
@@ -121,7 +121,7 @@ public class Shell {
      */
     public int launch(String workingDirectory, String script) {
         return launch(getExecutor(), workingDirectory,
-                createScriptFile(script), new ProcessListenerLogging());
+                createScriptFile(script), new LineListenerLogging());
     }
 
     /**
@@ -135,7 +135,7 @@ public class Shell {
      *         occurred.
      */
     public int launch(Executor executor, String workingDirectory,
-            String script, ProcessListener listener) {
+            String script, LineListener listener) {
         return launch(executor, workingDirectory, createScriptFile(script),
                 listener);
     }
@@ -150,7 +150,7 @@ public class Shell {
      *         occurred.
      */
     public int launch(String workingDirectory, String script,
-            ProcessListener listener) {
+            LineListener listener) {
         return launch(getExecutor(), workingDirectory,
                 createScriptFile(script), listener);
     }
@@ -165,7 +165,7 @@ public class Shell {
      */
     public int launch(Executor executor, String workingDirectory, String script) {
         return launch(executor, workingDirectory, createScriptFile(script),
-                new ProcessListenerLogging());
+                new LineListenerLogging());
     }
 
     /**
@@ -179,7 +179,7 @@ public class Shell {
      *         occurred.
      */
     public int launch(Executor executor, String workingDirectory, File script,
-            ProcessListener listener) {
+            LineListener listener) {
 
         ProcessBuilder builder = new ProcessBuilder(getSh(), "-xe", script
                 .getAbsolutePath());
@@ -188,7 +188,7 @@ public class Shell {
         log.info(builder.command().toString());
         try {
             Process process = builder.start();
-            ProcessOutput logger = new ProcessOutput(process.getInputStream(),
+            InputStreamReporter logger = new InputStreamReporter(process.getInputStream(),
                     listener);
             executor.execute(logger);
             int returnCode = process.waitFor();

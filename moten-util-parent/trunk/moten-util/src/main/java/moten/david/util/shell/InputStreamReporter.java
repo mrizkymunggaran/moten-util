@@ -8,18 +8,20 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
+ * Take the output from an input stream and report it to a ProcessListener.
+ * 
  * @author dxm
  * 
  */
-public class ProcessOutput implements Runnable {
+public class InputStreamReporter implements Runnable {
 
-    private static Logger log = Logger.getLogger(ProcessOutput.class.getName());
+    private static Logger log = Logger.getLogger(InputStreamReporter.class.getName());
 
     private final InputStream is;
-    private final ProcessListener listener;
+    private final LineListener listener;
     private boolean finished = false;
 
-    public ProcessOutput(InputStream is, ProcessListener listener) {
+    public InputStreamReporter(InputStream is, LineListener listener) {
         this.is = is;
         this.listener = listener;
     }
@@ -30,7 +32,7 @@ public class ProcessOutput implements Runnable {
         String line;
         try {
             while ((line = br.readLine()) != null) {
-                listener.log(line);
+                listener.line(line);
             }
             br.close();
         } catch (IOException e) {

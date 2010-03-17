@@ -6,16 +6,16 @@ package moten.david.util.shell;
  * @author dxm
  * 
  */
-public interface ProcessListener {
+public interface LineListener {
     /**
-     * A stdout/stderr line has arrived from the Process.
+     * A line has arrived
      * 
      * @param message
      */
-    void log(String message);
+    void line(String message);
 
     /**
-     * The process has finished.
+     * No more lines will arrive.
      */
     void finished();
 }

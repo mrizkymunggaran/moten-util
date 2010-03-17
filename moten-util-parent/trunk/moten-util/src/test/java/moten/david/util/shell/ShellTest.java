@@ -32,7 +32,7 @@ public class ShellTest {
             return;
 
         Shell shell = new Shell();
-        ProcessOutputRecorder recorder = new ProcessOutputRecorder();
+        LineListenerRecorder recorder = new LineListenerRecorder();
         Assert.assertEquals(0, shell.launch(".", "ls", recorder));
         System.out.println(recorder);
         Assert.assertTrue(recorder.toString().contains("pom.xml"));

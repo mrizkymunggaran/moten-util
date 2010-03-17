@@ -5,11 +5,21 @@ import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 
-public class ProcessOutputRecorder implements ProcessListener {
+/**
+ * Records all lines to an internal buffer in memory. Once the process has
+ * finished the lines are available using the toString() method.
+ * 
+ * @author dxm
+ * 
+ */
+public class LineListenerRecorder implements LineListener {
     private final ByteArrayOutputStream bytes = new ByteArrayOutputStream();
     private final PrintWriter writer;
 
-    public ProcessOutputRecorder() {
+    /**
+     * No argument constructor.
+     */
+    public LineListenerRecorder() {
         writer = new PrintWriter(new BufferedWriter(new OutputStreamWriter(
                 bytes)));
     }
@@ -20,7 +30,7 @@ public class ProcessOutputRecorder implements ProcessListener {
     }
 
     @Override
-    public void log(String message) {
+    public void line(String message) {
         writer.println(message);
     }
 

@@ -23,9 +23,11 @@ import moten.david.util.expression.Numeric;
 import moten.david.util.expression.NumericExpression;
 import moten.david.util.expression.Or;
 import moten.david.util.expression.Plus;
+import moten.david.util.expression.ScriptOk;
 import moten.david.util.expression.SocketAvailable;
 import moten.david.util.expression.Times;
 import moten.david.util.expression.UrlAvailable;
+import moten.david.util.guice.ConstantProvider;
 import moten.david.util.monitoring.lookup.Lookup;
 import moten.david.util.monitoring.lookup.LookupParameters;
 import moten.david.util.monitoring.lookup.LookupType;
@@ -38,189 +40,193 @@ import com.google.inject.name.Named;
 
 public class EvaluationContext {
 
-	private final LookupType lookupTypeDefault;
+    private final LookupType lookupTypeDefault;
 
-	public LookupType getLookupTypeDefault() {
-		return lookupTypeDefault;
-	}
+    public LookupType getLookupTypeDefault() {
+        return lookupTypeDefault;
+    }
 
-	private final Lookups lookups;
-	private LookupParameters parameters;
+    private final Lookups lookups;
+    private LookupParameters parameters;
 
-	@Inject
-	public EvaluationContext(@Named("default") LookupType lookupTypeDefault,
-			Lookups lookups) {
-		this.lookupTypeDefault = lookupTypeDefault;
-		this.lookups = lookups;
-	}
+    @Inject
+    public EvaluationContext(@Named("default") LookupType lookupTypeDefault,
+            Lookups lookups) {
+        this.lookupTypeDefault = lookupTypeDefault;
+        this.lookups = lookups;
+    }
 
-	public Lookups getLookups() {
-		return lookups;
-	}
+    public Lookups getLookups() {
+        return lookups;
+    }
 
-	public LookupParameters getParameters() {
-		return parameters;
-	}
+    public LookupParameters getParameters() {
+        return parameters;
+    }
 
-	public void setParameters(LookupParameters parameters) {
-		this.parameters = parameters;
-	}
+    public void setParameters(LookupParameters parameters) {
+        this.parameters = parameters;
+    }
 
-	public BooleanExpression and(BooleanExpression a, BooleanExpression b) {
-		return new And(a, b);
-	}
+    public BooleanExpression and(BooleanExpression a, BooleanExpression b) {
+        return new And(a, b);
+    }
 
-	public BooleanExpression or(BooleanExpression a, BooleanExpression b) {
-		return new Or(a, b);
-	}
+    public BooleanExpression or(BooleanExpression a, BooleanExpression b) {
+        return new Or(a, b);
+    }
 
-	public BooleanExpression not(BooleanExpression a) {
-		return new Not(a);
-	}
+    public BooleanExpression not(BooleanExpression a) {
+        return new Not(a);
+    }
 
-	public BooleanExpression eq(NumericExpression a, NumericExpression b) {
-		return new Eq(a, b);
-	}
+    public BooleanExpression eq(NumericExpression a, NumericExpression b) {
+        return new Eq(a, b);
+    }
 
-	public BooleanExpression neq(NumericExpression a, NumericExpression b) {
-		return new Neq(a, b);
-	}
+    public BooleanExpression neq(NumericExpression a, NumericExpression b) {
+        return new Neq(a, b);
+    }
 
-	public BooleanExpression gt(NumericExpression a, NumericExpression b) {
-		return new Gt(a, b);
-	}
+    public BooleanExpression gt(NumericExpression a, NumericExpression b) {
+        return new Gt(a, b);
+    }
 
-	public BooleanExpression gte(NumericExpression a, NumericExpression b) {
-		return new Gte(a, b);
-	}
+    public BooleanExpression gte(NumericExpression a, NumericExpression b) {
+        return new Gte(a, b);
+    }
 
-	public BooleanExpression lt(NumericExpression a, NumericExpression b) {
-		return new Lt(a, b);
-	}
+    public BooleanExpression lt(NumericExpression a, NumericExpression b) {
+        return new Lt(a, b);
+    }
 
-	public BooleanExpression lte(NumericExpression a, NumericExpression b) {
-		return new Lte(a, b);
-	}
+    public BooleanExpression lte(NumericExpression a, NumericExpression b) {
+        return new Lte(a, b);
+    }
 
-	public NumericExpression plus(NumericExpression a, NumericExpression b) {
-		return new Plus(a, b);
-	}
+    public NumericExpression plus(NumericExpression a, NumericExpression b) {
+        return new Plus(a, b);
+    }
 
-	public NumericExpression minus(NumericExpression a, NumericExpression b) {
-		return new Minus(a, b);
-	}
+    public NumericExpression minus(NumericExpression a, NumericExpression b) {
+        return new Minus(a, b);
+    }
 
-	public NumericExpression times(NumericExpression a, NumericExpression b) {
-		return new Times(a, b);
-	}
+    public NumericExpression times(NumericExpression a, NumericExpression b) {
+        return new Times(a, b);
+    }
 
-	public NumericExpression divide(NumericExpression a, NumericExpression b) {
-		return new Divide(a, b);
-	}
+    public NumericExpression divide(NumericExpression a, NumericExpression b) {
+        return new Divide(a, b);
+    }
 
-	public NumericExpression num(String name) {
-		return num(name, this.lookupTypeDefault);
-	}
+    public NumericExpression num(String name) {
+        return num(name, this.lookupTypeDefault);
+    }
 
-	private Lookup createNestedLookup(final LookupType type) {
-		return new Lookup() {
-			@Override
-			public String get(String context, String key) {
-				return lookups.get(type).get(context, key);
-			}
-		};
-	}
+    private Lookup createNestedLookup(final LookupType type) {
+        return new Lookup() {
+            @Override
+            public String get(String context, String key) {
+                return lookups.get(type).get(context, key);
+            }
+        };
+    }
 
-	private Provider<String> createContextProvider() {
-		return new Provider<String>() {
+    private Provider<String> createContextProvider() {
+        return new Provider<String>() {
 
-			@Override
-			public String get() {
-				return parameters.get(lookupTypeDefault);
-			}
-		};
-	}
+            @Override
+            public String get() {
+                return parameters.get(lookupTypeDefault);
+            }
+        };
+    }
 
-	public NumericExpression num(String key, LookupType type) {
-		// use a nested lookup because lookups may not have been specified till
-		// evaluate is called on the numeric expression returned by this method
-		return new Numeric(new SingleKeyLookup<BigDecimal>(BigDecimal.class,
-				createContextProvider(), key, createNestedLookup(type), type));
-	}
+    public NumericExpression num(String key, LookupType type) {
+        // use a nested lookup because lookups may not have been specified till
+        // evaluate is called on the numeric expression returned by this method
+        return new Numeric(new SingleKeyLookup<BigDecimal>(BigDecimal.class,
+                createContextProvider(), key, createNestedLookup(type), type));
+    }
 
-	public NumericExpression num(long value) {
-		return new Numeric(value);
-	}
+    public NumericExpression num(long value) {
+        return new Numeric(value);
+    }
 
-	public NumericExpression num(double value) {
-		return new Numeric(value);
-	}
+    public NumericExpression num(double value) {
+        return new Numeric(value);
+    }
 
-	public Date date(Calendar calendar) {
-		return new Date(calendar);
-	}
+    public Date date(Calendar calendar) {
+        return new Date(calendar);
+    }
 
-	public Date now() {
-		return new Date(new Provider<Calendar>() {
-			@Override
-			public Calendar get() {
-				Calendar cal = GregorianCalendar.getInstance();
-				return cal;
-			}
-		});
-	}
+    public Date now() {
+        return new Date(new Provider<Calendar>() {
+            @Override
+            public Calendar get() {
+                Calendar cal = GregorianCalendar.getInstance();
+                return cal;
+            }
+        });
+    }
 
-	public Date date(String key) {
-		return date(key, lookupTypeDefault);
-	}
+    public Date date(String key) {
+        return date(key, lookupTypeDefault);
+    }
 
-	public Date date(final String key, final LookupType type) {
+    public Date date(final String key, final LookupType type) {
 
-		return new Date(new Provider<Calendar>() {
-			@Override
-			public Calendar get() {
-				String value = lookups.get(type).get(parameters.get(type), key);
-				long millis = Long.parseLong(value);
-				Calendar calendar = new GregorianCalendar(TimeZone
-						.getTimeZone("GMT"));
-				calendar.setTimeInMillis(millis);
-				return calendar;
-			}
-		});
-	}
+        return new Date(new Provider<Calendar>() {
+            @Override
+            public Calendar get() {
+                String value = lookups.get(type).get(parameters.get(type), key);
+                long millis = Long.parseLong(value);
+                Calendar calendar = new GregorianCalendar(TimeZone
+                        .getTimeZone("GMT"));
+                calendar.setTimeInMillis(millis);
+                return calendar;
+            }
+        });
+    }
 
-	public BooleanExpression isNull(String name) {
-		return isNull(name, lookupTypeDefault);
-	}
+    public BooleanExpression isNull(String name) {
+        return isNull(name, lookupTypeDefault);
+    }
 
-	public BooleanExpression isNull(String name, LookupType type) {
-		// use a nested lookup because lookups may not have been specified till
-		// evaluate is called on the numeric expression returned by this method
-		return new IsNull(new SingleKeyLookup<String>(String.class,
-				createContextProvider(), name, createNestedLookup(type), type));
-	}
+    public BooleanExpression isNull(String name, LookupType type) {
+        // use a nested lookup because lookups may not have been specified till
+        // evaluate is called on the numeric expression returned by this method
+        return new IsNull(new SingleKeyLookup<String>(String.class,
+                createContextProvider(), name, createNestedLookup(type), type));
+    }
 
-	public BooleanExpression isTrue(String name) {
-		return isTrue(name, lookupTypeDefault);
-	}
+    public BooleanExpression isTrue(String name) {
+        return isTrue(name, lookupTypeDefault);
+    }
 
-	public BooleanExpression isTrue(String name, LookupType type) {
-		// use a nested lookup because lookups may not have been specified till
-		// evaluate is called on the numeric expression returned by this method
-		return new Bool(new SingleKeyLookup<Boolean>(Boolean.class,
-				createContextProvider(), name, createNestedLookup(type), type));
-	}
+    public BooleanExpression isTrue(String name, LookupType type) {
+        // use a nested lookup because lookups may not have been specified till
+        // evaluate is called on the numeric expression returned by this method
+        return new Bool(new SingleKeyLookup<Boolean>(Boolean.class,
+                createContextProvider(), name, createNestedLookup(type), type));
+    }
 
-	public BooleanExpression urlAvailable(String url) {
-		return new UrlAvailable(url);
-	}
+    public BooleanExpression urlAvailable(String url) {
+        return new UrlAvailable(url);
+    }
 
-	public BooleanExpression socketAvailable(String host, int port, long timeout) {
-		return new SocketAvailable(host, port, timeout);
-	}
+    public BooleanExpression socketAvailable(String host, int port, long timeout) {
+        return new SocketAvailable(host, port, timeout);
+    }
 
-	public BooleanExpression socketAvailable(String host, int port) {
-		return new SocketAvailable(host, port);
-	}
+    public BooleanExpression socketAvailable(String host, int port) {
+        return new SocketAvailable(host, port);
+    }
+
+    public BooleanExpression scriptOk(String script) {
+        return new ScriptOk(new ConstantProvider<String>(script));
+    }
 
 }
