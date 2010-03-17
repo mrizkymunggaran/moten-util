@@ -195,6 +195,9 @@ public class Shell {
             // now wait for the streams to finish outputting
             while (!logger.isFinished())
                 Thread.sleep(CLOSE_STREAMS_WAIT_INTERVAL_MS);
+            if (returnCode!=0)
+            	log.info("The script had an error");
+            log.info("return code="+ returnCode);
             return returnCode;
         } catch (IOException e) {
             throw new RuntimeException(e);

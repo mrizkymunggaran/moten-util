@@ -45,7 +45,10 @@ public class Checker {
 
 	private Handler createHandler(final StringBuffer s) {
 		return new Handler() {
-			private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS");
+			private final SimpleDateFormat sdf = new SimpleDateFormat(
+					"yyyy-MM-dd hh:mm:ss.SSS");
+			private final Thread thread = Thread.currentThread();
+
 			@Override
 			public void close() throws SecurityException {
 			}
@@ -56,12 +59,18 @@ public class Checker {
 
 			@Override
 			public void publish(LogRecord record) {
-				if (s.length()>0) s.append("\n");
-				Date when = new Date(record.getMillis());
-				s.append(sdf.format(when) + " " + record.getLoggerName() + " " + record.getLevel().getName() + " - " +  record.getMessage());
-			}};
+				if (thread == Thread.currentThread()) {
+					if (s.length() > 0)
+						s.append("\n");
+					Date when = new Date(record.getMillis());
+					s.append(sdf.format(when) + " " + record.getLoggerName()
+							+ " " + record.getLevel().getName() + " - "
+							+ record.getMessage());
+				}
+			}
+		};
 	}
-	
+
 	private CheckResult check(Map<Check, CheckResult> map, Check check) {
 		StringBuffer s = new StringBuffer();
 		Handler handler = createHandler(s);
