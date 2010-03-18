@@ -89,6 +89,16 @@
 		</repository>
 	</repositories>
 
+	<reporting>
+		<plugins>
+			<plugin>
+				<groupId>org.jvnet.sorcerer</groupId>
+				<artifactId>maven-sorcerer-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</reporting>
+
+
 	<distributionManagement>
 		<repository>
 			<uniqueVersion>false</uniqueVersion>

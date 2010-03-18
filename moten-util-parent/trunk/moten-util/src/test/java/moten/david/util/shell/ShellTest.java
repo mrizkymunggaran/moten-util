@@ -33,7 +33,7 @@ public class ShellTest {
 
         Shell shell = new Shell();
         LineListenerRecorder recorder = new LineListenerRecorder();
-        Assert.assertEquals(0, shell.launch(".", "ls", recorder));
+        Assert.assertEquals(0, shell.launch(".", "ls -l", recorder));
         System.out.println(recorder);
         Assert.assertTrue(recorder.toString().contains("pom.xml"));
     }

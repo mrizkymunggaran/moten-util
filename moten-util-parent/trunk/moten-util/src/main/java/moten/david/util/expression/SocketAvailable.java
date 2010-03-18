@@ -3,21 +3,26 @@ package moten.david.util.expression;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.logging.Logger;
 
-import moten.david.util.guice.ConstantProvider;
+public class SocketAvailable implements BooleanExpression, Operation {
 
-import com.google.inject.Provider;
+    private static Logger log = Logger.getLogger(SocketAvailable.class
+            .getName());
 
-public class SocketAvailable implements BooleanExpression, Provided<String> {
+    private final StringExpression host;
+    private final NumericExpression port;
+    private final NumericExpression timeoutMs;
 
-    private final Provider<String> hostPortProvider;
-
-    public SocketAvailable(String host, int port, long timeout) {
-        this(new ConstantProvider<String>(host + ":" + port));
+    public SocketAvailable(StringExpression host, NumericExpression port,
+            NumericExpression timeoutMs) {
+        this.host = host;
+        this.port = port;
+        this.timeoutMs = timeoutMs;
     }
 
-    public SocketAvailable(Provider<String> hostPortProvider) {
-        this.hostPortProvider = hostPortProvider;
+    public SocketAvailable(String host, int port, long timeoutMs) {
+        this(new Stringy(host), new Numeric(port), new Numeric(timeoutMs));
     }
 
     public SocketAvailable(String host, int port) {
@@ -26,24 +31,27 @@ public class SocketAvailable implements BooleanExpression, Provided<String> {
 
     @Override
     public boolean evaluate() {
-        String hostPort = hostPortProvider.get();
-        String[] items = hostPort.split(":");
-        String host = items[0];
-        int port = Integer.parseInt(items[1]);
 
         Socket socket = new Socket();
         try {
-            socket.connect(new InetSocketAddress(host, port), 500);
+
+            String host = this.host.evaluate();
+            int port = this.port.evaluate().intValue();
+            int timeoutMs = this.timeoutMs.evaluate().intValue();
+            log.info("connecting to socket at " + host + ":" + port
+                    + " with timeout " + timeoutMs + "ms");
+            socket.connect(new InetSocketAddress(host, port), timeoutMs);
             socket.close();
             return true;
         } catch (IOException e) {
+            log.info(e.getMessage());
             return false;
         }
     }
 
     @Override
-    public Provider<String> getProvider() {
-        return hostPortProvider;
+    public Expression[] getExpressions() {
+        return new Expression[] { host, port, timeoutMs };
     }
 
 }

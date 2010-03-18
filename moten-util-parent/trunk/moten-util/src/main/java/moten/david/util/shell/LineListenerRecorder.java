@@ -36,6 +36,7 @@ public class LineListenerRecorder implements LineListener {
 
     @Override
     public String toString() {
+        writer.flush();
         return bytes.toString();
     }
 
