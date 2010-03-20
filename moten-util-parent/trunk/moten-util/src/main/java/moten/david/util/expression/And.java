@@ -20,6 +20,16 @@ public class And implements BooleanExpression, InfixOperation {
         this.a = a;
         this.b = b;
     }
+    
+    /**
+     * Static factory method.
+     * @param a
+     * @param b
+     * @return
+     */
+    public static And and(BooleanExpression a, BooleanExpression b) {
+    	return new And(a,b);
+    }
 
     @Override
     public boolean evaluate() {

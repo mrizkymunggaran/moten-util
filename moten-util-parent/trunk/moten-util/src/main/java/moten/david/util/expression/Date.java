@@ -19,6 +19,10 @@ public class Date extends Numeric {
     public Date(final Calendar calendar) {
         this(new ConstantProvider<Calendar>(calendar));
     }
+    
+    public static Date date(Calendar calendar) {
+    	return new Date(calendar);
+    }
 
     public Date(final Provider<Calendar> provider) {
         super(new Provider<BigDecimal>() {
