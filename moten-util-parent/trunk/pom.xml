@@ -13,4 +13,26 @@
 		<module>monitor</module>
 		<module>monitor-example</module>
 	</modules>
+		<reporting>
+		<plugins>
+			<plugin>
+				<groupId>org.jvnet.sorcerer</groupId>
+				<artifactId>maven-sorcerer-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+				<version>2.5</version>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>cobertura-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.6.1</version>
+			</plugin>
+		</plugins>
+	</reporting>
 </project>
