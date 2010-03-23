@@ -52,7 +52,7 @@ public class Configuration {
 	}
 
 	public int getTunersCount() {
-		return 1;
+		return 2;
 	}
 
 	public long getExtraTimeMs() {
