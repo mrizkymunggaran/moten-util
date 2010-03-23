@@ -1,0 +1,10 @@
+SBS-Can	sbshd
+SBSTWO-NSW	sbs2
+One-NSW	one
+ABC2	abc2
+ABC3	abc3
+ABC-Can	abchd
+Prime-Can	prime
+Ten-Can	ten
+WIN-Can	win
+GO	go

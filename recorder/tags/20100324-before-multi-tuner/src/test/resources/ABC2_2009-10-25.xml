@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<tv generator-info-name="Wktivoguide v5">
+  <programme start="20091025070000 +1100" stop="20091025080000 +1100" channel="ABC2">
+    <title>Beautiful Noise</title>
+    <sub-title>Feist</sub-title>
+    <desc>Thirty-three intimate, live concerts. Thirty-three exceptional artists and bands with a balance between some older, classic artists and younger musicians. The show takes place in the Berkley Church on Queen Street in Toronto and is more like a nightclub and less like a concert theatre, giving it a different look than other music shows.</desc>
+    <category>Music</category>
+  </programme>
+  <programme start="20091025080000 +1100" stop="20091025082000 +1100" channel="ABC2">
+    <title>Zoo Days</title>
+    <desc>Narrated by Jane Horrocks, Zoo Days is an entertaining new wildlife series following the engaging characters, both animal and human, at two of Britain's largest zoos. With incredible behind-the-scenes access at Chester and Colchester Zoos, the series features a variety of storylines and strong personalities providing a mix of excitement, jeopardy and fun. We will experience close encounters with the scariest reptiles and the cutest baby monkeys, and find out what happens in the everyday lives of the zoo keepers. As well as playing host to nearly two million visitors a year between them, both zoos are heavily committed to conservation and training. Chester Zoo - the biggest zoo in Britain - is building an intensive conservation programme aimed at ensuring the survival of global animal species, while Colchester is the first ever - and currently only - UK zoo to have set up its own nature reserve in Africa, protecting endangered creatures in their natural habitat. In the first episode of Zoo Days two African black rhinos at Chester Zoo lock horns in a frightening lovers' tiff. Rosie and Quinto take an instant dislike to each other and their keepers are forced to intervene.</desc>
+    <category>Animals</category>
+    <category>ScienceNatureTechnology</category>
+    <rating><value>G</value></rating>
+  </programme>
+  <programme start="20091025082000 +1100" stop="20091025085500 +1100" channel="ABC2">
+    <title>Zoo Days</title>
+    <desc>Narrated by Jane Horrocks, Zoo Days is an entertaining new wildlife series following the engaging characters, both animal and human, at two of Britain's largest zoos. With incredible behind-the-scenes access at Chester and Colchester Zoos, the series features a variety of storylines and strong personalities providing a mix of excitement, jeopardy and fun. We will experience close encounters with the scariest reptiles and the cutest baby monkeys, and find out what happens in the everyday lives of the zoo keepers. As well as playing host to nearly two million visitors a year between them, both zoos are heavily committed to conservation and training. Chester Zoo - the biggest zoo in Britain - is building an intensive conservation programme aimed at ensuring the survival of global animal species, while Colchester is the first ever - and currently only - UK zoo to have set up its own nature reserve in Africa, protecting endangered creatures in their natural habitat. In the first episode of Zoo Days two African black rhinos at Chester Zoo lock horns in a frightening lovers' tiff. Rosie and Quinto take an instant dislike to each other and their keepers are forced to intervene.</desc>
+    <category>Animals</category>
+    <category>ScienceNatureTechnology</category>
+    <rating><value>G</value></rating>
+  </programme>
+  <programme start="20091025085500 +1100" stop="20091025092500 +1100" channel="ABC2">
+    <title>Little Angels</title>
+    <sub-title>The Butler Family</sub-title>
+    <desc>Five-year-old twins Jess and James need balance. Jess has mild cerebral palsy and takes up most of her parents' attention - while James, who is usually better behaved, gets a rough deal - and starts to play up too.</desc>
+    <category>Documentary</category>
+    <category>Reality</category>
+    <category>Documentaries</category>
+    <rating><value>G</value></rating>
+  </programme>
+  <programme start="20091025092500 +1100" stop="20091025101000 +1100" channel="ABC2">
+    <title>Scrapheap Challenge</title>
+    <sub-title>Sandracer</sub-title>
+    <desc>The engineering entertainment show that pits teams of madcap mechanics against each other with the aim of constructing a machine for a specific task using only the junk they could scavenge from the post-apocalyptic salvage yard around them.</desc>
+    <category>Game Show</category>
+    <category>Auto Maintenance</category>
+    <category>ScienceNatureTechnology</category>
+    <episode-num system="xmltv_ns">6.0.</episode-num>
+    <rating><value>G</value></rating>
+  </programme>
+  <programme start="20091025101000 +1100" stop="20091025110000 +1100" channel="ABC2">
+    <title>Scrapheap Challenge</title>
+    <sub-title>Dambusters</sub-title>
+    <desc>Glaswegian tech heads take on the rough and ready rickshaw riders. In just ten hours, these two teams must create dam-busting devices that can pitch projectiles across water and blow our Scrapheap dams to smithereens!.</desc>
+    <category>Game Show</category>
+    <category>Auto Maintenance</category>
+    <category>ScienceNatureTechnology</category>
+    <episode-num system="xmltv_ns">6.1.</episode-num>
+    <rating><value>G</value></rating>
+  </programme>
+  <programme start="20091025110000 +1100" stop="20091025120000 +1100" channel="ABC2">
+    <title>A Journey Through American Music</title>
+    <sub-title>Sounds Of Jazz</sub-title>
+    <desc>Oscar-winning actor Morgan Freeman traces the ancestry and growth of American music through the 20th century and beyond.</desc>
+    <rating><value>G</value></rating>
+  </programme>
+  <programme start="20091025120000 +1100" stop="20091025123000 +1100" channel="ABC2">
+    <title>Soundtrack To My Life</title>
+    <sub-title>Wet Wet Wet</sub-title>
+    <desc>Cat Deeley looks at the music influences of Wet Wet Wet. Cat speaks to the band about their life in music, influences and future work. This episode includes live performances by the band.</desc>
+    <category>Music</category>
+    <rating><value>G</value></rating>
+  </programme>
+  <programme start="20091025123000 +1100" stop="20091025130000 +1100" channel="ABC2">
+    <title>Red Dwarf</title>
+    <sub-title>Back in the Red (Pt 1)</sub-title>
+    <desc>Not only have the nanobots recreated the Red Dwarf they've also populated the ship with its original crew. This is extremely good news for Rimmer.</desc>
+    <credits>
+      <actor>Craig Charles</actor>
+      <actor>Chris Barrie</actor>
+      <actor>Danny John-Jules</actor>
+      <actor>Robert Llewellyn</actor>
+      <actor>Norman Lovett</actor>
+      <actor>Hattie Haydridge</actor>
+    </credits>
+    <date>1999</date>
+    <category>Comedy</category>
+    <category>Science Fiction</category>
+    <category>Comedies</category>
+    <category>Sci-Fi and Fantasy</category>
+    <episode-num system="xmltv_ns">7.0.0</episode-num>
+    <rating><value>M</value></rating>
+  </programme>
+  <programme start="20091025130000 +1100" stop="20091025133000 +1100" channel="ABC2">
+    <title>Red Dwarf</title>
+    <sub-title>Back In The Red (Pt 2)</sub-title>
+    <desc>Rimmer plans to move up the career ladder. When he is invited to dinner with the Captain and the senior officers he douses himself with a "sexual magnetism virus" which will make him irresistible to the female crew.</desc>
+    <credits>
+      <actor>Craig Charles</actor>
+      <actor>Chris Barrie</actor>
+      <actor>Danny John-Jules</actor>
+      <actor>Robert Llewellyn</actor>
+      <actor>Norman Lovett</actor>
+      <actor>Hattie Hayridge</actor>
+    </credits>
+    <category>Comedy</category>
+    <category>Science Fiction</category>
+    <category>Comedies</category>
+    <category>Sci-Fi and Fantasy</category>
+    <episode-num system="xmltv_ns">7.1.1</episode-num>
+    <rating><value>M</value></rating>
+  </programme>
+  <programme start="20091025133000 +1100" stop="20091025140000 +1100" channel="ABC2">
+    <title>Planet Rock</title>
+    <sub-title>The Killers</sub-title>
+    <desc>Forming in Las Vegas in 2002, The Killers found instant success with their debut single Somebody Told Me. The hits continued to roll in &amp; their debut album Hot Fuss sold millions worldwide. Watch their story on Planet Rock Profiles.</desc>
+    <category>Music</category>
+    <category>Arts and Living</category>
+  </programme>
+  <programme start="20091025140000 +1100" stop="20091025150000 +1100" channel="ABC2">
+    <title>JTV</title>
+    <sub-title>Live: Wolf And Cub</sub-title>
+    <desc>jtv live presents South Australian rock group Wolf and Cub, recorded live at the Governor Hindmarsh Hotel in Adelaide.</desc>
+    <category>Music</category>
+    <category>Arts and Living</category>
+    <rating><value>PG</value></rating>
+    <star-rating><value>0/10</value></star-rating>
+  </programme>
+  <programme start="20091025150000 +1100" stop="20091025155500 +1100" channel="ABC2">
+    <title>Primal Scream: Riot City Blues</title>
+    <desc>Recorded in front of a sell-out crowd at London's legendary Hammersmith Apollo, 'Riot City Blues' is released to coincide with the 25th anniversary of the formation of one of rock music's most iconic bands.</desc>
+  </programme>
+  <programme start="20091025155500 +1100" stop="20091025164500 +1100" channel="ABC2">
+    <title>Kanye West: Late Orchestration</title>
+    <desc>Shot in front of an exclusive audience at the legendary Abbey Road studios and featuring an all-female orchestra, rapper Kanye West performs a selection of tracks from his first two albums.</desc>
+  </programme>
+  <programme start="20091025164500 +1100" stop="20091025180000 +1100" channel="ABC2">
+    <title>Rock in Rio</title>
+    <sub-title>Madrid Spain</sub-title>
+    <desc>First launched in Brazil 1985, the world's biggest music festival has gathered over 4 million people who have applauded 396 live bands. Music fans can tune in to hear Lenny Kravits, Bon Jovi, Metallica, Muse and many more.</desc>
+    <category>Music</category>
+    <category>Arts and Living</category>
+    <rating><value>M</value></rating>
+  </programme>
+  <programme start="20091025180000 +1100" stop="20091025190000 +1100" channel="ABC2">
+    <title>ABC Fora</title>
+    <desc>Showcasing the best and most interesting talks, lectures, public addresses and debates in Australia and around the world. Presented by Lateline and Q&amp;A host, Tony Jones.  ABC Fora is the result of an exciting new relationship with US internet group www.fora.tv which has been bringing international talk events to an online audience since 2006. Fora is the plural of 'forum'.</desc>
+    <category>Current Affairs</category>
+    <category>Talk Shows</category>
+  </programme>
+  <programme start="20091025190000 +1100" stop="20091025193000 +1100" channel="ABC2">
+    <title>Jennifer Byrne Presents</title>
+    <sub-title>True Crime</sub-title>
+    <desc>In this special, Jennifer and her guests explore the macabre world of true life crime novels. Before the judge's hammer has even declared a suspect guilty or innocent, the books are on the shelves.</desc>
+    <category>Social Issues</category>
+    <category>Arts and Living</category>
+    <rating><value>G</value></rating>
+  </programme>
+  <programme start="20091025193000 +1100" stop="20091025203000 +1100" channel="ABC2">
+    <title>Sunday Arts</title>
+    <sub-title>2009-10-25</sub-title>
+    <desc>Luna Park is recognised as one of Sydney's enduring icons. It is a heritage landmark and, despite the changes wrought over the decades, is celebrated as one of the last surviving amusement parks of its era with its remarkable collection of art deco, Moorish and futuristic structures peppered with images from Australian and American popular culture from the 1930s to the present. The Art Of Fun explores the art of Luna Park and the people who created it - through archival footage, photographs and interviews with the artists.  Much of Luna Park's unique appeal has derived from its fairground art : the murals inside Coney Island, the backdrops to the games, the facades and bridges on the games and rides and of course the huge entrance face that has come to symbolise the park itself. What began as a grimacing visage became a laughing larrikin who embodied the cheeky side of Australian culture.  The artists featured include Rupert Browne who designed the original face and many of the first rides; Arthur Barton, who in 35 years as resident artist, gave the park its happy face and its comic and very Australian backdrop: Martin Sharp, Peter Kingston, Garry Shead and Leigh Hobbs, who recognised Barton's legacy, giving it a pop art twist, and Ashley Taylor who worked at the park in the early 90s continues the tradition as Luna Park's current Artist-In-Residence.  Luna Park has been able to survive all these years. Its very position has made it vulnerable to development, yet it has managed to adapt and retain parts of its original features and feelings for all those who visit it today. Sunday Arts: The Art Of Fun will be repeated on ABC2 - Sunday, October 25 at 7:30pm</desc>
+    <category>Magazine</category>
+    <category>Arts and Living</category>
+    <rating><value>PG</value></rating>
+  </programme>
+  <programme start="20091025203000 +1100" stop="20091025221500 +1100" channel="ABC2">
+    <title>With Gilbert And George</title>
+    <desc>After modelling for Gilbert and George in 1986, Julian Cole turned his camera on them. His moving portrait filmed over 17 years, reveals Gilbert and George's unique relationship, and traces their lives from humble beginnings to their role on the world's artistic stage, where they have performed an enduring and controversial double act for over four decades. Banned by the authorities and panned by the critics, they are loved and hated with unprecedented ferocity. This film reveals the individuals that are two people inside a single artist, a permanent living sculpture in which they are compelled to be inseparable from each other and their art.  Gilbert and George's motto 'Art for All' has seen them mount more exhibitions around the world than any other living artist. Cole captures their groundbreaking shows in Russia, China and beyond while regularly taking viewers inside their home and studio created in 1969 in Spitalfields, East London.</desc>
+    <credits>
+      <director>Julian Cole</director>
+      <actor>Gilbert Proesch</actor>
+      <actor>George Passmore</actor>
+    </credits>
+    <date>2008</date>
+    <category>Documentary</category>
+    <category>Documentaries</category>
+    <category>Movies</category>
+    <rating><value>M</value></rating>
+    <star-rating><value>7/10</value></star-rating>
+  </programme>
+  <programme start="20091025221500 +1100" stop="20091025223000 +1100" channel="ABC2">
+    <title>Conversations With Australian Artists</title>
+    <sub-title>John Mawurndjul</sub-title>
+    <desc>A documentary series commissioned by the Art Gallery of New South Wales that offers a unique view into contemporary art practice in Australia through portraits of three significant and diverse artists.</desc>
+    <category>Documentary</category>
+    <category>Documentaries</category>
+    <rating><value>G</value></rating>
+  </programme>
+  <programme start="20091025223000 +1100" stop="20091025232500 +1100" channel="ABC2">
+    <title>The Jewel in the Crown</title>
+    <sub-title>Questions Of Loyalty</sub-title>
+    <desc>The final days of the British Raj in India during World War II, based upon the Raj Quartet novels by Paul Scott.</desc>
+    <credits>
+      <actor>Art Malik</actor>
+      <actor>Charles Dance</actor>
+      <actor>Geraldine James</actor>
+      <actor>Tim Pigott-Smith</actor>
+      <actor>Peggy Ashcroft</actor>
+    </credits>
+    <category>Historical Drama</category>
+    <category>Drama Group</category>
+    <episode-num system="xmltv_ns">.2.</episode-num>
+    <rating><value>PG</value></rating>
+  </programme>
+  <programme start="20091025232500 +1100" stop="20091026002000 +1100" channel="ABC2">
+    <title>East of Everything</title>
+    <sub-title>Viola Baby</sub-title>
+    <desc>Art attempts to flee the 'Far Out East' once more, but his brother's pleading delays him long enough to try and mend his relationship with his son Josh and attempt a date with his childhood sweetheart.</desc>
+    <credits>
+      <actor>Richard Roxburgh</actor>
+      <actor>Gia Carides</actor>
+      <actor>Susie Porter</actor>
+      <actor>Tom Long</actor>
+      <actor>Craig Stott</actor>
+    </credits>
+    <date>2008</date>
+    <category>Drama</category>
+    <category>Drama Group</category>
+    <episode-num system="xmltv_ns">0.1.</episode-num>
+    <rating><value>M</value></rating>
+    <star-rating><value>0/10</value></star-rating>
+  </programme>
+</tv>
