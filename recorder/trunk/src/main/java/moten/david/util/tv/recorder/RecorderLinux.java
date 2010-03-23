@@ -64,7 +64,13 @@ public class RecorderLinux implements Recorder {
 
 	@Override
 	public void stopRecording(ScheduleItem item) {
-		stopRecorder();
+		stopRecorder(item);
+	}
+
+	private void stopRecorder(ScheduleItem item) {
+		File file = new File("src/main/resources/stop-recorder.sh");
+		String alias = aliasProvider.getAlias(item.getChannelId());
+		startProcess(file.getAbsolutePath(), alias, item.getName());
 	}
 
 	@Override
@@ -72,11 +78,6 @@ public class RecorderLinux implements Recorder {
 		stopPlayer();
 		String alias = aliasProvider.getAlias(channelId);
 		startProcess("/usr/bin/mplayer", "-quiet", "dvb://" + alias);
-	}
-
-	private void stopRecorder() {
-		File file = new File("src/main/resources/stop-recorder.sh");
-		startProcess(file.getAbsolutePath());
 	}
 
 	private void stopPlayer() {
