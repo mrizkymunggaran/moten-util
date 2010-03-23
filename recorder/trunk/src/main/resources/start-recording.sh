@@ -20,4 +20,4 @@ then
 else
   tuner=1
 fi
-mencoder dvb://$tuner@${channel} -quiet -oac mp3lame -lameopts abr:br=128  -ovc lavc -lavcopts vcodec=mpeg4:vhq:v4mv:vqmin=2:vbitrate=922 -vf pp=de,crop=0:0:0:0,scale=480:-2 -o "/home/dave/Video/TV/${date}_${title}.avi"
+mencoder dvb://$tuner@${channel} -really-quiet -oac mp3lame -lameopts abr:br=128  -ovc lavc -lavcopts vcodec=mpeg4:vhq:v4mv:vqmin=2:vbitrate=922 -vf pp=de,crop=0:0:0:0,scale=480:-2 -o "/home/dave/Video/TV/${date}_${title}.avi"
