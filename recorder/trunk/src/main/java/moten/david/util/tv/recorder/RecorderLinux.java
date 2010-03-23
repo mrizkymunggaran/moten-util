@@ -68,9 +68,12 @@ public class RecorderLinux implements Recorder {
 	}
 
 	private void stopRecorder(ScheduleItem item) {
+		log.info("stopping " + item.getName());
 		File file = new File("src/main/resources/stop-recorder.sh");
 		String alias = aliasProvider.getAlias(item.getChannelId());
 		startProcess(file.getAbsolutePath(), alias, item.getName());
+		if (isRecording(item))
+			log.severe("couldn't stop recorder for " + item.getName());
 	}
 
 	@Override
