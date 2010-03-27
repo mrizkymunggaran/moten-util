@@ -11,7 +11,7 @@
   *The <i>matching identifier</i> for a fix is the first strongest identifier that matches a craft
   *a business rule will be applied to ensure that no two identifiers for a single craft type have the same rank
 
-==Principles==href="/index.php?title=CTS&amp;action=edit&amp;section=17" title="Edit 
+==Principles==
   *An identifier is associated with one and only one craft
   *A fix is associated with the craft (the <i>primary craft</i>) which has the primary identifier of the fix. If no craft exists for that identifier then create a craft with that identifier and associate the fix to that craft.
   *A secondary fix identifier matching another craft will <i>migrate</i> to the primary craft if the primary craft is <i>stronger</i> than the other craft.
