@@ -4,28 +4,28 @@ A design for a Craft Tracking Engine (CTE)
 
 ==Assumptions and Definitions==
 
-  * A fix (lat, long position plus other ancillary data) is supplied to CTE with identifiers (e.g. MMSI=123456789) to enable an association to be made with a craft
-  * An identifier is associated with one and only one craft
-  * Identifiers are ranked in terms of their reliability. The MMSI number of a vessel changes over time (e.g on change of ownership the owner may reregister the vessel) so it is considered <b>weaker</b> than IMO Number which does not change over time. In this case the <i>rank</i> of IMO Number would be have a <b>higher</b> rank  than the rank of MMSI number. 
-  * The <i>primary identifier</i> for a craft or a fix is the highest ranked identifier. If more than one identifier of the highest rank for the craft exist then an arbitrary deterministic choice is made (such as using the alphabetical order of the identifier type name).
-  * A <i>secondary identifier</i> for a craft is an identifier for the craft other than the <i>primary identifier</i>
-  * Craft 1 is considered <i>stronger</i> than Craft 2 if the <i>primary identifier</i> for craft 1 is stronger than the <i>primary identifier</i> for craft 2
-  * The <i>matching identifier</i> for a fix is the first strongest identifier that matches a craft
-  * a business rule will be applied to ensure that no two identifiers for a single craft type have the same rank
+  # A fix (lat, long position plus other ancillary data) is supplied to CTE with identifiers (e.g. MMSI=123456789) to enable an association to be made with a craft
+  # An identifier is associated with one and only one craft
+  # Identifiers are ranked in terms of their reliability. The MMSI number of a vessel changes over time (e.g on change of ownership the owner may reregister the vessel) so it is considered <b>weaker</b> than IMO Number which does not change over time. In this case the <i>rank</i> of IMO Number would be have a <b>higher</b> rank  than the rank of MMSI number. 
+  # The <i>primary identifier</i> for a craft or a fix is the highest ranked identifier. If more than one identifier of the highest rank for the craft exist then an arbitrary deterministic choice is made (such as using the alphabetical order of the identifier type name).
+  # A <i>secondary identifier</i> for a craft is an identifier for the craft other than the <i>primary identifier</i>
+  # Craft 1 is considered <i>stronger</i> than Craft 2 if the <i>primary identifier</i> for craft 1 is stronger than the <i>primary identifier</i> for craft 2
+  # The <i>matching identifier</i> for a fix is the first strongest identifier that matches a craft
+  # a business rule will be applied to ensure that no two identifiers for a single craft type have the same rank
 
 ==Principles==
-  * An identifier is associated with one and only one craft
-  * A fix is associated with the craft (the <i>primary craft</i>) which has the primary identifier of the fix. If no craft exists for that identifier then create a craft with that identifier and associate the fix to that craft.
-  * A secondary fix identifier matching another craft will <i>migrate</i> to the primary craft if the primary craft is <i>stronger</i> than the other craft.
-  * If a migrating fix identifier is the primary identifier of another craft then the two craft are merged into the primary craft provided that
+  # An identifier is associated with one and only one craft
+  # A fix is associated with the craft (the <i>primary craft</i>) which has the primary identifier of the fix. If no craft exists for that identifier then create a craft with that identifier and associate the fix to that craft.
+  # A secondary fix identifier matching another craft will <i>migrate</i> to the primary craft if the primary craft is <i>stronger</i> than the other craft.
+  # If a migrating fix identifier is the primary identifier of another craft then the two craft are merged into the primary craft provided that
     * The nominated maximum speed for the fix craft type does not exist
   OR
     # the calculated average speed to move from the latest existing primary craft fix to the current fix position is less than a nominated maximum (where specified) for the craft type (e.g. 50 knots for a vessel).
     # the time difference between the two fixes is &gt;= N seconds (for all craft types). N should be configurable. N=60s seems reasonable.
 
-  * If the merge condition is not satisfied then discard identifiers from the fix that relate to the primary craft and associate the fix with the secondary craft. <br /><b>[merge condition not implemented for release 4.6]</b>
+  # If the merge condition is not satisfied then discard identifiers from the fix that relate to the primary craft and associate the fix with the secondary craft. <br /><b>[merge condition not implemented for release 4.6]</b>
 
-  * if a fix already exists in terms of craft type, craft reporting agent (source), latitude, longitude and time and identity (only one common identifier needed) then it is ignored. <b>Note:</b> to improve performance in CTE this condition has been relaxed slightly. When multiple fixes are reported by a craft reporting agent in one call to the service then no checks for duplicates with the list of fixes supplied is performed.
+  # if a fix already exists in terms of craft type, craft reporting agent (source), latitude, longitude and time and identity (only one common identifier needed) then it is ignored. <b>Note:</b> to improve performance in CTE this condition has been relaxed slightly. When multiple fixes are reported by a craft reporting agent in one call to the service then no checks for duplicates with the list of fixes supplied is performed.
 
 
 ==Algorithm==
