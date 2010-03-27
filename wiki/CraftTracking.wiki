@@ -1,6 +1,6 @@
 #summary craft tracking algorithm
 
-A design for a Craft Tracking Engine (CTE)
+A design for a Craft Tracking Engine (CTE) which has to accomodate for dynamic identifiers (change or are reused by other craft over time).
 
 ==Assumptions and Definitions==
 
