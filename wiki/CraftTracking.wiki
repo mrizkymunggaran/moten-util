@@ -16,7 +16,6 @@ A design for a Craft Tracking Engine (CTE).
 
 ==Principles==
   # An identifier is associated with one and only one craft
-  # Fix information is assumed to be correct! i.e if a single fix contains identifiers from what were to that point more than one craft then those craft are merged into one craft.
   # A fix is associated with the craft (the <i>primary craft</i>) which has the primary identifier of the fix. If no craft exists for that identifier then create a craft with that identifier and associate the fix to that craft.
   # A secondary fix identifier matching another craft will <i>migrate</i> to the primary craft if the primary craft is <i>stronger</i> than the other craft.
   # If a migrating fix identifier is the primary identifier of another craft then the two craft are merged into the primary craft provided that
