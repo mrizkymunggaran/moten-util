@@ -6,8 +6,7 @@ A design for a Craft Tracking Engine (CTE).
 
   # A *craft* is an entity with position that is expected to change. Examples are vessels, aircraft, vehicles, gps units.
   # A craft has at least one *identifier* which uniquely identifies the craft at any one instant.
-  # A *fix* is the position of a craft at a particular time. is supplied to CTE with identifiers (e.g. MMSI=123456789) to enable an association to be made with a craft
-  # An identifier is a ssociated with one and only one craft
+  # A *fix* has time, latitude, longitude,a set of identifiers, and ancillary data. 
   # Identifiers are ranked in terms of their reliability. The MMSI number of a vessel changes over time (e.g on change of ownership the owner may reregister the vessel) so it is considered <b>weaker</b> than IMO Number which does not change over time. In this case the <i>rank</i> of IMO Number would be have a <b>higher</b> rank  than the rank of MMSI number. 
   # The <i>primary identifier</i> for a craft or a fix is the highest ranked identifier. If more than one identifier of the highest rank for the craft exist then an arbitrary deterministic choice is made (such as using the alphabetical order of the identifier type name).
   # A <i>secondary identifier</i> for a craft is an identifier for the craft other than the <i>primary identifier</i>
@@ -17,6 +16,7 @@ A design for a Craft Tracking Engine (CTE).
 
 ==Principles==
   # An identifier is associated with one and only one craft
+  # Fix information is assumed to be correct! i.e if a single fix contains identifiers from what were to that point more than one craft then those craft are merged into one craft.
   # A fix is associated with the craft (the <i>primary craft</i>) which has the primary identifier of the fix. If no craft exists for that identifier then create a craft with that identifier and associate the fix to that craft.
   # A secondary fix identifier matching another craft will <i>migrate</i> to the primary craft if the primary craft is <i>stronger</i> than the other craft.
   # If a migrating fix identifier is the primary identifier of another craft then the two craft are merged into the primary craft provided that
