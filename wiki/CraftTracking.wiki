@@ -12,8 +12,7 @@ A design for a Craft Tracking Engine (CTE).
   # A *secondary identifier* for a craft is an identifier for the craft other than the _primary identifier_
   # Craft 1 is considered *stronger* than Craft 2 if the <i>primary identifier</i> for craft 1 is stronger than the <i>primary identifier</i> for craft 2
   # The *matching identifier* for a fix is the first strongest identifier that matches a craft
-  # a business rule will be applied to ensure that no two identifiers for a single craft type have the same rank
-
+  
 ==Principles==
   # An identifier is associated with one and only one craft
   # A fix is associated with the craft (the <i>primary craft</i>) which has the primary identifier of the fix. If no craft exists for that identifier then create a craft with that identifier and associate the fix to that craft.
