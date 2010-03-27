@@ -1,0 +1,38 @@
+#summary craft tracking algorithm
+
+{{{
+if fix exists already then
+  exit
+find the primary craft from the fix identifiers
+if primary craft not found then create primary craft
+associate fix with primary craft
+for each fix identifier
+    if the identifier is not the primary identifier on the primary craft then
+        if the identifier is on another craft then
+            if the identifier is the primary identifier on another craft then
+                if merge condition satisfied or [release is 4.6] then
+                    //merge
+                    move all identifiers and craft associations from the other craft to the primary craft.
+                      if there is a conflict on an identifier type then the identifier is retained on
+                      the primary craft and removed from the other craft
+                    delete the other craft
+                else
+                    ignore identifiers matching the primary craft from the current fix
+                    associate the fix with the secondary craft
+                end if
+            else //identifier is secondary
+                if the primary craft is stronger than or of the same strength as the other craft then
+                    move the identifier to the primary craft
+                end if
+            end if
+            if the identifier type is on the primary craft
+                update primary craft with fix identifier value
+            end if
+        else if the identifier type is on the primary craft
+            update primary craft with fix identifier value
+        else
+            add the new craft identity from the fix identifier to the primary craft
+        end if
+    endif
+end for
+}}}
