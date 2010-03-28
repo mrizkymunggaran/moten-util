@@ -1,8 +1,8 @@
-#summary craft tracking algorithm
+#summary Entity tracking algorithm
 
 This stuff is work-in-progress. I'd like to make it more generic and define it functionally, perhaps with an implementation in Scala.
 
-A design for a Craft Tracking Engine (CTE).
+A design for a Entity Tracking Engine (ETE).
 
 ==Assumptions and Definitions==
 
@@ -26,6 +26,9 @@ A design for a Craft Tracking Engine (CTE).
       # the time difference between the two fixes is &gt;= N seconds (for all craft types). N should be configurable. N=60s seems reasonable.
   # If the merge condition is not satisfied then discard identifiers from the fix that relate to the primary craft and associate the fix with the secondary craft. <br /><b>[merge condition not implemented for release 4.6]</b>
   # if a fix already exists in terms of craft type, craft reporting agent (source), latitude, longitude and time and identity (only one common identifier needed) then it is ignored. <b>Note:</b> to improve performance in CTE this condition has been relaxed slightly. When multiple fixes are reported by a craft reporting agent in one call to the service then no checks for duplicates with the list of fixes supplied is performed.
+
+C = set of craft
+id: C -> 
 
 ==Algorithm==
 
