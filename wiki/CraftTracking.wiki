@@ -6,7 +6,7 @@ A design for a Craft Tracking Engine (CTE).
 
 ==Assumptions and Definitions==
 
-  # A *craft* is an entity with position that is expected to change. Examples are vessels, aircraft, vehicles, gps units.
+  # A *craft* is an entity with position that may change with time. Examples are vessels, aircraft, vehicles, gps units.
   # A craft has at least one *identifier* which uniquely identifies the craft at any one instant.
   # A *fix* has time, latitude, longitude,a set of identifiers, and ancillary data. 
   # Identifiers are ranked in terms of their reliability. The MMSI number of a vessel changes over time (e.g on change of ownership the owner may reregister the vessel) so it is considered <b>weaker</b> than IMO Number which does not change over time. In this case the <i>rank</i> of IMO Number would be have a <b>higher</b> rank  than the rank of MMSI number. 
