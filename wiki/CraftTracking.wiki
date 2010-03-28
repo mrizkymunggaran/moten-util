@@ -1,5 +1,7 @@
 #summary craft tracking algorithm
 
+This stuff is work-in-progress. I'd like to make it more generic and define it functionally, perhaps with an implementation in Scala.
+
 A design for a Craft Tracking Engine (CTE).
 
 ==Assumptions and Definitions==
