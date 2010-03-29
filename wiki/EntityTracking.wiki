@@ -1,0 +1,74 @@
+#summary Entity tracking algorithm
+
+This stuff is work-in-progress. I'd like to make it more generic and define it functionally, perhaps with an implementation in Scala.
+
+A design for a Entity Tracking Engine (ETE).
+
+==Assumptions and Definitions==
+
+  # An *entity* has position that may change with time. Examples are vessels, aircraft, vehicles, gps units.
+  # An entity has at least one *identifier* which uniquely identifies the entity at any one instant.
+  # A *fix* has time, latitude, longitude,a set of identifiers, and ancillary data
+  # The *source* is the originating agent of a fix.
+  # _Identifiers_ are ranked in terms of their reliability. The MMSI number of a vessel changes over time (e.g on change of ownership the owner may reregister the vessel) so it is considered <b>weaker</b> than IMO Number which does not change over time. In this case the <i>rank</i> of IMO Number would be have a <b>higher</b> rank  than the rank of MMSI number. 
+  # The *primary identifier* for an entity or a fix is the highest ranked _identifier_. If more than one _identifier_ of the highest rank for the entity exist then a deterministic ordering is applied (use the alphabetical order of the identifier name).
+  # A *secondary identifier* for an entity or a fix is an identifier other than the primary identifier
+  # A list of *ordered identifiers* is a list of identifiers ordered by descending rank then alphabetical identifier name.
+  # Entity _A_ is considered *stronger* than Entity _B_ if the <i>primary identifier</i> for entity _A_ is stronger than the <i>primary identifier</i> for entity _B_
+  # The *matching identifier* for a fix is the first (in descending rank) identifier that matches an entity
+  # The *primary entity* for a fix is the entity which has the primary identifier of the fix.
+  # The *entity type* is the category of the entity.
+  
+==Principles==
+  # An identifier is associated with one and only one entity at any one time.
+  # If the primary entity does not exist for a fix then create an entity with the primary identifier and associate the fix to that entity.
+  # A secondary fix identifier matching another entity will <i>migrate</i> to the primary entity if the primary entity is <i>stronger</i> than the other entity.
+  # If a migrating fix identifier is the primary identifier of another entity then the two entity are merged into the primary entity provided that
+    * The nominated maximum speed for the fix entity type does not exist OR
+      # the calculated average speed to move from the latest existing primary entity fix to the current fix position is less than a nominated maximum (where specified) for the entity type (e.g. 50 knots for a vessel).
+      # the time difference between the two fixes is &gt;= N seconds (for all entity types). N should be configurable. N=60s seems reasonable.
+  # If the merge condition is not satisfied then discard identifiers from the fix that relate to the primary entity and associate the fix with the secondary entity. 
+  # if a fix already exists in terms of entity type, source, latitude, longitude and time and identity (only one common identifier needed) then it is ignored. 
+
+C = set of entity
+id: C -> 
+
+==Algorithm==
+
+This is the action taken when a new fix arrives to ETE:
+{{{
+if fix exists already then
+  exit
+find the primary entity from the fix identifiers
+if primary entity not found then create primary entity
+associate fix with primary entity
+for each fix identifier
+    if the identifier is not the primary identifier on the primary entity then
+        if the identifier is on another entity then
+            if the identifier is the primary identifier on another entity then
+                if merge condition satisfied then
+                    //merge
+                    move all identifiers and entity associations from the other entity to the primary entity.
+                      if there is a conflict on an identifier type then the identifier is retained on
+                      the primary entity and removed from the other entity
+                    delete the other entity
+                else
+                    ignore identifiers matching the primary entity from the current fix
+                    associate the fix with the secondary entity
+                end if
+            else //identifier is secondary
+                if the primary entity is stronger than or of the same strength as the other entity then
+                    move the identifier to the primary entity
+                end if
+            end if
+            if the identifier type is on the primary entity
+                update primary entity with fix identifier value
+            end if
+        else if the identifier type is on the primary entity
+            update primary entity with fix identifier value
+        else
+            add the new entity identity from the fix identifier to the primary entity
+        end if
+    endif
+end for
+}}}
