@@ -50,6 +50,7 @@ public class NewFixAlgorithmImpl implements NewFixAlgorithm {
 							for (Identifier id : primaryEntity.getIdentifiers()) {
 								fix.removeIdentifier(id);
 							}
+							identifierEntity.addFix(fix);
 						}
 					}
 				}
