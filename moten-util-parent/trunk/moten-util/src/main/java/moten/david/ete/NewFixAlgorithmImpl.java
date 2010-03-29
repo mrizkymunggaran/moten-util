@@ -78,16 +78,15 @@ public class NewFixAlgorithmImpl implements NewFixAlgorithm {
 				else {
 					// add the new entity identity from the fix identifier to
 					// the primary entity
-					// TODO
+					primaryEntity.addIdentifier(identifier);
 				}
-
 			}
 		}
 	}
 
 	private boolean merge() {
 		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 	private boolean conflicts(Identifier id, Set<Identifier> identifiers) {
