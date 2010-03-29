@@ -28,7 +28,7 @@ A design for a Entity Tracking Engine (ETE).
       # the calculated average speed to move from the latest existing primary craft fix to the current fix position is less than a nominated maximum (where specified) for the craft type (e.g. 50 knots for a vessel).
       # the time difference between the two fixes is &gt;= N seconds (for all craft types). N should be configurable. N=60s seems reasonable.
   # If the merge condition is not satisfied then discard identifiers from the fix that relate to the primary craft and associate the fix with the secondary craft. 
-  # if a fix already exists in terms of craft type, craft reporting agent (source), latitude, longitude and time and identity (only one common identifier needed) then it is ignored. 
+  # if a fix already exists in terms of craft type, source, latitude, longitude and time and identity (only one common identifier needed) then it is ignored. 
 
 C = set of craft
 id: C -> 
