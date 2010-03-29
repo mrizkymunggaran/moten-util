@@ -12,7 +12,7 @@ A design for a Entity Tracking Engine (ETE).
   # Identifiers are ranked in terms of their reliability. The MMSI number of a vessel changes over time (e.g on change of ownership the owner may reregister the vessel) so it is considered <b>weaker</b> than IMO Number which does not change over time. In this case the <i>rank</i> of IMO Number would be have a <b>higher</b> rank  than the rank of MMSI number. 
   # The *primary identifier* for a craft or a fix is the highest ranked identifier. If more than one identifier of the highest rank for the craft exist then an arbitrary deterministic choice is made (such as using the alphabetical order of the identifier name).
   # A *secondary identifier* for a craft is an identifier for the craft other than the _primary identifier_
-  # *ordered identifiers* is a list of identifiers ordered by descending rank then alphabetical identifier name.
+  # A list of *ordered identifiers* is a list of identifiers ordered by descending rank then alphabetical identifier name.
   # Craft 1 is considered *stronger* than Craft 2 if the <i>primary identifier</i> for craft 1 is stronger than the <i>primary identifier</i> for craft 2
   # The *matching identifier* for a fix is the first (in descending rank) identifier that matches a craft
   
