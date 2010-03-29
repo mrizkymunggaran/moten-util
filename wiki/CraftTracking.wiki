@@ -46,7 +46,7 @@ for each fix identifier
     if the identifier is not the primary identifier on the primary entity then
         if the identifier is on another entity then
             if the identifier is the primary identifier on another entity then
-                if merge condition satisfied or [release is 4.6] then
+                if merge condition satisfied then
                     //merge
                     move all identifiers and entity associations from the other entity to the primary entity.
                       if there is a conflict on an identifier type then the identifier is retained on
