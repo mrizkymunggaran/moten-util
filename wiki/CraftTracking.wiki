@@ -11,7 +11,7 @@ A design for a Entity Tracking Engine (ETE).
   # A *fix* has time, latitude, longitude,a set of identifiers, and ancillary data. 
   # Identifiers are ranked in terms of their reliability. The MMSI number of a vessel changes over time (e.g on change of ownership the owner may reregister the vessel) so it is considered <b>weaker</b> than IMO Number which does not change over time. In this case the <i>rank</i> of IMO Number would be have a <b>higher</b> rank  than the rank of MMSI number. 
   # The *primary identifier* for a craft or a fix is the highest ranked identifier. If more than one identifier of the highest rank for the craft exist then an arbitrary deterministic choice is made (such as using the alphabetical order of the identifier name).
-  # A *secondary identifier* for a craft is an identifier for the craft other than the _primary identifier_
+  # A *secondary identifier* for a craft or a fix is an identifier other than the _primary identifier_
   # A list of *ordered identifiers* is a list of identifiers ordered by descending rank then alphabetical identifier name.
   # Craft _A_ is considered *stronger* than Craft _B_ if the <i>primary identifier</i> for craft _A_ is stronger than the <i>primary identifier</i> for craft _B_
   # The *matching identifier* for a fix is the first (in descending rank) identifier that matches a craft
