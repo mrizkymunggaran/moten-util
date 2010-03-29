@@ -6,16 +6,16 @@ A design for a Entity Tracking Engine (ETE).
 
 ==Assumptions and Definitions==
 
-  # A *craft* is an entity with position that may change with time. Examples are vessels, aircraft, vehicles, gps units.
-  # A craft has at least one *identifier* which uniquely identifies the craft at any one instant.
-  # A *fix* has time, latitude, longitude,a set of identifiers, and ancillary data
-  # The *source* is the originating agent of a fix.
-  # Identifiers are ranked in terms of their reliability. The MMSI number of a vessel changes over time (e.g on change of ownership the owner may reregister the vessel) so it is considered <b>weaker</b> than IMO Number which does not change over time. In this case the <i>rank</i> of IMO Number would be have a <b>higher</b> rank  than the rank of MMSI number. 
-  # The *primary identifier* for a craft or a fix is the highest ranked identifier. If more than one identifier of the highest rank for the craft exist then an arbitrary deterministic choice is made (such as using the alphabetical order of the identifier name).
-  # A *secondary identifier* for a craft or a fix is an identifier other than the _primary identifier_
-  # A list of *ordered identifiers* is a list of identifiers ordered by descending rank then alphabetical identifier name.
+  # An *entity* has position that may change with time. Examples are vessels, aircraft, vehicles, gps units.
+  # An entity has at least one *identifier* which uniquely identifies the _entity_ at any one instant.
+  # A *fix* has time, latitude, longitude,a set of _identifiers_, and ancillary data
+  # The *source* is the originating agent of a _fix_.
+  # _Identifiers_ are ranked in terms of their reliability. The MMSI number of a vessel changes over time (e.g on change of ownership the owner may reregister the vessel) so it is considered <b>weaker</b> than IMO Number which does not change over time. In this case the <i>rank</i> of IMO Number would be have a <b>higher</b> _rank_  than the _rank_ of MMSI number. 
+  # The *primary identifier* for an _entity_ or a _fix_ is the highest ranked _identifier_. If more than one _identifier_ of the highest _rank_ for the _entity_ exist then a deterministic ordering is applied (use the alphabetical order of the identifier name).
+  # A *secondary identifier* for an _entity_ or a _fix_ is an _identifier_ other than the _primary identifier_
+  # A list of *ordered identifiers* is a list of _identifiers_ ordered by descending _rank_ then alphabetical _identifier_ name.
   # Craft _A_ is considered *stronger* than Craft _B_ if the <i>primary identifier</i> for craft _A_ is stronger than the <i>primary identifier</i> for craft _B_
-  # The *matching identifier* for a fix is the first (in descending rank) identifier that matches a craft
+  # The *matching identifier* for a _fix_ is the first (in descending _rank_) _identifier_ that matches a craft
   # The *primary craft* for a fix is the craft which has the _primary identifier_ of the fix.
   # The *craft type* is the category of the craft.
   
@@ -35,6 +35,7 @@ id: C ->
 
 ==Algorithm==
 
+This is the action taken when a new fix arrives to ETE:
 {{{
 if fix exists already then
   exit
