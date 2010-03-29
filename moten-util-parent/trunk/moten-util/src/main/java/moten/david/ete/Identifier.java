@@ -1,6 +1,7 @@
 package moten.david.ete;
 
-
-public interface Identifier  {
+public interface Identifier {
 	Rank getRank();
+
+	IdentifierType getIdentifierType();
 }

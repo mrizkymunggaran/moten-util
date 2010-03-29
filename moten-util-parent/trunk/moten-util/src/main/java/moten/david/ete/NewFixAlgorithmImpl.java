@@ -1,6 +1,7 @@
 package moten.david.ete;
 
 import java.util.Collections;
+import java.util.Set;
 
 public class NewFixAlgorithmImpl implements NewFixAlgorithm {
 
@@ -23,15 +24,51 @@ public class NewFixAlgorithmImpl implements NewFixAlgorithm {
 			// entity
 			if (!primaryEntity.isPrimaryIdentifier(identifier)) {
 				// get the entity corresponding to the identity
-				Entity identityEntity = engine.findEntity(Collections
+				Entity identifierEntity = engine.findEntity(Collections
 						.singleton(identifier));
 				// if the identifier is on another entity
-				if (!primaryEntity.equals(identityEntity)) {
-
+				if (!primaryEntity.equals(identifierEntity)) {
+					// if the identifier is the primary identifier on the other
+					// entity
+					if (identifierEntity.isPrimaryIdentifier(identifier)) {
+						// if merge condition satisfied
+						if (merge()) {
+							// merge
+							for (Identifier id : identifierEntity
+									.getIdentifiers()) {
+								// if id does not conflict with an identifier on
+								// the primary entity
+								if (!conflicts(id, primaryEntity
+										.getIdentifiers())) {
+									// move the identifier
+									primaryEntity.addIdentifier(id);
+								}
+							}
+						} else {
+							// remove identifiers matching the primary entity
+							// from the current fix
+							for (Identifier id : primaryEntity.getIdentifiers()) {
+								fix.removeIdentifier(id);
+							}
+						}
+					}
 				}
 
 			}
 		}
+	}
+
+	private boolean merge() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	private boolean conflicts(Identifier id, Set<Identifier> identifiers) {
+		for (Identifier identifier : identifiers)
+			if (id.getIdentifierType().equals(identifier.getIdentifierType())
+					&& !id.equals(identifier))
+				return true;
+		return false;
 	}
 
 }

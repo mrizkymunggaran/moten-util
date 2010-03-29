@@ -6,8 +6,14 @@ import java.util.Set;
 
 public interface Fix {
 	Set<Identifier> getIdentifiers();
+
 	Position getPosition();
+
 	Calendar getTime();
+
 	Source getSource();
-	Map<String,String> getProperties();
+
+	Map<String, String> getProperties();
+
+	void removeIdentifier(Identifier id);
 }

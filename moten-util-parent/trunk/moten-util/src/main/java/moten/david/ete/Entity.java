@@ -8,4 +8,6 @@ public interface Entity {
 	void addFix(Fix fix);
 
 	boolean isPrimaryIdentifier(Identifier identifier);
+
+	void addIdentifier(Identifier id);
 }
