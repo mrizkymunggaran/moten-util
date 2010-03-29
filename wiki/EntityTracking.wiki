@@ -17,7 +17,7 @@ A design for a Entity Tracking Engine (ETE).
   # Entity _A_ is considered *stronger* than Entity _B_ if the <i>primary identifier</i> for entity _A_ is stronger than the <i>primary identifier</i> for entity _B_
   # The *matching identifier* for a fix is the first (in descending rank) identifier that matches an entity
   # The *primary entity* for a fix is the entity which has the primary identifier of the fix.
-  # The *entity type* is the category of the entity.
+  # The *entity type* is the category of the entity. An entity type may have a maximum speed.
   
 ==Principles==
   # An identifier is associated with one and only one entity at any one time.
