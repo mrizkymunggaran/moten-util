@@ -14,23 +14,23 @@ A design for a Entity Tracking Engine (ETE).
   # The *primary identifier* for an entity or a fix is the highest ranked _identifier_. If more than one _identifier_ of the highest rank for the entity exist then a deterministic ordering is applied (use the alphabetical order of the identifier name).
   # A *secondary identifier* for an entity or a fix is an identifier other than the primary identifier
   # A list of *ordered identifiers* is a list of identifiers ordered by descending rank then alphabetical identifier name.
-  # Craft _A_ is considered *stronger* than Craft _B_ if the <i>primary identifier</i> for craft _A_ is stronger than the <i>primary identifier</i> for craft _B_
-  # The *matching identifier* for a fix is the first (in descending rank) identifier that matches a craft
-  # The *primary craft* for a fix is the craft which has the primary identifier of the fix.
-  # The *craft type* is the category of the craft.
+  # Entity _A_ is considered *stronger* than Entity _B_ if the <i>primary identifier</i> for entity _A_ is stronger than the <i>primary identifier</i> for entity _B_
+  # The *matching identifier* for a fix is the first (in descending rank) identifier that matches an entity
+  # The *primary entity* for a fix is the entity which has the primary identifier of the fix.
+  # The *entity type* is the category of the entity.
   
 ==Principles==
-  # An identifier is associated with one and only one craft at any one time.
-  # If the primary craft does not exist for a fix then create a craft with the primary identifier and associate the fix to that craft.
-  # A secondary fix identifier matching another craft will <i>migrate</i> to the primary craft if the primary craft is <i>stronger</i> than the other craft.
-  # If a migrating fix identifier is the primary identifier of another craft then the two craft are merged into the primary craft provided that
-    * The nominated maximum speed for the fix craft type does not exist OR
-      # the calculated average speed to move from the latest existing primary craft fix to the current fix position is less than a nominated maximum (where specified) for the craft type (e.g. 50 knots for a vessel).
-      # the time difference between the two fixes is &gt;= N seconds (for all craft types). N should be configurable. N=60s seems reasonable.
-  # If the merge condition is not satisfied then discard identifiers from the fix that relate to the primary craft and associate the fix with the secondary craft. 
-  # if a fix already exists in terms of craft type, source, latitude, longitude and time and identity (only one common identifier needed) then it is ignored. 
+  # An identifier is associated with one and only one entity at any one time.
+  # If the primary entity does not exist for a fix then create an entity with the primary identifier and associate the fix to that entity.
+  # A secondary fix identifier matching another entity will <i>migrate</i> to the primary entity if the primary entity is <i>stronger</i> than the other entity.
+  # If a migrating fix identifier is the primary identifier of another entity then the two entity are merged into the primary entity provided that
+    * The nominated maximum speed for the fix entity type does not exist OR
+      # the calculated average speed to move from the latest existing primary entity fix to the current fix position is less than a nominated maximum (where specified) for the entity type (e.g. 50 knots for a vessel).
+      # the time difference between the two fixes is &gt;= N seconds (for all entity types). N should be configurable. N=60s seems reasonable.
+  # If the merge condition is not satisfied then discard identifiers from the fix that relate to the primary entity and associate the fix with the secondary entity. 
+  # if a fix already exists in terms of entity type, source, latitude, longitude and time and identity (only one common identifier needed) then it is ignored. 
 
-C = set of craft
+C = set of entity
 id: C -> 
 
 ==Algorithm==
@@ -39,35 +39,35 @@ This is the action taken when a new fix arrives to ETE:
 {{{
 if fix exists already then
   exit
-find the primary craft from the fix identifiers
-if primary craft not found then create primary craft
-associate fix with primary craft
+find the primary entity from the fix identifiers
+if primary entity not found then create primary entity
+associate fix with primary entity
 for each fix identifier
-    if the identifier is not the primary identifier on the primary craft then
-        if the identifier is on another craft then
-            if the identifier is the primary identifier on another craft then
+    if the identifier is not the primary identifier on the primary entity then
+        if the identifier is on another entity then
+            if the identifier is the primary identifier on another entity then
                 if merge condition satisfied or [release is 4.6] then
                     //merge
-                    move all identifiers and craft associations from the other craft to the primary craft.
+                    move all identifiers and entity associations from the other entity to the primary entity.
                       if there is a conflict on an identifier type then the identifier is retained on
-                      the primary craft and removed from the other craft
-                    delete the other craft
+                      the primary entity and removed from the other entity
+                    delete the other entity
                 else
-                    ignore identifiers matching the primary craft from the current fix
-                    associate the fix with the secondary craft
+                    ignore identifiers matching the primary entity from the current fix
+                    associate the fix with the secondary entity
                 end if
             else //identifier is secondary
-                if the primary craft is stronger than or of the same strength as the other craft then
-                    move the identifier to the primary craft
+                if the primary entity is stronger than or of the same strength as the other entity then
+                    move the identifier to the primary entity
                 end if
             end if
-            if the identifier type is on the primary craft
-                update primary craft with fix identifier value
+            if the identifier type is on the primary entity
+                update primary entity with fix identifier value
             end if
-        else if the identifier type is on the primary craft
-            update primary craft with fix identifier value
+        else if the identifier type is on the primary entity
+            update primary entity with fix identifier value
         else
-            add the new craft identity from the fix identifier to the primary craft
+            add the new entity identity from the fix identifier to the primary entity
         end if
     endif
 end for
