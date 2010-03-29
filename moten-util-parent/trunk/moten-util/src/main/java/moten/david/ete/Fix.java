@@ -5,15 +5,17 @@ import java.util.Map;
 import java.util.Set;
 
 public interface Fix {
-	Set<Identifier> getIdentifiers();
+    Set<Identifier> getIdentifiers();
 
-	Position getPosition();
+    Position getPosition();
 
-	Calendar getTime();
+    Calendar getTime();
 
-	Source getSource();
+    Source getSource();
 
-	Map<String, String> getProperties();
+    Map<String, String> getProperties();
 
-	void removeIdentifier(Identifier id);
+    void removeIdentifier(Identifier id);
+
+    EntityType getType();
 }
