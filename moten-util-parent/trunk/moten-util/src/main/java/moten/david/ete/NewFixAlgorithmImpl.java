@@ -52,7 +52,33 @@ public class NewFixAlgorithmImpl implements NewFixAlgorithm {
 							}
 							identifierEntity.addFix(fix);
 						}
+					} else {
+						// if the primary entity is stronger than or of the same
+						// strength as the other entity then
+						// move the identifier to the primary entity
+						// end if
+						if (!primaryEntity.weaker(identifierEntity)) {
+							identifierEntity.removeIdentifier(identifier);
+							primaryEntity.addIdentifier(identifier);
+						}
 					}
+					// if the identifier type is on the primary entity
+					// update primary entity with fix identifier value
+					// end if
+					if (primaryEntity.getIdentifier(identifier
+							.getIdentifierType()) != null)
+						primaryEntity.setIdentifier(identifier
+								.getIdentifierType(), identifier);
+				} else // if the identifier type is on the primary entity
+				// update primary entity with fix identifier value
+				// end if
+				if (primaryEntity.getIdentifier(identifier.getIdentifierType()) != null)
+					primaryEntity.setIdentifier(identifier.getIdentifierType(),
+							identifier);
+				else {
+					// add the new entity identity from the fix identifier to
+					// the primary entity
+					// TODO
 				}
 
 			}

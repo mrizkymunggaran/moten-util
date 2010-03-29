@@ -10,4 +10,12 @@ public interface Entity {
 	boolean isPrimaryIdentifier(Identifier identifier);
 
 	void addIdentifier(Identifier id);
+
+	void removeIdentifier(Identifier identifier);
+
+	boolean weaker(Entity identifierEntity);
+
+	Object getIdentifier(IdentifierType identifierType);
+
+	void setIdentifier(IdentifierType identifierType, Identifier identifier);
 }
