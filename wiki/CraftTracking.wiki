@@ -15,6 +15,7 @@ A design for a Entity Tracking Engine (ETE).
   # A list of *ordered identifiers* is a list of identifiers ordered by descending rank then alphabetical identifier name.
   # Craft 1 is considered *stronger* than Craft 2 if the <i>primary identifier</i> for craft 1 is stronger than the <i>primary identifier</i> for craft 2
   # The *matching identifier* for a fix is the first (in descending rank) identifier that matches a craft
+  # The *primary craft* for a fix is the craft which has the _primary identifier_ of the fix.
   
 ==Principles==
   # An identifier is associated with one and only one craft
