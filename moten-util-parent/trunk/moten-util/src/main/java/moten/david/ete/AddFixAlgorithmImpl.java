@@ -13,12 +13,17 @@ public class AddFixAlgorithmImpl implements AddFixAlgorithm {
 
 	@Override
 	public void addFix(Fix fix) {
+		// if the engine has already received this fix then don't add it
 		if (engine.hasFixAlready(fix))
 			return;
+		// find the entity based on the identifiers in descending order
 		Entity primaryEntity = engine.findEntity(fix.getIdentifiers());
+		// create the entity if it did not exist
 		if (primaryEntity == null)
 			primaryEntity = engine.createEntity(fix.getIdentifiers());
+		// associate the fix with the primary entity
 		primaryEntity.addFix(fix);
+		// process all of the identifiers on the fix
 		for (Identifier identifier : fix.getIdentifiers()) {
 			// if the identifier is not the primary identifier on the primary
 			// entity

@@ -29,8 +29,9 @@ public interface Engine {
 	Entity createEntity(Set<Identifier> identifiers);
 
 	/**
-	 * Will try to match on the identifiers in order of descending rank. Once a
-	 * match is find the other identifiers are ignored.
+	 * Will try to match on the identifiers in descending rank order
+	 * (IdentiferType is a Comparable). Once a match is found the other
+	 * identifiers are ignored.
 	 * 
 	 * @param identifiers
 	 * @return
