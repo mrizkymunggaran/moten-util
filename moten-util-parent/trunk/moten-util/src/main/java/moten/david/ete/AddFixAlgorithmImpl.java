@@ -3,16 +3,31 @@ package moten.david.ete;
 import java.util.Collection;
 import java.util.Collections;
 
+import com.google.inject.Inject;
+
+/**
+ * Implementation of add fix algorithm.
+ * 
+ * @author dave
+ * 
+ */
 public class AddFixAlgorithmImpl implements AddFixAlgorithm {
 
 	private final Engine engine;
 
+	/**
+	 * Constructs an instance using the given Engine parameter.
+	 * 
+	 * @param engine
+	 */
+	@Inject
 	public AddFixAlgorithmImpl(Engine engine) {
 		this.engine = engine;
 	}
 
 	@Override
 	public void addFix(Fix fix) {
+
 		// if the engine has already received this fix then don't add it
 		if (engine.hasFixAlready(fix))
 			return;
@@ -27,7 +42,7 @@ public class AddFixAlgorithmImpl implements AddFixAlgorithm {
 		for (Identifier identifier : fix.getIdentifiers()) {
 			// if the identifier is not the primary identifier on the primary
 			// entity
-			if (!getPrimaryIdentifier(primaryEntity).equals(identifier)) {
+			if (!isPrimaryIdentifier(primaryEntity, identifier)) {
 				// get the entity corresponding to the identity
 				Entity identifierEntity = engine.findEntity(Collections
 						.singleton(identifier));
@@ -35,10 +50,10 @@ public class AddFixAlgorithmImpl implements AddFixAlgorithm {
 				if (!primaryEntity.equals(identifierEntity)) {
 					// if the identifier is the primary identifier on the other
 					// entity
-					if (getPrimaryIdentifier(identifierEntity).equals(
-							identifier)) {
+					if (isPrimaryIdentifier(identifierEntity, identifier)) {
 						// if merge condition satisfied
-						if (mergeOk(primaryEntity, identifierEntity, fix)) {
+						if (mergeConditionSatisfied(primaryEntity,
+								identifierEntity, fix)) {
 							// merge
 							for (Identifier id : identifierEntity
 									.getIdentifiers()) {
@@ -90,6 +105,14 @@ public class AddFixAlgorithmImpl implements AddFixAlgorithm {
 		}
 	}
 
+	/**
+	 * If the entity already has an Identifier of the same type as
+	 * <i>identifier</i> then replace that identifier otherwise add
+	 * <i>identiifer</i> to the entity identifiers.
+	 * 
+	 * @param entity
+	 * @param identifier
+	 */
 	private void setIdentifier(Entity entity, Identifier identifier) {
 		Identifier identifierToReplace = null;
 		for (Identifier id : entity.getIdentifiers())
@@ -100,10 +123,26 @@ public class AddFixAlgorithmImpl implements AddFixAlgorithm {
 		entity.getIdentifiers().add(identifier);
 	}
 
+	/**
+	 * Get the identifier of the entity that has the given type. If no
+	 * identifier of that type is found then returns null.
+	 * 
+	 * @param entity
+	 * @param identifierType
+	 * @return
+	 */
 	private Object getIdentifier(Entity entity, IdentifierType identifierType) {
 		return getIdentifier(entity.getIdentifiers(), identifierType);
 	}
 
+	/**
+	 * Get the identifier from the collection that has the given type. If no
+	 * identifier of that type is found then returns null.
+	 * 
+	 * @param identifiers
+	 * @param identifierType
+	 * @return
+	 */
 	private Object getIdentifier(Collection<Identifier> identifiers,
 			IdentifierType identifierType) {
 		for (Identifier id : identifiers)
@@ -112,15 +151,40 @@ public class AddFixAlgorithmImpl implements AddFixAlgorithm {
 		return null;
 	}
 
+	/**
+	 * Get the primary identifier of the entity.
+	 * 
+	 * @param entity
+	 * @return
+	 */
 	private Identifier getPrimaryIdentifier(Entity entity) {
 		return entity.getIdentifiers().last();
 	}
 
-	private boolean weaker(Entity primaryEntity, Entity identifierEntity) {
-		return getPrimaryIdentifier(primaryEntity).getIdentifierType()
-				.compareTo(
-						getPrimaryIdentifier(identifierEntity)
-								.getIdentifierType()) < 0;
+	/**
+	 * Returns true if and only if the primary identifier of the entity is
+	 * <i>identifier</i>.
+	 * 
+	 * @param entity
+	 * @param identifier
+	 * @return
+	 */
+	private boolean isPrimaryIdentifier(Entity entity, Identifier identifier) {
+		return getPrimaryIdentifier(entity).equals(identifier);
+	}
+
+	/**
+	 * Returns true if and only if the type of the primary identifier of entity
+	 * <i>a</i> is weaker than (ordered before) the type of the primary
+	 * identifier of entity <i>b</i>.
+	 * 
+	 * @param a
+	 * @param b
+	 * @return
+	 */
+	private boolean weaker(Entity a, Entity b) {
+		return getPrimaryIdentifier(a).getIdentifierType().compareTo(
+				getPrimaryIdentifier(b).getIdentifierType()) < 0;
 	}
 
 	/**
@@ -144,7 +208,8 @@ public class AddFixAlgorithmImpl implements AddFixAlgorithm {
 	 * @param fix
 	 * @return
 	 */
-	private boolean mergeOk(Entity primaryEntity, Entity otherEntity, Fix fix) {
+	private boolean mergeConditionSatisfied(Entity primaryEntity,
+			Entity otherEntity, Fix fix) {
 		if (fix.getType().equals(primaryEntity.getType())
 				&& fix.getType().equals(otherEntity.getType()))
 			return true;
@@ -167,6 +232,12 @@ public class AddFixAlgorithmImpl implements AddFixAlgorithm {
 		}
 	}
 
+	/**
+	 * Create a moten.david.util.navigation.Position from a Fix.
+	 * 
+	 * @param fix
+	 * @return
+	 */
 	private moten.david.util.navigation.Position createPosition(Fix fix) {
 		moten.david.util.navigation.Position p = new moten.david.util.navigation.Position(
 				fix.getPosition().getLatitude().doubleValue(), fix
@@ -174,6 +245,14 @@ public class AddFixAlgorithmImpl implements AddFixAlgorithm {
 		return p;
 	}
 
+	/**
+	 * Returns true if and only if the collection has an identifier of the same
+	 * type as id but an equals comparison returns false.
+	 * 
+	 * @param id
+	 * @param identifiers
+	 * @return
+	 */
 	private boolean conflicts(Identifier id, Collection<Identifier> identifiers) {
 		for (Identifier identifier : identifiers)
 			if (id.getIdentifierType().equals(identifier.getIdentifierType())
