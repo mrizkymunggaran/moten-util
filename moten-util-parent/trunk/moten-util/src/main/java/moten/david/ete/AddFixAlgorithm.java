@@ -1,5 +1,5 @@
 package moten.david.ete;
 
-public interface NewFixAlgorithm {
+public interface AddFixAlgorithm {
 	void addFix(Fix fix);
 }

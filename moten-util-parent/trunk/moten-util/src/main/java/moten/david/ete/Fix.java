@@ -4,18 +4,52 @@ import java.util.Calendar;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * A reported position of an entity with the identifiers given.
+ * 
+ * @author dave
+ * 
+ */
 public interface Fix {
-    Set<Identifier> getIdentifiers();
+	/**
+	 * Entity identifiers.
+	 * 
+	 * @return
+	 */
+	Set<Identifier> getIdentifiers();
 
-    Position getPosition();
+	/**
+	 * The position of the entity.
+	 * 
+	 * @return
+	 */
+	Position getPosition();
 
-    Calendar getTime();
+	/**
+	 * The time that the position occurred.
+	 * 
+	 * @return
+	 */
+	Calendar getTime();
 
-    Source getSource();
+	/**
+	 * The source of the fix.
+	 * 
+	 * @return
+	 */
+	Source getSource();
 
-    Map<String, String> getProperties();
+	/**
+	 * Any miscellaneous properties of the fix.
+	 * 
+	 * @return
+	 */
+	Map<String, String> getProperties();
 
-    void removeIdentifier(Identifier id);
-
-    EntityType getType();
+	/**
+	 * The type of entity referred to by this fix.
+	 * 
+	 * @return
+	 */
+	EntityType getType();
 }

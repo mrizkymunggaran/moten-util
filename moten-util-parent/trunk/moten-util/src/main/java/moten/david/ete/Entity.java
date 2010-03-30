@@ -1,25 +1,46 @@
 package moten.david.ete;
 
-import java.util.Set;
+import java.util.SortedSet;
 
 public interface Entity {
-    Set<Identifier> getIdentifiers();
 
-    void addFix(Fix fix);
+	/**
+	 * Sorted in ascending order of identifier rank. Should be unique on
+	 * IdentifierType.
+	 * 
+	 * @return
+	 */
+	SortedSet<Identifier> getIdentifiers();
 
-    boolean isPrimaryIdentifier(Identifier identifier);
+	/**
+	 * The type of entity.
+	 * 
+	 * @return
+	 */
+	EntityType getType();
 
-    void addIdentifier(Identifier id);
+	/**
+	 * Associate a fix with this entity. A fix should only be associated with at
+	 * most one entity at any one time.
+	 * 
+	 * @param fix
+	 */
+	void addFix(Fix fix);
 
-    void removeIdentifier(Identifier identifier);
+	/**
+	 * The latest fix by time for this entity.
+	 * 
+	 * @return
+	 */
+	Fix getLatestFix();
 
-    boolean weaker(Entity identifierEntity);
-
-    Object getIdentifier(IdentifierType identifierType);
-
-    void setIdentifier(IdentifierType identifierType, Identifier identifier);
-
-    EntityType getType();
-
-    Fix getLatestFix();
+	/**
+	 * A merge case requires that an entity can move its fixes to another. It
+	 * seems wise to have a dedicated method for this action because it may
+	 * require significant optimisation given that an entity may have many
+	 * fixes.
+	 * 
+	 * @param entity
+	 */
+	void moveFixes(Entity entity);
 }
