@@ -12,62 +12,66 @@ import moten.david.ete.Identifier;
 
 public class MyEntity implements Entity {
 
-    private static final int MAX_FIXES = 5;
-    private final SortedSet<Fix> fixes = new TreeSet<Fix>();
-    private final SortedSet<Identifier> identifiers = new TreeSet<Identifier>();
+	public MyEntity(TreeSet<Identifier> identifiers) {
+		this.identifiers = identifiers;
+	}
 
-    @Override
-    public void addFix(Fix fix) {
-        synchronized (fixes) {
-            fixes.add(fix);
+	private static final int MAX_FIXES = 5;
+	private final SortedSet<Fix> fixes = new TreeSet<Fix>();
+	private final SortedSet<Identifier> identifiers;
 
-            // trim fixes
-            int numberToDelete = fixes.size() - MAX_FIXES;
-            if (numberToDelete > 0) {
-                Iterator<Fix> it = fixes.iterator();
-                for (int i = 0; i < numberToDelete; i++) {
-                    fixes.remove(it.next());
-                }
-            }
-        }
-    }
+	@Override
+	public void addFix(Fix fix) {
+		synchronized (fixes) {
+			fixes.add(fix);
 
-    @Override
-    public SortedSet<Identifier> getIdentifiers() {
-        return identifiers;
-    }
+			// trim fixes
+			int numberToDelete = fixes.size() - MAX_FIXES;
+			if (numberToDelete > 0) {
+				Iterator<Fix> it = fixes.iterator();
+				for (int i = 0; i < numberToDelete; i++) {
+					fixes.remove(it.next());
+				}
+			}
+		}
+	}
 
-    @Override
-    public Fix getLatestFix() {
-        synchronized (fixes) {
-            return fixes.last();
-        }
-    }
+	@Override
+	public SortedSet<Identifier> getIdentifiers() {
+		return identifiers;
+	}
 
-    @Override
-    public Fix getLatestFixBefore(Calendar calendar) {
-        // TODO Auto-generated method stub
-        synchronized (fixes) {
-            throw new RuntimeException("not implemented");
-        }
-    }
+	@Override
+	public Fix getLatestFix() {
+		synchronized (fixes) {
+			return fixes.last();
+		}
+	}
 
-    @Override
-    public BigDecimal getMaximumSpeedMetresPerSecond() {
-        return BigDecimal.valueOf(20);
-    }
+	@Override
+	public Fix getLatestFixBefore(Calendar calendar) {
+		// TODO Auto-generated method stub
+		synchronized (fixes) {
+			throw new RuntimeException("not implemented");
+		}
+	}
 
-    @Override
-    public BigDecimal getMinimumTimeForSpeedCalculationSeconds() {
-        return BigDecimal.valueOf(60);
-    }
+	@Override
+	public BigDecimal getMaximumSpeedMetresPerSecond() {
+		return BigDecimal.valueOf(20);
+	}
 
-    @Override
-    public void moveFixes(Entity entity) {
-        synchronized (fixes) {
-            ((MyEntity) entity).fixes.addAll(fixes);
-            fixes.clear();
-        }
-    }
+	@Override
+	public BigDecimal getMinimumTimeForSpeedCalculationSeconds() {
+		return BigDecimal.valueOf(60);
+	}
+
+	@Override
+	public void moveFixes(Entity entity) {
+		synchronized (fixes) {
+			((MyEntity) entity).fixes.addAll(fixes);
+			fixes.clear();
+		}
+	}
 
 }
