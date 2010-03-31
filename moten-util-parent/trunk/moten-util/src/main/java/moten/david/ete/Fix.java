@@ -2,7 +2,7 @@ package moten.david.ete;
 
 import java.util.Calendar;
 import java.util.Map;
-import java.util.Set;
+import java.util.SortedSet;
 
 /**
  * A reported position of an entity with the identifiers given.
@@ -15,7 +15,7 @@ public interface Fix extends Comparable<Fix> {
      * 
      * @return
      */
-    Set<Identifier> getIdentifiers();
+    SortedSet<Identifier> getIdentifiers();
 
     /**
      * The position of the entity.

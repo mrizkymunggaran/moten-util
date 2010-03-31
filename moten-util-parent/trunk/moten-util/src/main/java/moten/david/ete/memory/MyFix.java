@@ -2,30 +2,38 @@ package moten.david.ete.memory;
 
 import java.util.Calendar;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import moten.david.ete.AbstractFix;
 import moten.david.ete.Fix;
 import moten.david.ete.Identifier;
 import moten.david.ete.Position;
+import moten.david.ete.Util;
 
+/**
+ * Note: this class has a natural ordering that is inconsistent with equals (the
+ * ordering is based on time only). The equals method behaves as follows:
+ * Returns true if and only if the other instance has the same time and position
+ * and at least one common identifier.
+ * 
+ * @author dxm
+ */
 public class MyFix extends AbstractFix {
 
-    private final Set<Identifier> identifiers = new HashSet<Identifier>();
-    private final Position position;
+    private final MyPosition position;
+    private final Calendar time;
+    private final SortedSet<Identifier> identifiers = new TreeSet<Identifier>();
+    private final Map<String, String> properties = new HashMap<String, String>();
 
-    public MyFix(Position position, Calendar time) {
+    public MyFix(MyPosition position, Calendar time) {
         this.position = position;
         this.time = time;
     }
 
-    private final Calendar time;
-    private final Map<String, String> properties = new HashMap<String, String>();
-
     @Override
-    public Set<Identifier> getIdentifiers() {
+    public SortedSet<Identifier> getIdentifiers() {
         return identifiers;
     }
 
@@ -47,6 +55,44 @@ public class MyFix extends AbstractFix {
     @Override
     public int compareTo(Fix o) {
         return getTime().compareTo(o.getTime());
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result
+                + ((position == null) ? 0 : position.hashCode());
+        result = prime * result + ((time == null) ? 0 : time.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        MyFix other = (MyFix) obj;
+        if (position == null) {
+            if (other.position != null)
+                return false;
+        } else if (!position.equals(other.position))
+            return false;
+        if (time == null) {
+            if (other.time != null)
+                return false;
+        } else if (!time.equals(other.time))
+            return false;
+        if (identifiers == null) {
+            if (other.identifiers != null)
+                return false;
+        }
+        if (!Util.haveCommonIdentifier(identifiers, other.identifiers))
+            return false;
+        return true;
     }
 
 }

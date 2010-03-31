@@ -8,6 +8,7 @@ public class MyPosition implements Position {
 
     private final BigDecimal latitude;
     private final BigDecimal longitude;
+    private final BigDecimal altitudeMetres;
 
     public MyPosition(BigDecimal latitude, BigDecimal longitude,
             BigDecimal altitudeMetres) {
@@ -19,8 +20,6 @@ public class MyPosition implements Position {
     public MyPosition(BigDecimal latitude, BigDecimal longitude) {
         this(latitude, longitude, BigDecimal.ZERO);
     }
-
-    private final BigDecimal altitudeMetres;
 
     @Override
     public BigDecimal getAltitudeMetres() {

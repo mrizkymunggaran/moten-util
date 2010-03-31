@@ -12,23 +12,23 @@ import moten.david.ete.Util;
 
 public class MyEngine implements Engine {
 
-	private final Set<Entity> entities = new HashSet<Entity>();
+    private final Set<Entity> entities = new HashSet<Entity>();
 
-	@Override
-	public Entity createEntity(Set<Identifier> identifiers) {
-		MyEntity entity = new MyEntity(new TreeSet<Identifier>(identifiers));
-		entities.add(entity);
-		return entity;
-	}
+    @Override
+    public Entity createEntity(SortedSet<Identifier> identifiers) {
+        MyEntity entity = new MyEntity(identifiers);
+        entities.add(entity);
+        return entity;
+    }
 
-	@Override
-	public Entity findEntity(Set<Identifier> identifiers) {
-		SortedSet<Identifier> sorted = new TreeSet<Identifier>(identifiers);
-		for (Entity entity : entities) {
-			if (Util.haveCommonIdentifier(entity.getIdentifiers(), sorted))
-				return entity;
-		}
-		return null;
-	}
+    @Override
+    public Entity findEntity(Set<Identifier> identifiers) {
+        SortedSet<Identifier> sorted = new TreeSet<Identifier>(identifiers);
+        for (Entity entity : entities) {
+            if (Util.haveCommonIdentifier(entity.getIdentifiers(), sorted))
+                return entity;
+        }
+        return null;
+    }
 
 }
