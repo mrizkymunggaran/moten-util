@@ -9,7 +9,7 @@ import java.util.Set;
  * 
  * @author dave
  */
-public interface Fix {
+public interface Fix extends Comparable<Fix> {
     /**
      * Entity identifiers.
      * 
@@ -30,13 +30,6 @@ public interface Fix {
      * @return
      */
     Calendar getTime();
-
-    /**
-     * The source of the fix.
-     * 
-     * @return
-     */
-    Source getSource();
 
     /**
      * Any miscellaneous properties of the fix.
