@@ -4,11 +4,11 @@ import java.util.SortedSet;
 
 public class Util {
 
-	public static boolean haveCommonIdentifer(Entity a, Entity b) {
+	public static boolean haveCommonIdentifier(Entity a, Entity b) {
 		return haveCommonIdentifier(a.getIdentifiers(), b.getIdentifiers());
 	}
 
-	private static boolean haveCommonIdentifier(SortedSet<Identifier> a,
+	public static boolean haveCommonIdentifier(SortedSet<Identifier> a,
 			SortedSet<Identifier> b) {
 		// TODO make use of the sets being sorted, this routine can be much more
 		// efficient.

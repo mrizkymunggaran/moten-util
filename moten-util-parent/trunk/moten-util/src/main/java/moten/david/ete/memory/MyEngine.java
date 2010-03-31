@@ -2,12 +2,13 @@ package moten.david.ete.memory;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.TreeSet;
 
 import moten.david.ete.Engine;
 import moten.david.ete.Entity;
-import moten.david.ete.Fix;
 import moten.david.ete.Identifier;
+import moten.david.ete.Util;
 
 public class MyEngine implements Engine {
 
@@ -22,14 +23,12 @@ public class MyEngine implements Engine {
 
 	@Override
 	public Entity findEntity(Set<Identifier> identifiers) {
-		// TOOD write this
+		SortedSet<Identifier> sorted = new TreeSet<Identifier>(identifiers);
+		for (Entity entity : entities) {
+			if (Util.haveCommonIdentifier(entity.getIdentifiers(), sorted))
+				return entity;
+		}
 		return null;
-	}
-
-	@Override
-	public boolean hasFixAlready(Fix fix) {
-		// TODO Auto-generated method stub
-		return false;
 	}
 
 }

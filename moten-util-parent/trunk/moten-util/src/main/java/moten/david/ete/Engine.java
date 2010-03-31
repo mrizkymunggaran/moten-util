@@ -11,31 +11,22 @@ import java.util.Set;
  */
 public interface Engine {
 
-    /**
-     * Return true if and only if the fix has already been reported to this
-     * engine.
-     * 
-     * @param fix
-     * @return
-     */
-    boolean hasFixAlready(Fix fix);
+	/**
+	 * Factory method to create an Entity with the given identifiers.
+	 * 
+	 * @param identifiers
+	 * @return
+	 */
+	Entity createEntity(Set<Identifier> identifiers);
 
-    /**
-     * Factory method to create an Entity with the given identifiers.
-     * 
-     * @param identifiers
-     * @return
-     */
-    Entity createEntity(Set<Identifier> identifiers);
-
-    /**
-     * Will try to match on the identifiers in descending rank order
-     * (IdentiferType is a Comparable). Once a match is found the other
-     * identifiers are ignored.
-     * 
-     * @param identifiers
-     * @return
-     */
-    Entity findEntity(Set<Identifier> identifiers);
+	/**
+	 * Will try to match on the identifiers in descending rank order
+	 * (IdentiferType is a Comparable). Once a match is found the other
+	 * identifiers are ignored.
+	 * 
+	 * @param identifiers
+	 * @return
+	 */
+	Entity findEntity(Set<Identifier> identifiers);
 
 }

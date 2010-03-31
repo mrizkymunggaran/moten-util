@@ -74,4 +74,10 @@ public class MyEntity implements Entity {
 		}
 	}
 
+	@Override
+	public boolean hasFixAlready(Fix fix) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 }
