@@ -9,11 +9,14 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.concurrent.ConcurrentHashMap;
 
 import moten.david.ete.Engine;
 import moten.david.ete.Entity;
+import moten.david.ete.Fix;
 import moten.david.ete.Identifier;
 import moten.david.ete.Util;
 import moten.david.util.collections.CollectionsUtil;
@@ -22,20 +25,45 @@ public class MyEngine implements Engine {
 
 	public static final int MAX_TOTAL_FIXES = 10000;
 	private final FixTrimmer fixTrimmer;
+	private final Map<Identifier, Entity> identifiers = new ConcurrentHashMap<Identifier, Entity>();
+	private final EntityListener identifiersListener;
 
 	public MyEngine() {
 		this.fixTrimmer = new FixTrimmer(this, MAX_TOTAL_FIXES);
+		this.identifiersListener = new EntityListener() {
+
+			@Override
+			public void fixAdded(MyEntity entity, Fix fix) {
+
+			}
+
+			@Override
+			public void identifierAdded(MyEntity entity, Identifier identifier) {
+				identifiers.put(identifier, entity);
+			}
+
+			@Override
+			public void identifierRemoved(MyEntity entity, Identifier identifier) {
+				identifiers.remove(identifier);
+			}
+		};
 	}
 
 	private final Set<Entity> entities = Collections
 			.synchronizedSet(new HashSet<Entity>());
 
 	@Override
-	public Entity createEntity(SortedSet<Identifier> identifiers) {
+	public Entity createEntity(SortedSet<Identifier> ids) {
 		synchronized (entities) {
-			MyEntity entity = new MyEntity(identifiers);
+			MyIdentifiers myIdentifiers = new MyIdentifiers(ids);
+			final MyEntity entity = new MyEntity(myIdentifiers,
+					new ArrayList<EntityListener>() {
+						{
+							add(fixTrimmer);
+							add(identifiersListener);
+						}
+					});
 			entities.add(entity);
-			entity.addListener(fixTrimmer);
 			return entity;
 		}
 	}

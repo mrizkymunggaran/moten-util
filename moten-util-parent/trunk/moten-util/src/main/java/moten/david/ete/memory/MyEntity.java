@@ -16,11 +16,32 @@ import moten.david.util.collections.CollectionsUtil;
 public class MyEntity implements Entity {
 
 	private final TreeSet<MyFix> fixes = new TreeSet<MyFix>();
-	private final SortedSet<Identifier> identifiers;
+	private final MyIdentifiers identifiers;
 	private transient List<EntityListener> listeners;
 
-	public MyEntity(SortedSet<Identifier> identifiers) {
+	public MyEntity(MyIdentifiers identifiers, List<EntityListener> listeners) {
 		this.identifiers = identifiers;
+		this.listeners = listeners;
+		identifiers.addListener(new MyIdentifiersListener() {
+
+			@Override
+			public void added(Identifier identifier) {
+				fireIdentifierAdded(identifier);
+			}
+
+			@Override
+			public void removed(Identifier identifier) {
+				fireIdentifierRemoved(identifier);
+			}
+		});
+	}
+
+	private void fireIdentifierAdded(Identifier identifier) {
+
+	}
+
+	private void fireIdentifierRemoved(Identifier identifier) {
+
 	}
 
 	public synchronized void addListener(EntityListener l) {

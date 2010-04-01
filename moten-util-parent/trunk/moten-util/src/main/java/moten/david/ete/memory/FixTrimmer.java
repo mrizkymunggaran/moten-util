@@ -5,6 +5,7 @@ import java.util.Enumeration;
 import moten.david.ete.Engine;
 import moten.david.ete.Entity;
 import moten.david.ete.Fix;
+import moten.david.ete.Identifier;
 
 import com.google.inject.Inject;
 
@@ -53,5 +54,17 @@ public class FixTrimmer implements EntityListener {
 	public void entityRemoved(Entity entity) {
 		if (oldestFixEntity == entity)
 			oldestFixEntity = null;
+	}
+
+	@Override
+	public void identifierAdded(MyEntity entity, Identifier identifier) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void identifierRemoved(MyEntity entity, Identifier identifier) {
+		// TODO Auto-generated method stub
+
 	}
 }
