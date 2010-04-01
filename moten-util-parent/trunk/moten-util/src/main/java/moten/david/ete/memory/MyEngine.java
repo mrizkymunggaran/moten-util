@@ -16,38 +16,13 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import moten.david.ete.Engine;
 import moten.david.ete.Entity;
-import moten.david.ete.Fix;
 import moten.david.ete.Identifier;
 import moten.david.ete.Util;
 import moten.david.util.collections.CollectionsUtil;
 
 public class MyEngine implements Engine {
 
-	public static final int MAX_TOTAL_FIXES = 10000;
-	private final FixTrimmer fixTrimmer;
 	private final Map<Identifier, Entity> identifiers = new ConcurrentHashMap<Identifier, Entity>();
-	private final EntityListener identifiersListener;
-
-	public MyEngine() {
-		this.fixTrimmer = new FixTrimmer(this, MAX_TOTAL_FIXES);
-		this.identifiersListener = new EntityListener() {
-
-			@Override
-			public void fixAdded(MyEntity entity, Fix fix) {
-
-			}
-
-			@Override
-			public void identifierAdded(MyEntity entity, Identifier identifier) {
-				identifiers.put(identifier, entity);
-			}
-
-			@Override
-			public void identifierRemoved(MyEntity entity, Identifier identifier) {
-				identifiers.remove(identifier);
-			}
-		};
-	}
 
 	private final Set<Entity> entities = Collections
 			.synchronizedSet(new HashSet<Entity>());
@@ -56,13 +31,7 @@ public class MyEngine implements Engine {
 	public Entity createEntity(SortedSet<Identifier> ids) {
 		synchronized (entities) {
 			MyIdentifiers myIdentifiers = new MyIdentifiers(ids);
-			final MyEntity entity = new MyEntity(myIdentifiers,
-					new ArrayList<EntityListener>() {
-						{
-							add(fixTrimmer);
-							add(identifiersListener);
-						}
-					});
+			final MyEntity entity = new MyEntity(myIdentifiers);
 			entities.add(entity);
 			return entity;
 		}
@@ -84,7 +53,6 @@ public class MyEngine implements Engine {
 	public void removeEntity(Entity entity) {
 		synchronized (entities) {
 			entities.remove(entity);
-			fixTrimmer.entityRemoved(entity);
 		}
 	}
 

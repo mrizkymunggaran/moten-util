@@ -5,11 +5,10 @@ import java.util.Enumeration;
 import moten.david.ete.Engine;
 import moten.david.ete.Entity;
 import moten.david.ete.Fix;
-import moten.david.ete.Identifier;
 
 import com.google.inject.Inject;
 
-public class FixTrimmer implements EntityListener {
+public class FixTrimmer {
 
 	private final Engine engine;
 	private final long maxFixes;
@@ -23,7 +22,6 @@ public class FixTrimmer implements EntityListener {
 	private long fixCount = 0;
 	private MyEntity oldestFixEntity = null;
 
-	@Override
 	public synchronized void fixAdded(MyEntity entity, Fix fix) {
 		fixCount++;
 		if (oldestFixEntity == null)
@@ -56,15 +54,4 @@ public class FixTrimmer implements EntityListener {
 			oldestFixEntity = null;
 	}
 
-	@Override
-	public void identifierAdded(MyEntity entity, Identifier identifier) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void identifierRemoved(MyEntity entity, Identifier identifier) {
-		// TODO Auto-generated method stub
-
-	}
 }

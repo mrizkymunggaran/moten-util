@@ -1,10 +1,8 @@
 package moten.david.ete.memory;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Enumeration;
-import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -17,51 +15,16 @@ public class MyEntity implements Entity {
 
 	private final TreeSet<MyFix> fixes = new TreeSet<MyFix>();
 	private final MyIdentifiers identifiers;
-	private transient List<EntityListener> listeners;
 
-	public MyEntity(MyIdentifiers identifiers, List<EntityListener> listeners) {
+	public MyEntity(MyIdentifiers identifiers) {
 		this.identifiers = identifiers;
-		this.listeners = listeners;
-		identifiers.addListener(new MyIdentifiersListener() {
-
-			@Override
-			public void added(Identifier identifier) {
-				fireIdentifierAdded(identifier);
-			}
-
-			@Override
-			public void removed(Identifier identifier) {
-				fireIdentifierRemoved(identifier);
-			}
-		});
-	}
-
-	private void fireIdentifierAdded(Identifier identifier) {
-
-	}
-
-	private void fireIdentifierRemoved(Identifier identifier) {
-
-	}
-
-	public synchronized void addListener(EntityListener l) {
-		if (listeners == null)
-			listeners = new ArrayList<EntityListener>();
-		listeners.add(l);
 	}
 
 	@Override
 	public void addFix(Fix fix) {
 		synchronized (fixes) {
 			fixes.add((MyFix) fix);
-			fireFixAdded(fix);
 		}
-	}
-
-	private void fireFixAdded(Fix fix) {
-		if (listeners != null)
-			for (EntityListener l : listeners)
-				l.fixAdded(this, fix);
 	}
 
 	@Override
