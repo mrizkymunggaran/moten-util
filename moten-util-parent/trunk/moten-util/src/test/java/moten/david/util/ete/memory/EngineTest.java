@@ -76,7 +76,8 @@ public class EngineTest {
 					.count(engine.getEntities()));
 			log.info("saving fixes");
 			File file = new File("target/fixes.obj");
-			engine.saveFixes(new FileOutputStream(file));
+			Assert.assertEquals(MyEngine.MAX_TOTAL_FIXES, engine
+					.saveFixes(new FileOutputStream(file)));
 			log.info("saved fixes");
 			log.info("file size=" + file.length() / 1024 + "K");
 

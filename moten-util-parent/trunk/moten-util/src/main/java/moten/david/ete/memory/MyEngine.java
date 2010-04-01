@@ -20,10 +20,11 @@ import moten.david.util.collections.CollectionsUtil;
 
 public class MyEngine implements Engine {
 
+	public static final int MAX_TOTAL_FIXES = 10000;
 	private final FixTrimmer fixTrimmer;
 
 	public MyEngine() {
-		this.fixTrimmer = new FixTrimmer(this, 100000);
+		this.fixTrimmer = new FixTrimmer(this, MAX_TOTAL_FIXES);
 	}
 
 	private final Set<Entity> entities = Collections
@@ -97,8 +98,9 @@ public class MyEngine implements Engine {
 	 * 
 	 * @param os
 	 */
-	public void saveFixes(OutputStream os) {
+	public long saveFixes(OutputStream os) {
 		try {
+			long count = 0;
 			ObjectOutputStream oos = new ObjectOutputStream(os);
 			Enumeration<Entity> en = getEntities();
 			while (en.hasMoreElements()) {
@@ -107,9 +109,11 @@ public class MyEngine implements Engine {
 				while (enFixes.hasMoreElements()) {
 					MyFix fix = enFixes.nextElement();
 					oos.writeObject(fix);
+					count++;
 				}
 			}
 			oos.close();
+			return count;
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
