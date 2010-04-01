@@ -59,6 +59,14 @@ public class EngineTest {
 
             fixAdder.addFix(d);
             Assert.assertEquals(3, CollectionsUtil.count(engine.getEntities()));
+
+            for (int i = 0; i < 100; i++) {
+                for (int j = 0; j < 1000; j++)
+                    fixAdder.addFix(createFix("bingo" + i));
+            }
+
+            Assert.assertEquals(103, CollectionsUtil
+                    .count(engine.getEntities()));
         }
     }
 
