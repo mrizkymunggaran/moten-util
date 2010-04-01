@@ -3,6 +3,7 @@ package moten.david.util.ete.memory;
 import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.logging.Logger;
 
 import moten.david.ete.Engine;
 import moten.david.ete.Fix;
@@ -20,6 +21,8 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 
 public class EngineTest {
+
+    private static Logger log = Logger.getLogger(EngineTest.class.getName());
 
     private static long time = System.currentTimeMillis();
 
@@ -67,6 +70,11 @@ public class EngineTest {
 
             Assert.assertEquals(103, CollectionsUtil
                     .count(engine.getEntities()));
+
+            // KmlProvider kmlProvider =
+            // injector.getInstance(KmlProvider.class);
+            // log.info(kmlProvider.getKml(((MyEngine)
+            // engine).getLatestFixes()));
         }
     }
 

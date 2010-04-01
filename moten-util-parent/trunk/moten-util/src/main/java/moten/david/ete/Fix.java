@@ -1,7 +1,6 @@
 package moten.david.ete;
 
 import java.util.Calendar;
-import java.util.Map;
 import java.util.SortedSet;
 
 /**
@@ -31,10 +30,4 @@ public interface Fix extends Comparable<Fix> {
      */
     Calendar getTime();
 
-    /**
-     * Any miscellaneous properties of the fix.
-     * 
-     * @return
-     */
-    Map<String, String> getProperties();
 }

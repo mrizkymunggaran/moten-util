@@ -5,6 +5,10 @@ import moten.david.ete.IdentifierType;
 
 public class MyIdentifier implements Identifier {
 
+    public String getValue() {
+        return value;
+    }
+
     private final IdentifierType type;
     private final String value;
 

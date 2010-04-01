@@ -1,7 +1,9 @@
 package moten.david.util.collections;
 
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
+import java.util.List;
 
 public class CollectionsUtil {
 
@@ -27,5 +29,13 @@ public class CollectionsUtil {
             e.nextElement();
         }
         return i;
+    }
+
+    public static <T> List<T> toList(final Enumeration<T> enumeration) {
+        List<T> list = new ArrayList<T>();
+        while (enumeration.hasMoreElements()) {
+            list.add(enumeration.nextElement());
+        }
+        return list;
     }
 }

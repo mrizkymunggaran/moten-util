@@ -48,7 +48,10 @@ public class MyFix extends AbstractFix {
         return position;
     }
 
-    @Override
+    public Velocity getVelocity() {
+        return velocity;
+    }
+
     public Map<String, String> getProperties() {
         return properties;
     }

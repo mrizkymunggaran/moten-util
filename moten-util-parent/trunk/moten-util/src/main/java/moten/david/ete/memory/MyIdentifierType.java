@@ -5,11 +5,16 @@ import moten.david.ete.IdentifierType;
 public class MyIdentifierType implements IdentifierType {
 
     private final String name;
+
     private final double strength;
 
     public MyIdentifierType(String name, double strength) {
         this.name = name;
         this.strength = strength;
+    }
+
+    public String getName() {
+        return name;
     }
 
     @Override
