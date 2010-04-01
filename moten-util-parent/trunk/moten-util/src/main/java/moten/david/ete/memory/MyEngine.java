@@ -55,6 +55,7 @@ public class MyEngine implements Engine {
 	public void removeEntity(Entity entity) {
 		synchronized (entities) {
 			entities.remove(entity);
+			fixTrimmer.entityRemoved(entity);
 		}
 	}
 

@@ -47,4 +47,9 @@ public class FixTrimmer implements EntityListener {
 		if (fixCount > maxFixes)
 			oldestFixEntity.removeOldestFix();
 	}
+
+	public void entityRemoved(Entity entity) {
+		if (oldestFixEntity == entity)
+			oldestFixEntity = null;
+	}
 }
