@@ -16,7 +16,7 @@ import moten.david.ete.Util;
  * Note: this class has a natural ordering that is inconsistent with equals (the
  * ordering is based on time only). The equals method behaves as follows:
  * Returns true if and only if the other instance has the same time and position
- * and at least one common identifier.
+ * and velocity and at least one common identifier.
  * 
  * @author dxm
  */
@@ -26,10 +26,16 @@ public class MyFix extends AbstractFix {
     private final Calendar time;
     private final SortedSet<Identifier> identifiers = new TreeSet<Identifier>();
     private final Map<String, String> properties = new HashMap<String, String>();
+    private final Velocity velocity;
+
+    public MyFix(MyPosition position, Velocity velocity, Calendar time) {
+        this.position = position;
+        this.velocity = velocity;
+        this.time = time;
+    }
 
     public MyFix(MyPosition position, Calendar time) {
-        this.position = position;
-        this.time = time;
+        this(position, null, time);
     }
 
     @Override
@@ -85,6 +91,11 @@ public class MyFix extends AbstractFix {
             if (other.time != null)
                 return false;
         } else if (!time.equals(other.time))
+            return false;
+        if (velocity == null) {
+            if (other.velocity != null)
+                return false;
+        } else if (!velocity.equals(other.velocity))
             return false;
         if (identifiers == null) {
             if (other.identifiers != null)
