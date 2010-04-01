@@ -19,4 +19,13 @@ public class CollectionsUtil {
             }
         };
     }
+
+    public static <T> int count(Enumeration<T> e) {
+        int i = 0;
+        while (e.hasMoreElements()) {
+            i++;
+            e.nextElement();
+        }
+        return i;
+    }
 }

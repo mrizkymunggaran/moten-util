@@ -1,7 +1,6 @@
 package moten.david.ete;
 
 import java.util.Enumeration;
-import java.util.Set;
 import java.util.SortedSet;
 
 /**
@@ -36,7 +35,7 @@ public interface Engine {
      * @param identifiers
      * @return
      */
-    Entity findEntity(Set<Identifier> identifiers);
+    Entity findEntity(SortedSet<Identifier> identifiers);
 
     /**
      * Returns an enumeration of all the entities recorded in the engine.

@@ -5,7 +5,6 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.SortedSet;
-import java.util.TreeSet;
 
 import moten.david.ete.Engine;
 import moten.david.ete.Entity;
@@ -28,11 +27,11 @@ public class MyEngine implements Engine {
     }
 
     @Override
-    public Entity findEntity(Set<Identifier> identifiers) {
+    public Entity findEntity(SortedSet<Identifier> identifiers) {
         synchronized (entities) {
-            SortedSet<Identifier> sorted = new TreeSet<Identifier>(identifiers);
             for (Entity entity : entities) {
-                if (Util.haveCommonIdentifier(entity.getIdentifiers(), sorted))
+                if (Util.haveCommonIdentifier(entity.getIdentifiers(),
+                        identifiers))
                     return entity;
             }
             return null;

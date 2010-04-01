@@ -2,6 +2,7 @@ package moten.david.ete;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.TreeSet;
 
 import com.google.inject.Inject;
 
@@ -45,8 +46,9 @@ public class FixAdderImpl implements FixAdder {
             // entity
             if (!isPrimaryIdentifier(primaryEntity, identifier)) {
                 // get the entity corresponding to the identity
-                Entity identifierEntity = engine.findEntity(Collections
-                        .singleton(identifier));
+                Entity identifierEntity = engine
+                        .findEntity(new TreeSet<Identifier>(Collections
+                                .singleton(identifier)));
                 // if the identifier is on another entity
                 if (!primaryEntity.equals(identifierEntity)) {
                     // if the identifier is the primary identifier on the other
