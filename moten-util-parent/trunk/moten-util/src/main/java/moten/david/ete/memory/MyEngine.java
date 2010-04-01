@@ -17,67 +17,74 @@ import moten.david.util.collections.CollectionsUtil;
 
 public class MyEngine implements Engine {
 
-    private final Set<Entity> entities = Collections
-            .synchronizedSet(new HashSet<Entity>());
+	private final FixTrimmer fixTrimmer;
 
-    @Override
-    public Entity createEntity(SortedSet<Identifier> identifiers) {
-        synchronized (entities) {
-            MyEntity entity = new MyEntity(identifiers);
-            entities.add(entity);
-            return entity;
-        }
-    }
+	public MyEngine() {
+		this.fixTrimmer = new FixTrimmer(this);
+	}
 
-    @Override
-    public Entity findEntity(SortedSet<Identifier> identifiers) {
-        synchronized (entities) {
-            for (Entity entity : entities) {
-                if (Util.haveCommonIdentifier(entity.getIdentifiers(),
-                        identifiers))
-                    return entity;
-            }
-            return null;
-        }
-    }
+	private final Set<Entity> entities = Collections
+			.synchronizedSet(new HashSet<Entity>());
 
-    @Override
-    public void removeEntity(Entity entity) {
-        synchronized (entities) {
-            entities.remove(entity);
-        }
-    }
+	@Override
+	public Entity createEntity(SortedSet<Identifier> identifiers) {
+		synchronized (entities) {
+			MyEntity entity = new MyEntity(identifiers);
+			entities.add(entity);
+			entity.addListener(fixTrimmer);
+			return entity;
+		}
+	}
 
-    @Override
-    public Enumeration<Entity> getEntities() {
-        synchronized (entities) {
-            return CollectionsUtil.toEnumeration(entities.iterator());
-        }
-    }
+	@Override
+	public Entity findEntity(SortedSet<Identifier> identifiers) {
+		synchronized (entities) {
+			for (Entity entity : entities) {
+				if (Util.haveCommonIdentifier(entity.getIdentifiers(),
+						identifiers))
+					return entity;
+			}
+			return null;
+		}
+	}
 
-    public Enumeration<MyFix> getLatestFixes() {
-        return new Enumeration<MyFix>() {
+	@Override
+	public void removeEntity(Entity entity) {
+		synchronized (entities) {
+			entities.remove(entity);
+		}
+	}
 
-            private Iterator<MyFix> iterator;
+	@Override
+	public Enumeration<Entity> getEntities() {
+		synchronized (entities) {
+			return CollectionsUtil.toEnumeration(entities.iterator());
+		}
+	}
 
-            {
-                List<MyFix> list = new ArrayList<MyFix>();
-                for (Entity e : CollectionsUtil.toList(getEntities())) {
-                    list.add((MyFix) e.getLatestFix());
-                }
-                iterator = list.iterator();
-            }
+	public Enumeration<MyFix> getLatestFixes() {
+		return new Enumeration<MyFix>() {
 
-            @Override
-            public boolean hasMoreElements() {
-                return iterator.hasNext();
-            }
+			private Iterator<MyFix> iterator;
 
-            @Override
-            public MyFix nextElement() {
-                return iterator.next();
-            }
+			{
+				List<MyFix> list = new ArrayList<MyFix>();
+				for (Entity e : CollectionsUtil.toList(getEntities())) {
+					list.add((MyFix) e.getLatestFix());
+				}
+				iterator = list.iterator();
+			}
 
-        };
-    }
+			@Override
+			public boolean hasMoreElements() {
+				return iterator.hasNext();
+			}
+
+			@Override
+			public MyFix nextElement() {
+				return iterator.next();
+			}
+
+		};
+	}
 }
