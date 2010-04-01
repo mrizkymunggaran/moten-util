@@ -1,5 +1,6 @@
 package moten.david.ete;
 
+import java.util.Enumeration;
 import java.util.Set;
 import java.util.SortedSet;
 
@@ -21,6 +22,13 @@ public interface Engine {
     Entity createEntity(SortedSet<Identifier> identifiers);
 
     /**
+     * Remove an entity and all it's associated data (e.g. fixes).
+     * 
+     * @param entity
+     */
+    void removeEntity(Entity entity);
+
+    /**
      * Will try to match on the identifiers in descending rank order
      * (IdentiferType is a Comparable). Once a match is found the other
      * identifiers are ignored.
@@ -29,5 +37,12 @@ public interface Engine {
      * @return
      */
     Entity findEntity(Set<Identifier> identifiers);
+
+    /**
+     * Returns an enumeration of all the entities recorded in the engine.
+     * 
+     * @return
+     */
+    Enumeration<Entity> getEntities();
 
 }

@@ -8,7 +8,6 @@ public class MyIdentifierType implements IdentifierType {
     private final double strength;
 
     public MyIdentifierType(String name, double strength) {
-        super();
         this.name = name;
         this.strength = strength;
     }

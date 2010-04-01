@@ -10,7 +10,7 @@ import com.google.inject.Inject;
  * 
  * @author dave
  */
-public class AddFixAlgorithmImpl implements AddFixAlgorithm {
+public class FixAdderImpl implements FixAdder {
 
     private final Engine engine;
 
@@ -20,7 +20,7 @@ public class AddFixAlgorithmImpl implements AddFixAlgorithm {
      * @param engine
      */
     @Inject
-    public AddFixAlgorithmImpl(Engine engine) {
+    public FixAdderImpl(Engine engine) {
         this.engine = engine;
     }
 
