@@ -1,5 +1,8 @@
 package moten.david.ete.memory;
 
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -20,7 +23,7 @@ public class MyEngine implements Engine {
 	private final FixTrimmer fixTrimmer;
 
 	public MyEngine() {
-		this.fixTrimmer = new FixTrimmer(this);
+		this.fixTrimmer = new FixTrimmer(this, 100000);
 	}
 
 	private final Set<Entity> entities = Collections
@@ -86,5 +89,28 @@ public class MyEngine implements Engine {
 			}
 
 		};
+	}
+
+	/**
+	 * Saves all fixes to an OutputStream
+	 * 
+	 * @param os
+	 */
+	public void saveFixes(OutputStream os) {
+		try {
+			ObjectOutputStream oos = new ObjectOutputStream(os);
+			Enumeration<Entity> en = getEntities();
+			while (en.hasMoreElements()) {
+				MyEntity entity = (MyEntity) en.nextElement();
+				Enumeration<MyFix> enFixes = entity.getFixes();
+				while (enFixes.hasMoreElements()) {
+					MyFix fix = enFixes.nextElement();
+					oos.writeObject(fix);
+				}
+			}
+			oos.close();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 }

@@ -3,6 +3,7 @@ package moten.david.ete.memory;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -10,11 +11,12 @@ import java.util.TreeSet;
 import moten.david.ete.Entity;
 import moten.david.ete.Fix;
 import moten.david.ete.Identifier;
+import moten.david.util.collections.CollectionsUtil;
 
 public class MyEntity implements Entity {
 
 	private static final int MAX_FIXES = 50000;
-	private final TreeSet<Fix> fixes = new TreeSet<Fix>();
+	private final TreeSet<MyFix> fixes = new TreeSet<MyFix>();
 	private final SortedSet<Identifier> identifiers;
 	private transient List<EntityListener> listeners;
 
@@ -31,7 +33,7 @@ public class MyEntity implements Entity {
 	@Override
 	public void addFix(Fix fix) {
 		synchronized (fixes) {
-			fixes.add(fix);
+			fixes.add((MyFix) fix);
 			fireFixAdded(fix);
 		}
 	}
@@ -65,7 +67,7 @@ public class MyEntity implements Entity {
 		synchronized (fixes) {
 			Fix fix = new MyFix(
 					new MyPosition(BigDecimal.ZERO, BigDecimal.ZERO), calendar);
-			return fixes.floor(fix);
+			return fixes.floor((MyFix) fix);
 		}
 	}
 
@@ -97,4 +99,14 @@ public class MyEntity implements Entity {
 			fixes.remove(fixes.first());
 		}
 	}
+
+	/**
+	 * Return an enumeration of all the fixes sorted in ascending order of time.
+	 * 
+	 * @return
+	 */
+	public Enumeration<MyFix> getFixes() {
+		return CollectionsUtil.toEnumeration(fixes.iterator());
+	}
+
 }

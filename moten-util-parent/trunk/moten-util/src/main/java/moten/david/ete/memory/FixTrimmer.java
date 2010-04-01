@@ -10,12 +10,13 @@ import com.google.inject.Inject;
 
 public class FixTrimmer implements EntityListener {
 
-	private final long MAX_FIXES = 1000000;
 	private final Engine engine;
+	private final long maxFixes;
 
 	@Inject
-	public FixTrimmer(Engine engine) {
+	public FixTrimmer(Engine engine, long maxFixes) {
 		this.engine = engine;
+		this.maxFixes = maxFixes;
 	}
 
 	private long fixCount = 0;
@@ -43,7 +44,7 @@ public class FixTrimmer implements EntityListener {
 			oldestFixEntity = entity;
 		else if (oldestFixEntity.getOldestFix().getTime().after(fix.getTime()))
 			oldestFixEntity = entity;
-		if (fixCount > MAX_FIXES)
+		if (fixCount > maxFixes)
 			oldestFixEntity.removeOldestFix();
 	}
 }

@@ -1,5 +1,6 @@
 package moten.david.ete.memory;
 
+import java.io.Serializable;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,93 +21,95 @@ import moten.david.ete.Util;
  * 
  * @author dxm
  */
-public class MyFix extends AbstractFix {
+public class MyFix extends AbstractFix implements Serializable {
 
-    private final MyPosition position;
-    private final Calendar time;
-    private final SortedSet<Identifier> identifiers = new TreeSet<Identifier>();
-    private final Map<String, String> properties = new HashMap<String, String>();
-    private final Velocity velocity;
+	private static final long serialVersionUID = -6187835231846959028L;
 
-    public MyFix(MyPosition position, Velocity velocity, Calendar time) {
-        this.position = position;
-        this.velocity = velocity;
-        this.time = time;
-    }
+	private final MyPosition position;
+	private final Calendar time;
+	private final SortedSet<Identifier> identifiers = new TreeSet<Identifier>();
+	private final Map<String, String> properties = new HashMap<String, String>();
+	private final Velocity velocity;
 
-    public MyFix(MyPosition position, Calendar time) {
-        this(position, null, time);
-    }
+	public MyFix(MyPosition position, Velocity velocity, Calendar time) {
+		this.position = position;
+		this.velocity = velocity;
+		this.time = time;
+	}
 
-    @Override
-    public SortedSet<Identifier> getIdentifiers() {
-        return identifiers;
-    }
+	public MyFix(MyPosition position, Calendar time) {
+		this(position, null, time);
+	}
 
-    @Override
-    public Position getPosition() {
-        return position;
-    }
+	@Override
+	public SortedSet<Identifier> getIdentifiers() {
+		return identifiers;
+	}
 
-    public Velocity getVelocity() {
-        return velocity;
-    }
+	@Override
+	public Position getPosition() {
+		return position;
+	}
 
-    public Map<String, String> getProperties() {
-        return properties;
-    }
+	public Velocity getVelocity() {
+		return velocity;
+	}
 
-    @Override
-    public Calendar getTime() {
-        return time;
-    }
+	public Map<String, String> getProperties() {
+		return properties;
+	}
 
-    @Override
-    public int compareTo(Fix o) {
-        return getTime().compareTo(o.getTime());
-    }
+	@Override
+	public Calendar getTime() {
+		return time;
+	}
 
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result
-                + ((position == null) ? 0 : position.hashCode());
-        result = prime * result + ((time == null) ? 0 : time.hashCode());
-        return result;
-    }
+	@Override
+	public int compareTo(Fix o) {
+		return getTime().compareTo(o.getTime());
+	}
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        MyFix other = (MyFix) obj;
-        if (position == null) {
-            if (other.position != null)
-                return false;
-        } else if (!position.equals(other.position))
-            return false;
-        if (time == null) {
-            if (other.time != null)
-                return false;
-        } else if (!time.equals(other.time))
-            return false;
-        if (velocity == null) {
-            if (other.velocity != null)
-                return false;
-        } else if (!velocity.equals(other.velocity))
-            return false;
-        if (identifiers == null) {
-            if (other.identifiers != null)
-                return false;
-        }
-        if (!Util.haveCommonIdentifier(identifiers, other.identifiers))
-            return false;
-        return true;
-    }
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((position == null) ? 0 : position.hashCode());
+		result = prime * result + ((time == null) ? 0 : time.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		MyFix other = (MyFix) obj;
+		if (position == null) {
+			if (other.position != null)
+				return false;
+		} else if (!position.equals(other.position))
+			return false;
+		if (time == null) {
+			if (other.time != null)
+				return false;
+		} else if (!time.equals(other.time))
+			return false;
+		if (velocity == null) {
+			if (other.velocity != null)
+				return false;
+		} else if (!velocity.equals(other.velocity))
+			return false;
+		if (identifiers == null) {
+			if (other.identifiers != null)
+				return false;
+		}
+		if (!Util.haveCommonIdentifier(identifiers, other.identifiers))
+			return false;
+		return true;
+	}
 
 }
