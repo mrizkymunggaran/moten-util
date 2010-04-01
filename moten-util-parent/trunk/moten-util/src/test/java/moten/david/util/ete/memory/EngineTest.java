@@ -1,5 +1,8 @@
 package moten.david.util.ete.memory;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -8,6 +11,7 @@ import java.util.logging.Logger;
 import moten.david.ete.Engine;
 import moten.david.ete.Fix;
 import moten.david.ete.FixAdder;
+import moten.david.ete.memory.MyEngine;
 import moten.david.ete.memory.MyFix;
 import moten.david.ete.memory.MyIdentifier;
 import moten.david.ete.memory.MyIdentifierType;
@@ -27,7 +31,7 @@ public class EngineTest {
 	private static long time = System.currentTimeMillis();
 
 	@Test
-	public void test() {
+	public void test() throws FileNotFoundException {
 		Fix e = createFix("fred");
 		Fix a = createFix("fred");
 		Fix b = createFix("fred");
@@ -36,7 +40,7 @@ public class EngineTest {
 		{
 			Injector injector = Guice.createInjector(new InjectorModule());
 			FixAdder fixAdder = injector.getInstance(FixAdder.class);
-			Engine engine = injector.getInstance(Engine.class);
+			MyEngine engine = (MyEngine) injector.getInstance(Engine.class);
 
 			fixAdder.addFix(a);
 			Assert.assertEquals(1, CollectionsUtil.count(engine.getEntities()));
@@ -64,12 +68,17 @@ public class EngineTest {
 			Assert.assertEquals(3, CollectionsUtil.count(engine.getEntities()));
 
 			for (int i = 0; i < 100; i++) {
-				for (int j = 0; j < 100; j++)
+				for (int j = 0; j < 1000; j++)
 					fixAdder.addFix(createFix("bingo" + i));
 			}
 
 			Assert.assertEquals(103, CollectionsUtil
 					.count(engine.getEntities()));
+			log.info("saving fixes");
+			File file = new File("target/fixes.obj");
+			engine.saveFixes(new FileOutputStream(file));
+			log.info("saved fixes");
+			log.info("file size=" + file.length() / 1024 + "K");
 
 			// KmlProvider kmlProvider =
 			// injector.getInstance(KmlProvider.class);

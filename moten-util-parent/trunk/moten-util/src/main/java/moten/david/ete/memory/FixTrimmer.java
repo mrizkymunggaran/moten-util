@@ -42,7 +42,9 @@ public class FixTrimmer implements EntityListener {
 	private void processFix(MyEntity entity, Fix fix) {
 		if (oldestFixEntity == null)
 			oldestFixEntity = entity;
-		else if (oldestFixEntity.getOldestFix().getTime().after(fix.getTime()))
+		else if (oldestFixEntity.getOldestFix() == null
+				|| oldestFixEntity.getOldestFix().getTime()
+						.after(fix.getTime()))
 			oldestFixEntity = entity;
 		if (fixCount > maxFixes)
 			oldestFixEntity.removeOldestFix();

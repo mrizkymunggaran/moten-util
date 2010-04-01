@@ -15,7 +15,6 @@ import moten.david.util.collections.CollectionsUtil;
 
 public class MyEntity implements Entity {
 
-	private static final int MAX_FIXES = 50000;
 	private final TreeSet<MyFix> fixes = new TreeSet<MyFix>();
 	private final SortedSet<Identifier> identifiers;
 	private transient List<EntityListener> listeners;
@@ -58,7 +57,10 @@ public class MyEntity implements Entity {
 
 	public Fix getOldestFix() {
 		synchronized (fixes) {
-			return fixes.first();
+			if (fixes.size() == 0)
+				return null;
+			else
+				return fixes.first();
 		}
 	}
 
