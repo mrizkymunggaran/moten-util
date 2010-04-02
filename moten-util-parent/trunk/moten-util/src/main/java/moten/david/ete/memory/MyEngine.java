@@ -19,28 +19,32 @@ import moten.david.ete.Entity;
 import moten.david.ete.Identifier;
 import moten.david.ete.Util;
 import moten.david.util.collections.CollectionsUtil;
+import moten.david.util.controller.Controller;
 
 import com.google.inject.Inject;
 
 public class MyEngine implements Engine {
 
-	private final MyIdentifiersFactory myIdentifiersFactory;
-
-	@Inject
-	public MyEngine(MyIdentifiersFactory myIdentifiersFactory) {
-		this.myIdentifiersFactory = myIdentifiersFactory;
-	}
-
+	// TODO do fast lookup of entities from identifiers
 	private final Map<Identifier, Entity> identifiers = new ConcurrentHashMap<Identifier, Entity>();
 
 	private final Set<Entity> entities = Collections
 			.synchronizedSet(new HashSet<Entity>());
 
+	private final MyEntityFactory entityFactory;
+
+	private final Controller controller;
+
+	@Inject
+	public MyEngine(MyEntityFactory entityFactory, Controller controller) {
+		this.entityFactory = entityFactory;
+		this.controller = controller;
+	}
+
 	@Override
 	public Entity createEntity(SortedSet<Identifier> ids) {
 		synchronized (entities) {
-			MyIdentifiers myIdentifiers = myIdentifiersFactory.create(ids);
-			final MyEntity entity = new MyEntity(myIdentifiers);
+			final MyEntity entity = entityFactory.create(ids);
 			entities.add(entity);
 			return entity;
 		}

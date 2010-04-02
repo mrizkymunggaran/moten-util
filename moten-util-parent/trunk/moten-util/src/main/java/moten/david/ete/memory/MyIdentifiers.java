@@ -4,6 +4,9 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import moten.david.ete.Identifier;
+import moten.david.ete.memory.event.IdentifierAdded;
+import moten.david.ete.memory.event.IdentifierRemoved;
+import moten.david.util.controller.Controller;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
@@ -11,9 +14,15 @@ import com.google.inject.assistedinject.Assisted;
 public class MyIdentifiers extends TreeSet<Identifier> {
 
 	private static final long serialVersionUID = -1849220137647917437L;
+	private final Controller controller;
+	private final MyEntity entity;
 
 	@Inject
-	public MyIdentifiers(@Assisted SortedSet<Identifier> identifiers) {
+	public MyIdentifiers(Controller controller,
+			@Assisted SortedSet<Identifier> identifiers,
+			@Assisted MyEntity entity) {
+		this.controller = controller;
+		this.entity = entity;
 		for (Identifier identifier : identifiers)
 			add(identifier);
 	}
@@ -26,8 +35,8 @@ public class MyIdentifiers extends TreeSet<Identifier> {
 		return result;
 	}
 
-	private void fireAdded(Identifier e) {
-		// TODO
+	private void fireAdded(Identifier id) {
+		controller.event(new IdentifierAdded(entity, (MyIdentifier) id));
 	}
 
 	@Override
@@ -38,8 +47,7 @@ public class MyIdentifiers extends TreeSet<Identifier> {
 		return result;
 	}
 
-	private void fireRemoved(Identifier identifier) {
-		// TODO
+	private void fireRemoved(Identifier id) {
+		controller.event(new IdentifierRemoved(entity, (MyIdentifier) id));
 	}
-
 }

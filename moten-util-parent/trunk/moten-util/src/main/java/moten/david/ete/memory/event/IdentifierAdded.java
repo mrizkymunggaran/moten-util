@@ -4,7 +4,7 @@ import moten.david.ete.memory.MyEntity;
 import moten.david.ete.memory.MyIdentifier;
 import moten.david.util.controller.Event;
 
-public class IdentifiersAdded implements Event {
+public class IdentifierAdded implements Event {
 	private final MyEntity entity;
 	private final MyIdentifier identifier;
 
@@ -16,8 +16,7 @@ public class IdentifiersAdded implements Event {
 		return identifier;
 	}
 
-	public IdentifiersAdded(MyEntity entity, MyIdentifier identifier) {
-		super();
+	public IdentifierAdded(MyEntity entity, MyIdentifier identifier) {
 		this.entity = entity;
 		this.identifier = identifier;
 	}

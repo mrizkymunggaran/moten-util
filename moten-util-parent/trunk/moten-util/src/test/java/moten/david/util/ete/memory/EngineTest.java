@@ -12,6 +12,7 @@ import moten.david.ete.Engine;
 import moten.david.ete.Fix;
 import moten.david.ete.FixAdder;
 import moten.david.ete.memory.MyEngine;
+import moten.david.ete.memory.MyEntityFactory;
 import moten.david.ete.memory.MyFix;
 import moten.david.ete.memory.MyIdentifier;
 import moten.david.ete.memory.MyIdentifierType;
@@ -41,6 +42,8 @@ public class EngineTest {
 			Injector injector = Guice.createInjector(new InjectorModule());
 			FixAdder fixAdder = injector.getInstance(FixAdder.class);
 			MyEngine engine = (MyEngine) injector.getInstance(Engine.class);
+
+			injector.getInstance(MyEntityFactory.class);
 
 			fixAdder.addFix(a);
 			Assert.assertEquals(1, CollectionsUtil.count(engine.getEntities()));

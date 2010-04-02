@@ -5,18 +5,28 @@ import java.util.Enumeration;
 import moten.david.ete.Engine;
 import moten.david.ete.Entity;
 import moten.david.ete.Fix;
+import moten.david.ete.memory.event.FixAdded;
+import moten.david.util.controller.Controller;
+import moten.david.util.controller.ControllerListener;
 
 import com.google.inject.Inject;
 
 public class FixTrimmer {
 
 	private final Engine engine;
-	private final long maxFixes;
+	private final long maxFixes = 10000;
 
 	@Inject
-	public FixTrimmer(Engine engine, long maxFixes) {
+	public FixTrimmer(Engine engine, Controller controller) {
 		this.engine = engine;
-		this.maxFixes = maxFixes;
+		controller.addListener(FixAdded.class,
+				new ControllerListener<FixAdded>() {
+
+					@Override
+					public void event(FixAdded event) {
+						fixAdded(event.getEntity(), event.getFix());
+					}
+				});
 	}
 
 	private long fixCount = 0;

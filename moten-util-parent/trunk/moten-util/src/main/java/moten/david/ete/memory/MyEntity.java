@@ -9,21 +9,31 @@ import java.util.TreeSet;
 import moten.david.ete.Entity;
 import moten.david.ete.Fix;
 import moten.david.ete.Identifier;
+import moten.david.ete.memory.event.FixAdded;
 import moten.david.util.collections.CollectionsUtil;
+import moten.david.util.controller.Controller;
+
+import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
 
 public class MyEntity implements Entity {
 
 	private final TreeSet<MyFix> fixes = new TreeSet<MyFix>();
 	private final MyIdentifiers identifiers;
+	private final Controller controller;
 
-	public MyEntity(MyIdentifiers identifiers) {
-		this.identifiers = identifiers;
+	@Inject
+	public MyEntity(MyIdentifiersFactory identifiersFactory,
+			Controller controller, @Assisted SortedSet<Identifier> ids) {
+		this.controller = controller;
+		this.identifiers = identifiersFactory.create(ids, this);
 	}
 
 	@Override
 	public void addFix(Fix fix) {
 		synchronized (fixes) {
 			fixes.add((MyFix) fix);
+			controller.event(new FixAdded(this, (MyFix) fix));
 		}
 	}
 
