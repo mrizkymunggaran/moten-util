@@ -27,7 +27,7 @@ public class FixAdderImpl implements FixAdder {
 
 	@Override
 	public void addFix(Fix fix) {
-
+		// TODO update wiki with this change
 		// find the entity based on the identifiers in descending order
 		Entity primaryEntity = engine.findEntity(fix.getIdentifiers());
 		if (primaryEntity != null) {
@@ -79,6 +79,7 @@ public class FixAdderImpl implements FixAdder {
 							identifierEntity.addFix(fix);
 						}
 					} else {
+						// TODO update wiki with this change
 						// if the primary entity is stronger than or of the same
 						// strength as the other entity then
 						// move the identifier to the primary entity
