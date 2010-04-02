@@ -83,7 +83,12 @@ public class FixAdderImpl implements FixAdder {
 						// strength as the other entity then
 						// move the identifier to the primary entity
 						// end if
-						if (!weaker(primaryEntity, identifierEntity)) {
+						if (stronger(primaryEntity, identifierEntity)
+								|| (sameStrength(primaryEntity,
+										identifierEntity) && fix.getTime()
+										.after(
+												identifierEntity.getLatestFix()
+														.getTime()))) {
 							identifierEntity.getIdentifiers()
 									.remove(identifier);
 							primaryEntity.getIdentifiers().add(identifier);
@@ -179,16 +184,30 @@ public class FixAdderImpl implements FixAdder {
 
 	/**
 	 * Returns true if and only if the type of the primary identifier of entity
-	 * <i>a</i> is weaker than (ordered before) the type of the primary
+	 * <i>a</i> is stronger than (ordered before) the type of the primary
 	 * identifier of entity <i>b</i>.
 	 * 
 	 * @param a
 	 * @param b
 	 * @return
 	 */
-	private boolean weaker(Entity a, Entity b) {
-		return getPrimaryIdentifier(a).getIdentifierType().compareTo(
-				getPrimaryIdentifier(b).getIdentifierType()) < 0;
+	private boolean stronger(Entity a, Entity b) {
+		return getPrimaryIdentifier(a).getIdentifierType().getStrength() > getPrimaryIdentifier(
+				b).getIdentifierType().getStrength();
+	}
+
+	/**
+	 * Returns true if and only if the type of the primary identifier of entity
+	 * <i>a</i> is the same strength as the type of the primary identifier of
+	 * entity <i>b</i>.
+	 * 
+	 * @param a
+	 * @param b
+	 * @return
+	 */
+	private boolean sameStrength(Entity a, Entity b) {
+		return getPrimaryIdentifier(a).getIdentifierType().getStrength() == getPrimaryIdentifier(
+				b).getIdentifierType().getStrength();
 	}
 
 	/**

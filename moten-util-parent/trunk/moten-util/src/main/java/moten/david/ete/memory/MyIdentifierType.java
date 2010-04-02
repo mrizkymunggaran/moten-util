@@ -55,4 +55,9 @@ public class MyIdentifierType implements IdentifierType, Serializable {
 		return true;
 	}
 
+	@Override
+	public double getStrength() {
+		return strength;
+	}
+
 }

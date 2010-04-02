@@ -8,5 +8,5 @@ package moten.david.ete;
  * 
  */
 public interface IdentifierType extends Comparable<IdentifierType> {
-
+	double getStrength();
 }
