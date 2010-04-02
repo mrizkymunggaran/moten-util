@@ -1,7 +1,6 @@
 package moten.david.ete;
 
 import java.math.BigDecimal;
-import java.util.Calendar;
 
 public interface Entity {
 
@@ -27,14 +26,6 @@ public interface Entity {
 	 * @return
 	 */
 	Fix getLatestFix();
-
-	/**
-	 * Return the latest fix before a given time for this entity.
-	 * 
-	 * @param calendar
-	 * @return
-	 */
-	Fix getLatestFixBefore(Calendar calendar);
 
 	/**
 	 * A merge case requires that an entity can move its fixes to another. It

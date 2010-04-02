@@ -9,53 +9,30 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
-import java.util.concurrent.ConcurrentHashMap;
 
 import moten.david.ete.Engine;
 import moten.david.ete.Entity;
+import moten.david.ete.Fix;
 import moten.david.ete.Identifier;
-import moten.david.ete.memory.event.IdentifierAdded;
-import moten.david.ete.memory.event.IdentifierRemoved;
 import moten.david.util.collections.CollectionsUtil;
-import moten.david.util.controller.Controller;
-import moten.david.util.controller.ControllerListener;
 
 import com.google.inject.Inject;
 
 public class MyEngine implements Engine {
-
-	// TODO do fast lookup of entities from identifiers
-	private final Map<Identifier, Entity> identifiers = new ConcurrentHashMap<Identifier, Entity>();
 
 	private final Set<Entity> entities = Collections
 			.synchronizedSet(new HashSet<Entity>());
 
 	private final MyEntityFactory entityFactory;
 
-	private final Controller controller;
+	private final EntityLookup entityLookup;
 
 	@Inject
-	public MyEngine(MyEntityFactory entityFactory, Controller controller) {
+	public MyEngine(MyEntityFactory entityFactory, EntityLookup entityLookup) {
 		this.entityFactory = entityFactory;
-		this.controller = controller;
-		controller.addListener(IdentifierAdded.class,
-				new ControllerListener<IdentifierAdded>() {
-					@Override
-					public void event(IdentifierAdded event) {
-						identifiers.put(event.getIdentifier(), event
-								.getEntity());
-					}
-				});
-		controller.addListener(IdentifierRemoved.class,
-				new ControllerListener<IdentifierRemoved>() {
-					@Override
-					public void event(IdentifierRemoved event) {
-						identifiers.remove(event.getIdentifier());
-					}
-				});
+		this.entityLookup = entityLookup;
 	}
 
 	@Override
@@ -70,22 +47,7 @@ public class MyEngine implements Engine {
 	@Override
 	public Entity findEntity(SortedSet<Identifier> identifiers) {
 		synchronized (entities) {
-			// for (Entity entity : entities) {
-			// if (Util.haveCommonIdentifier(entity.getIdentifiers().set(),
-			// identifiers))
-			// return entity;
-			// }
-			// return null;
-
-			// TODO should do in reverse order (strongest first) and return
-			// straight away
-			Entity entity = null;
-			for (Identifier id : identifiers) {
-				Entity ent = this.identifiers.get(id);
-				if (ent != null)
-					entity = ent;
-			}
-			return entity;
+			return entityLookup.findEntity(identifiers);
 		}
 	}
 
@@ -141,9 +103,7 @@ public class MyEngine implements Engine {
 			Enumeration<Entity> en = getEntities();
 			while (en.hasMoreElements()) {
 				MyEntity entity = (MyEntity) en.nextElement();
-				Enumeration<MyFix> enFixes = entity.getFixes();
-				while (enFixes.hasMoreElements()) {
-					MyFix fix = enFixes.nextElement();
+				for (Fix fix : entity.getFixes()) {
 					oos.writeObject(fix);
 					count++;
 				}

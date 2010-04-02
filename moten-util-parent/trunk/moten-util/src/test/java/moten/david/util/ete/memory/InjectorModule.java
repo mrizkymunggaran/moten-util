@@ -3,6 +3,8 @@ package moten.david.util.ete.memory;
 import moten.david.ete.Engine;
 import moten.david.ete.FixAdder;
 import moten.david.ete.FixAdderImpl;
+import moten.david.ete.memory.EntityLookup;
+import moten.david.ete.memory.EntityLookupMap;
 import moten.david.ete.memory.MyEngine;
 import moten.david.ete.memory.MyEntity;
 import moten.david.ete.memory.MyEntityFactory;
@@ -27,6 +29,7 @@ public class InjectorModule extends AbstractModule {
 				FactoryProvider.newFactory(MyEntityFactory.class,
 						MyEntity.class));
 		bind(Controller.class).in(Scopes.SINGLETON);
+		bind(EntityLookup.class).to(EntityLookupMap.class);
 	}
 
 }

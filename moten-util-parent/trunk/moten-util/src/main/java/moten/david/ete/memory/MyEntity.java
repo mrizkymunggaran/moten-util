@@ -1,8 +1,9 @@
 package moten.david.ete.memory;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Enumeration;
+import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -11,13 +12,13 @@ import moten.david.ete.Fix;
 import moten.david.ete.Identifier;
 import moten.david.ete.Identifiers;
 import moten.david.ete.memory.event.FixAdded;
-import moten.david.util.collections.CollectionsUtil;
+import moten.david.ete.track.TrackedEntity;
 import moten.david.util.controller.Controller;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
-public class MyEntity implements Entity {
+public class MyEntity implements TrackedEntity {
 
 	private final TreeSet<MyFix> fixes = new TreeSet<MyFix>();
 	private final MyIdentifiers identifiers;
@@ -50,6 +51,7 @@ public class MyEntity implements Entity {
 		}
 	}
 
+	@Override
 	public Fix getOldestFix() {
 		synchronized (fixes) {
 			if (fixes.size() == 0)
@@ -60,11 +62,27 @@ public class MyEntity implements Entity {
 	}
 
 	@Override
-	public Fix getLatestFixBefore(Calendar calendar) {
+	public Fix getLatestFixAtOrBefore(Calendar calendar) {
 		synchronized (fixes) {
 			Fix fix = new MyFix(
 					new MyPosition(BigDecimal.ZERO, BigDecimal.ZERO), calendar);
 			return fixes.floor((MyFix) fix);
+		}
+	}
+
+	@Override
+	public Fix getFirstFixAfter(Calendar calendar) {
+		synchronized (fixes) {
+			Fix fix = new MyFix(
+					new MyPosition(BigDecimal.ZERO, BigDecimal.ZERO), calendar);
+			return fixes.higher((MyFix) fix);
+		}
+	}
+
+	@Override
+	public List<? extends Fix> getFixesBetween(Fix a, Fix b) {
+		synchronized (fixes) {
+			return new ArrayList<MyFix>(fixes.subSet((MyFix) a, (MyFix) b));
 		}
 	}
 
@@ -98,12 +116,15 @@ public class MyEntity implements Entity {
 	}
 
 	/**
-	 * Return an enumeration of all the fixes sorted in ascending order of time.
+	 * Return a list of all the fixes sorted in ascending order of time.
 	 * 
 	 * @return
 	 */
-	public Enumeration<MyFix> getFixes() {
-		return CollectionsUtil.toEnumeration(fixes.iterator());
+	@Override
+	public List<? extends Fix> getFixes() {
+		synchronized (fixes) {
+			return new ArrayList<MyFix>(fixes);
+		}
 	}
 
 }
