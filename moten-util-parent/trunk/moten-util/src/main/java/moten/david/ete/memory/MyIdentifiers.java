@@ -5,11 +5,15 @@ import java.util.TreeSet;
 
 import moten.david.ete.Identifier;
 
+import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
+
 public class MyIdentifiers extends TreeSet<Identifier> {
 
 	private static final long serialVersionUID = -1849220137647917437L;
 
-	public MyIdentifiers(SortedSet<Identifier> identifiers) {
+	@Inject
+	public MyIdentifiers(@Assisted SortedSet<Identifier> identifiers) {
 		for (Identifier identifier : identifiers)
 			add(identifier);
 	}

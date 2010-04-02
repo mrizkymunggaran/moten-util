@@ -20,7 +20,16 @@ import moten.david.ete.Identifier;
 import moten.david.ete.Util;
 import moten.david.util.collections.CollectionsUtil;
 
+import com.google.inject.Inject;
+
 public class MyEngine implements Engine {
+
+	private final MyIdentifiersFactory myIdentifiersFactory;
+
+	@Inject
+	public MyEngine(MyIdentifiersFactory myIdentifiersFactory) {
+		this.myIdentifiersFactory = myIdentifiersFactory;
+	}
 
 	private final Map<Identifier, Entity> identifiers = new ConcurrentHashMap<Identifier, Entity>();
 
@@ -30,7 +39,7 @@ public class MyEngine implements Engine {
 	@Override
 	public Entity createEntity(SortedSet<Identifier> ids) {
 		synchronized (entities) {
-			MyIdentifiers myIdentifiers = new MyIdentifiers(ids);
+			MyIdentifiers myIdentifiers = myIdentifiersFactory.create(ids);
 			final MyEntity entity = new MyEntity(myIdentifiers);
 			entities.add(entity);
 			return entity;
