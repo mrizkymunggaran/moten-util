@@ -2,7 +2,6 @@ package moten.david.ete;
 
 import java.math.BigDecimal;
 import java.util.Calendar;
-import java.util.SortedSet;
 
 public interface Entity {
 
@@ -12,7 +11,7 @@ public interface Entity {
 	 * 
 	 * @return
 	 */
-	SortedSet<Identifier> getIdentifiers();
+	Identifiers getIdentifiers();
 
 	/**
 	 * Associate a fix with this entity. A fix should only be associated with at

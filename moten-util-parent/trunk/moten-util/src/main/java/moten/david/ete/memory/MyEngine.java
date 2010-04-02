@@ -54,7 +54,7 @@ public class MyEngine implements Engine {
 	public Entity findEntity(SortedSet<Identifier> identifiers) {
 		synchronized (entities) {
 			for (Entity entity : entities) {
-				if (Util.haveCommonIdentifier(entity.getIdentifiers(),
+				if (Util.haveCommonIdentifier(entity.getIdentifiers().set(),
 						identifiers))
 					return entity;
 			}

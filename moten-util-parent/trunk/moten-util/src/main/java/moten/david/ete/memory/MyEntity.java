@@ -9,6 +9,7 @@ import java.util.TreeSet;
 import moten.david.ete.Entity;
 import moten.david.ete.Fix;
 import moten.david.ete.Identifier;
+import moten.david.ete.Identifiers;
 import moten.david.ete.memory.event.FixAdded;
 import moten.david.util.collections.CollectionsUtil;
 import moten.david.util.controller.Controller;
@@ -38,7 +39,7 @@ public class MyEntity implements Entity {
 	}
 
 	@Override
-	public SortedSet<Identifier> getIdentifiers() {
+	public Identifiers getIdentifiers() {
 		return identifiers;
 	}
 
