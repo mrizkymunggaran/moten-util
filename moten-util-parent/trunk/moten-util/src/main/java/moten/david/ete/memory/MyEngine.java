@@ -17,9 +17,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import moten.david.ete.Engine;
 import moten.david.ete.Entity;
 import moten.david.ete.Identifier;
-import moten.david.ete.Util;
+import moten.david.ete.memory.event.IdentifierAdded;
+import moten.david.ete.memory.event.IdentifierRemoved;
 import moten.david.util.collections.CollectionsUtil;
 import moten.david.util.controller.Controller;
+import moten.david.util.controller.ControllerListener;
 
 import com.google.inject.Inject;
 
@@ -39,6 +41,21 @@ public class MyEngine implements Engine {
 	public MyEngine(MyEntityFactory entityFactory, Controller controller) {
 		this.entityFactory = entityFactory;
 		this.controller = controller;
+		controller.addListener(IdentifierAdded.class,
+				new ControllerListener<IdentifierAdded>() {
+					@Override
+					public void event(IdentifierAdded event) {
+						identifiers.put(event.getIdentifier(), event
+								.getEntity());
+					}
+				});
+		controller.addListener(IdentifierRemoved.class,
+				new ControllerListener<IdentifierRemoved>() {
+					@Override
+					public void event(IdentifierRemoved event) {
+						identifiers.remove(event.getIdentifier());
+					}
+				});
 	}
 
 	@Override
@@ -53,12 +70,22 @@ public class MyEngine implements Engine {
 	@Override
 	public Entity findEntity(SortedSet<Identifier> identifiers) {
 		synchronized (entities) {
-			for (Entity entity : entities) {
-				if (Util.haveCommonIdentifier(entity.getIdentifiers().set(),
-						identifiers))
-					return entity;
+			// for (Entity entity : entities) {
+			// if (Util.haveCommonIdentifier(entity.getIdentifiers().set(),
+			// identifiers))
+			// return entity;
+			// }
+			// return null;
+
+			// TODO should do in reverse order (strongest first) and return
+			// straight away
+			Entity entity = null;
+			for (Identifier id : identifiers) {
+				Entity ent = this.identifiers.get(id);
+				if (ent != null)
+					entity = ent;
 			}
-			return null;
+			return entity;
 		}
 	}
 
