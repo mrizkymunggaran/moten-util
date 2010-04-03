@@ -2,6 +2,7 @@ package moten.david.ete;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -286,12 +287,63 @@ public class ServiceImpl implements Service {
 
 	@Override
 	public void merge(Set<? extends Identifier> identifiers) {
-		// TODO
+		Set<Entity> entities = new HashSet<Entity>();
+		for (final Identifier id : identifiers) {
+			Entity entity = engine.findEntity(new TreeSet<Identifier>() {
+				{
+					add(id);
+				}
+			});
+			if (entity != null)
+				entities.add(entity);
+		}
+		mergeEntities(entities);
+	}
+
+	/**
+	 * Merges a set of entities into the strongest entity.
+	 * 
+	 * @param entities
+	 */
+	private void mergeEntities(Set<Entity> entities) {
+		Entity strongest = getStrongest(entities);
+		for (Entity entity : entities) {
+			if (entity != strongest) {
+				for (Identifier id : entity.getIdentifiers().set()) {
+					entity.getIdentifiers().remove(id);
+					strongest.getIdentifiers().add(id);
+				}
+				entity.moveFixes(strongest);
+			}
+		}
+	}
+
+	/**
+	 * Returns the strongest entity in terms of identifier type from a set of
+	 * entities.
+	 * 
+	 * @param entities
+	 * @return
+	 */
+	private Entity getStrongest(Set<Entity> entities) {
+		Entity strongest = null;
+		for (Entity entity : entities) {
+			if (strongest == null)
+				strongest = entity;
+			else if (getPrimaryIdentifier(strongest).getIdentifierType()
+					.getStrength() < getPrimaryIdentifier(entity)
+					.getIdentifierType().getStrength())
+				strongest = entity;
+		}
+		return strongest;
 	}
 
 	@Override
 	public void remove(Set<? extends Identifier> identifiers) {
-		// TODO
-	}
+		Entity entity = engine.findEntity(new TreeSet<Identifier>(identifiers));
+		if (entity != null)
+			for (Identifier id : identifiers)
+				entity.getIdentifiers().remove(id);
 
+	}
 }
