@@ -11,7 +11,7 @@ import java.util.logging.Logger;
 
 import moten.david.ete.Engine;
 import moten.david.ete.Fix;
-import moten.david.ete.FixAdder;
+import moten.david.ete.Service;
 import moten.david.ete.Identifier;
 import moten.david.ete.memory.MyEngine;
 import moten.david.ete.memory.MyEntityFactory;
@@ -42,7 +42,7 @@ public class EngineTest {
 		Fix d = createFix("nat");
 		{
 			Injector injector = Guice.createInjector(new InjectorModule());
-			FixAdder fixAdder = injector.getInstance(FixAdder.class);
+			Service fixAdder = injector.getInstance(Service.class);
 			MyEngine engine = (MyEngine) injector.getInstance(Engine.class);
 
 			injector.getInstance(MyEntityFactory.class);

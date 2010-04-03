@@ -2,6 +2,7 @@ package moten.david.ete;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Set;
 import java.util.TreeSet;
 
 import com.google.inject.Inject;
@@ -11,7 +12,7 @@ import com.google.inject.Inject;
  * 
  * @author dave
  */
-public class FixAdderImpl implements FixAdder {
+public class ServiceImpl implements Service {
 
 	private final Engine engine;
 
@@ -21,7 +22,7 @@ public class FixAdderImpl implements FixAdder {
 	 * @param engine
 	 */
 	@Inject
-	public FixAdderImpl(Engine engine) {
+	public ServiceImpl(Engine engine) {
 		this.engine = engine;
 	}
 
@@ -281,6 +282,16 @@ public class FixAdderImpl implements FixAdder {
 					&& !id.equals(identifier))
 				return true;
 		return false;
+	}
+
+	@Override
+	public void merge(Set<? extends Identifier> identifiers) {
+		// TODO
+	}
+
+	@Override
+	public void remove(Set<? extends Identifier> identifiers) {
+		// TODO
 	}
 
 }

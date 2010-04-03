@@ -1,8 +1,8 @@
 package moten.david.util.ete.memory;
 
 import moten.david.ete.Engine;
-import moten.david.ete.FixAdder;
-import moten.david.ete.FixAdderImpl;
+import moten.david.ete.Service;
+import moten.david.ete.ServiceImpl;
 import moten.david.ete.memory.EntityLookup;
 import moten.david.ete.memory.EntityLookupMap;
 import moten.david.ete.memory.MyEngine;
@@ -21,7 +21,7 @@ public class InjectorModule extends AbstractModule {
 	@Override
 	protected void configure() {
 		bind(Engine.class).to(MyEngine.class).in(Scopes.SINGLETON);
-		bind(FixAdder.class).to(FixAdderImpl.class).in(Scopes.SINGLETON);
+		bind(Service.class).to(ServiceImpl.class).in(Scopes.SINGLETON);
 		bind(MyIdentifiersFactory.class).toProvider(
 				FactoryProvider.newFactory(MyIdentifiersFactory.class,
 						MyIdentifiers.class));
