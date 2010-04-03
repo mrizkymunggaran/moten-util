@@ -26,7 +26,7 @@ public class MyEntity implements TrackedEntity {
 
 	@Inject
 	public MyEntity(MyIdentifiersFactory identifiersFactory,
-			Controller controller, @Assisted SortedSet<Identifier> ids) {
+			Controller controller, @Assisted SortedSet<? extends Identifier> ids) {
 		this.controller = controller;
 		this.identifiers = identifiersFactory.create(ids, this);
 	}
@@ -64,8 +64,7 @@ public class MyEntity implements TrackedEntity {
 	@Override
 	public Fix getLatestFixAtOrBefore(Calendar calendar) {
 		synchronized (fixes) {
-			Fix fix = new MyFix(
-					new MyPosition(BigDecimal.ZERO, BigDecimal.ZERO), calendar);
+			Fix fix = new MyFix(null, null, calendar);
 			return fixes.floor((MyFix) fix);
 		}
 	}
@@ -73,8 +72,7 @@ public class MyEntity implements TrackedEntity {
 	@Override
 	public Fix getFirstFixAfter(Calendar calendar) {
 		synchronized (fixes) {
-			Fix fix = new MyFix(
-					new MyPosition(BigDecimal.ZERO, BigDecimal.ZERO), calendar);
+			Fix fix = new MyFix(null, null, calendar);
 			return fixes.higher((MyFix) fix);
 		}
 	}

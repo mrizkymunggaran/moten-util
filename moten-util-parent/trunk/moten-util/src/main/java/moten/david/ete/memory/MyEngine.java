@@ -36,7 +36,7 @@ public class MyEngine implements Engine {
 	}
 
 	@Override
-	public Entity createEntity(SortedSet<Identifier> ids) {
+	public Entity createEntity(SortedSet<? extends Identifier> ids) {
 		synchronized (entities) {
 			final MyEntity entity = entityFactory.create(ids);
 			entities.add(entity);
@@ -45,7 +45,7 @@ public class MyEngine implements Engine {
 	}
 
 	@Override
-	public Entity findEntity(SortedSet<Identifier> identifiers) {
+	public Entity findEntity(SortedSet<? extends Identifier> identifiers) {
 		synchronized (entities) {
 			return entityLookup.findEntity(identifiers);
 		}

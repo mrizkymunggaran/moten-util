@@ -12,36 +12,36 @@ import java.util.SortedSet;
  */
 public interface Engine {
 
-    /**
-     * Factory method to create an Entity with the given identifiers.
-     * 
-     * @param identifiers
-     * @return
-     */
-    Entity createEntity(SortedSet<Identifier> identifiers);
+	/**
+	 * Factory method to create an Entity with the given identifiers.
+	 * 
+	 * @param identifiers
+	 * @return
+	 */
+	Entity createEntity(SortedSet<? extends Identifier> identifiers);
 
-    /**
-     * Remove an entity and all it's associated data (e.g. fixes).
-     * 
-     * @param entity
-     */
-    void removeEntity(Entity entity);
+	/**
+	 * Remove an entity and all it's associated data (e.g. fixes).
+	 * 
+	 * @param entity
+	 */
+	void removeEntity(Entity entity);
 
-    /**
-     * Will try to match on the identifiers in descending rank order
-     * (IdentiferType is a Comparable). Once a match is found the other
-     * identifiers are ignored.
-     * 
-     * @param identifiers
-     * @return
-     */
-    Entity findEntity(SortedSet<Identifier> identifiers);
+	/**
+	 * Will try to match on the identifiers in descending rank order
+	 * (IdentiferType is a Comparable). Once a match is found the other
+	 * identifiers are ignored.
+	 * 
+	 * @param identifiers
+	 * @return
+	 */
+	Entity findEntity(SortedSet<? extends Identifier> identifiers);
 
-    /**
-     * Returns an enumeration of all the entities recorded in the engine.
-     * 
-     * @return
-     */
-    Enumeration<Entity> getEntities();
+	/**
+	 * Returns an enumeration of all the entities recorded in the engine.
+	 * 
+	 * @return
+	 */
+	Enumeration<Entity> getEntities();
 
 }

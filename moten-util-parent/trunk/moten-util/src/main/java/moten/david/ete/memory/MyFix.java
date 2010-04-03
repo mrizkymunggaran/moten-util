@@ -5,7 +5,6 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedSet;
-import java.util.TreeSet;
 
 import moten.david.ete.AbstractFix;
 import moten.david.ete.Fix;
@@ -19,6 +18,8 @@ import moten.david.ete.Util;
  * Returns true if and only if the other instance has the same time and position
  * and velocity and at least one common identifier.
  * 
+ * This class should be immutable to avoid unwanted side-effects in processing.
+ * 
  * @author dxm
  */
 public class MyFix extends AbstractFix implements Serializable {
@@ -27,22 +28,25 @@ public class MyFix extends AbstractFix implements Serializable {
 
 	private final MyPosition position;
 	private final Calendar time;
-	private final SortedSet<Identifier> identifiers = new TreeSet<Identifier>();
 	private final Map<String, String> properties = new HashMap<String, String>();
 	private final Velocity velocity;
+	private final SortedSet<? extends Identifier> identifiers;
 
-	public MyFix(MyPosition position, Velocity velocity, Calendar time) {
+	public MyFix(SortedSet<? extends Identifier> identifiers,
+			MyPosition position, Velocity velocity, Calendar time) {
 		this.position = position;
 		this.velocity = velocity;
 		this.time = time;
+		this.identifiers = identifiers;
 	}
 
-	public MyFix(MyPosition position, Calendar time) {
-		this(position, null, time);
+	public MyFix(SortedSet<Identifier> identifiers, MyPosition position,
+			Calendar time) {
+		this(identifiers, position, null, time);
 	}
 
 	@Override
-	public SortedSet<Identifier> getIdentifiers() {
+	public SortedSet<? extends Identifier> getIdentifiers() {
 		return identifiers;
 	}
 

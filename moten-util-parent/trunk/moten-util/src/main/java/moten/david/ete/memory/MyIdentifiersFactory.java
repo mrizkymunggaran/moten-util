@@ -5,5 +5,6 @@ import java.util.SortedSet;
 import moten.david.ete.Identifier;
 
 public interface MyIdentifiersFactory {
-	MyIdentifiers create(SortedSet<Identifier> identifiers, MyEntity entity);
+	MyIdentifiers create(SortedSet<? extends Identifier> identifiers,
+			MyEntity entity);
 }

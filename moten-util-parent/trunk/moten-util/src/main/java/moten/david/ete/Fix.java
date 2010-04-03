@@ -9,25 +9,25 @@ import java.util.SortedSet;
  * @author dave
  */
 public interface Fix extends Comparable<Fix> {
-    /**
-     * Entity identifiers.
-     * 
-     * @return
-     */
-    SortedSet<Identifier> getIdentifiers();
+	/**
+	 * Entity identifiers.
+	 * 
+	 * @return
+	 */
+	SortedSet<? extends Identifier> getIdentifiers();
 
-    /**
-     * The position of the entity.
-     * 
-     * @return
-     */
-    Position getPosition();
+	/**
+	 * The position of the entity.
+	 * 
+	 * @return
+	 */
+	Position getPosition();
 
-    /**
-     * The time that the position occurred.
-     * 
-     * @return
-     */
-    Calendar getTime();
+	/**
+	 * The time that the position occurred.
+	 * 
+	 * @return
+	 */
+	Calendar getTime();
 
 }

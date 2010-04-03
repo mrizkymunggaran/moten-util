@@ -37,7 +37,7 @@ public class EntityLookupMap implements EntityLookup {
 	}
 
 	@Override
-	public Entity findEntity(SortedSet<Identifier> identifiers) {
+	public Entity findEntity(SortedSet<? extends Identifier> identifiers) {
 		// TODO should do in reverse order (strongest first) and return
 		// straight away
 		Entity entity = null;

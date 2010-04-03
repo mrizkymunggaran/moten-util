@@ -22,7 +22,7 @@ public class MyIdentifiers implements Identifiers {
 
 	@Inject
 	public MyIdentifiers(Controller controller,
-			@Assisted SortedSet<Identifier> identifiers,
+			@Assisted SortedSet<? extends Identifier> identifiers,
 			@Assisted MyEntity entity) {
 		this.controller = controller;
 		this.entity = entity;

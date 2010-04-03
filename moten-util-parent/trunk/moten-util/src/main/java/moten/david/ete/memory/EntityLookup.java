@@ -7,6 +7,6 @@ import moten.david.ete.Identifier;
 
 public interface EntityLookup {
 
-	public Entity findEntity(SortedSet<Identifier> identifiers);
+	public Entity findEntity(SortedSet<? extends Identifier> identifiers);
 
 }

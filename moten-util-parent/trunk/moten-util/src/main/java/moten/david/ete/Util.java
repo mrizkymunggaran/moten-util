@@ -28,8 +28,8 @@ public final class Util {
 	 * @param b
 	 * @return
 	 */
-	public static boolean haveCommonIdentifier(SortedSet<Identifier> a,
-			SortedSet<Identifier> b) {
+	public static boolean haveCommonIdentifier(
+			SortedSet<? extends Identifier> a, SortedSet<? extends Identifier> b) {
 		// TODO make use of the sets being sorted, this routine can be much more
 		// efficient.
 		for (Identifier ida : a)

@@ -6,11 +6,13 @@ import java.io.FileOutputStream;
 import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.TreeSet;
 import java.util.logging.Logger;
 
 import moten.david.ete.Engine;
 import moten.david.ete.Fix;
 import moten.david.ete.FixAdder;
+import moten.david.ete.Identifier;
 import moten.david.ete.memory.MyEngine;
 import moten.david.ete.memory.MyEntityFactory;
 import moten.david.ete.memory.MyFix;
@@ -94,11 +96,10 @@ public class EngineTest {
 
 		Calendar calendar = GregorianCalendar.getInstance();
 		calendar.setTimeInMillis(time++);
-		MyFix fix = new MyFix(new MyPosition(BigDecimal.ZERO, BigDecimal.ZERO),
-				calendar);
-		fix.getIdentifiers().add(
-				new MyIdentifier(new MyIdentifierType("name", 1), name));
+		TreeSet<Identifier> ids = new TreeSet<Identifier>();
+		ids.add(new MyIdentifier(new MyIdentifierType("name", 1), name));
+		MyFix fix = new MyFix(ids, new MyPosition(BigDecimal.ZERO,
+				BigDecimal.ZERO), calendar);
 		return fix;
-
 	}
 }
