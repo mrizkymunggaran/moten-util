@@ -37,6 +37,7 @@ public class ServiceImpl implements Service {
 			// stop if we already have this fix
 			if (primaryEntity.hasFixAlready(fix))
 				return;
+			// TODO update wiki
 			// if matching identity does not match the strongest identity on the
 			// fix then create a new fix with the stronger identities.
 			SortedSet<Identifier> set = getStrongerNonMatchingIdentifiers(
