@@ -110,7 +110,7 @@ public class ServiceImpl implements Service {
 														.getTime()))) {
 							identifierEntity.getIdentifiers()
 									.remove(identifier);
-							primaryEntity.getIdentifiers().add(identifier);
+							setIdentifier(primaryEntity, identifier);
 						}
 					}
 					// if the identifier type is on the primary entity
@@ -212,7 +212,7 @@ public class ServiceImpl implements Service {
 	 * @return
 	 */
 	private Identifier getPrimaryIdentifier(Entity entity) {
-		return entity.getIdentifiers().set().last();
+		return entity.getIdentifiers().set().first();
 	}
 
 	/**

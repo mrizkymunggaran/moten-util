@@ -141,13 +141,24 @@ public class EngineTest {
 					"name4:barry");
 			checkCount(engine, 4);
 			{
-				service.addFix(createFix("name2:bert", "name3:arturo",
+				addFix(engine, service, createFix("name2:bert", "name3:arturo",
 						"name4:barry"));
-
+				checkContains(engine, "name1:bill", "name2:bert",
+						"name3:arturo", "name4:barry");
+				checkContains(engine, "name1:art");
+				checkContains(engine, "name1:joe", "name3:karl");
+				checkContains(engine, "name1:alfie", "name2:argie",
+						"name3:brian");
+				checkCount(engine, 4);
 			}
 
 			log(engine);
 		}
+	}
+
+	private void addFix(MyEngine engine, Service service, Fix fix) {
+		service.addFix(fix);
+		log(engine);
 	}
 
 	private void checkContains(MyEngine engine, String... items) {
