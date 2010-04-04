@@ -151,6 +151,16 @@ public class EngineTest {
 						"name3:brian");
 				checkCount(engine, 4);
 			}
+			{
+				addFix(engine, service, createFix("name1:bill", "name3:karl"));
+				checkContains(engine, "name1:bill", "name2:bert", "name3:karl",
+						"name4:barry");
+				checkContains(engine, "name1:art");
+				checkContains(engine, "name1:joe");
+				checkContains(engine, "name1:alfie", "name2:argie",
+						"name3:brian");
+				checkCount(engine, 4);
+			}
 
 			log(engine);
 		}
