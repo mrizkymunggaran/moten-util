@@ -34,8 +34,6 @@ public class MyIdentifiers implements Identifiers {
 		boolean result = identifiers.add(e);
 		if (result)
 			fireAdded(e);
-		else
-			throw new RuntimeException("could not add identifier!");
 	}
 
 	private void fireAdded(Identifier id) {
@@ -58,5 +56,10 @@ public class MyIdentifiers implements Identifiers {
 	@Override
 	public SortedSet<Identifier> set() {
 		return Collections.unmodifiableSortedSet(identifiers);
+	}
+
+	@Override
+	public String toString() {
+		return "[identifiers=" + identifiers + "]";
 	}
 }

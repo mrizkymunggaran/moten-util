@@ -9,9 +9,10 @@ public interface Identifiers {
 	void remove(Identifier identifier);
 
 	/**
-	 * Returns an unmodifiable set of the identifiers.
+	 * Returns an unmodifiable set of the identifiers in descending order of
+	 * identifier type (strongest first).
 	 * 
 	 * @return
 	 */
-	SortedSet<Identifier> set();
+	SortedSet<? extends Identifier> set();
 }

@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
@@ -66,29 +65,11 @@ public class MyEngine implements Engine {
 	}
 
 	public Enumeration<MyFix> getLatestFixes() {
-		return new Enumeration<MyFix>() {
-
-			private Iterator<MyFix> iterator;
-
-			{
-				List<MyFix> list = new ArrayList<MyFix>();
-				for (Entity e : CollectionsUtil.toList(getEntities())) {
-					list.add((MyFix) e.getLatestFix());
-				}
-				iterator = list.iterator();
-			}
-
-			@Override
-			public boolean hasMoreElements() {
-				return iterator.hasNext();
-			}
-
-			@Override
-			public MyFix nextElement() {
-				return iterator.next();
-			}
-
-		};
+		List<MyFix> list = new ArrayList<MyFix>();
+		for (Entity e : CollectionsUtil.toList(getEntities())) {
+			list.add((MyFix) e.getLatestFix());
+		}
+		return CollectionsUtil.toEnumeration(list.iterator());
 	}
 
 	/**

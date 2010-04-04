@@ -40,6 +40,11 @@ public class MyEntity implements TrackedEntity {
 	}
 
 	@Override
+	public String toString() {
+		return "[identifiers=" + identifiers + "]";
+	}
+
+	@Override
 	public Identifiers getIdentifiers() {
 		return identifiers;
 	}

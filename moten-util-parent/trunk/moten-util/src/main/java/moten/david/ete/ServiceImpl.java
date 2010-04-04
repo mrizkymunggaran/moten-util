@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.TreeSet;
 
 import com.google.inject.Inject;
@@ -36,6 +37,13 @@ public class ServiceImpl implements Service {
 			// stop if we already have this fix
 			if (primaryEntity.hasFixAlready(fix))
 				return;
+			// if matching identity does not match the strongest identity on the
+			// fix then create a new fix with the stronger identities.
+			SortedSet<Identifier> set = getStrongerNonMatchingIdentifiers(
+					primaryEntity.getIdentifiers().set(), fix.getIdentifiers());
+			if (set.size() > 0) {
+				primaryEntity = engine.createEntity(set);
+			}
 		} else
 			// create the entity as no match was found
 			primaryEntity = engine.createEntity(fix.getIdentifiers());
@@ -51,8 +59,10 @@ public class ServiceImpl implements Service {
 				Entity identifierEntity = engine
 						.findEntity(new TreeSet<Identifier>(Collections
 								.singleton(identifier)));
-				// if the identifier is on another entity
-				if (!primaryEntity.equals(identifierEntity)) {
+				// TODO update wiki
+				// if the identifier was found and is on another entity
+				if (identifierEntity != null
+						&& !primaryEntity.equals(identifierEntity)) {
 					// if the identifier is the primary identifier on the other
 					// entity
 					if (isPrimaryIdentifier(identifierEntity, identifier)) {
@@ -118,6 +128,33 @@ public class ServiceImpl implements Service {
 	}
 
 	/**
+	 * Finds all identifiers that are stronger than the <i>a</i> identifiers and
+	 * not in the <i>a</i> set.
+	 * 
+	 * @param a
+	 * @param fixIds
+	 * @return
+	 */
+	private SortedSet<Identifier> getStrongerNonMatchingIdentifiers(
+			SortedSet<? extends Identifier> a,
+			SortedSet<? extends Identifier> fixIds) {
+		TreeSet<Identifier> tree = new TreeSet<Identifier>();
+		Identifier matchingIdentifier = null;
+		for (Identifier id : fixIds)
+			if (a.contains(id)) {
+				matchingIdentifier = id;
+				break;
+			}
+		if (matchingIdentifier != null)
+			for (Identifier id : fixIds)
+				if (!a.contains(id)
+						&& id.getIdentifierType().getStrength() > matchingIdentifier
+								.getIdentifierType().getStrength())
+					tree.add(id);
+		return tree;
+	}
+
+	/**
 	 * If the entity already has an Identifier of the same type as
 	 * <i>identifier</i> then replace that identifier otherwise add
 	 * <i>identiifer</i> to the entity identifiers.
@@ -155,7 +192,7 @@ public class ServiceImpl implements Service {
 	 * @param identifierType
 	 * @return
 	 */
-	private Object getIdentifier(Collection<Identifier> identifiers,
+	private Object getIdentifier(Collection<? extends Identifier> identifiers,
 			IdentifierType identifierType) {
 		for (Identifier id : identifiers)
 			if (id.getIdentifierType().equals(identifierType))
@@ -277,7 +314,8 @@ public class ServiceImpl implements Service {
 	 * @param identifiers
 	 * @return
 	 */
-	private boolean conflicts(Identifier id, Collection<Identifier> identifiers) {
+	private boolean conflicts(Identifier id,
+			Collection<? extends Identifier> identifiers) {
 		for (Identifier identifier : identifiers)
 			if (id.getIdentifierType().equals(identifier.getIdentifierType())
 					&& !id.equals(identifier))

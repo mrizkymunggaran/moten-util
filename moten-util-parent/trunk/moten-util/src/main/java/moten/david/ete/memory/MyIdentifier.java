@@ -7,6 +7,11 @@ import moten.david.ete.IdentifierType;
 
 public class MyIdentifier implements Identifier, Serializable {
 
+	@Override
+	public String toString() {
+		return "[" + type + ":" + value + "]";
+	}
+
 	private static final long serialVersionUID = -8351361741802392626L;
 
 	private final MyIdentifierType type;
@@ -61,9 +66,11 @@ public class MyIdentifier implements Identifier, Serializable {
 	public int compareTo(Identifier o) {
 		// TODO write unit tests to test all required qualities for the
 		// comparison.
+
+		// use negatives to enforce strongest first ordering
 		if (this.getIdentifierType().equals(o.getIdentifierType()))
-			return this.value.compareTo(((MyIdentifier) o).value);
+			return -this.value.compareTo(((MyIdentifier) o).value);
 		else
-			return this.getIdentifierType().compareTo(o.getIdentifierType());
+			return -this.getIdentifierType().compareTo(o.getIdentifierType());
 	}
 }

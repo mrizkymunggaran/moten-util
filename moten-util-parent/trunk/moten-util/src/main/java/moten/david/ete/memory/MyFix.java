@@ -116,4 +116,10 @@ public class MyFix extends AbstractFix implements Serializable {
 		return true;
 	}
 
+	@Override
+	public String toString() {
+		return "MyFix [identifiers=" + identifiers + ", position=" + position
+				+ ", time=" + time + ", velocity=" + velocity + "]";
+	}
+
 }

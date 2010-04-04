@@ -26,8 +26,7 @@ public class MyIdentifierType implements IdentifierType, Serializable {
 
 	@Override
 	public String toString() {
-		return "MyIdentifierType [name=" + name + ", strength=" + strength
-				+ "]";
+		return name;
 	}
 
 	@Override
