@@ -40,8 +40,8 @@ public class MyFix extends AbstractFix implements Serializable {
 		this.identifiers = identifiers;
 	}
 
-	public MyFix(SortedSet<Identifier> identifiers, MyPosition position,
-			Calendar time) {
+	public MyFix(SortedSet<? extends Identifier> identifiers,
+			MyPosition position, Calendar time) {
 		this(identifiers, position, null, time);
 	}
 
