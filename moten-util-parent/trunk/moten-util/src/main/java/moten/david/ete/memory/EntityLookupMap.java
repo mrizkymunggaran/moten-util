@@ -38,15 +38,12 @@ public class EntityLookupMap implements EntityLookup {
 
 	@Override
 	public Entity findEntity(SortedSet<? extends Identifier> identifiers) {
-		// TODO should do in reverse order (strongest first) and return
-		// straight away
-		Entity entity = null;
 		for (Identifier id : identifiers) {
-			Entity ent = this.identifiers.get(id);
-			if (ent != null)
-				entity = ent;
+			Entity entity = this.identifiers.get(id);
+			if (entity != null)
+				return entity;
 		}
-		return entity;
+		return null;
 	}
 
 }

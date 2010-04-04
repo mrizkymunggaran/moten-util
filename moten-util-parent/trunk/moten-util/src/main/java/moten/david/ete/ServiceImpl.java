@@ -51,11 +51,15 @@ public class ServiceImpl implements Service {
 
 		// associate the fix with the primary entity
 		primaryEntity.addFix(fix);
-		// process all of the identifiers on the fix
-		for (Identifier identifier : fix.getIdentifiers()) {
+		Set<Identifier> identifiersRemovedFromFix = new HashSet<Identifier>();
+		// process all of the identifiers on the fix, use a copy so that we can
+		// remove fix identifiers as we go if we wish
+		for (Identifier identifier : new TreeSet<Identifier>(fix
+				.getIdentifiers())) {
 			// if the identifier is not the primary identifier on the primary
 			// entity
-			if (!isPrimaryIdentifier(primaryEntity, identifier)) {
+			if (!identifiersRemovedFromFix.contains(identifier)
+					&& !isPrimaryIdentifier(primaryEntity, identifier)) {
 				// get the entity corresponding to the identity
 				Entity identifierEntity = engine
 						.findEntity(new TreeSet<Identifier>(Collections
@@ -88,6 +92,7 @@ public class ServiceImpl implements Service {
 							for (Identifier id : primaryEntity.getIdentifiers()
 									.set()) {
 								fix.getIdentifiers().remove(id);
+								identifiersRemovedFromFix.add(id);
 							}
 							identifierEntity.addFix(fix);
 						}
@@ -142,9 +147,8 @@ public class ServiceImpl implements Service {
 		TreeSet<Identifier> tree = new TreeSet<Identifier>();
 		Identifier matchingIdentifier = null;
 		for (Identifier id : fixIds)
-			if (a.contains(id)) {
+			if (matchingIdentifier == null && a.contains(id)) {
 				matchingIdentifier = id;
-				break;
 			}
 		if (matchingIdentifier != null)
 			for (Identifier id : fixIds)

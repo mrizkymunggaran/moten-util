@@ -140,6 +140,11 @@ public class EngineTest {
 			checkContains(engine, "name1:alfie", "name2:argie", "name3:brian",
 					"name4:barry");
 			checkCount(engine, 4);
+			{
+				service.addFix(createFix("name2:bert", "name3:arturo",
+						"name4:barry"));
+
+			}
 
 			log(engine);
 		}
