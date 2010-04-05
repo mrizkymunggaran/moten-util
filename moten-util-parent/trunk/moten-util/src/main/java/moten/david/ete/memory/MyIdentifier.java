@@ -69,8 +69,8 @@ public class MyIdentifier implements Identifier, Serializable {
 
 		// use negatives to enforce strongest first ordering
 		if (this.getIdentifierType().equals(o.getIdentifierType()))
-			return -this.value.compareTo(((MyIdentifier) o).value);
+			return this.value.compareTo(((MyIdentifier) o).value);
 		else
-			return -this.getIdentifierType().compareTo(o.getIdentifierType());
+			return this.getIdentifierType().compareTo(o.getIdentifierType());
 	}
 }

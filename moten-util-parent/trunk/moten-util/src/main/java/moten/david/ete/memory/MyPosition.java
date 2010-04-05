@@ -11,6 +11,14 @@ public class MyPosition implements Position, Serializable {
 	private final BigDecimal longitude;
 	private final BigDecimal altitudeMetres;
 
+	@Override
+	public String toString() {
+		return "[" + (latitude != null ? "lat=" + latitude + ", " : "")
+				+ (longitude != null ? "long=" + longitude + ", " : "")
+				+ (altitudeMetres != null ? "altMetres=" + altitudeMetres : "")
+				+ "]";
+	}
+
 	public MyPosition(BigDecimal latitude, BigDecimal longitude,
 			BigDecimal altitudeMetres) {
 		this.latitude = latitude;

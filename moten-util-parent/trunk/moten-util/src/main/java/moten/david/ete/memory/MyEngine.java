@@ -53,7 +53,8 @@ public class MyEngine implements Engine {
 	@Override
 	public void removeEntity(Entity entity) {
 		synchronized (entities) {
-			entities.remove(entity);
+			if (!entities.remove(entity))
+				throw new RuntimeException("Could not remove entity!");
 		}
 	}
 

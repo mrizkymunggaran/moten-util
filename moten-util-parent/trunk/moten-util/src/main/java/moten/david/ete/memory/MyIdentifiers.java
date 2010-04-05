@@ -46,7 +46,7 @@ public class MyIdentifiers implements Identifiers {
 		if (result)
 			fireRemoved(id);
 		else
-			throw new RuntimeException("coudl not remove identifier!");
+			throw new RuntimeException("could not remove identifier!");
 	}
 
 	private void fireRemoved(Identifier id) {

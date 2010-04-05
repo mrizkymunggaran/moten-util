@@ -92,6 +92,14 @@ public class EngineTest {
 
 		}
 		{
+			Assert.assertTrue(new MyIdentifier(
+					new MyIdentifierType("hello", 1), "boo")
+					.compareTo(new MyIdentifier(new MyIdentifierType(
+							"something", 1), "zed")) < 0);
+			Assert.assertEquals(2, createFix("name1:joe", "id1:briggs")
+					.getIdentifiers().size());
+		}
+		{
 			Injector injector = Guice.createInjector(new InjectorModule());
 			Service service = injector.getInstance(Service.class);
 			MyEngine engine = (MyEngine) injector.getInstance(Engine.class);
@@ -103,29 +111,29 @@ public class EngineTest {
 			Fix j = createFix("name1:alfie", "name2:argie", "name4:johnnosh");
 			Fix k = createFix("name2:argie", "name3:brian", "name4:barry");
 
-			service.addFix(f);
+			addFix(engine, service, f);
 			checkContains(engine, "name1:bill", "name2:bert", "name3:bart");
 			checkCount(engine, 1);
 
-			service.addFix(g);
+			addFix(engine, service, g);
 			checkContains(engine, "name1:bill", "name2:bert", "name3:bart");
 			checkContains(engine, "name1:art", "name2:arthur", "name3:arturo");
 			checkCount(engine, 2);
 
-			service.addFix(h);
+			addFix(engine, service, h);
 			checkContains(engine, "name1:bill", "name2:bert", "name3:bart");
 			checkContains(engine, "name1:art", "name3:arturo");
 			checkContains(engine, "name1:joe", "name2:arthur", "name3:karl");
 			checkCount(engine, 3);
 
-			service.addFix(i);
+			addFix(engine, service, i);
 			checkContains(engine, "name1:bill", "name2:bert", "name3:bart");
 			checkContains(engine, "name1:art", "name3:arturo");
 			checkContains(engine, "name1:joe", "name3:karl");
 			checkContains(engine, "name1:alfie", "name2:arthur", "name4:johnno");
 			checkCount(engine, 4);
 
-			service.addFix(j);
+			addFix(engine, service, j);
 			checkContains(engine, "name1:bill", "name2:bert", "name3:bart");
 			checkContains(engine, "name1:art", "name3:arturo");
 			checkContains(engine, "name1:joe", "name3:karl");
@@ -133,7 +141,7 @@ public class EngineTest {
 					"name4:johnnosh");
 			checkCount(engine, 4);
 
-			service.addFix(k);
+			addFix(engine, service, k);
 			checkContains(engine, "name1:bill", "name2:bert", "name3:bart");
 			checkContains(engine, "name1:art", "name3:arturo");
 			checkContains(engine, "name1:joe", "name3:karl");
@@ -160,6 +168,25 @@ public class EngineTest {
 				checkContains(engine, "name1:alfie", "name2:argie",
 						"name3:brian");
 				checkCount(engine, 4);
+			}
+			{
+				addFix(engine, service, createFix("name1:art", "id1:briggs"));
+				checkContains(engine, "name1:bill", "name2:bert", "name3:karl",
+						"name4:barry");
+				checkContains(engine, "name1:art", "id1:briggs");
+				checkContains(engine, "name1:joe");
+				checkContains(engine, "name1:alfie", "name2:argie",
+						"name3:brian");
+				checkCount(engine, 4);
+			}
+			{
+				addFix(engine, service, createFix("name1:joe", "id1:briggs"));
+				checkContains(engine, "name1:bill", "name2:bert", "name3:karl",
+						"name4:barry");
+				checkContains(engine, "name1:joe", "id1:briggs");
+				checkContains(engine, "name1:alfie", "name2:argie",
+						"name3:brian");
+				checkCount(engine, 3);
 			}
 
 			log(engine);

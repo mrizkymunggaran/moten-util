@@ -35,7 +35,7 @@ public interface Entity {
 	 * 
 	 * @param entity
 	 */
-	void moveFixes(Entity entity);
+	void moveFixesTo(Entity entity);
 
 	/**
 	 * The maximum speed of the entity in metres per second.

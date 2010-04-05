@@ -100,7 +100,7 @@ public class MyEntity implements TrackedEntity {
 	}
 
 	@Override
-	public void moveFixes(Entity entity) {
+	public void moveFixesTo(Entity entity) {
 		synchronized (fixes) {
 			((MyEntity) entity).fixes.addAll(fixes);
 			fixes.clear();

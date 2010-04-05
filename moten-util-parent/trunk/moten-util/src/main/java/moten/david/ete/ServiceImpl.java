@@ -85,16 +85,17 @@ public class ServiceImpl implements Service {
 									primaryEntity.getIdentifiers().add(id);
 								}
 							}
-							identifierEntity.moveFixes(primaryEntity);
+							identifierEntity.moveFixesTo(primaryEntity);
 						} else {
-							// remove identifiers matching the primary entity
+							// remove identifiers matching the other entity
 							// from the current fix
-							for (Identifier id : primaryEntity.getIdentifiers()
-									.set()) {
-								fix.getIdentifiers().remove(id);
-								identifiersRemovedFromFix.add(id);
+							// TODO do this based on time?
+							for (Identifier id : identifierEntity
+									.getIdentifiers().set()) {
+								if (fix.getIdentifiers().remove(id))
+									identifiersRemovedFromFix.add(id);
 							}
-							identifierEntity.addFix(fix);
+							// identifierEntity.addFix(fix);
 						}
 					} else {
 						// TODO update wiki with this change
@@ -116,9 +117,20 @@ public class ServiceImpl implements Service {
 					// if the identifier type is on the primary entity
 					// update primary entity with fix identifier value
 					// end if
+					// TODO do this based on times?
+					if (identifierEntity.getIdentifiers().set().contains(
+							identifier))
+						identifierEntity.getIdentifiers().remove(identifier);
+
+					if (identifierEntity.getIdentifiers().set().size() == 0) {
+						identifierEntity.moveFixesTo(primaryEntity);
+						engine.removeEntity(identifierEntity);
+					}
 					if (getIdentifier(primaryEntity, identifier
 							.getIdentifierType()) != null)
 						setIdentifier(primaryEntity, identifier);
+					else
+						primaryEntity.getIdentifiers().add(identifier);
 				} else // if the identifier type is on the primary entity
 				// update primary entity with fix identifier value
 				// end if
@@ -197,7 +209,8 @@ public class ServiceImpl implements Service {
 	 * @param identifierType
 	 * @return
 	 */
-	private Object getIdentifier(Collection<? extends Identifier> identifiers,
+	private Identifier getIdentifier(
+			Collection<? extends Identifier> identifiers,
 			IdentifierType identifierType) {
 		for (Identifier id : identifiers)
 			if (id.getIdentifierType().equals(identifierType))
@@ -356,7 +369,7 @@ public class ServiceImpl implements Service {
 					entity.getIdentifiers().remove(id);
 					strongest.getIdentifiers().add(id);
 				}
-				entity.moveFixes(strongest);
+				entity.moveFixesTo(strongest);
 			}
 		}
 	}
