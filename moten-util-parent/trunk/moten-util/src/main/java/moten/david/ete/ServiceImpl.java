@@ -30,13 +30,68 @@ public class ServiceImpl implements Service {
 
 	@Override
 	public void addFix(Fix fix) {
+		Entity primaryEntity = findOrCreateEntity(fix);
+		if (primaryEntity == null)
+			// fix already exists
+			return;
+		// associate the fix with the primary entity
+		primaryEntity.addFix(fix);
+
+		Set<Identifier> identifiersRemovedFromFix = new HashSet<Identifier>();
+
+		// process all of the identifiers on the fix, use a copy so that we can
+		// remove fix identifiers as we go if we wish
+		for (Identifier identifier : new TreeSet<Identifier>(fix
+				.getIdentifiers())) {
+			// if the identifier is not the primary identifier on the primary
+			// entity
+			if (!identifiersRemovedFromFix.contains(identifier)
+					&& !isPrimaryIdentifier(primaryEntity, identifier)) {
+				// get the entity corresponding to the identity
+				Entity identifierEntity = findEntity(engine, identifier);
+
+				// if the identifier was found and is on another entity
+				if (identifierEntity != null
+						&& !primaryEntity.equals(identifierEntity)) {
+					// if the identifier is the primary identifier on the other
+					// entity
+					if (isPrimaryIdentifier(identifierEntity, identifier)) {
+						processPrimaryIdentifierOnDifferentEntity(
+								primaryEntity, identifierEntity, identifier,
+								fix, identifiersRemovedFromFix);
+					} else {
+						processSecondaryIdentifierOnDifferentEntity(
+								primaryEntity, identifierEntity, identifier,
+								fix);
+					}
+				} else
+					setIdentifier(primaryEntity, identifier);
+			}
+		}
+	}
+
+	private Entity findEntity(Engine engine2, Identifier identifier) {
+		return engine.findEntity(new TreeSet<Identifier>(Collections
+				.singleton(identifier)));
+	}
+
+	/**
+	 * Find the entity using the fix identifiers. If found then check if fix
+	 * already exists. If fix already exists then return null. If match occurred
+	 * on non primary identifier of fix then create a new entity using the non
+	 * matching identifiers. If not found then return brand new entity.
+	 * 
+	 * @param fix
+	 * @return
+	 */
+	private Entity findOrCreateEntity(Fix fix) {
 		// TODO update wiki with this change
 		// find the entity based on the identifiers in descending order
 		Entity primaryEntity = engine.findEntity(fix.getIdentifiers());
 		if (primaryEntity != null) {
 			// stop if we already have this fix
 			if (primaryEntity.hasFixAlready(fix))
-				return;
+				return null;
 			// TODO update wiki
 			// if matching identity does not match the strongest identity on the
 			// fix then create a new fix with the stronger identities.
@@ -48,80 +103,40 @@ public class ServiceImpl implements Service {
 		} else
 			// create the entity as no match was found
 			primaryEntity = engine.createEntity(fix.getIdentifiers());
+		return primaryEntity;
+	}
 
-		// associate the fix with the primary entity
-		primaryEntity.addFix(fix);
-		Set<Identifier> identifiersRemovedFromFix = new HashSet<Identifier>();
-		// process all of the identifiers on the fix, use a copy so that we can
-		// remove fix identifiers as we go if we wish
-		for (Identifier identifier : new TreeSet<Identifier>(fix
-				.getIdentifiers())) {
-			// if the identifier is not the primary identifier on the primary
-			// entity
-			if (!identifiersRemovedFromFix.contains(identifier)
-					&& !isPrimaryIdentifier(primaryEntity, identifier)) {
-				// get the entity corresponding to the identity
-				Entity identifierEntity = engine
-						.findEntity(new TreeSet<Identifier>(Collections
-								.singleton(identifier)));
-				// TODO update wiki
-				// if the identifier was found and is on another entity
-				if (identifierEntity != null
-						&& !primaryEntity.equals(identifierEntity)) {
-					// if the identifier is the primary identifier on the other
-					// entity
-					if (isPrimaryIdentifier(identifierEntity, identifier)) {
-						processPrimaryIdentifierOnDifferentEntity(
-								primaryEntity, identifierEntity, fix,
-								identifiersRemovedFromFix);
-					} else {
-						processSecondaryIdentifierOnDifferentEntity(
-								primaryEntity, identifierEntity, identifier,
-								fix);
-					}
-					// if the identifier type is on the primary entity
-					// update primary entity with fix identifier value
-					// end if
+	private void putIdentifierOnPrimaryEntity(Entity primaryEntity,
+			Entity identifierEntity, Identifier identifier) {
+		// if the identifier type is on the primary entity
+		// update primary entity with fix identifier value
+		// end if
 
-					// we are going to place the fix identifier against the
-					// primary entity. If it exists against another entity then
-					// remove it from that entity
-					if (identifierEntity.getIdentifiers().set().contains(
-							identifier))
-						identifierEntity.getIdentifiers().remove(identifier);
+		// we are going to place the fix identifier against the
+		// primary entity. If it exists against another entity then
+		// remove it from that entity
+		if (identifierEntity.getIdentifiers().set().contains(identifier))
+			identifierEntity.getIdentifiers().remove(identifier);
 
-					// if the other entity has no more identifiers left after
-					// removal of fix identifier then remove the entity
-					if (identifierEntity.getIdentifiers().set().size() == 0) {
-						identifierEntity.moveFixesTo(primaryEntity);
-						engine.removeEntity(identifierEntity);
-					}
-					// place the identifier against the primary entity
-					if (getIdentifier(primaryEntity, identifier
-							.getIdentifierType()) != null)
-						// if identifier type exists then replace it
-						setIdentifier(primaryEntity, identifier);
-					else
-						// otherwise add it
-						primaryEntity.getIdentifiers().add(identifier);
-				} else // if the identifier type is on the primary entity
-				// update primary entity with fix identifier value
-				// end if
-				if (getIdentifier(primaryEntity, identifier.getIdentifierType()) != null)
-					setIdentifier(primaryEntity, identifier);
-				else {
-					// add the new entity identity from the fix identifier to
-					// the primary entity
-					primaryEntity.getIdentifiers().add(identifier);
-				}
-			}
+		// if the other entity has no more identifiers left after
+		// removal of fix identifier then remove the entity
+		if (identifierEntity.getIdentifiers().set().size() == 0) {
+			identifierEntity.moveFixesTo(primaryEntity);
+			engine.removeEntity(identifierEntity);
 		}
+		// place the identifier against the primary entity
+		if (getIdentifier(primaryEntity, identifier.getIdentifierType()) != null)
+			// if identifier type exists then replace it
+			setIdentifier(primaryEntity, identifier);
+		else
+			// otherwise add it
+			primaryEntity.getIdentifiers().add(identifier);
+
 	}
 
 	private void processSecondaryIdentifierOnDifferentEntity(
 			Entity primaryEntity, Entity identifierEntity,
 			Identifier identifier, Fix fix) {
-		// TODO update wiki with this change
 		// if the primary entity is stronger than or of the same
 		// strength as the other entity then
 		// move the identifier to the primary entity
@@ -130,14 +145,14 @@ public class ServiceImpl implements Service {
 				|| (sameStrength(primaryEntity, identifierEntity) && fix
 						.getTime().after(
 								identifierEntity.getLatestFix().getTime()))) {
-			identifierEntity.getIdentifiers().remove(identifier);
-			setIdentifier(primaryEntity, identifier);
+			putIdentifierOnPrimaryEntity(primaryEntity, identifierEntity,
+					identifier);
 		}
-
 	}
 
 	private void processPrimaryIdentifierOnDifferentEntity(
-			Entity primaryEntity, Entity identifierEntity, Fix fix,
+			Entity primaryEntity, Entity identifierEntity,
+			Identifier identifier, Fix fix,
 			Set<Identifier> identifiersRemovedFromFix) {
 		// if merge condition satisfied
 		if (mergeConditionSatisfied(primaryEntity, identifierEntity, fix)) {
@@ -159,6 +174,8 @@ public class ServiceImpl implements Service {
 				if (fix.getIdentifiers().remove(id))
 					identifiersRemovedFromFix.add(id);
 			}
+			putIdentifierOnPrimaryEntity(primaryEntity, identifierEntity,
+					identifier);
 		}
 	}
 
