@@ -71,65 +71,38 @@ public class ServiceImpl implements Service {
 					// if the identifier is the primary identifier on the other
 					// entity
 					if (isPrimaryIdentifier(identifierEntity, identifier)) {
-						// if merge condition satisfied
-						if (mergeConditionSatisfied(primaryEntity,
-								identifierEntity, fix)) {
-							// merge
-							for (Identifier id : identifierEntity
-									.getIdentifiers().set()) {
-								// if id does not conflict with an identifier on
-								// the primary entity
-								if (!conflicts(id, primaryEntity
-										.getIdentifiers().set())) {
-									// move the identifier
-									primaryEntity.getIdentifiers().add(id);
-								}
-							}
-							identifierEntity.moveFixesTo(primaryEntity);
-						} else {
-							// remove identifiers matching the other entity
-							// from the current fix
-							// TODO do this based on time?
-							for (Identifier id : identifierEntity
-									.getIdentifiers().set()) {
-								if (fix.getIdentifiers().remove(id))
-									identifiersRemovedFromFix.add(id);
-							}
-							// identifierEntity.addFix(fix);
-						}
+						processPrimaryIdentifierOnDifferentEntity(
+								primaryEntity, identifierEntity, fix,
+								identifiersRemovedFromFix);
 					} else {
-						// TODO update wiki with this change
-						// if the primary entity is stronger than or of the same
-						// strength as the other entity then
-						// move the identifier to the primary entity
-						// end if
-						if (stronger(primaryEntity, identifierEntity)
-								|| (sameStrength(primaryEntity,
-										identifierEntity) && fix.getTime()
-										.after(
-												identifierEntity.getLatestFix()
-														.getTime()))) {
-							identifierEntity.getIdentifiers()
-									.remove(identifier);
-							setIdentifier(primaryEntity, identifier);
-						}
+						processSecondaryIdentifierOnDifferentEntity(
+								primaryEntity, identifierEntity, identifier,
+								fix);
 					}
 					// if the identifier type is on the primary entity
 					// update primary entity with fix identifier value
 					// end if
-					// TODO do this based on times?
+
+					// we are going to place the fix identifier against the
+					// primary entity. If it exists against another entity then
+					// remove it from that entity
 					if (identifierEntity.getIdentifiers().set().contains(
 							identifier))
 						identifierEntity.getIdentifiers().remove(identifier);
 
+					// if the other entity has no more identifiers left after
+					// removal of fix identifier then remove the entity
 					if (identifierEntity.getIdentifiers().set().size() == 0) {
 						identifierEntity.moveFixesTo(primaryEntity);
 						engine.removeEntity(identifierEntity);
 					}
+					// place the identifier against the primary entity
 					if (getIdentifier(primaryEntity, identifier
 							.getIdentifierType()) != null)
+						// if identifier type exists then replace it
 						setIdentifier(primaryEntity, identifier);
 					else
+						// otherwise add it
 						primaryEntity.getIdentifiers().add(identifier);
 				} else // if the identifier type is on the primary entity
 				// update primary entity with fix identifier value
@@ -141,6 +114,50 @@ public class ServiceImpl implements Service {
 					// the primary entity
 					primaryEntity.getIdentifiers().add(identifier);
 				}
+			}
+		}
+	}
+
+	private void processSecondaryIdentifierOnDifferentEntity(
+			Entity primaryEntity, Entity identifierEntity,
+			Identifier identifier, Fix fix) {
+		// TODO update wiki with this change
+		// if the primary entity is stronger than or of the same
+		// strength as the other entity then
+		// move the identifier to the primary entity
+		// end if
+		if (stronger(primaryEntity, identifierEntity)
+				|| (sameStrength(primaryEntity, identifierEntity) && fix
+						.getTime().after(
+								identifierEntity.getLatestFix().getTime()))) {
+			identifierEntity.getIdentifiers().remove(identifier);
+			setIdentifier(primaryEntity, identifier);
+		}
+
+	}
+
+	private void processPrimaryIdentifierOnDifferentEntity(
+			Entity primaryEntity, Entity identifierEntity, Fix fix,
+			Set<Identifier> identifiersRemovedFromFix) {
+		// if merge condition satisfied
+		if (mergeConditionSatisfied(primaryEntity, identifierEntity, fix)) {
+			// merge
+			for (Identifier id : identifierEntity.getIdentifiers().set()) {
+				// if id does not conflict with an identifier on
+				// the primary entity
+				if (!conflicts(id, primaryEntity.getIdentifiers().set())) {
+					// move the identifier
+					primaryEntity.getIdentifiers().add(id);
+				}
+			}
+			identifierEntity.moveFixesTo(primaryEntity);
+			engine.removeEntity(identifierEntity);
+		} else {
+			// merge rejected so remove conflicting identifiers from the other
+			// entity from the fix
+			for (Identifier id : identifierEntity.getIdentifiers().set()) {
+				if (fix.getIdentifiers().remove(id))
+					identifiersRemovedFromFix.add(id);
 			}
 		}
 	}
