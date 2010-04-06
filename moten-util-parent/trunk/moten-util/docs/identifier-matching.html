@@ -37,8 +37,8 @@ s(t<sub>2</sub>) &rArr; d(t<sub>1</sub>) &gt; d(t<sub>2</sub>)</p>
 &weierp;(I) &rarr; &weierp(I) given by</p>
 <p class="indent2">c(X,Y) = {x : x &isin; X and t(x)
 &isin; t(Y) but x &notin; Y}</p>
-<p class="indent1">V (valid identifier sets) = {X : X
-&sub; I and c(X,X) = &empty;}</p>
+<p class="indent1">V (valid identifier sets) = { X
+&sub; I : c(X,X) = &empty;}</p>
 <p>Given</p>
 <p class="indent1">&alpha;:I &rarr; V where</p>
 <p class="indent2">&forall; x,y &isin; I, &alpha;(x) &cap;
@@ -82,15 +82,15 @@ d<sub>max</sub>(Y) = max( d<sub>max</sub>(Z) : Z &isin; &alpha;(X) }</p>
 	</tr>
 	<tr>
 		<td>
-		<p>(pm(A) &cup; Z )\{i : i &isin; pm(A) and t(i) &isin; t(Z)}
+		<p>(pm(A) &cup; Z )\{ i &isin; pm(A) : t(i) &isin; t(Z)}
 		where</p>
-		<p class="indent1">Z = { i&isin; &alpha;(x) : i &notin;
+		<p class="indent1">Z = { i &isin; &alpha;(x) : i &notin;
 		c(&alpha;(x),pm(A)) or time(&alpha;(x)) < time(A)}</p>
 		</td>
 		<td>otherwise if d(t(x)) = d<sub>max</sub>(&alpha;(x))</td>
 	</tr>
 	<tr>
-		<td>(pm(A) &cup; {x})\{i : i &isin; pm(A) and t(i)=t(x)}</td>
+		<td>(pm(A) &cup; {x})\{i &isin; pm(A) : t(i)=t(x)}</td>
 		<td>otherwise if time(A) &gt; time(&alpha;(x))</td>
 	</tr>
 	<tr>
