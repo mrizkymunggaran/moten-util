@@ -1,0 +1,53 @@
+<html>
+<h2>Identity Matching Function</h2>
+<p>Mathematical description of a an identity matching function based on identifiers having types with numeric strengths.</p>
+<h3>Conventions</h3>
+<p>&weierp;(S) is the set of all subsets of S (the <i>power set</i> of S).</p>
+<p>When a function f is defined e.g. f : P &rarr; Q assume an additional implicit definition f: &weierp;(P) &rarr; &weierp;(Q) given by f(X) = {f(x): x &isin; X}</p>
+<h3>Identity Matching Function</h3>
+<p>Define</p>
+<p style="margin-left:30px">I = set of identifiers</p>
+<p style="margin-left:30px">T = set of identifier types</p>
+<p>Given</p>
+<p style="margin-left:30px">t: I &rarr; T categorises an identifier with an identifier type </p>
+<p style="margin-left:30px">s: T &rarr; &real; associates and identifier type with a strength value</p>
+<p style="margin-left:30px">d: T &rarr; &real; (orders identifiers deterministically when identifiers have the same strength s), where </p>
+<p style="margin-left:60px">s(t<sub>1</sub>)=s(t<sub>2</sub>) &rArr; d(t<sub>1</sub>) &ne; d(t<sub>2</sub>) and s(t<sub>1</sub>) &gt; s(t<sub>2</sub>) &rArr; d(t<sub>1</sub>) &gt; d(t<sub>2</sub>)</p>
+<p>Define</p>
+<p style="margin-left:30px">c (conflicting identifiers) : &weierp;(I) &rarr; &weierp(I) given by</p>
+<p style="margin-left:60px">c(X,Y) = {x : x &isin; X and t(x) &isin; t(Y) but x &notin; Y}</p>
+<p style="margin-left:30px">V (valid identifier sets) = {X : X &sub; I and c(X,X) = &empty;}</p>
+<p>Given</p>
+<p style="margin-left:30px">&alpha;:I &rarr; V where</p>
+<p style="margin-left:60px"> &forall; x,y &isin; I, &alpha;(x) &cap; &alpha;(y) &ne; &empty; &hArr; x=y</p>
+<p style="margin-left:30px">time: &weierp;(I) &rarr; &real; is the time property of an identifier set</p>
+
+
+<p>Define</p>
+<p style="margin-left:30px">d<sub>max</sub> : &weierp;(I) &rarr; &real; given by </p>
+<p style="margin-left:60px">d<sub>max</sub>(X) = max(d(i) : i&isin; X)</p>
+<p style="margin-left:30px">nms (non-matching stronger) : &weierp;(I) X &weierp;(I) &rarr; &weierp(I) given by </p>
+<p style="margin-left:60px">nms(X,Y) = { i&isin; &#x2a2f; : i&notin;Y and s(t(i) >s(t(Y))}</p>
+<p style="margin-left:30px">pm (primary match) : &weierp;(I) &rarr; &weierp;(I) given by</p>
+<p style="margin-left:60px">pm(X) = Y where Y &isin; &alpha;(X) and d<sub>max</sub>(Y) = max( d<sub>max</sub>(Z) : Z &isin; &alpha;(X) }</p>
+
+
+
+<p>Finally,</p>
+<p style="margin-left:30px">define merge : V &#x2a2f; I &rarr; V by</p>
+<p style="margin-left:60px">merge(A, x) = </p>
+<p style="margin-left:90px">For x &isin; A</p>
+<table style="margin-left:120px">
+<tr><td>&empty;</td><td> if A = &empty;</td></tr>
+<tr><td>A</td><td>if pm(A) = &empty;</td></tr>
+<tr><td>nms(A, pm(A))</td><td>if x &isin; nms(A, pm(A))</td></tr>
+<tr><td>pm(A)</td><td>if &alpha;(x) = pm(A)</td></tr>
+<tr><td><p>(pm(A) &cup; Z )\{i : i &isin; pm(A) and t(i) &isin; t(Z)} where </p>
+        <p style="margin-left:30px">Z = { i&isin; &alpha;(x) : i &notin; c(&alpha;(x),pm(A)) or time(&alpha;(x)) < time(A)}</p></td><td>if d(t(x)) = d<sub>max</sub>(&alpha;(x))</td></tr>
+<tr><td>(pm(A) &cup; {x})\{i : i &isin; pm(A) and t(i)=t(x)}</td><td>time(A) < time(&alpha;(x))</td></tr>
+<tr><td>pm(A)</td><td>otherwise</td></tr>
+</table>
+<p style="margin-left:90px">For x &notin; A</p>
+</p>
+
+</html>
