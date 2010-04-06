@@ -1,7 +1,7 @@
 package moten.david.imatch;
 
 import com.google.common.base.Predicate;
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 
 public interface IdentifierSet {
 
@@ -15,9 +15,9 @@ public interface IdentifierSet {
 
 	boolean isEmpty();
 
-	ImmutableList<Identifier> list();
+	ImmutableSet<Identifier> set();
 
-	IdentifierSet filter(Predicate predicate);
+	IdentifierSet filter(Predicate<Identifier> predicate);
 
 	IdentifierSet add(Identifier identifier);
 

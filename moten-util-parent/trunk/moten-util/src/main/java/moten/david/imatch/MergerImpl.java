@@ -73,7 +73,7 @@ public class MergerImpl implements Merger {
 
 	private IdentifierTypeSet getTypes(final IdentifierSet ids) {
 		IdentifierTypeSet set = typeSetFactory.create();
-		for (Identifier i : ids.list())
+		for (Identifier i : ids.set())
 			set = set.add(i.getIdentifierType());
 		return set;
 	}
@@ -91,7 +91,7 @@ public class MergerImpl implements Merger {
 
 	private IdentifierSet merge(IdentifierSet a, IdentifierSet bSet) {
 		IdentifierSet ids = identitySetFactory.create();
-		for (Identifier b : bSet.list())
+		for (Identifier b : bSet.set())
 			ids = ids.union(merge(a, b));
 		return ids;
 	}

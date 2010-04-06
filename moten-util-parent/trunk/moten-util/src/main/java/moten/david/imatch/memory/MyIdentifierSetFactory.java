@@ -7,8 +7,7 @@ public class MyIdentifierSetFactory implements IdentifierSetFactory {
 
 	@Override
 	public IdentifierSet create() {
-		// TODO Auto-generated method stub
-		return null;
+		return new MyIdentifierSet();
 	}
 
 }

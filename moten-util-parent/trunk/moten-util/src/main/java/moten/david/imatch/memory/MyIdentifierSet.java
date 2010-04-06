@@ -1,40 +1,42 @@
 package moten.david.imatch.memory;
 
+import java.util.Collections;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 import moten.david.imatch.Identifier;
 import moten.david.imatch.IdentifierSet;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import com.google.common.collect.ImmutableSet.Builder;
 
 public class MyIdentifierSet implements IdentifierSet {
 
-	private final SortedSet<Identifier> set;
+	private final ImmutableSet<Identifier> set;
 
 	private MyIdentifierSet(Set<Identifier> set) {
-		this.set = new TreeSet<Identifier>(set);
+		Builder<Identifier> builder = ImmutableSet.builder();
+		builder.add(set.toArray(new Identifier[] {}));
+		this.set = builder.build();
 	}
 
 	public MyIdentifierSet() {
-		this.set = new TreeSet<Identifier>();
+		this(Collections.EMPTY_SET);
 	}
 
 	@Override
 	public IdentifierSet add(Identifier identifier) {
-		TreeSet<Identifier> s = new TreeSet<Identifier>(set);
-		s.add(identifier);
-		return new MyIdentifierSet(s);
+		Builder<Identifier> builder = ImmutableSet.builder();
+		builder.add(set.toArray(new Identifier[] {}));
+		builder.add(identifier);
+		return new MyIdentifierSet(builder.build());
 	}
 
 	@Override
 	public IdentifierSet complement(IdentifierSet identifierSet) {
-		return new MyIdentifierSet(Sets.difference(set,
-				((MyIdentifierSet) identifierSet).set));
+		return new MyIdentifierSet(Sets.difference(set, identifierSet.set()));
 	}
 
 	@Override
@@ -53,9 +55,12 @@ public class MyIdentifierSet implements IdentifierSet {
 	}
 
 	@Override
-	public IdentifierSet filter(Predicate predicate) {
-		// TODO Auto-generated method stub
-		return null;
+	public IdentifierSet filter(Predicate<Identifier> predicate) {
+		Builder<Identifier> builder = ImmutableSet.builder();
+		for (Identifier id : set)
+			if (predicate.apply(id))
+				builder.add(id);
+		return new MyIdentifierSet(builder.build());
 	}
 
 	@Override
@@ -64,15 +69,12 @@ public class MyIdentifierSet implements IdentifierSet {
 	}
 
 	@Override
-	public ImmutableList<Identifier> list() {
-		// TODO
-		return null;
+	public ImmutableSet<Identifier> set() {
+		return set;
 	}
 
 	@Override
-	public IdentifierSet union(IdentifierSet set) {
-		// TODO Auto-generated method stub
-		return null;
+	public IdentifierSet union(IdentifierSet s) {
+		return new MyIdentifierSet(Sets.union(set, s.set()));
 	}
-
 }
