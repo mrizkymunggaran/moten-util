@@ -25,7 +25,7 @@ by f(X) = {f(x): x &isin; X}</p>
 <p>Given</p>
 <p class="indent1">t: I &rarr; T categorises an identifier
 with an identifier type</p>
-<p class="indent1">s: T &rarr; &real; associates and
+<p class="indent1">s: T &rarr; &real; associates an
 identifier type with a strength value</p>
 <p class="indent1">d: T &rarr; &real; (orders identifiers
 deterministically when identifiers have the same strength s), where</p>
@@ -55,34 +55,30 @@ X)</p>
 <p class="indent1">nms (non-matching stronger) :
 &weierp;(I) X &weierp;(I) &rarr; &weierp(I) given by</p>
 <p class="indent2">nms(X,Y) = { i&isin; &#x2a2f; :
-i&notin;Y and s(t(i) >s(t(Y))}</p>
+i&notin;Y and s(t(i)) >s(t(Y))}</p>
 <p class="indent1">pm (primary match) : &weierp;(I) &rarr;
 &weierp;(I) given by</p>
-<p class="indent2">pm(X) = Y where Y &isin; &alpha;(X) and
+<p class="indent2">pm(X) = &empty; if &alpha;(x) = &empty; otherwise Y where Y &isin; &alpha;(X) and
 d<sub>max</sub>(Y) = max( d<sub>max</sub>(Z) : Z &isin; &alpha;(X) }</p>
 
-
+<p class="indent3">TODO prove pm returns unique values.</p>
 
 <p>Finally,</p>
 <p class="indent1">define merge : V &#x2a2f; I &rarr; V by</p>
 <p class="indent2">merge(A, x) =</p>
 <p class="indent3">For x &isin; A</p>
-<table class="indent4">
-	<tr>
-		<td>&empty;</td>
-		<td>if A = &empty;</td>
-	</tr>
+<table class="table4">
 	<tr>
 		<td>A</td>
 		<td>if pm(A) = &empty;</td>
 	</tr>
 	<tr>
 		<td>nms(A, pm(A))</td>
-		<td>if x &isin; nms(A, pm(A))</td>
+		<td>otherwise if x &isin; nms(A, pm(A))</td>
 	</tr>
 	<tr>
 		<td>pm(A)</td>
-		<td>if &alpha;(x) = pm(A)</td>
+		<td>otherwise if &alpha;(x) = pm(A)</td>
 	</tr>
 	<tr>
 		<td>
@@ -91,11 +87,11 @@ d<sub>max</sub>(Y) = max( d<sub>max</sub>(Z) : Z &isin; &alpha;(X) }</p>
 		<p class="indent1">Z = { i&isin; &alpha;(x) : i &notin;
 		c(&alpha;(x),pm(A)) or time(&alpha;(x)) < time(A)}</p>
 		</td>
-		<td>if d(t(x)) = d<sub>max</sub>(&alpha;(x))</td>
+		<td>otherwise if d(t(x)) = d<sub>max</sub>(&alpha;(x))</td>
 	</tr>
 	<tr>
 		<td>(pm(A) &cup; {x})\{i : i &isin; pm(A) and t(i)=t(x)}</td>
-		<td>time(A) &gt; time(&alpha;(x))</td>
+		<td>otherwise if time(A) &gt; time(&alpha;(x))</td>
 	</tr>
 	<tr>
 		<td>pm(A)</td>
@@ -103,7 +99,9 @@ d<sub>max</sub>(Y) = max( d<sub>max</sub>(Z) : Z &isin; &alpha;(X) }</p>
 	</tr>
 </table>
 <p class="indent3">For x &notin; A</p>
-<p class="indent4">&alpha;(x) \ merge(A,A)</p>
-</p>
+<table class="table4">
+<tr><td>&empty;</td><td>A = &empty;</td></tr>
+<tr><td>&alpha;(x) \ merge(A,A)</td><td>A &ne; &empty;</td></tr>
+</table>
 </body>
 </html>

@@ -5,6 +5,10 @@ p {
 	padding-bottom:0px;
 }
 
+td {
+	padding-left:20px; 	
+}
+
 .indent1 {
 	margin-left:30px;
 }
@@ -19,4 +23,8 @@ p {
 }
 .indent5 {
 	margin-left:150px;
+}
+.table4 {
+	margin-left:120px;
+	border-left:solid thin black;
 }
