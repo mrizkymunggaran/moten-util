@@ -30,9 +30,6 @@ A design for a Entity Tracking Engine (ETE).
   # If the merge condition is not satisfied then discard identifiers from the fix that relate to the primary entity and associate the fix with the secondary entity. 
   # if a fix already exists in terms of entity type, source, latitude, longitude and time and identity (only one common identifier needed) then it is ignored. 
 
-C = set of entity
-id: C -> 
-
 ==Algorithm==
 *Note:* This algorithm has holes! I'm working on a mathematically solid functional description here.
 
