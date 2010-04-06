@@ -1,20 +1,19 @@
 package moten.david.imatch;
 
 public interface Functions {
-    IdentifierSet conflicting(IdentifierSet x, IdentifierSet y);
 
-    IdentifierSet alpha(Identifier identifier);
+	IdentifierSet alpha(Identifier identifier);
 
-    double time(IdentifierSet time);
+	double time(IdentifierSet time);
 
-    double dmax(IdentifierSet x);
+	double dmax(IdentifierSet x);
 
-    IdentifierSet nms(IdentifierSet x, IdentifierSet y);
+	IdentifierSet nms(IdentifierSet x, IdentifierSet y);
 
-    IdentifierSet pm(IdentifierSet x);
+	IdentifierSet pm(IdentifierSet x);
 
-    IdentifierType t(Identifier x);
+	IdentifierType t(Identifier x);
 
-    double d(IdentifierType t);
+	double d(IdentifierType t);
 
 }

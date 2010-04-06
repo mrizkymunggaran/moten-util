@@ -13,7 +13,7 @@ public class MyIdentifierTypeSet implements IdentifierTypeSet {
 
 	private final ImmutableSet<IdentifierType> set;
 
-	private MyIdentifierTypeSet(Set<IdentifierType> set) {
+	public MyIdentifierTypeSet(Set<IdentifierType> set) {
 		Builder<IdentifierType> builder = ImmutableSet.builder();
 		builder.add(set.toArray(new IdentifierType[] {}));
 		this.set = builder.build();

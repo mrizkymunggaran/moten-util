@@ -1,10 +1,13 @@
 package moten.david.imatch.memory;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 import moten.david.imatch.Identifier;
 import moten.david.imatch.IdentifierSet;
+import moten.david.imatch.IdentifierType;
+import moten.david.imatch.IdentifierTypeSet;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
@@ -76,5 +79,30 @@ public class MyIdentifierSet implements IdentifierSet {
 	@Override
 	public IdentifierSet union(IdentifierSet s) {
 		return new MyIdentifierSet(Sets.union(set, s.set()));
+	}
+
+	@Override
+	public IdentifierSet conflicting(IdentifierSet s) {
+		Builder<Identifier> builder = ImmutableSet.builder();
+		for (Identifier i : set)
+			if (!s.getIdentifier(i.getIdentifierType()).equals(i))
+				builder.add(i);
+		return new MyIdentifierSet(builder.build());
+	}
+
+	@Override
+	public IdentifierTypeSet types() {
+		Set<IdentifierType> types = new HashSet<IdentifierType>();
+		for (Identifier identifier : set)
+			types.add(identifier.getIdentifierType());
+		return new MyIdentifierTypeSet(types);
+	}
+
+	@Override
+	public Identifier getIdentifier(IdentifierType type) {
+		for (Identifier i : set)
+			if (i.getIdentifierType().equals(type))
+				return i;
+		return null;
 	}
 }

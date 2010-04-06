@@ -80,7 +80,7 @@ public class MergerImpl implements Merger {
 
 	private IdentifierSet calculateZ(final IdentifierSet alphax,
 			final IdentifierSet pma, final IdentifierSet a) {
-		final IdentifierSet conflicts = f.conflicting(alphax, pma);
+		final IdentifierSet conflicts = alphax.conflicting(pma);
 		return alphax.filter(new Predicate<Identifier>() {
 			@Override
 			public boolean apply(Identifier i) {

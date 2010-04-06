@@ -21,4 +21,10 @@ public interface IdentifierSet {
 
 	IdentifierSet add(Identifier identifier);
 
+	IdentifierSet conflicting(IdentifierSet set);
+
+	IdentifierTypeSet types();
+
+	Identifier getIdentifier(IdentifierType type);
+
 }
