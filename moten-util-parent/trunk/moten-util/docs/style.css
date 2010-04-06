@@ -1,0 +1,20 @@
+p {
+	margin-bottom: 5px;
+	margin-top: 5px;
+}
+
+.indent1 {
+	margin-left:30px;
+}
+.indent2 {
+	margin-left:60px;
+}
+.indent3 {
+	margin-left:90px;
+}
+.indent4 {
+	margin-left:120px;
+}
+.indent5 {
+	margin-left:150px;
+}

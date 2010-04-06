@@ -1,4 +1,8 @@
 <html>
+<HEAD>
+    <LINK href="style.css" rel="stylesheet" type="text/css">
+</HEAD>
+<body>
 <h2>Identity Matching Function</h2>
 <p>Mathematical description of a an identity matching function based
 on identifiers having types with numeric strengths.</p>
@@ -16,54 +20,54 @@ additional implicit definition f: &weierp;(P) &rarr; &weierp;(Q) given
 by f(X) = {f(x): x &isin; X}</p>
 <h3>Identity Matching Function</h3>
 <p>Define</p>
-<p style="margin-left: 30px">I = set of identifiers</p>
-<p style="margin-left: 30px">T = set of identifier types</p>
+<p class="indent1">I = set of identifiers</p>
+<p class="indent1">T = set of identifier types</p>
 <p>Given</p>
-<p style="margin-left: 30px">t: I &rarr; T categorises an identifier
+<p class="indent1">t: I &rarr; T categorises an identifier
 with an identifier type</p>
-<p style="margin-left: 30px">s: T &rarr; &real; associates and
+<p class="indent1">s: T &rarr; &real; associates and
 identifier type with a strength value</p>
-<p style="margin-left: 30px">d: T &rarr; &real; (orders identifiers
+<p class="indent1">d: T &rarr; &real; (orders identifiers
 deterministically when identifiers have the same strength s), where</p>
-<p style="margin-left: 60px">s(t<sub>1</sub>)=s(t<sub>2</sub>)
+<p class="indent2">s(t<sub>1</sub>)=s(t<sub>2</sub>)
 &rArr; d(t<sub>1</sub>) &ne; d(t<sub>2</sub>) and s(t<sub>1</sub>) &gt;
 s(t<sub>2</sub>) &rArr; d(t<sub>1</sub>) &gt; d(t<sub>2</sub>)</p>
 <p>Define</p>
-<p style="margin-left: 30px">c (conflicting identifiers) :
+<p class="indent1">c (conflicting identifiers) :
 &weierp;(I) &rarr; &weierp(I) given by</p>
-<p style="margin-left: 60px">c(X,Y) = {x : x &isin; X and t(x)
+<p class="indent2">c(X,Y) = {x : x &isin; X and t(x)
 &isin; t(Y) but x &notin; Y}</p>
-<p style="margin-left: 30px">V (valid identifier sets) = {X : X
+<p class="indent1">V (valid identifier sets) = {X : X
 &sub; I and c(X,X) = &empty;}</p>
 <p>Given</p>
-<p style="margin-left: 30px">&alpha;:I &rarr; V where</p>
-<p style="margin-left: 60px">&forall; x,y &isin; I, &alpha;(x) &cap;
+<p class="indent1">&alpha;:I &rarr; V where</p>
+<p class="indent2">&forall; x,y &isin; I, &alpha;(x) &cap;
 &alpha;(y) &ne; &empty; &hArr; x=y</p>
-<p style="margin-left: 30px">time: &weierp;(I) &rarr; &real; is the
+<p class="indent1">time: &weierp;(I) &rarr; &real; is the
 time property of an identifier set</p>
 
 
 <p>Define</p>
-<p style="margin-left: 30px">d<sub>max</sub> : &weierp;(I) &rarr;
+<p class="indent1">d<sub>max</sub> : &weierp;(I) &rarr;
 &real; given by</p>
-<p style="margin-left: 60px">d<sub>max</sub>(X) = max(d(i) : i&isin;
+<p class="indent2">d<sub>max</sub>(X) = max(d(i) : i&isin;
 X)</p>
-<p style="margin-left: 30px">nms (non-matching stronger) :
+<p class="indent1">nms (non-matching stronger) :
 &weierp;(I) X &weierp;(I) &rarr; &weierp(I) given by</p>
-<p style="margin-left: 60px">nms(X,Y) = { i&isin; &#x2a2f; :
+<p class="indent2">nms(X,Y) = { i&isin; &#x2a2f; :
 i&notin;Y and s(t(i) >s(t(Y))}</p>
-<p style="margin-left: 30px">pm (primary match) : &weierp;(I) &rarr;
+<p class="indent1">pm (primary match) : &weierp;(I) &rarr;
 &weierp;(I) given by</p>
-<p style="margin-left: 60px">pm(X) = Y where Y &isin; &alpha;(X) and
+<p class="indent2">pm(X) = Y where Y &isin; &alpha;(X) and
 d<sub>max</sub>(Y) = max( d<sub>max</sub>(Z) : Z &isin; &alpha;(X) }</p>
 
 
 
 <p>Finally,</p>
-<p style="margin-left: 30px">define merge : V &#x2a2f; I &rarr; V by</p>
-<p style="margin-left: 60px">merge(A, x) =</p>
-<p style="margin-left: 90px">For x &isin; A</p>
-<table style="margin-left: 120px">
+<p class="indent1">define merge : V &#x2a2f; I &rarr; V by</p>
+<p class="indent2">merge(A, x) =</p>
+<p class="indent3">For x &isin; A</p>
+<table class="indent4">
 	<tr>
 		<td>&empty;</td>
 		<td>if A = &empty;</td>
@@ -84,7 +88,7 @@ d<sub>max</sub>(Y) = max( d<sub>max</sub>(Z) : Z &isin; &alpha;(X) }</p>
 		<td>
 		<p>(pm(A) &cup; Z )\{i : i &isin; pm(A) and t(i) &isin; t(Z)}
 		where</p>
-		<p style="margin-left: 30px">Z = { i&isin; &alpha;(x) : i &notin;
+		<p class="indent1">Z = { i&isin; &alpha;(x) : i &notin;
 		c(&alpha;(x),pm(A)) or time(&alpha;(x)) < time(A)}</p>
 		</td>
 		<td>if d(t(x)) = d<sub>max</sub>(&alpha;(x))</td>
@@ -98,8 +102,8 @@ d<sub>max</sub>(Y) = max( d<sub>max</sub>(Z) : Z &isin; &alpha;(X) }</p>
 		<td>otherwise</td>
 	</tr>
 </table>
-<p style="margin-left: 90px">For x &notin; A</p>
-<p style="margin-left: 120px">&alpha;(x) \ merge(A,A)</p>
+<p class="indent3">For x &notin; A</p>
+<p class="indent4">&alpha;(x) \ merge(A,A)</p>
 </p>
-
+</body>
 </html>
