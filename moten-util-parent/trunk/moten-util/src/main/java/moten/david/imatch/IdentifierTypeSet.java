@@ -1,9 +1,9 @@
 package moten.david.imatch;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 
 public interface IdentifierTypeSet {
     boolean contains(IdentifierType type);
 
-    ImmutableList<IdentifierType> list();
+    ImmutableSet<IdentifierType> set();
 }

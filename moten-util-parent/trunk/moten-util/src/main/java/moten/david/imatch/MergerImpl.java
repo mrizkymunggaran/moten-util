@@ -1,29 +1,34 @@
 package moten.david.imatch;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableList.Builder;
+import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableSet;
+import com.google.inject.Inject;
 
 public class MergerImpl implements Merger {
-    private static final IdentifierSet EMPTY_SET = new EmptySet();
+    private final IdentifierSet emptySet;
 
     private final Functions f;
 
-    public MergerImpl(Functions functions) {
+    private final IdentitySetFactory identitySetFactory;
+
+    @Inject
+    public MergerImpl(Functions functions, IdentitySetFactory identitySetFactory) {
         this.f = functions;
+        this.identitySetFactory = identitySetFactory;
+        emptySet = identitySetFactory.create();
     }
 
     @Override
-    public IdentifierSet merge(IdentifierSet a, Identifier x) {
+    public IdentifierSet merge(IdentifierSet a, final Identifier x) {
         if (a.contains(x)) {
             if (a.isEmpty())
-                return EMPTY_SET;
+                return emptySet;
             else {
-                IdentifierSet pma = f.pm(a);
+                final IdentifierSet pma = f.pm(a);
                 if (pma.isEmpty())
                     return a;
                 else {
                     IdentifierSet nms = f.nms(a, pma);
-
                     if (nms.contains(x))
                         return nms;
                     else {
@@ -31,11 +36,23 @@ public class MergerImpl implements Merger {
                         if (pma.equals(alphax))
                             return pma;
                         else if (f.d(f.t(x)) == f.dmax(alphax)) {
-                            // TODO
-                            return null;
+                            IdentifierSet z = calculateZ(alphax, pma, a);
+                            final IdentifierTypeSet zTypes = getTypes(z);
+                            return pma.union(z).complement(
+                                    pma.filter(new Predicate<Identifier>() {
+                                        @Override
+                                        public boolean apply(Identifier i) {
+                                            return zTypes.contains(f.t(i));
+                                        }
+                                    }));
                         } else if (f.time(a) > f.time(alphax)) {
-                            // TODO
-                            return null;
+                            return pma.add(x).complement(
+                                    pma.filter(new Predicate<Identifier>() {
+                                        @Override
+                                        public boolean apply(Identifier i) {
+                                            return f.t(i).equals(f.t(x));
+                                        }
+                                    }));
                         } else
                             return pma;
                     }
@@ -43,59 +60,52 @@ public class MergerImpl implements Merger {
             }
         } else {
             if (a.isEmpty())
-                return EMPTY_SET;
+                return emptySet;
             else {
                 return f.alpha(x).complement(merge(a, a));
             }
         }
     }
 
-    private IdentifierSet merge(IdentifierSet a, IdentifierSet b) {
-        // TODO
-        return null;
+    private IdentifierTypeSet getTypes(final IdentifierSet ids) {
+        return new IdentifierTypeSet() {
+
+            @Override
+            public boolean contains(IdentifierType type) {
+                for (Identifier id : ids.list()) {
+                    if (id.getIdentifierType().equals(type))
+                        return true;
+                }
+                return false;
+            }
+
+            @Override
+            public ImmutableSet<IdentifierType> set() {
+                com.google.common.collect.ImmutableSet.Builder<IdentifierType> builder = ImmutableSet
+                        .builder();
+                for (Identifier id : ids.list())
+                    builder.add(id.getIdentifierType());
+                return builder.build();
+            }
+        };
     }
 
-    private static class EmptySet implements IdentifierSet {
+    private IdentifierSet calculateZ(final IdentifierSet alphax,
+            final IdentifierSet pma, final IdentifierSet a) {
+        final IdentifierSet conflicts = f.conflicting(alphax, pma);
+        return alphax.filter(new Predicate<Identifier>() {
+            @Override
+            public boolean apply(Identifier i) {
+                return conflicts.contains(i) || f.time(alphax) < f.time(a);
+            }
+        });
+    }
 
-        private final ImmutableList<Identifier> list;
+    private IdentifierSet merge(IdentifierSet a, IdentifierSet bSet) {
+        IdentifierSet ids = identitySetFactory.create();
+        for (Identifier b : bSet.list())
+            ids = ids.union(merge(a, b));
+        return ids;
+    }
 
-        public EmptySet() {
-            Builder<Identifier> builder = ImmutableList.builder();
-            list = builder.build();
-        }
-
-        @Override
-        public boolean contains(Identifier identifier) {
-            return false;
-        }
-
-        @Override
-        public boolean equals(IdentifierSet set) {
-            if (set == null)
-                return false;
-            else
-                return set.isEmpty();
-        }
-
-        @Override
-        public boolean isEmpty() {
-            return true;
-        }
-
-        @Override
-        public ImmutableList<Identifier> list() {
-            return list;
-        }
-
-        @Override
-        public IdentifierSet complement(IdentifierSet set) {
-            return this;
-        }
-
-        @Override
-        public IdentifierSet union(IdentifierSet set) {
-            return set;
-        }
-
-    };
 }
