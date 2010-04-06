@@ -34,6 +34,7 @@ C = set of entity
 id: C -> 
 
 ==Algorithm==
+*Note:* This algorithm has holes! I'm working on a mathematically solid functional description here.
 
 This is the action taken when a new fix arrives to ETE:
 {{{
