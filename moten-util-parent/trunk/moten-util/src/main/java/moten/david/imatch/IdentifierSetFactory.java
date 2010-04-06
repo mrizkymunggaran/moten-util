@@ -1,6 +1,6 @@
 package moten.david.imatch;
 
-public interface IdentitySetFactory {
+public interface IdentifierSetFactory {
 
     IdentifierSet create();
 }

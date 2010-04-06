@@ -8,13 +8,13 @@ public class MergerImpl implements Merger {
 
 	private final Functions f;
 
-	private final IdentitySetFactory identitySetFactory;
+	private final IdentifierSetFactory identitySetFactory;
 
 	private final IdentifierTypeSetFactory typeSetFactory;
 
 	@Inject
 	public MergerImpl(Functions functions,
-			IdentitySetFactory identifierSetFactory,
+			IdentifierSetFactory identifierSetFactory,
 			IdentifierTypeSetFactory typeSetFactory) {
 		this.f = functions;
 		this.identitySetFactory = identifierSetFactory;
