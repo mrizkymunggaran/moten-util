@@ -2,6 +2,7 @@ package moten.david.imatch.memory;
 
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -73,19 +74,18 @@ public class DatastoreImmutable extends DatastoreBase {
 	@Override
 	public Datastore add(IdentifierSet set, double time) {
 		Builder<Identifier, IdentifierSet> mapBuilder = ImmutableMap.builder();
-		Builder<IdentifierSet, Double> timesBuilder = ImmutableMap.builder();
+		HashMap<IdentifierSet, Double> newTimes = new HashMap<IdentifierSet, Double>();
 		for (Identifier i : Sets.union(map.keySet(), set.set())) {
 			IdentifierSet s = merge(set, i);
 			mapBuilder.put(i, s);
 			if (set.contains(i))
-				timesBuilder.put(s, time);
+				newTimes.put(s, time);
 			else
-				timesBuilder.put(s, times.get(s));
+				newTimes.put(s, times.get(s));
 		}
 		return new DatastoreImmutable(identifierSetFactory,
 				identifierTypeSetFactory, identifierComparator,
-				identifierTypeStrengthComparator, mapBuilder.build(),
-				timesBuilder.build());
+				identifierTypeStrengthComparator, mapBuilder.build(), newTimes);
 	}
 
 	@Override
