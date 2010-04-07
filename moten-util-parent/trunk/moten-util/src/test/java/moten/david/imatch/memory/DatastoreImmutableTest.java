@@ -3,6 +3,7 @@ package moten.david.imatch.memory;
 import java.util.HashMap;
 import java.util.logging.Logger;
 
+import junit.framework.Assert;
 import moten.david.imatch.Datastore;
 import moten.david.imatch.Identifier;
 import moten.david.imatch.IdentifierSet;
@@ -36,7 +37,12 @@ public class DatastoreImmutableTest {
         log.info(name1.toString());
         ids = ids.add(new MyIdentifier(name1, "fred"));
         log.info(ids.toString());
-        ds.add(ids, System.currentTimeMillis());
+        ds = ds.add(ids, System.currentTimeMillis());
         log.info(ds.toString());
+        Assert.assertEquals(1, ds.identifiers().size());
+
+        // no change on readding it
+        ds = ds.add(ids, System.currentTimeMillis());
+        Assert.assertEquals(1, ds.identifiers().size());
     }
 }

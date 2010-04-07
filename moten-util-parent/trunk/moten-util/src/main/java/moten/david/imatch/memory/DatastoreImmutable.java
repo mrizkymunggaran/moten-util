@@ -18,6 +18,7 @@ import moten.david.util.functional.Functional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 import com.google.common.collect.ImmutableMap.Builder;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
@@ -70,7 +71,7 @@ public class DatastoreImmutable extends DatastoreBase {
     public Datastore add(IdentifierSet set, double time) {
         Builder<Identifier, IdentifierSet> mapBuilder = ImmutableMap.builder();
         Builder<IdentifierSet, Double> timesBuilder = ImmutableMap.builder();
-        for (Identifier i : map.keySet()) {
+        for (Identifier i : Sets.union(map.keySet(), set.set())) {
             IdentifierSet s = merge(set, i);
             mapBuilder.put(i, s);
             if (set.contains(i))
