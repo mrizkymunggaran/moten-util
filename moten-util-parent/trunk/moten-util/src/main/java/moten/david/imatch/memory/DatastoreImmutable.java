@@ -143,7 +143,12 @@ public class DatastoreImmutable extends DatastoreBase {
 
 	@Override
 	public String toString() {
-		return "DatastoreImmutable [map=" + map + "]";
+		StringBuffer s = new StringBuffer();
+		s.append("DataStoreImmutable=\n");
+		for (Identifier i : map.keySet())
+			s.append(i + " => " + map.get(i) + "\n");
+		return s.toString();
+
 	}
 
 }

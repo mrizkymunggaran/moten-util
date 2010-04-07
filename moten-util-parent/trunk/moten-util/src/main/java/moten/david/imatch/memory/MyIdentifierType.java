@@ -5,55 +5,54 @@ import moten.david.imatch.IdentifierType;
 import com.google.inject.internal.Objects;
 
 public class MyIdentifierType implements IdentifierType {
-    private final String name;
-    private final double strength;
-    private final double order;
+	private final String name;
+	private final double strength;
+	private final double order;
 
-    @Override
-    public double getOrder() {
-        return order;
-    }
+	@Override
+	public double getOrder() {
+		return order;
+	}
 
-    public MyIdentifierType(String name, double strength, double order) {
-        super();
-        this.name = name;
-        this.strength = strength;
-        this.order = order;
-    }
+	public MyIdentifierType(String name, double strength, double order) {
+		super();
+		this.name = name;
+		this.strength = strength;
+		this.order = order;
+	}
 
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(name, strength);
-    }
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(name, strength);
+	}
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        MyIdentifierType other = (MyIdentifierType) obj;
-        if (name == null) {
-            if (other.name != null)
-                return false;
-        } else if (!name.equals(other.name))
-            return false;
-        if (Double.doubleToLongBits(strength) != Double
-                .doubleToLongBits(other.strength))
-            return false;
-        return true;
-    }
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		MyIdentifierType other = (MyIdentifierType) obj;
+		if (name == null) {
+			if (other.name != null)
+				return false;
+		} else if (!name.equals(other.name))
+			return false;
+		if (Double.doubleToLongBits(strength) != Double
+				.doubleToLongBits(other.strength))
+			return false;
+		return true;
+	}
 
-    @Override
-    public String toString() {
-        return "MyIdentifierType [name=" + name + ", order=" + order
-                + ", strength=" + strength + "]";
-    }
+	@Override
+	public String toString() {
+		return name;
+	}
 
-    @Override
-    public double getStrength() {
-        return strength;
-    }
+	@Override
+	public double getStrength() {
+		return strength;
+	}
 }

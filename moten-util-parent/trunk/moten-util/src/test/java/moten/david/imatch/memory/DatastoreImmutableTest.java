@@ -45,18 +45,21 @@ public class DatastoreImmutableTest {
 			ds = ds.add(ids, millis++);
 			Assert.assertEquals(1, ds.identifiers().size());
 
-			ids = createSet().add(createIdentifier("name2", "joe", 10, 11));
+			ids = createSet();
+			ids = ids.add(createIdentifier("name2", "joe", 10, 11));
 			ds = ds.add(ids, millis++);
 			Assert.assertEquals(2, ds.identifiers().size());
 
-			ids = createSet().add(createIdentifier("name2", "keith", 10, 11));
+			ids = createSet();
+			ids = ids.add(createIdentifier("name2", "keith", 10, 11));
 			ds = ds.add(ids, millis++);
 			Assert.assertEquals(3, ds.identifiers().size());
 
-			// ids = createSet().add(createIdentifier("name2", "keith", 10,
-			// 11));
-			// ids = ids.add(createIdentifier("name3", "john", 10, 12));
-			// ds = ds.add(ids, millis++);
+			ids = createSet();
+			ids = ids.add(createIdentifier("name2", "keith", 10, 11));
+			ids = ids.add(createIdentifier("name3", "john", 10, 12));
+			ds = ds.add(ids, millis++);
+			log.info(ds.toString());
 			// Assert.assertEquals(3, ds.identifiers().size());
 
 		}
