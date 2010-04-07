@@ -104,4 +104,9 @@ public class MyIdentifierSet implements IdentifierSet {
                 return i;
         return null;
     }
+
+    @Override
+    public String toString() {
+        return "MyIdentifierSet [set=" + set + "]";
+    }
 }

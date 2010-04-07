@@ -1,4 +1,4 @@
-package moten.david.util.ete;
+package moten.david.ete;
 
 import java.util.TreeSet;
 

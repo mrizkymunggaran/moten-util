@@ -39,4 +39,9 @@ public class MyIdentifierTypeSet implements IdentifierTypeSet {
         return set;
     }
 
+    @Override
+    public String toString() {
+        return "MyIdentifierTypeSet [set=" + set + "]";
+    }
+
 }

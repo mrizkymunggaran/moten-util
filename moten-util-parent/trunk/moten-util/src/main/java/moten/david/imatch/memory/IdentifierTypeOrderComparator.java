@@ -4,6 +4,9 @@ import java.util.Comparator;
 
 import moten.david.imatch.IdentifierType;
 
+import com.google.inject.Singleton;
+
+@Singleton
 public class IdentifierTypeOrderComparator implements
         Comparator<IdentifierType> {
 
