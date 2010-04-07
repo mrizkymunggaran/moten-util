@@ -1,6 +1,6 @@
 package moten.david.imatch;
 
-public interface Functions {
+public interface Engine {
 
 	IdentifierSet alpha(Identifier identifier);
 

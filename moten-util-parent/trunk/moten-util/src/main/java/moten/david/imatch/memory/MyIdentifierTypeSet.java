@@ -11,34 +11,32 @@ import com.google.common.collect.ImmutableSet.Builder;
 
 public class MyIdentifierTypeSet implements IdentifierTypeSet {
 
-	private final ImmutableSet<IdentifierType> set;
+    private final ImmutableSet<IdentifierType> set;
 
-	public MyIdentifierTypeSet(Set<IdentifierType> set) {
-		Builder<IdentifierType> builder = ImmutableSet.builder();
-		builder.add(set.toArray(new IdentifierType[] {}));
-		this.set = builder.build();
-	}
+    public MyIdentifierTypeSet(Set<IdentifierType> set) {
+        this.set = ImmutableSet.copyOf(set);
+    }
 
-	public MyIdentifierTypeSet() {
-		this(Collections.EMPTY_SET);
-	}
+    public MyIdentifierTypeSet() {
+        this(Collections.EMPTY_SET);
+    }
 
-	@Override
-	public IdentifierTypeSet add(IdentifierType identifierType) {
-		Builder<IdentifierType> builder = ImmutableSet.builder();
-		builder.add(set.toArray(new IdentifierType[] {}));
-		builder.add(identifierType);
-		return new MyIdentifierTypeSet(builder.build());
-	}
+    @Override
+    public IdentifierTypeSet add(IdentifierType identifierType) {
+        Builder<IdentifierType> builder = ImmutableSet.builder();
+        builder.add(set.toArray(new IdentifierType[] {}));
+        builder.add(identifierType);
+        return new MyIdentifierTypeSet(builder.build());
+    }
 
-	@Override
-	public boolean contains(IdentifierType type) {
-		return set.contains(type);
-	}
+    @Override
+    public boolean contains(IdentifierType type) {
+        return set.contains(type);
+    }
 
-	@Override
-	public ImmutableSet<IdentifierType> set() {
-		return set;
-	}
+    @Override
+    public ImmutableSet<IdentifierType> set() {
+        return set;
+    }
 
 }
