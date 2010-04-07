@@ -59,7 +59,10 @@ public class DatastoreImmutable extends DatastoreBase {
 
 	@Override
 	public double time(IdentifierSet set) {
-		return times.get(set);
+		if (times.get(set) == null)
+			return Double.MIN_NORMAL;
+		else
+			return times.get(set);
 	}
 
 	@Override
@@ -76,6 +79,8 @@ public class DatastoreImmutable extends DatastoreBase {
 			mapBuilder.put(i, s);
 			if (set.contains(i))
 				timesBuilder.put(s, time);
+			else
+				timesBuilder.put(s, times.get(s));
 		}
 		return new DatastoreImmutable(identifierSetFactory,
 				identifierTypeSetFactory, identifierComparator,
