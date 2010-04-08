@@ -4,26 +4,30 @@ import com.google.common.collect.ImmutableSet;
 
 public interface Datastore {
 
-    ImmutableSet<Identifier> identifiers();
+	ImmutableSet<Identifier> identifiers();
 
-    IdentifierSet alpha(Identifier identifier);
+	IdentifierSet beta(IdentifierSet set, Identifier identifier);
 
-    double time(IdentifierSet set);
+	IdentifierSet r(IdentifierSet set);
 
-    IdentifierSet merge(IdentifierSet identifierSet, Identifier identifier);
+	IdentifierSet alpha(Identifier identifier);
 
-    Datastore add(IdentifierSet set, double time);
+	double time(IdentifierSet set);
 
-    // intermediate functions
+	IdentifierSet merge(IdentifierSet identifierSet, Identifier identifier);
 
-    double dmax(IdentifierSet x);
+	Datastore add(IdentifierSet set, double time);
 
-    IdentifierSet nms(IdentifierSet x, IdentifierSet y);
+	// intermediate functions
 
-    IdentifierSet pm(IdentifierSet x);
+	double dmax(IdentifierSet x);
 
-    IdentifierType t(Identifier x);
+	IdentifierSet nms(IdentifierSet x, IdentifierSet y);
 
-    double d(IdentifierType t);
+	IdentifierSet pm(IdentifierSet x);
+
+	IdentifierType t(Identifier x);
+
+	double d(IdentifierType t);
 
 }
