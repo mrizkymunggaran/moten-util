@@ -63,9 +63,8 @@ d<sub>max</sub>(Y) = max( d<sub>max</sub>(Z) : Z &isin; &alpha;(X) }</p>
 
 <p class="indent3">TODO prove pm returns unique values.</p>
 
-<p>Finally,</p>
-<p class="indent1">define merge : V &#x2a2f; I &rarr; V by</p>
-<p class="indent2">merge(A, x) =</p>
+<p class="indent1">Define &beta; : V &#x2a2f; I &rarr; V by</p>
+<p class="indent2">&beta;(A, x) =</p>
 <p class="indent3">For x &isin; A</p>
 <table class="table4">
 	<tr>
@@ -100,8 +99,14 @@ d<sub>max</sub>(Y) = max( d<sub>max</sub>(Z) : Z &isin; &alpha;(X) }</p>
 </table>
 <p class="indent3">For x &notin; A</p>
 <table class="table4">
-<tr><td>&empty;</td><td>A = &empty;</td></tr>
-<tr><td>&alpha;(x) \ merge(A,A)</td><td>A &ne; &empty;</td></tr>
+<tr><td>&empty;</td></tr>
 </table>
+<p>Define R : V &rarr; V by</p>
+<p class="indent1"> R(A)= &cup; &beta;(A,y) over y &isin; A</p>
+<p>Finally define &alpha;':V &#x2a2f; I &rarr; V by</p>
+<p class="indent1">For x &isin; A</p>
+<p class="indent2">&alpha;'(A,x) = R(A)</p>
+<p class="indent1">For x &notin; A</p>
+<p class="indent2">&alpha;'(A,x) = &alpha;(x)\R(A)</p>
 </body>
 </html>
