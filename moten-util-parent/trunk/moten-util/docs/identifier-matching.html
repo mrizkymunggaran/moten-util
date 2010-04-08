@@ -73,11 +73,11 @@ d<sub>max</sub>(Y) = max( d<sub>max</sub>(Z) : Z &isin; &alpha;(X) }</p>
 	</tr>
 	<tr>
 		<td>nms(A, pm(A))</td>
-		<td>otherwise if x &isin; nms(A, pm(A))</td>
+		<td>if x &isin; nms(A, pm(A))</td>
 	</tr>
 	<tr>
 		<td>pm(A)</td>
-		<td>otherwise if &alpha;(x) = pm(A)</td>
+		<td>if &alpha;(x) = pm(A)</td>
 	</tr>
 	<tr>
 		<td>
@@ -86,11 +86,11 @@ d<sub>max</sub>(Y) = max( d<sub>max</sub>(Z) : Z &isin; &alpha;(X) }</p>
 		<p class="indent1">Z = { i &isin; &alpha;(x) : i &notin;
 		c(&alpha;(x),pm(A)) or time(&alpha;(x)) < time(A)}</p>
 		</td>
-		<td>otherwise if d(t(x)) = d<sub>max</sub>(&alpha;(x))</td>
+		<td>if d(t(x)) = d<sub>max</sub>(&alpha;(x))</td>
 	</tr>
 	<tr>
 		<td>(pm(A) &cup; {x})\{i &isin; pm(A) : t(i)=t(x)}</td>
-		<td>otherwise if time(A) &gt; time(&alpha;(x))</td>
+		<td>if time(A) &gt; time(&alpha;(x))</td>
 	</tr>
 	<tr>
 		<td>pm(A)</td>
