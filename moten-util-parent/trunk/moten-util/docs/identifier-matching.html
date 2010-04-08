@@ -63,21 +63,21 @@ d<sub>max</sub>(Y) = max( d<sub>max</sub>(Z) : Z &isin; &alpha;(X) }</p>
 
 <p class="indent3">TODO prove pm returns unique values.</p>
 
-<p class="indent1">Define &beta; : V &#x2a2f; I &rarr; V by</p>
-<p class="indent2">&beta;(A, x) =</p>
-<p class="indent3">For x &isin; A</p>
+<p>Define &beta; : V &#x2a2f; I &rarr; V by</p>
+<p class="indent1">&beta;(A, x) =</p>
+<p class="indent2">For x &isin; A</p>
 <table class="table4">
 	<tr>
 		<td>A</td>
-		<td>if pm(A) = &empty;</td>
+		<td>, if pm(A) = &empty;</td>
 	</tr>
 	<tr>
 		<td>nms(A, pm(A))</td>
-		<td>if x &isin; nms(A, pm(A))</td>
+		<td>, if x &isin; nms(A, pm(A))</td>
 	</tr>
 	<tr>
 		<td>pm(A)</td>
-		<td>if &alpha;(x) = pm(A)</td>
+		<td>, if &alpha;(x) = pm(A)</td>
 	</tr>
 	<tr>
 		<td>
@@ -86,15 +86,15 @@ d<sub>max</sub>(Y) = max( d<sub>max</sub>(Z) : Z &isin; &alpha;(X) }</p>
 		<p class="indent1">Z = { i &isin; &alpha;(x) : i &notin;
 		c(&alpha;(x),pm(A)) or time(&alpha;(x)) < time(A)}</p>
 		</td>
-		<td>if d(t(x)) = d<sub>max</sub>(&alpha;(x))</td>
+		<td>, if d(t(x)) = d<sub>max</sub>(&alpha;(x))</td>
 	</tr>
 	<tr>
 		<td>(pm(A) &cup; {x})\{i &isin; pm(A) : t(i)=t(x)}</td>
-		<td>if time(A) &gt; time(&alpha;(x))</td>
+		<td>, if time(A) &gt; time(&alpha;(x))</td>
 	</tr>
 	<tr>
 		<td>pm(A)</td>
-		<td>otherwise</td>
+		<td>, otherwise</td>
 	</tr>
 </table>
 <p class="indent3">For x &notin; A</p>
