@@ -1,8 +1,10 @@
 package moten.david.imatch;
 
 import java.util.Collections;
+import java.util.Comparator;
 
 import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 
 public abstract class DatastoreBase implements Datastore {
@@ -38,10 +40,8 @@ public abstract class DatastoreBase implements Datastore {
 						IdentifierSet alphax = alpha(x);
 						if (pma.equals(alphax))
 							return pma;
-						else if (strictOrdering().compare(
-								t(x),
-								Collections.max(alphax.types().set(),
-										strictOrdering())) == 0) {
+						else if (strictOrdering().compare(t(x),
+								max(alphax.types().set(), strictOrdering())) == 0) {
 							IdentifierSet z = calculateZ(alphax, pma, a);
 							final IdentifierTypeSet zTypes = getTypes(z);
 							return pma.union(z).complement(
@@ -71,6 +71,14 @@ public abstract class DatastoreBase implements Datastore {
 				return alpha(x).complement(merge(a, a));
 			}
 		}
+	}
+
+	private IdentifierType max(ImmutableSet<IdentifierType> set,
+			Comparator<IdentifierType> comparator) {
+		if (set.size() == 0)
+			return null;
+		else
+			return Collections.max(set, comparator);
 	}
 
 	private IdentifierTypeSet getTypes(final IdentifierSet ids) {

@@ -67,7 +67,7 @@ public class DatastoreImmutableTest {
 			ids = createSet();
 			ids = ids.add(createIdentifier("name2", "keith", 10, 11));
 			ids = ids.add(createIdentifier("name3", "john", 10, 12));
-			// ds = add(ds, ids);
+			ds = add(ds, ids);
 			// Assert.assertEquals(3, ds.identifiers().size());
 
 		}

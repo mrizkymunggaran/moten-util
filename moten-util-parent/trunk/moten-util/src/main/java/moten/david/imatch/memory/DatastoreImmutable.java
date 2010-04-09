@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import moten.david.imatch.Datastore;
 import moten.david.imatch.DatastoreBase;
@@ -26,6 +27,9 @@ import com.google.inject.assistedinject.Assisted;
 
 public class DatastoreImmutable extends DatastoreBase {
 
+	private static Logger log = Logger.getLogger(DatastoreImmutable.class
+			.getName());
+
 	private final ImmutableMap<Identifier, IdentifierSet> map;
 	private final ImmutableMap<IdentifierSet, Double> times;
 	private final IdentifierSetFactory identifierSetFactory;
@@ -34,7 +38,8 @@ public class DatastoreImmutable extends DatastoreBase {
 	private final IdentifierTypeStrictComparator identifierTypeStrictComparator;
 
 	@Inject
-	public DatastoreImmutable(IdentifierSetFactory identifierSetFactory,
+	public DatastoreImmutable(
+			IdentifierSetFactory identifierSetFactory,
 			IdentifierTypeSetFactory identifierTypeSetFactory,
 			MyIdentifierTypeStrengthComparator identifierTypeStrengthComparator,
 			IdentifierTypeStrictComparator identifierTypeStrictComparator,
@@ -111,19 +116,35 @@ public class DatastoreImmutable extends DatastoreBase {
 						return alpha(s);
 					}
 				});
-		IdentifierSet y = Collections.max(alphaX,
-				new Comparator<IdentifierSet>() {
-					@Override
-					public int compare(IdentifierSet o1, IdentifierSet o2) {
-						return strictOrdering().compare(strictMax(o1),
-								strictMax(o2));
-					}
-				});
-		return y;
+		if (alphaX.isEmpty())
+			return MyIdentifierSet.EMPTY_SET;
+		else {
+			IdentifierSet y = Collections.max(alphaX,
+					new Comparator<IdentifierSet>() {
+						@Override
+						public int compare(IdentifierSet o1, IdentifierSet o2) {
+							IdentifierType m1 = strictMax(o1);
+							IdentifierType m2 = strictMax(o2);
+							if (m1 == null && m2 == null)
+								return 0;
+							else if (m1 == null)
+								return -1;
+							else if (m2 == null)
+								return 1;
+							else
+								return strictOrdering().compare(strictMax(o1),
+										strictMax(o2));
+						}
+					});
+			return y;
+		}
 	}
 
 	private IdentifierType strictMax(IdentifierSet set) {
-		return Collections.max(set.types().set(), strictOrdering());
+		if (set.isEmpty())
+			return null;
+		else
+			return Collections.max(set.types().set(), strictOrdering());
 	}
 
 	@Override
