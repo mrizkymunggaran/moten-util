@@ -1,10 +1,14 @@
 package moten.david.imatch;
 
+import java.util.Comparator;
+
 import com.google.common.collect.ImmutableSet;
 
 public interface Datastore {
 
 	ImmutableSet<Identifier> identifiers();
+
+	ImmutableSet<IdentifierSet> identifierSets();
 
 	IdentifierSet beta(IdentifierSet set, Identifier identifier);
 
@@ -20,14 +24,23 @@ public interface Datastore {
 
 	// intermediate functions
 
-	double dmax(IdentifierSet x);
-
 	IdentifierSet nms(IdentifierSet x, IdentifierSet y);
 
 	IdentifierSet pm(IdentifierSet x);
 
 	IdentifierType t(Identifier x);
 
-	double d(IdentifierType t);
+	/**
+	 * > comparator
+	 * 
+	 * @return
+	 */
+	Comparator<IdentifierType> strengthOrdering();
 
+	/**
+	 * >> comparator
+	 * 
+	 * @return
+	 */
+	Comparator<IdentifierType> strictOrdering();
 }

@@ -24,13 +24,9 @@ by f(X) = {f(x): x &isin; X}</p>
 <p>Given</p>
 <p class="indent1">t: I &rarr; T categorises an identifier
 with an identifier type</p>
-<p class="indent1">s: T &rarr; &real; associates an
-identifier type with a strength value</p>
-<p class="indent1">d: T &rarr; &real; (orders identifiers
-deterministically when identifiers have the same strength s), where</p>
-<p class="indent2">s(t<sub>1</sub>)=s(t<sub>2</sub>)
-&rArr; d(t<sub>1</sub>) &ne; d(t<sub>2</sub>) and s(t<sub>1</sub>) &gt;
-s(t<sub>2</sub>) &rArr; d(t<sub>1</sub>) &gt; d(t<sub>2</sub>)</p>
+<p class="indent1">&gt : TxT &rarr; <b>B</b> is an infix comparator of the strength of identifier types</p>
+<p class="indent1">&gt;&gt; : TxT &rarr; <b>B</b> is an infix comparator of the order of identifier types where</p>
+<p class="indent3">&forall;s,t&isin;T, (s !&gt; t and t !&gt; s)  &hArr; s = t, s &gt; t &rArr; s &gt;&gt; t</p>
 <p>Define</p>
 <p class="indent1">c (conflicting identifiers) :
 &weierp;(I) &rarr; &weierp;(I) given by</p>
@@ -47,21 +43,17 @@ time property of an identifier set</p>
 
 
 <p>Define</p>
-<p class="indent1">d<sub>max</sub> : V &rarr;
-&real; given by</p>
-<p class="indent2">d<sub>max</sub>(X) = max(d(i) : i&isin;
-X)</p>
 <p class="indent1">nms (non-matching stronger) :
 V &#x2a2f; V &rarr; V given by</p>
 <p class="indent2">nms(X,Y) = { i&isin; X :
-i&notin;Y and s(t(i)) >max(s(t(Y)))}</p>
+i&notin;Y and t(i) &gt; t(y) &forall; y&isin;Y}</p>
 <p class="indent1">pm (primary match) : V &rarr;
 V given by</p>
 <p class="indent2">pm(X) = &empty; if &alpha;(X) = {&empty;} </p>
 <p class="indent4">otherwise Y where Y &isin; &alpha;(X) and
-d<sub>max</sub>(Y) = max( d<sub>max</sub>(Z) : Z &isin; &alpha;(X) }</p>
+(max (t((Y))) using >>) >> t &isin; Z &forall; Z&isin;&alpha;(X) and Z &ne; Y</p>
 
-<p class="indent3">TODO prove pm returns unique values.</p>
+<p class="indent3">TODO prove pm is one-to-one</p>
 
 <p>Define &beta; : V &#x2a2f; I &rarr; V by</p>
 <p class="indent1">&beta;(A, x) =</p>

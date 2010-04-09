@@ -1,7 +1,6 @@
 package moten.david.imatch;
 
 public interface IdentifierType {
-    double getStrength();
+	double getStrength();
 
-    double getOrder();
 }

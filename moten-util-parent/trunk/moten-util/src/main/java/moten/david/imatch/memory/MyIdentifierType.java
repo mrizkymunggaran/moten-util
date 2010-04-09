@@ -5,20 +5,17 @@ import moten.david.imatch.IdentifierType;
 import com.google.inject.internal.Objects;
 
 public class MyIdentifierType implements IdentifierType {
+	public String getName() {
+		return name;
+	}
+
 	private final String name;
 	private final double strength;
-	private final double order;
-
-	@Override
-	public double getOrder() {
-		return order;
-	}
 
 	public MyIdentifierType(String name, double strength, double order) {
 		super();
 		this.name = name;
 		this.strength = strength;
-		this.order = order;
 	}
 
 	@Override

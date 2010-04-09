@@ -1,5 +1,7 @@
 package moten.david.imatch;
 
+import java.util.Collections;
+
 import com.google.common.base.Predicate;
 import com.google.inject.Inject;
 
@@ -36,7 +38,10 @@ public abstract class DatastoreBase implements Datastore {
 						IdentifierSet alphax = alpha(x);
 						if (pma.equals(alphax))
 							return pma;
-						else if (d(t(x)) == dmax(alphax)) {
+						else if (strictOrdering().compare(
+								t(x),
+								Collections.max(alphax.types().set(),
+										strictOrdering())) == 0) {
 							IdentifierSet z = calculateZ(alphax, pma, a);
 							final IdentifierTypeSet zTypes = getTypes(z);
 							return pma.union(z).complement(

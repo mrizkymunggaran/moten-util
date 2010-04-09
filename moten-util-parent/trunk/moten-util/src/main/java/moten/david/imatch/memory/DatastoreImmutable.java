@@ -13,6 +13,7 @@ import moten.david.imatch.IdentifierSet;
 import moten.david.imatch.IdentifierSetFactory;
 import moten.david.imatch.IdentifierType;
 import moten.david.imatch.IdentifierTypeSetFactory;
+import moten.david.imatch.IdentifierTypeStrictComparator;
 import moten.david.util.functional.Function;
 import moten.david.util.functional.Functional;
 
@@ -29,20 +30,20 @@ public class DatastoreImmutable extends DatastoreBase {
 	private final ImmutableMap<IdentifierSet, Double> times;
 	private final IdentifierSetFactory identifierSetFactory;
 	private final IdentifierTypeSetFactory identifierTypeSetFactory;
-	private final IdentifierComparator identifierComparator;
-	private final IdentifierTypeStrengthComparator identifierTypeStrengthComparator;
+	private final MyIdentifierTypeStrengthComparator identifierTypeStrengthComparator;
+	private final IdentifierTypeStrictComparator identifierTypeStrictComparator;
 
 	@Inject
 	public DatastoreImmutable(IdentifierSetFactory identifierSetFactory,
 			IdentifierTypeSetFactory identifierTypeSetFactory,
-			IdentifierComparator identifierComparator,
-			IdentifierTypeStrengthComparator identifierTypeStrengthComparator,
+			MyIdentifierTypeStrengthComparator identifierTypeStrengthComparator,
+			IdentifierTypeStrictComparator identifierTypeStrictComparator,
 			@Assisted Map<Identifier, IdentifierSet> map,
 			@Assisted Map<IdentifierSet, Double> times) {
 		super(identifierSetFactory, identifierTypeSetFactory);
 		this.identifierSetFactory = identifierSetFactory;
 		this.identifierTypeSetFactory = identifierTypeSetFactory;
-		this.identifierComparator = identifierComparator;
+		this.identifierTypeStrictComparator = identifierTypeStrictComparator;
 		this.identifierTypeStrengthComparator = identifierTypeStrengthComparator;
 		this.map = ImmutableMap.copyOf(map);
 		this.times = ImmutableMap.copyOf(times);
@@ -83,23 +84,8 @@ public class DatastoreImmutable extends DatastoreBase {
 				newTimes.put(s, times.get(s));
 		}
 		return new DatastoreImmutable(identifierSetFactory,
-				identifierTypeSetFactory, identifierComparator,
-				identifierTypeStrengthComparator, newMap, newTimes);
-	}
-
-	@Override
-	public double d(IdentifierType t) {
-		return t.getOrder();
-	}
-
-	@Override
-	public double dmax(IdentifierSet s) {
-		if (s.set().size() == 0)
-			return Double.MIN_VALUE;
-		else {
-			Identifier idmax = Collections.max(s.set(), identifierComparator);
-			return idmax.getIdentifierType().getOrder();
-		}
+				identifierTypeSetFactory, identifierTypeStrengthComparator,
+				identifierTypeStrictComparator, newMap, newTimes);
 	}
 
 	@Override
@@ -129,10 +115,15 @@ public class DatastoreImmutable extends DatastoreBase {
 				new Comparator<IdentifierSet>() {
 					@Override
 					public int compare(IdentifierSet o1, IdentifierSet o2) {
-						return Double.compare(dmax(o1), dmax(o2));
+						return strictOrdering().compare(strictMax(o1),
+								strictMax(o2));
 					}
 				});
 		return y;
+	}
+
+	private IdentifierType strictMax(IdentifierSet set) {
+		return Collections.max(set.types().set(), strictOrdering());
 	}
 
 	@Override
@@ -164,6 +155,21 @@ public class DatastoreImmutable extends DatastoreBase {
 			return r(a);
 		else
 			return alpha(x).complement(r(a));
+	}
+
+	@Override
+	public Comparator<IdentifierType> strengthOrdering() {
+		return identifierTypeStrengthComparator;
+	}
+
+	@Override
+	public Comparator<IdentifierType> strictOrdering() {
+		return identifierTypeStrictComparator;
+	}
+
+	@Override
+	public ImmutableSet<IdentifierSet> identifierSets() {
+		return ImmutableSet.copyOf(map.values());
 	}
 
 }
