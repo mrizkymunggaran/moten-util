@@ -1,19 +1,40 @@
 <html>
 <HEAD>
-    <LINK href="style.css" rel="stylesheet" type="text/css">
+<LINK href="style.css" rel="stylesheet" type="text/css">
 </HEAD>
 <body>
 <h2>Identifier Matching Function</h2>
-<p>Mathematical description of a an identifier matching function based
-on identifiers with types that are comparable.</p>
+<p>Mathematical description of a an identifier matching function
+based on identifiers with types that are comparable.</p>
 <h3>Abstract</h3>
-<p>The purpose of this function is to merge a new entity with a set
-of entities according to certain principles. Merge in this case means
-matching and merging the identifiers of the new entity with the set of
-entities. The set of entities is really just a set of disjoint
-identifier sets.</p>
+<p>A set of entities with non-conflicting identities is represented
+by a set of disjoint identifier sets. Each identifier set has an
+associated time. The problem is to define a function that takes a new
+set of identifiers representing an update on one entity with it's
+associated time and merges it with the existing entity set.</p>
+
+<p>If the new identifiers do not exist in the entity set then a new
+entity is created with those entities. If one or more of the new
+identifiers do exist in the entity set (possibly against multiple
+entities) then merge decisions need to be made.</p>
+
+<p>Find a primary match to the set. Apply all identifiers to that
+primary match, replacing identifiers of the same type if the new
+identifiers time is greater than the primary match time.</p>
+
+<p>Now take the resultant changed primary match and apply a merge
+function with every identifier set that has a common identifier with it.
+The merge function will return the further adjusted primary match set.
+For every identifier in the secondary identifier set add the identifier
+to the primary match set if the identifier type does not exist in the primary match. If the
+identifier type does exist in the primary match  then replace that primary identifier with the
+identifier type with the secondary identifier iff the secondary
+timestamp is after the primary match time. Reversing the parameters will
+return the adjusted secondary matching identifier set.</p>
+
 <h3>Conventions</h3>
-<p>Capital variable names are used for sets, lower case variable names are used for numbers.</p>
+<p>Capital variable names are used for sets, lower case variable
+names are used for numbers.</p>
 <p>When a function f is defined e.g. f : P &rarr; Q assume an
 additional implicit definition f: &weierp;(P) &rarr; &weierp;(Q) given
 by f(X) = {f(x): x &isin; X}</p>
@@ -22,36 +43,38 @@ by f(X) = {f(x): x &isin; X}</p>
 <p class="indent1">I = set of identifiers</p>
 <p class="indent1">T = set of identifier types</p>
 <p>Given</p>
-<p class="indent1">t: I &rarr; T categorises an identifier
-with an identifier type</p>
-<p class="indent1">&gt : TxT &rarr; <b>B</b> is an infix comparator of the strength of identifier types</p>
-<p class="indent1">&gt;&gt; : TxT &rarr; <b>B</b> is an infix comparator of the order of identifier types where</p>
-<p class="indent3">&forall;s,t&isin;T, (s !&gt; t and t !&gt; s)  &hArr; s = t, s &gt; t &rArr; s &gt;&gt; t</p>
+<p class="indent1">t: I &rarr; T categorises an identifier with an
+identifier type</p>
+<p class="indent1">&gt : TxT &rarr; <b>B</b> is an infix comparator
+of the strength of identifier types</p>
+<p class="indent1">&gt;&gt; : TxT &rarr; <b>B</b> is an infix
+comparator of the order of identifier types where</p>
+<p class="indent3">&forall;s,t&isin;T, (s !&gt; t and t !&gt; s)
+&hArr; s = t, s &gt; t &rArr; s &gt;&gt; t</p>
 <p>Define</p>
-<p class="indent1">c (conflicting identifiers) :
-&weierp;(I) &rarr; &weierp;(I) given by</p>
-<p class="indent2">c(X,Y) = {x &isin; X : t(x)
-&isin; t(Y) and x &notin; Y}</p>
-<p class="indent1">V (valid identifier sets) = { X
-&sub; I : c(X,X) = &empty;}</p>
+<p class="indent1">c (conflicting identifiers) : &weierp;(I) &rarr;
+&weierp;(I) given by</p>
+<p class="indent2">c(X,Y) = {x &isin; X : t(x) &isin; t(Y) and x
+&notin; Y}</p>
+<p class="indent1">V (valid identifier sets) = { X &sub; I : c(X,X)
+= &empty;}</p>
 <p>Given</p>
 <p class="indent1">&alpha;:I &rarr; V where</p>
-<p class="indent2">x &isin; &alpha;(x) and &forall; x,y &isin; I, &alpha;(x) &cap;
-&alpha;(y) &ne; &empty; &hArr; x=y</p>
-<p class="indent1">time: V &rarr; &real; is the
-time property of an identifier set</p>
+<p class="indent2">x &isin; &alpha;(x) and &forall; x,y &isin; I,
+&alpha;(x) &cap; &alpha;(y) &ne; &empty; &hArr; x=y</p>
+<p class="indent1">time: V &rarr; &real; is the time property of an
+identifier set</p>
 
 
 <p>Define</p>
-<p class="indent1">nms (non-matching stronger) :
-V &#x2a2f; V &rarr; V given by</p>
-<p class="indent2">nms(X,Y) = { i&isin; X :
-i&notin;Y and t(i) &gt; t(y) &forall; y&isin;Y}</p>
-<p class="indent1">pm (primary match) : V &rarr;
+<p class="indent1">nms (non-matching stronger) : V &#x2a2f; V &rarr;
 V given by</p>
-<p class="indent2">pm(X) = &empty; if &alpha;(X) = {&empty;} </p>
-<p class="indent4">otherwise Y where Y &isin; &alpha;(X) and
-(max (t((Y))) using >>) >> t &isin; Z &forall; Z&isin;&alpha;(X) and Z &ne; Y</p>
+<p class="indent2">nms(X,Y) = { i&isin; X : i&notin;Y and t(i) &gt;
+t(y) &forall; y&isin;Y}</p>
+<p class="indent1">pm (primary match) : V &rarr; V given by</p>
+<p class="indent2">pm(X) = &empty; if &alpha;(X) = {&empty;}</p>
+<p class="indent4">otherwise Y where Y &isin; &alpha;(X) and (max
+(t((Y))) using >>) >> t &isin; Z &forall; Z&isin;&alpha;(X) and Z &ne; Y</p>
 
 <p class="indent3">TODO prove pm is one-to-one</p>
 
@@ -73,8 +96,7 @@ V given by</p>
 	</tr>
 	<tr>
 		<td>
-		<p>(pm(A) &cup; Z )\{ i &isin; pm(A) : t(i) &isin; t(Z)}
-		where</p>
+		<p>(pm(A) &cup; Z )\{ i &isin; pm(A) : t(i) &isin; t(Z)} where</p>
 		<p class="indent1">Z = { i &isin; &alpha;(x) : i &notin;
 		c(&alpha;(x),pm(A)) or time(&alpha;(x)) < time(A)}</p>
 		</td>
@@ -95,10 +117,12 @@ V given by</p>
 </table>
 <p class="indent3">For x &notin; A</p>
 <table class="table4">
-<tr><td>&empty;</td></tr>
+	<tr>
+		<td>&empty;</td>
+	</tr>
 </table>
 <p>Define R : V &rarr; V by</p>
-<p class="indent1"> R(A)= &cup; &beta;(A,y) over y &isin; A</p>
+<p class="indent1">R(A)= &cup; &beta;(A,y) over y &isin; A</p>
 <p>Finally define &alpha;':V &#x2a2f; I &rarr; V by</p>
 <p class="indent1">For x &isin; A</p>
 <p class="indent2">&alpha;'(A,x) = R(A)</p>
