@@ -24,13 +24,16 @@ identifiers time is greater than the primary match time.</p>
 
 <p>Now take the resultant changed primary match and apply a merge
 function with every identifier set that has a common identifier with it.
-The merge function will return the further adjusted primary match set.
-For every identifier in the secondary identifier set add the identifier
-to the primary match set if the identifier type does not exist in the primary match. If the
-identifier type does exist in the primary match  then replace that primary identifier with the
-identifier type with the secondary identifier iff the secondary
-timestamp is after the primary match time. Reversing the parameters will
-return the adjusted secondary matching identifier set.</p>
+</p>
+<p>The merge function will accept two identifier sets. If the second
+set is stronger than the first set return the empty set. Otherwise, for
+every identifier in the second identifier set add the identifier to the
+first set if the identifier type does not exist in the first. If the
+identifier type does exist in the first then replace the
+identifier in the first set with the identifier type with the second
+identifier iff the second timestamp is after the first time.
+Reversing the parameters will return the adjusted secondary matching
+identifier set.</p>
 
 <h3>Conventions</h3>
 <p>Capital variable names are used for sets, lower case variable
