@@ -14,7 +14,7 @@ set of identifiers representing an update on one entity with it's
 associated time and merges it with the existing entity set.</p>
 
 <p>If the new identifiers do not exist in the entity set then a new
-entity is created with those entities. If one or more of the new
+entity is created with those identifiers. If one or more of the new
 identifiers do exist in the entity set (possibly against multiple
 entities) then merge decisions need to be made.</p>
 
@@ -61,75 +61,20 @@ comparator of the order of identifier types where</p>
 &notin; Y}</p>
 <p class="indent1">V (valid identifier sets) = { X &sub; I : c(X,X)
 = &empty;}</p>
-<p>Given</p>
-<p class="indent1">&alpha;:I &rarr; V where</p>
-<p class="indent2">x &isin; &alpha;(x) and &forall; x,y &isin; I,
-&alpha;(x) &cap; &alpha;(y) &ne; &empty; &hArr; x=y</p>
-<p class="indent1">time: V &rarr; &real; is the time property of an
-identifier set</p>
 
-
-<p>Define</p>
-<p class="indent1">nms (non-matching stronger) : V &#x2a2f; V &rarr;
-V given by</p>
-<p class="indent2">nms(X,Y) = { i&isin; X : i&notin;Y and t(i) &gt;
-t(y) &forall; y&isin;Y}</p>
-<p class="indent1">pm (primary match) : V &rarr; V given by</p>
-<p class="indent2">pm(X) = &empty; if &alpha;(X) = {&empty;}</p>
-<p class="indent4">otherwise Y where Y &isin; &alpha;(X) and (max
-(t((Y))) using >>) >> t &isin; Z &forall; Z&isin;&alpha;(X) and Z &ne; Y</p>
-
-<p class="indent3">TODO prove pm is one-to-one</p>
-
-<p>Define &beta; : V &#x2a2f; I &rarr; V by</p>
-<p class="indent1">&beta;(A, x) =</p>
-<p class="indent2">For x &isin; A</p>
-<table class="table4">
-	<tr>
-		<td>A</td>
-		<td>, if pm(A) = &empty;</td>
-	</tr>
-	<tr>
-		<td>nms(A, pm(A))</td>
-		<td>, if x &isin; nms(A, pm(A))</td>
-	</tr>
-	<tr>
-		<td>pm(A)</td>
-		<td>, if &alpha;(x) = pm(A)</td>
-	</tr>
-	<tr>
-		<td>
-		<p>(pm(A) &cup; Z )\{ i &isin; pm(A) : t(i) &isin; t(Z)} where</p>
-		<p class="indent1">Z = { i &isin; &alpha;(x) : i &notin;
-		c(&alpha;(x),pm(A)) or time(&alpha;(x)) < time(A)}</p>
-		</td>
-		<td>, if d(t(x)) = d<sub>max</sub>(&alpha;(x))</td>
-	</tr>
-	<tr>
-		<td>(pm(A) &cup; {x})\{i &isin; pm(A) : t(i)=t(x)}</td>
-		<td>, if time(A) &gt; time(&alpha;(x))</td>
-	</tr>
-	<tr>
-		<td>pm(A) &cup; {x}</td>
-		<td>, if &alpha;(x) = &empty;</td>
-	</tr>
-	<tr>
-		<td>pm(A)</td>
-		<td>, otherwise</td>
-	</tr>
-</table>
-<p class="indent3">For x &notin; A</p>
-<table class="table4">
-	<tr>
-		<td>&empty;</td>
-	</tr>
-</table>
-<p>Define R : V &rarr; V by</p>
-<p class="indent1">R(A)= &cup; &beta;(A,y) over y &isin; A</p>
-<p>Finally define &alpha;':V &#x2a2f; I &rarr; V by</p>
-<p class="indent1">For x &isin; A</p>
-<p class="indent2">&alpha;'(A,x) = R(A)</p>
-<p class="indent1">For x &notin; A</p>
-<p class="indent2">&alpha;'(A,x) = &alpha;(x)\R(A)</p>
+<p class="indent1">Z' = { Z &isin; &weierp;(V) where elements of Z are disjoint sets}</p>
+<p class="indent1">pm (primary match) : Z' &#x2a2f; V &rarr; V given by</p>
+<p class="indent2">pm(Z,X) = &empty; if X &cap; Y = &empty;  &forall; Y &isin; Z</p>
+<p class="indent4">otherwise Y &isin; Z where Y &cap; X &gt;&gt; R &cap; X &forall; R &isin; Z, R &ne; Y</p>
+<p class="indent1">G : V &#x2a2f; V &rarr; V by</p>
+<p class="indent2">G(A,B) = { i &isin; B : t(i) &notin; t(A) or time(i) &gt; time(j) where j &isin; A, t(i)=t(j) }</p>
+<p class="indent1">m: V &#x2a2f; V &rarr; V by</p>
+<p class="indent2">m(A,B) =</p>
+<p class="indent3">&empty; , B &gt; A</p>
+<p class="indent3">(A \ {i &isin; A : t(i) &isin; t(G)}) &cup; G</p>
+<p class="indent1">&alpha;: Z' &#x2a2f; V &rarr; Z' by </p>
+<p class="indent2">&alpha;(Z,A) =</p> 
+<p class="indent3">Z &cup; {A}, pm(Z,A) = &empty;</p>
+<p class="indent3">fold( {Y &isin;Z  : Y &cap; A &ne; &empty;},m ,m(pm(Z,A),A)),  pm(Z,A) &ne; &empty; </p>
 </body>
 </html>
