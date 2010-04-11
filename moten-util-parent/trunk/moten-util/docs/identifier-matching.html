@@ -25,15 +25,15 @@ identifiers time is greater than the primary match time.</p>
 <p>Now take the resultant changed primary match and apply a merge
 function with every identifier set that has a common identifier with it.
 </p>
-<p>The merge function will accept two identifier sets. If the second
-set is stronger than the first set return the empty set. Otherwise, for
-every identifier in the second identifier set add the identifier to the
-first set if the identifier type does not exist in the first. If the
-identifier type does exist in the first then replace the
-identifier in the first set with the identifier type with the second
-identifier iff the second timestamp is after the first time.
-Reversing the parameters will return the adjusted secondary matching
-identifier set.</p>
+<p>The merge function will accept two identifier sets. If the first
+set is the empty set or the second set is stronger than the first set
+return the empty set. Otherwise, for every identifier in the second
+identifier set add the identifier to the first set if the identifier
+type does not exist in the first. If the identifier type does exist in
+the first then replace the identifier in the first set with the
+identifier type with the second identifier iff the second timestamp is
+after the first time. Reversing the parameters will return the adjusted
+secondary matching identifier set.</p>
 
 <h3>Conventions</h3>
 <p>Capital variable names are used for sets, lower case variable
@@ -62,19 +62,27 @@ comparator of the order of identifier types where</p>
 <p class="indent1">V (valid identifier sets) = { X &sub; I : c(X,X)
 = &empty;}</p>
 
-<p class="indent1">Z' = { Z &isin; &weierp;(V) where elements of Z are disjoint sets}</p>
-<p class="indent1">pm (primary match) : Z' &#x2a2f; V &rarr; V given by</p>
-<p class="indent2">pm(Z,X) = &empty; if X &cap; Y = &empty;  &forall; Y &isin; Z</p>
-<p class="indent4">otherwise Y &isin; Z where Y &cap; X &gt;&gt; R &cap; X &forall; R &isin; Z, R &ne; Y</p>
+<p class="indent1">Z' = { Z &isin; &weierp;(V) where elements of Z
+are disjoint sets}</p>
+<p class="indent1">pm (primary match) : Z' &#x2a2f; V &rarr; V given
+by</p>
+<p class="indent2">pm(Z,X) =</p>
+<p class="indent3">&empty; if Z = &empty; or X &cap; Y = &empty;
+&forall; Y &isin; Z</p>
+<p class="indent3">Y where &isin; Z where Y &cap; X &gt;&gt; R &cap;
+X &forall; R &isin; Z, R &ne; Y, otherwise</p>
 <p class="indent1">G : V &#x2a2f; V &rarr; V by</p>
-<p class="indent2">G(X,Y) = { i &isin; Y : t(i) &notin; t(X) or time(i) &gt; time(j) where j &isin; X, t(i)=t(j) }</p>
+<p class="indent2">G(X,Y) = { i &isin; Y : t(i) &notin; t(X) or
+time(i) &gt; time(j) where j &isin; X, t(i)=t(j) }</p>
 <p class="indent1">m: V &#x2a2f; V &rarr; V by</p>
 <p class="indent2">m(X,Y) =</p>
 <p class="indent3">&empty; , Y &gt; X</p>
-<p class="indent3">(X \ {i &isin; X : t(i) &isin; t(G(X,Y)}) &cup; G(X,Y)</p>
-<p>Finally, define &alpha;: Z' &#x2a2f; V &rarr; Z' by </p>
-<p class="indent1">&alpha;(Z,A) =</p> 
+<p class="indent3">(X \ {i &isin; X : t(i) &isin; t(G(X,Y)}) &cup;
+G(X,Y)</p>
+<p>Finally, define &alpha;: Z' &#x2a2f; V &rarr; Z' by</p>
+<p class="indent1">&alpha;(Z,A) =</p>
 <p class="indent2">Z &cup; {A}, pm(Z,A) = &empty;</p>
-<p class="indent2">fold( {Y &isin;Z  : Y &cap; A &ne; &empty;},m ,m(pm(Z,A),A)),  pm(Z,A) &ne; &empty; </p>
+<p class="indent2">fold( {Y &isin;Z : Y &cap; A &ne; &empty;},m
+,m(pm(Z,A),A)), pm(Z,A) &ne; &empty;</p>
 </body>
 </html>
