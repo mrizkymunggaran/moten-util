@@ -67,11 +67,11 @@ comparator of the order of identifier types where</p>
 <p class="indent2">pm(Z,X) = &empty; if X &cap; Y = &empty;  &forall; Y &isin; Z</p>
 <p class="indent4">otherwise Y &isin; Z where Y &cap; X &gt;&gt; R &cap; X &forall; R &isin; Z, R &ne; Y</p>
 <p class="indent1">G : V &#x2a2f; V &rarr; V by</p>
-<p class="indent2">G(A,B) = { i &isin; B : t(i) &notin; t(A) or time(i) &gt; time(j) where j &isin; A, t(i)=t(j) }</p>
+<p class="indent2">G(X,Y) = { i &isin; Y : t(i) &notin; t(X) or time(i) &gt; time(j) where j &isin; X, t(i)=t(j) }</p>
 <p class="indent1">m: V &#x2a2f; V &rarr; V by</p>
-<p class="indent2">m(A,B) =</p>
-<p class="indent3">&empty; , B &gt; A</p>
-<p class="indent3">(A \ {i &isin; A : t(i) &isin; t(G)}) &cup; G</p>
+<p class="indent2">m(X,Y) =</p>
+<p class="indent3">&empty; , Y &gt; X</p>
+<p class="indent3">(X \ {i &isin; X : t(i) &isin; t(G(X,Y)}) &cup; G(X,Y)</p>
 <p>Finally, define &alpha;: Z' &#x2a2f; V &rarr; Z' by </p>
 <p class="indent1">&alpha;(Z,A) =</p> 
 <p class="indent2">Z &cup; {A}, pm(Z,A) = &empty;</p>
