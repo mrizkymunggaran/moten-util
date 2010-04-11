@@ -5,14 +5,11 @@ import moten.david.imatch.IdentifierType;
 import com.google.inject.internal.Objects;
 
 public class MyIdentifierType implements IdentifierType {
-	public String getName() {
-		return name;
-	}
 
 	private final String name;
 	private final double strength;
 
-	public MyIdentifierType(String name, double strength, double order) {
+	public MyIdentifierType(String name, double strength) {
 		super();
 		this.name = name;
 		this.strength = strength;
@@ -51,5 +48,9 @@ public class MyIdentifierType implements IdentifierType {
 	@Override
 	public double getStrength() {
 		return strength;
+	}
+
+	public String getName() {
+		return name;
 	}
 }

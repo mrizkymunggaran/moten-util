@@ -5,7 +5,7 @@
 <body>
 <h2>Identifier Matching Function</h2>
 <p>Mathematical description of a an identifier matching function based
-on identifiers having types with numeric strengths.</p>
+on identifiers with types that are comparable.</p>
 <h3>Abstract</h3>
 <p>The purpose of this function is to merge a new entity with a set
 of entities according to certain principles. Merge in this case means
@@ -83,6 +83,10 @@ V given by</p>
 	<tr>
 		<td>(pm(A) &cup; {x})\{i &isin; pm(A) : t(i)=t(x)}</td>
 		<td>, if time(A) &gt; time(&alpha;(x))</td>
+	</tr>
+	<tr>
+		<td>pm(A) &cup; {x}</td>
+		<td>, if &alpha;(x) = &empty;</td>
 	</tr>
 	<tr>
 		<td>pm(A)</td>

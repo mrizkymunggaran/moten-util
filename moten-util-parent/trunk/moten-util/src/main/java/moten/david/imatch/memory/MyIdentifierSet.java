@@ -22,6 +22,9 @@ public class MyIdentifierSet implements IdentifierSet {
 
 	private MyIdentifierSet(Set<Identifier> set) {
 		this.set = ImmutableSet.copyOf(set);
+		if (types().set().size() < set.size())
+			throw new RuntimeException("duplicate identifier types in set "
+					+ set);
 	}
 
 	public MyIdentifierSet() {
@@ -107,6 +110,12 @@ public class MyIdentifierSet implements IdentifierSet {
 
 	@Override
 	public String toString() {
-		return "{" + set + "}";
+		StringBuffer s = new StringBuffer();
+		for (Identifier i : set) {
+			if (s.length() > 0)
+				s.append(", ");
+			s.append(i.toString());
+		}
+		return "{" + s + "}";
 	}
 }

@@ -81,12 +81,16 @@ public class DatastoreImmutable extends DatastoreBase {
 		HashMap<Identifier, IdentifierSet> newMap = new HashMap<Identifier, IdentifierSet>();
 		HashMap<IdentifierSet, Double> newTimes = new HashMap<IdentifierSet, Double>();
 		for (Identifier i : Sets.union(map.keySet(), set.set())) {
+			log.info("calculating merge " + i);
 			IdentifierSet s = merge(set, i);
-			newMap.put(i, s);
-			if (set.contains(i))
-				newTimes.put(s, time);
-			else
-				newTimes.put(s, times.get(s));
+			log.info("merge " + i + " = " + s);
+			if (!s.isEmpty()) {
+				newMap.put(i, s);
+				if (set.contains(i))
+					newTimes.put(s, time);
+				else
+					newTimes.put(s, times.get(s));
+			}
 		}
 		return new DatastoreImmutable(identifierSetFactory,
 				identifierTypeSetFactory, identifierTypeStrengthComparator,

@@ -3,6 +3,8 @@ package moten.david.imatch;
 import java.util.Collections;
 import java.util.Comparator;
 
+import moten.david.imatch.memory.MyIdentifierSet;
+
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
@@ -39,7 +41,7 @@ public abstract class DatastoreBase implements Datastore {
 					else {
 						IdentifierSet alphax = alpha(x);
 						if (pma.equals(alphax))
-							return pma;
+							return pma.add(x);
 						else if (strictOrdering().compare(t(x),
 								max(alphax.types().set(), strictOrdering())) == 0) {
 							IdentifierSet z = calculateZ(alphax, pma, a);
@@ -59,7 +61,15 @@ public abstract class DatastoreBase implements Datastore {
 											return t(i).equals(t(x));
 										}
 									}));
-						} else
+						} else if (alphax.equals(MyIdentifierSet.EMPTY_SET))
+							return pma.filter(new Predicate<Identifier>() {
+								@Override
+								public boolean apply(Identifier i) {
+									return !i.getIdentifierType().equals(
+											x.getIdentifierType());
+								}
+							}).add(x);
+						else
 							return pma;
 					}
 				}

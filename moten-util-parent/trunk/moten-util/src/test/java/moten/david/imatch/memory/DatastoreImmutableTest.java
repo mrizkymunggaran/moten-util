@@ -13,6 +13,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
@@ -45,33 +46,74 @@ public class DatastoreImmutableTest {
 
 		IdentifierSet ids = createSet();
 		{
-			ids = ids.add(createIdentifier("name1", "fred", 10, 10));
+			ids = ids.add(createIdentifier("name1:fred"));
 			ds = add(ds, ids);
 			Assert.assertEquals(1, ds.identifiers().size());
+			contains(ds, "name1:fred");
 
 			// no change on readding it
 			ds = add(ds, ids);
 			Assert.assertEquals(1, ds.identifiers().size());
+			contains(ds, "name1:fred");
 
 			ids = createSet();
-			ids = ids.add(createIdentifier("name2", "joe", 10, 11));
-			ids = ids.add(createIdentifier("name4", "big guy", 10, 13));
+			ids = ids.add(createIdentifier("name2:joe"));
+			ids = ids.add(createIdentifier("name4:big guy"));
 			ds = add(ds, ids);
 			Assert.assertEquals(2, ds.identifierSets().size());
+			contains(ds, "name1:fred");
+			contains(ds, "name2:joe", "name4:big guy");
 
 			ids = createSet();
-			ids = ids.add(createIdentifier("name2", "keith", 10, 11));
+			ids = ids.add(createIdentifier("name2:keith"));
 			ds = add(ds, ids);
 			Assert.assertEquals(3, ds.identifierSets().size());
+			contains(ds, "name1:fred");
+			contains(ds, "name2:joe", "name4:big guy");
+			contains(ds, "name2:keith");
 
 			ids = createSet();
-			ids = ids.add(createIdentifier("name2", "keith", 10, 11));
-			ids = ids.add(createIdentifier("name3", "john", 10, 12));
+			ids = ids.add(createIdentifier("name2:keith"));
+			ids = ids.add(createIdentifier("name3:john"));
 			ds = add(ds, ids);
-			// Assert.assertEquals(3, ds.identifiers().size());
+			Assert.assertEquals(3, ds.identifierSets().size());
+			contains(ds, "name1:fred");
+			contains(ds, "name2:joe", "name4:big guy");
+			contains(ds, "name2:keith", "name3:john");
 
+			ids = createSet();
+			ids = ids.add(createIdentifier("name2:keith"));
+			ds = add(ds, ids);
+			Assert.assertEquals(3, ds.identifierSets().size());
+			contains(ds, "name1:fred");
+			contains(ds, "name2:joe", "name4:big guy");
+			contains(ds, "name2:keith", "name3:john");
+
+			ids = createSet();
+			ids = ids.add(createIdentifier("name0:alfred"));
+			ids = ids.add(createIdentifier("name4:big guy"));
+			ds = add(ds, ids);
+			Assert.assertEquals(3, ds.identifierSets().size());
+			contains(ds, "name1:fred");
+			contains(ds, "name0:alfred", "name2:joe", "name4:big guy");
+			contains(ds, "name2:keith", "name3:john");
+
+			ids = createSet();
+			ids = ids.add(createIdentifier("name0:alfie"));
+			ids = ids.add(createIdentifier("name2:keith"));
+			ids = ids.add(createIdentifier("name3:bert"));
+			// ds = add(ds, ids);
+			// Assert.assertEquals(3, ds.identifierSets().size());
 		}
 
+	}
+
+	private void contains(Datastore ds, String... values) {
+		ImmutableSet<IdentifierSet> sets = ds.identifierSets();
+		IdentifierSet set = identifierSetFactory.create();
+		for (String value : values)
+			set = set.add(createIdentifier(value));
+		Assert.assertTrue(sets.contains(set));
 	}
 
 	private IdentifierSet createIdentifierSet(String... values) {
@@ -83,7 +125,9 @@ public class DatastoreImmutableTest {
 
 	private Identifier createIdentifier(String value) {
 		String[] items = value.split(":");
-		return null;
+		int strength = Integer.parseInt(""
+				+ items[0].charAt(items[0].length() - 1));
+		return createIdentifier(items[0], items[1], strength);
 	}
 
 	private Datastore add(final Datastore ds, final IdentifierSet ids) {
@@ -92,9 +136,8 @@ public class DatastoreImmutableTest {
 		return ds2;
 	}
 
-	private Identifier createIdentifier(String name, String value,
-			int strength, int order) {
-		MyIdentifierType type = new MyIdentifierType(name, strength, order);
+	private Identifier createIdentifier(String name, String value, int strength) {
+		MyIdentifierType type = new MyIdentifierType(name, strength);
 		return new MyIdentifier(type, value);
 	}
 
