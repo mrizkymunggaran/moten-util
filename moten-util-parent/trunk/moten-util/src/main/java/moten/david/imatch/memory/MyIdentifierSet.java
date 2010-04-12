@@ -20,6 +20,8 @@ public class MyIdentifierSet implements IdentifierSet {
 
 	private final ImmutableSet<Identifier> set;
 
+	private final long time = System.currentTimeMillis();
+
 	private MyIdentifierSet(Set<Identifier> set) {
 		this.set = ImmutableSet.copyOf(set);
 		if (types().set().size() < set.size())
@@ -117,5 +119,10 @@ public class MyIdentifierSet implements IdentifierSet {
 			s.append(i.toString());
 		}
 		return "{" + s + "}";
+	}
+
+	@Override
+	public double getTime() {
+		return time;
 	}
 }

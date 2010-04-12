@@ -27,4 +27,6 @@ public interface IdentifierSet {
 
 	Identifier getIdentifier(IdentifierType type);
 
+	double getTime();
+
 }
