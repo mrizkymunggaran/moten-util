@@ -5,7 +5,7 @@ import java.util.Set;
 
 import moten.david.imatch.IdentifierSet;
 
-public interface DatastoreImmutable2Factory {
-    DatastoreImmutable2 create(Set<IdentifierSet> sets,
+public interface DatastoreImmutableFactory {
+    DatastoreImmutable create(Set<IdentifierSet> sets,
             Map<IdentifierSet, Double> times);
 }

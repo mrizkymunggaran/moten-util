@@ -20,9 +20,9 @@ public class InjectorModule extends AbstractModule {
                 MyIdentifierTypeStrengthComparator.class).in(Scopes.SINGLETON);
         bind(IdentifierTypeStrictComparator.class).to(
                 MyIdentifierTypeStrictComparator.class).in(Scopes.SINGLETON);
-        bind(DatastoreImmutable2Factory.class).toProvider(
-                FactoryProvider.newFactory(DatastoreImmutable2Factory.class,
-                        DatastoreImmutable2.class)).in(Scopes.SINGLETON);
+        bind(DatastoreImmutableFactory.class).toProvider(
+                FactoryProvider.newFactory(DatastoreImmutableFactory.class,
+                        DatastoreImmutable.class)).in(Scopes.SINGLETON);
 
     }
 }
