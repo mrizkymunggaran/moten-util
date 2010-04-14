@@ -2,12 +2,11 @@ package moten.david.imatch.memory;
 
 import java.util.logging.Logger;
 
-import junit.framework.Assert;
-import moten.david.imatch.Datastore;
 import moten.david.imatch.Identifier;
 import moten.david.imatch.IdentifierSet;
 import moten.david.imatch.IdentifierSetFactory;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -37,26 +36,43 @@ public class DatastoreImmutable2Test {
 
     @Test
     public void test() {
-
         ImmutableSet<IdentifierSet> a = ImmutableSet.of();
         ImmutableMap<IdentifierSet, Double> b = ImmutableMap.of();
-        DatastoreImmutable2 ds = factory.create(a, b);
-        log.info(ds.toString());
-        ds = ds.add(createIdentifierSet("name1:boo", "name2:john"), millis);
-        log.info(ds.toString());
-        ds = ds.add(createIdentifierSet("name1:joe", "name2:alfie"), millis);
-        log.info(ds.toString());
-        ds = ds.add(createIdentifierSet("name1:joe", "name2:alf"), millis);
-        log.info(ds.toString());
+        DatastoreImmutable2 d = factory.create(a, b);
+        size(d, 0);
+
+        d = add(d, "name1:boo", "name2:john");
+        size(d, 1);
+        has(d, "name1:boo", "name2:john");
+
+        d = add(d, "name1:joe", "name2:alfie");
+        size(d, 2);
+        has(d, "name1:boo", "name2:john");
+        has(d, "name1:joe", "name2:alfie");
+
+        d = add(d, "name1:joe", "name2:alf");
+        size(d, 2);
+        has(d, "name1:boo", "name2:john");
+        has(d, "name1:joe", "name2:alf");
+
+        d = add(d, "name1:joe", "name2:john");
+        size(d, 2);
+        has(d, "name1:boo", "name2:john");
+        has(d, "name1:joe", "name2:alf");
+
+        d = add(d, "name0:sal", "name1:joe", "name2:john");
+        size(d, 2);
+        has(d, "name1:boo", "name2:john");
+        has(d, "name1:joe", "name2:alf");
 
     }
 
-    private void contains(Datastore ds, String... values) {
-        ImmutableSet<IdentifierSet> sets = ds.identifierSets();
-        IdentifierSet set = identifierSetFactory.create();
-        for (String value : values)
-            set = set.add(createIdentifier(value));
-        Assert.assertTrue(sets.contains(set));
+    private void has(DatastoreImmutable2 ds, String... values) {
+        Assert.assertTrue(ds.sets().contains(createIdentifierSet(values)));
+    }
+
+    private void size(DatastoreImmutable2 ds, int i) {
+        Assert.assertEquals(i, ds.sets().size());
     }
 
     private IdentifierSet createIdentifierSet(String... values) {
@@ -73,8 +89,14 @@ public class DatastoreImmutable2Test {
         return createIdentifier(items[0], items[1], strength);
     }
 
-    private Datastore add(final Datastore ds, final IdentifierSet ids) {
-        Datastore ds2 = ds.add(ids, millis++);
+    private DatastoreImmutable2 add(final DatastoreImmutable2 ds,
+            final String... values) {
+        return add(ds, createIdentifierSet(values));
+    }
+
+    private DatastoreImmutable2 add(final DatastoreImmutable2 ds,
+            final IdentifierSet ids) {
+        DatastoreImmutable2 ds2 = ds.add(ids, millis++);
         log.info(ds2.toString());
         return ds2;
     }

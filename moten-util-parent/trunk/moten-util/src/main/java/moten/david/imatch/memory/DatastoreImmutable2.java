@@ -56,6 +56,10 @@ public class DatastoreImmutable2 {
     // });
     // }
 
+    public ImmutableSet<IdentifierSet> sets() {
+        return z;
+    }
+
     private IdentifierSet pm(final IdentifierSet x) {
         if (z.size() == 0)
             return MyIdentifierSet.EMPTY_SET;
@@ -65,11 +69,11 @@ public class DatastoreImmutable2 {
                         @Override
                         public Boolean fold(Boolean lastValue, IdentifierSet t) {
                             return lastValue
-                                    || Sets.intersection(x.set(), t.set())
+                                    && Sets.intersection(x.set(), t.set())
                                             .size() == 0;
                         }
 
-                    }, false);
+                    }, true);
             if (noIntersectInZ)
                 return MyIdentifierSet.EMPTY_SET;
             else {
@@ -114,7 +118,11 @@ public class DatastoreImmutable2 {
     }
 
     private double time(IdentifierSet set) {
-        return times.get(set);
+        Double result = times.get(set);
+        if (result == null)
+            return 0;
+        else
+            return result;
     }
 
     public DatastoreImmutable2 add(final IdentifierSet a, double time) {
@@ -143,7 +151,7 @@ public class DatastoreImmutable2 {
                         }
                     }, m(pmza, a));
             SetView<IdentifierSet> newZ = Sets.union(Sets.difference(z,
-                    ImmutableSet.of(pmza)), ImmutableSet.of(fold));
+                    intersecting), ImmutableSet.of(fold));
             return new DatastoreImmutable2(strictTypeComparator,
                     strictSetComparator, newZ, newTimes);
         }
