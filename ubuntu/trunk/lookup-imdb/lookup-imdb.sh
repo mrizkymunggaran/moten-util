@@ -13,5 +13,5 @@ QUERY=`echo $QUERY|sed 's/\.[a-z]*$//'|sed 's/_/ /g'|sed 's/\./ /g'|sed 's/ /+/g
 #make an imdb url with the query
 URL="http://www.imdb.com/find?s=all&q=$QUERY"
 
-#open the url in a browser
-firefox $URL
+#open the url in default browser
+x-www-browser $URL
