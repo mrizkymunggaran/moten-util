@@ -31,7 +31,7 @@ A design for a Entity Tracking Engine (ETE).
   # if a fix already exists in terms of entity type, source, latitude, longitude and time and identity (only one common identifier needed) then it is ignored. 
 
 ==Algorithm==
-*Note:* This algorithm has holes! I'm working on a mathematically solid functional description [http://moten-util.googlecode.com/svn/moten-util-parent/trunk/moten-util/docs/identifier-matching.html here].
+*Note:* This algorithm has holes! I'm working on a mathematically solid functional description [http://moten-util.googlecode.com/svn/moten-util-parent/trunk/moten-util/src/site/identifier-matching.html here].
 
 This is the action taken when a new fix arrives to ETE:
 {{{
