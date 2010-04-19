@@ -1,20 +1,16 @@
 package moten.david.imatch.memory;
 
+import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 
-import moten.david.imatch.Identifier;
-import moten.david.imatch.IdentifierSet;
 import moten.david.imatch.IdentifierSetStrictComparator;
-import moten.david.imatch.IdentifierTypeSet;
 import moten.david.imatch.IdentifierTypeStrictComparator;
+import moten.david.imatch.TimedIdentifier;
 import moten.david.util.functional.Fold;
 import moten.david.util.functional.Functional;
 
 import com.google.common.base.Predicate;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Sets.SetView;
@@ -23,28 +19,21 @@ import com.google.inject.assistedinject.Assisted;
 
 public class DatastoreImmutable {
 
-	public final ImmutableSet<IdentifierSet> z;
+	public final ImmutableSet<ImmutableSet<TimedIdentifier>> z;
 	private final IdentifierTypeStrictComparator strictTypeComparator;
 	private final IdentifierSetStrictComparator strictSetComparator;
-	private final ImmutableMap<IdentifierSet, Double> times;
-	private final ThreadLocal<Double> currentTime = new ThreadLocal<Double>();
 
 	@Inject
 	public DatastoreImmutable(
 			IdentifierTypeStrictComparator strictTypeComparator,
 			IdentifierSetStrictComparator strictSetComparator,
-			@Assisted Set<IdentifierSet> sets,
-			@Assisted Map<IdentifierSet, Double> times) {
+			@Assisted Set<ImmutableSet<TimedIdentifier>> sets) {
 		this.strictTypeComparator = strictTypeComparator;
 		this.strictSetComparator = strictSetComparator;
 		if (sets == null)
 			this.z = ImmutableSet.of();
 		else
 			this.z = ImmutableSet.copyOf(sets);
-		if (times == null)
-			this.times = ImmutableMap.of();
-		else
-			this.times = ImmutableMap.copyOf(times);
 	}
 
 	// private IdentifierSet c(final IdentifierSet x, final IdentifierSet y) {
@@ -57,33 +46,39 @@ public class DatastoreImmutable {
 	// });
 	// }
 
-	public ImmutableSet<IdentifierSet> sets() {
+	public ImmutableSet<ImmutableSet<TimedIdentifier>> sets() {
 		return z;
 	}
 
-	private IdentifierSet pm(final IdentifierSet x) {
+	private ImmutableSet<TimedIdentifier> empty() {
+		ImmutableSet<TimedIdentifier> set = ImmutableSet.of();
+		return set;
+	}
+
+	private ImmutableSet<TimedIdentifier> pm(final Set<TimedIdentifier> x) {
 		if (z.size() == 0)
-			return MyIdentifierSet.EMPTY_SET;
+			return empty();
 		else {
 			Boolean noIntersectInZ = Functional.fold(z,
-					new Fold<IdentifierSet, Boolean>() {
+					new Fold<TimedIdentifierSet, Boolean>() {
 						@Override
-						public Boolean fold(Boolean lastValue, IdentifierSet t) {
+						public Boolean fold(Boolean lastValue,
+								TimedIdentifierSet t) {
 							return lastValue
-									&& Sets.intersection(x.set(), t.set())
-											.size() == 0;
+									&& Sets.intersection(x.ids().set(),
+											t.ids().set()).size() == 0;
 						}
 
 					}, true);
 			if (noIntersectInZ)
-				return MyIdentifierSet.EMPTY_SET;
+				return MyTimedIdentifierSet.EMPTY_SET;
 			else {
-				IdentifierSet y = Collections.max(Sets.filter(z,
-						new Predicate<IdentifierSet>() {
+				TimedIdentifierSet y = Collections.max(Sets.filter(z,
+						new Predicate<TimedIdentifierSet>() {
 							@Override
-							public boolean apply(IdentifierSet i) {
-								return Sets.intersection(x.set(), i.set())
-										.size() > 0;
+							public boolean apply(TimedIdentifierSet i) {
+								return Sets.intersection(x.ids().set(),
+										i.ids().set()).size() > 0;
 							}
 						}), strictSetComparator);
 				return y;
@@ -91,26 +86,36 @@ public class DatastoreImmutable {
 		}
 	}
 
-	private IdentifierSet g(final IdentifierSet x, final IdentifierSet y) {
-		final boolean isLater = time(x) > time(y);
-		return y.filter(new Predicate<Identifier>() {
+	private TimedIdentifierSet g(final TimedIdentifierSet x,
+			final TimedIdentifierSet y) {
+		final Double maxTimeX = null;
+		return y.filter(new Predicate<TimedIdentifier>() {
 			@Override
-			public boolean apply(Identifier i) {
-				return !x.types().contains(i.getIdentifierType()) || isLater;
+			public boolean apply(TimedIdentifier i) {
+				return !x.types().contains(i.getIdentifierType())
+						|| maxTimeX == null || i.getTime() > maxTimeX;
 			}
 
 		});
 	}
 
-	private IdentifierSet m(final IdentifierSet x, final IdentifierSet y) {
-		if (strictSetComparator.compare(x, y) < 0)
-			return MyIdentifierSet.EMPTY_SET;
+	private Double maxTime(Collection<Double> values) {
+		if (values == null || values.size() == 0)
+			return null;
+		else
+			return Collections.max(values);
+	}
+
+	private TimedIdentifierSet m(final TimedIdentifierSet x,
+			final TimedIdentifierSet y) {
+		if (strictSetComparator.compare(x.ids(), y.ids()) < 0)
+			return MyTimedIdentifierSet.EMPTY_SET;
 		else {
-			final IdentifierSet g = g(x, y);
-			final IdentifierTypeSet gTypes = g.types();
-			IdentifierSet a = x.filter(new Predicate<Identifier>() {
+			final TimedIdentifierSet g = g(x, y);
+			final IdentifierTypeSet gTypes = g.ids().types();
+			TimedIdentifierSet a = x.filter(new Predicate<TimedIdentifier>() {
 				@Override
-				public boolean apply(Identifier i) {
+				public boolean apply(TimedIdentifier i) {
 					return !gTypes.contains(i.getIdentifierType());
 				}
 			});
@@ -118,45 +123,33 @@ public class DatastoreImmutable {
 		}
 	}
 
-	private double time(IdentifierSet set) {
-		Double result = times.get(set);
-		if (result == null)
-			return currentTime.get();
-		else
-			return result;
-	}
-
-	public DatastoreImmutable add(final IdentifierSet a, double time) {
-		currentTime.set(time);
-		IdentifierSet pmza = pm(a);
-		Map<IdentifierSet, Double> newTimes = new HashMap<IdentifierSet, Double>();
-
+	public DatastoreImmutable add(final ImmutableSet<TimedIdentifier> a) {
+		ImmutableSet<TimedIdentifier> pmza = pm(a);
 		if (pmza.isEmpty())
 			return new DatastoreImmutable(strictTypeComparator,
-					strictSetComparator, Sets.union(z, ImmutableSet.of(a)),
-					newTimes);
+					strictSetComparator, Sets.union(z, ImmutableSet.of(a)));
 		else {
-			Set<IdentifierSet> intersecting = Sets.filter(z,
-					new Predicate<IdentifierSet>() {
+			Set<TimedIdentifierSet> intersecting = Sets.filter(z,
+					new Predicate<TimedIdentifierSet>() {
 						@Override
-						public boolean apply(IdentifierSet y) {
-							return Sets.intersection(y.set(), a.set()).size() > 0;
+						public boolean apply(TimedIdentifierSet y) {
+							return Sets.intersection(y.ids().set(),
+									a.ids().set()).size() > 0;
 						}
 					});
-			IdentifierSet fold = Functional.fold(intersecting,
-					new Fold<IdentifierSet, IdentifierSet>() {
+			TimedIdentifierSet fold = Functional.fold(intersecting,
+					new Fold<TimedIdentifierSet, TimedIdentifierSet>() {
 						@Override
-						public IdentifierSet fold(IdentifierSet previous,
-								IdentifierSet current) {
+						public TimedIdentifierSet fold(
+								TimedIdentifierSet previous,
+								TimedIdentifierSet current) {
 							return m(previous, current);
 						}
 					}, m(pmza, a));
-			newTimes.put(fold, time);
-			SetView<IdentifierSet> newZ = Sets.union(Sets.difference(z,
+			SetView<TimedIdentifierSet> newZ = Sets.union(Sets.difference(z,
 					intersecting), ImmutableSet.of(fold));
-			currentTime.remove();
 			return new DatastoreImmutable(strictTypeComparator,
-					strictSetComparator, newZ, newTimes);
+					strictSetComparator, newZ);
 		}
 	}
 
@@ -164,7 +157,7 @@ public class DatastoreImmutable {
 	public String toString() {
 		StringBuffer s = new StringBuffer();
 		s.append("DataStoreImmutable=");
-		for (IdentifierSet set : z)
+		for (TimedIdentifierSet set : z)
 			s.append("\n" + set.toString());
 		return s.toString();
 

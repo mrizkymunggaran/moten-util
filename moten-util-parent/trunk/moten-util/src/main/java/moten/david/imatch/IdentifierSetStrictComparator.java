@@ -2,10 +2,14 @@ package moten.david.imatch;
 
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Set;
+
+import moten.david.util.functional.Functional;
 
 import com.google.inject.Inject;
 
-public class IdentifierSetStrictComparator implements Comparator<IdentifierSet> {
+public class IdentifierSetStrictComparator implements
+		Comparator<Set<TimedIdentifier>> {
 
 	private final IdentifierTypeStrictComparator strictComparator;
 
@@ -16,7 +20,7 @@ public class IdentifierSetStrictComparator implements Comparator<IdentifierSet> 
 	}
 
 	@Override
-	public int compare(IdentifierSet o1, IdentifierSet o2) {
+	public int compare(Set<TimedIdentifier> o1, Set<TimedIdentifier> o2) {
 		if (o1.isEmpty() && o2.isEmpty())
 			return 0;
 		else if (o1.isEmpty())
@@ -24,10 +28,10 @@ public class IdentifierSetStrictComparator implements Comparator<IdentifierSet> 
 		else if (o2.isEmpty())
 			return 1;
 		else {
-			IdentifierType t1 = Collections.max(o1.types().set(),
-					strictComparator);
-			IdentifierType t2 = Collections.max(o2.types().set(),
-					strictComparator);
+			IdentifierType t1 = Collections.max(Functional.apply(o1,
+					Constants.identifierTypeExtractor), strictComparator);
+			IdentifierType t2 = Collections.max(Functional.apply(o2,
+					Constants.identifierTypeExtractor), strictComparator);
 			return strictComparator.compare(t1, t2);
 		}
 	}
