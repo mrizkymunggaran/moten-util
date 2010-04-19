@@ -66,36 +66,36 @@ comparator of the order of identifier types where</p>
 <p class="indent1">V (valid identifier sets) = { X &sub; S : c(X,X)
 = &empty;}</p>
 
-<p class="indent1">ids : &weierp;(S) &rarr; S given by ids(Z) = {i &isin; S : i &isin; X for some X &isin; Z} </p>
+<p class="indent1">ids : &weierp;(S) &rarr; S given by ids(Z) = {i : i &isin; X for some X &isin; Z} </p>
 
 <p class="indent1">Z' = { Z &sub; &weierp;(V) where elements of Z
 are disjoint sets}</p>
 
-<p class="indent1">pm (primary match) : Z' &#x2a2f; V &rarr; V given
+<p class="indent1">pm (primary match) : Z' &#x2a2f; S &rarr; S given
 by</p>
 <p class="indent2">pm(Z,X) =</p>
 <p class="indent3">&empty; if Z = &empty; or X<sub>id</sub> &cap; Y<sub>id</sub> = &empty;
 &forall; Y &isin; Z</p>
 <p class="indent3">Y &isin; Z where Y<sub>id</sub> &cap; X<sub>id</sub> &gt;&gt; R<sub>id</sub> &cap;
-X<usb>id</sub> &forall;R  &isin; Z, R &ne; Y, otherwise</p>
+X<sub>id</sub> &forall;R  &isin; Z, R &ne; Y, otherwise</p>
 
-<p class="indent1">G : V &#x2a2f; V &rarr; V by</p>
+<p class="indent1">G : S &#x2a2f; S &rarr; S by</p>
 <p class="indent2">G(X,Y) = </p>
 <p class="indent3">{ i &isin; Y : t(i) &notin; t(X) or
 i<sub>time</sub> &gt; j<sub>time</sub> &forall; j &isin; X s.t. t(i<sub>id</sub>)=t(j<sub>id</sub>) }</p>
 
-<p class="indent1">m: V &#x2a2f; V &rarr; V by</p>
+<p class="indent1">m: S &#x2a2f; S &rarr; S by</p>
 <p class="indent2">m(X,Y) =</p>
 <p class="indent3">&empty; , t(Y) &gt; t(X)</p>
 <p class="indent3">{i &isin; X : t(i) &notin; t(G(X,Y)}) &cup;
 G(X,Y)</p>
 
-<p>Finally, define &alpha;: Z' &#x2a2f; V &rarr; Z' by</p>
+<p>Finally, define &alpha;: Z' &#x2a2f; S &rarr; Z' by</p>
 <p class="indent1">&alpha;(Z,A) =</p>
 <p class="indent2">Z &cup; {A}, pm(Z,A) = &empty;</p>
 <p class="indent2">{Y &isin; Z : Y<sub>id</sub> &cap; A<sub>id</sub> = &empty;} &cup; fold( {Y &isin;Z : Y<sub>id</sub> &cap; A<sub>id</sub> &ne; &empty;},m
 ,m(pm(Z,A),A)), pm(Z,A) &ne; &empty;</p>
 <p class="indent1"> About <a href="http://en.wikipedia.org/wiki/Fold_%28higher-order_function%29"><i>fold</i>.</a></p>
-<p>&alpha(Z,A) is thus the entity set obtained by merging identifier set A into entity set Z.</p>
+<p>&alpha(Z,A) is thus the entity set obtained by merging timed identifier set A into entity set Z.</p>
 </body>
 </html>
