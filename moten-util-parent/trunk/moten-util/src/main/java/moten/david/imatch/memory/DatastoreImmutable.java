@@ -6,12 +6,14 @@ import static moten.david.imatch.memory.Util.types;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import moten.david.imatch.IdentifierSetStrictComparator;
 import moten.david.imatch.IdentifierType;
 import moten.david.imatch.IdentifierTypeStrictComparator;
 import moten.david.imatch.TimedIdentifier;
 import moten.david.util.functional.Fold;
+import moten.david.util.functional.Function;
 import moten.david.util.functional.Functional;
 
 import com.google.common.base.Predicate;
@@ -22,6 +24,9 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
 public class DatastoreImmutable {
+
+    private static Logger log = Logger.getLogger(DatastoreImmutable.class
+            .getName());
 
     public final ImmutableSet<Set<TimedIdentifier>> z;
     private final IdentifierTypeStrictComparator strictTypeComparator;
@@ -90,7 +95,7 @@ public class DatastoreImmutable {
 
     private Set<TimedIdentifier> g(final Set<TimedIdentifier> x,
             final Set<TimedIdentifier> y) {
-        final Double maxTimeX = null;
+        final Long maxTimeX = maxTime(times(x));
         return Sets.filter(y, new Predicate<TimedIdentifier>() {
             @Override
             public boolean apply(TimedIdentifier i) {
@@ -102,7 +107,16 @@ public class DatastoreImmutable {
         });
     }
 
-    private Double maxTime(Collection<Double> values) {
+    private Set<Long> times(Set<TimedIdentifier> set) {
+        return Functional.apply(set, new Function<TimedIdentifier, Long>() {
+            @Override
+            public Long apply(TimedIdentifier s) {
+                return s.getTime();
+            }
+        });
+    }
+
+    private Long maxTime(Collection<Long> values) {
         if (values == null || values.size() == 0)
             return null;
         else
@@ -119,7 +133,7 @@ public class DatastoreImmutable {
             Set<TimedIdentifier> a = Sets.filter(x,
                     new Predicate<TimedIdentifier>() {
                         @Override
-                        public boolean apply(TimedIdentifier i) {
+                        public boolean apply(final TimedIdentifier i) {
                             return !gTypes.contains(i.getIdentifier()
                                     .getIdentifierType());
                         }
@@ -147,11 +161,16 @@ public class DatastoreImmutable {
                         public Set<TimedIdentifier> fold(
                                 Set<TimedIdentifier> previous,
                                 Set<TimedIdentifier> current) {
-                            return m(previous, current);
+
+                            Set<TimedIdentifier> result = m(previous, current);
+                            return result;
                         }
                     }, m(pmza, a));
-            SetView<Set<TimedIdentifier>> newZ = Sets.union(Sets.difference(z,
-                    intersecting), ImmutableSet.of(fold));
+            SetView<Set<TimedIdentifier>> difference = Sets.difference(z,
+                    intersecting);
+            log.info("z = " + z + " difference=" + difference);
+            SetView<Set<TimedIdentifier>> newZ = Sets.union(difference,
+                    ImmutableSet.of(fold));
             return new DatastoreImmutable(strictTypeComparator,
                     strictSetComparator, newZ);
         }

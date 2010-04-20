@@ -28,7 +28,7 @@ public class MyTimedIdentifier implements TimedIdentifier {
      */
     @Override
     public String toString() {
-        return identifier.toString();
+        return identifier.toString() + "(" + time + ")";
     }
 
 }

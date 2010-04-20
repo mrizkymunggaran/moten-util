@@ -52,15 +52,15 @@ public class DatastoreImmutableTest {
         has(d, "name1:boo", "name2:john");
         has(d, "name1:joe", "name2:alfie");
 
-        if (true)
-            return;
-
         d = add(d, "name1:joe", "name2:alf");
         size(d, 2);
         has(d, "name1:boo", "name2:john");
         has(d, "name1:joe", "name2:alf");
 
         d = add(d, "name1:joe", "name2:john");
+
+        if (true)
+            return;
         size(d, 2);
         has(d, "name1:boo", "name2:john");
         has(d, "name1:joe", "name2:alf");
@@ -90,7 +90,7 @@ public class DatastoreImmutableTest {
 
     private MyIdentifier createIdentifier(String value) {
         String[] items = value.split(":");
-        int strength = Integer.parseInt(""
+        int strength = 10 - Integer.parseInt(""
                 + items[0].charAt(items[0].length() - 1));
         return new MyIdentifier(new MyIdentifierType(items[0], strength),
                 items[1]);
