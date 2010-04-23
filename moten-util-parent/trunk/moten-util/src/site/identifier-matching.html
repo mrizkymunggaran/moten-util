@@ -48,6 +48,8 @@ by f(X) = {f(x): x &isin; X}</p>
 <p class="indent1">T = set of identifier types</p>
 <p class="indent1">S = set of timed identifiers = I &#x2a2f; &real; 
 <p class="indent2">For x &isin; S, x = (x<sub>id</sub>, x<sub>time</sub>) where x<sub>id</sub> &isin; I, x<sub>time</sub> &isin; &real;</p>
+<p class="indent1"><b>B</b> = {true, false}</p>
+
 <p>Given</p>
 <p class="indent1">t: I &rarr; T, t: S &rarr; T categorise an identifier with an
 identifier type</p>
@@ -55,7 +57,7 @@ identifier type</p>
 of the strength of identifier types</p>
 <p class="indent1">&gt;&gt; : TxT &rarr; <b>B</b> is an infix
 comparator of the order of identifier types where</p>
-<p class="indent3">&forall;s,t&isin;T, (s !&gt; t and t !&gt; s)
+<p class="indent3">&forall; s,t &isin; T, (s !&gt; t and t !&gt; s)
 &hArr; s = t, s &gt; t &rArr; s &gt;&gt; t</p>
 
 
@@ -78,7 +80,7 @@ by</p>
 <p class="indent3">&empty; &nbsp;&nbsp;&nbsp;&nbsp;,  Z = &empty; or X<sub>id</sub> &cap; Y<sub>id</sub> = &empty;
 &forall; Y &isin; Z</p>
 <p class="indent3">Y &isin; Z where Y<sub>id</sub> &cap; X<sub>id</sub> &gt;&gt; R<sub>id</sub> &cap;
-X<sub>id</sub> &forall;R  &isin; Z, R &ne; Y &nbsp;&nbsp;&nbsp;&nbsp;, otherwise</p>
+X<sub>id</sub> &forall; R  &isin; Z, R &ne; Y &nbsp;&nbsp;&nbsp;&nbsp;, otherwise</p>
 
 <p class="indent1">G : S &#x2a2f; S &#x2a2f; <b>B</b> &rarr; S by</p>
 <p class="indent2">G(X,Y, isStrict) = </p>
@@ -87,16 +89,16 @@ i<sub>time</sub> &gt; j<sub>time</sub> &forall; j &isin; X s.t. t(i<sub>id</sub>
 <p class="indent3">{ i &isin; Y : t(i) &notin; t(X) or
 i<sub>time</sub> &ge; j<sub>time</sub> &forall; j &isin; X s.t. t(i<sub>id</sub>)=t(j<sub>id</sub>)  } &nbsp;&nbsp;&nbsp;&nbsp;, isStrict=false</p>
 
-<p class="indent1">m: S &#x2a2f; S &rarr; S by</p>
-<p class="indent2">m(X,Y) =</p>
+<p class="indent1">&otimes;: S &#x2a2f; S &rarr; S by</p>
+<p class="indent2">X &otimes; Y =</p>
 <p class="indent3">&empty; &nbsp;&nbsp;&nbsp;&nbsp;, t(Y) &gt; t(X)</p>
 <p class="indent3">{i &isin; X : t(i) &notin; t(G(X,Y,isStrict=true)}) &cup;
 G(X,Y,isStrict=true) &nbsp;&nbsp;&nbsp;&nbsp;, otherwise</p>
 
 <p class="indent1">f: Z' &#x2a2f; S &rarr; Z' by</p>
 <p class="indent2">f(Z,A) =</p>
-<p class="indent3">fold( {Y &isin;Z : Y<sub>id</sub> &cap; A<sub>id</sub> &ne; &empty;},m
-,m(pm(Z,A),A))</p>
+<p class="indent3">fold( {Y &isin;Z : Y<sub>id</sub> &cap; A<sub>id</sub> &ne; &empty;},&otimes;
+,pm(Z,A) &otimes; A)</p>
 <p class="indent1"> About <a href="http://en.wikipedia.org/wiki/Fold_%28higher-order_function%29"><i>fold</i>.</a></p>
 
 <p>Finally, define &alpha;: Z' &#x2a2f; S &rarr; Z' by</p>
@@ -105,5 +107,22 @@ G(X,Y,isStrict=true) &nbsp;&nbsp;&nbsp;&nbsp;, otherwise</p>
 <p class="indent2">{ G(A,X,isStrict=false) : X &isin; Z, X<sub>id</sub> &cap; A<sub>id</sub> &ne; &empty;} &cup {X &isin; Z : X<sub>id</sub> &cap; A<sub>id</sub> &ne; &empty} &cup; f(Z,A) &nbsp;&nbsp;&nbsp;&nbsp;, pm(Z,A) = &empty;</p>
 
 <p>&alpha(Z,A) is thus the entity set obtained by merging timed identifier set A into entity set Z.</p>
+
+<h3>Notes</h3>
+<p>&gt;&gt; is an arbitrary comparator whose only purpose is to assure deterministic behaviour of &alpha;.</p>
+
+
+<h3>Properties</h3>
+<p>The functions above have the following properties:</p>
+
+<p class="indent1">(X &otimes; Y) &otimes; Z = (X &otimes; Z) &otimes; Y</p>
+	<p class="indent2">Proof:</p>
+
+<p class="indent1">&alpha;(&alpha;(Z,A),B) = &alpha;(&alpha;(Z,B),A)</p>
+	<p class="indent2">Proof:</p>
+	
+<p class="indent1">pm is one-to-one</p>
+	<p class="indent2">Proof:</p>
+	
 </body>
 </html>
