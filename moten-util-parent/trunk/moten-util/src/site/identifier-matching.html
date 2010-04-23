@@ -75,34 +75,35 @@ are disjoint sets}</p>
 <p class="indent1">pm (primary match) : Z' &#x2a2f; S &rarr; S given
 by</p>
 <p class="indent2">pm(Z,X) =</p>
-<p class="indent3">&empty; if Z = &empty; or X<sub>id</sub> &cap; Y<sub>id</sub> = &empty;
+<p class="indent3">&empty; &nbsp;&nbsp;&nbsp;&nbsp;,  Z = &empty; or X<sub>id</sub> &cap; Y<sub>id</sub> = &empty;
 &forall; Y &isin; Z</p>
 <p class="indent3">Y &isin; Z where Y<sub>id</sub> &cap; X<sub>id</sub> &gt;&gt; R<sub>id</sub> &cap;
-X<sub>id</sub> &forall;R  &isin; Z, R &ne; Y, otherwise</p>
+X<sub>id</sub> &forall;R  &isin; Z, R &ne; Y &nbsp;&nbsp;&nbsp;&nbsp;, otherwise</p>
 
 <p class="indent1">G : S &#x2a2f; S &#x2a2f; <b>B</b> &rarr; S by</p>
 <p class="indent2">G(X,Y, isStrict) = </p>
 <p class="indent3">{ i &isin; Y : t(i) &notin; t(X) or
-i<sub>time</sub> &gt; j<sub>time</sub> &forall; j &isin; X s.t. t(i<sub>id</sub>)=t(j<sub>id</sub>)  }, isStrict=true</p>
+i<sub>time</sub> &gt; j<sub>time</sub> &forall; j &isin; X s.t. t(i<sub>id</sub>)=t(j<sub>id</sub>)  } &nbsp;&nbsp;&nbsp;&nbsp;, isStrict=true</p>
 <p class="indent3">{ i &isin; Y : t(i) &notin; t(X) or
-i<sub>time</sub> &ge; j<sub>time</sub> &forall; j &isin; X s.t. t(i<sub>id</sub>)=t(j<sub>id</sub>)  }, isStrict=false</p>
+i<sub>time</sub> &ge; j<sub>time</sub> &forall; j &isin; X s.t. t(i<sub>id</sub>)=t(j<sub>id</sub>)  } &nbsp;&nbsp;&nbsp;&nbsp;, isStrict=false</p>
 
 <p class="indent1">m: S &#x2a2f; S &rarr; S by</p>
 <p class="indent2">m(X,Y) =</p>
-<p class="indent3">&empty; , t(Y) &gt; t(X)</p>
+<p class="indent3">&empty; &nbsp;&nbsp;&nbsp;&nbsp;, t(Y) &gt; t(X)</p>
 <p class="indent3">{i &isin; X : t(i) &notin; t(G(X,Y,isStrict=true)}) &cup;
-G(X,Y,isStrict=true)</p>
+G(X,Y,isStrict=true) &nbsp;&nbsp;&nbsp;&nbsp;, otherwise</p>
 
 <p class="indent1">f: Z' &#x2a2f; S &rarr; Z' by</p>
 <p class="indent2">f(Z,A) =</p>
 <p class="indent3">fold( {Y &isin;Z : Y<sub>id</sub> &cap; A<sub>id</sub> &ne; &empty;},m
 ,m(pm(Z,A),A))</p>
+<p class="indent1"> About <a href="http://en.wikipedia.org/wiki/Fold_%28higher-order_function%29"><i>fold</i>.</a></p>
 
 <p>Finally, define &alpha;: Z' &#x2a2f; S &rarr; Z' by</p>
 <p class="indent1">&alpha;(Z,A) =</p>
 <p class="indent2">Z &cup; {A}, pm(Z,A) = &empty;</p>
-<p class="indent2">{ G(A,X,isStrict=false) : X &isin; Z, X<sub>id</sub> &cap; A<sub>id</sub> &ne; &empty;} &cup {X &isin; Z : X<sub>id</sub> &cap; A<sub>id</sub> &ne; &empty} &cup; f(Z,A), pm(Z,A) &eq; &empty;</p>
-<p class="indent1"> About <a href="http://en.wikipedia.org/wiki/Fold_%28higher-order_function%29"><i>fold</i>.</a></p>
+<p class="indent2">{ G(A,X,isStrict=false) : X &isin; Z, X<sub>id</sub> &cap; A<sub>id</sub> &ne; &empty;} &cup {X &isin; Z : X<sub>id</sub> &cap; A<sub>id</sub> &ne; &empty} &cup; f(Z,A) &nbsp;&nbsp;&nbsp;&nbsp;, pm(Z,A) = &empty;</p>
+
 <p>&alpha(Z,A) is thus the entity set obtained by merging timed identifier set A into entity set Z.</p>
 </body>
 </html>
