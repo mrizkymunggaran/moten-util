@@ -175,7 +175,6 @@ public class DatastoreImmutable {
                             return m;
                         }
                     });
-
             foldComplement = Sets.difference(foldComplement, ImmutableSet
                     .of(ImmutableSet.of()));
             SetView<Set<TimedIdentifier>> nonIntersecting = Sets.difference(z,
