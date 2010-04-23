@@ -65,6 +65,15 @@ public class DatastoreImmutableTest {
         size(d, 1);
         has(d, "name0:sal", "name1:joe", "name2:john");
 
+        if (true)
+            return;
+
+        for (int i = 0; i < 1000; i++) {
+            int j = (int) Math.floor(Math.random() * 10);
+            int v = (int) Math.floor(Math.random() * 10);
+            d = add(d, "name" + j + ":value" + v);
+        }
+
     }
 
     private void has(DatastoreImmutable ds, String... values) {
