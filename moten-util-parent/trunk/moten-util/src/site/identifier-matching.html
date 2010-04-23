@@ -45,6 +45,9 @@ secondary matching identifier set.</p>
 <h3>Conventions</h3>
 <p>Capital variable names are used for sets, lower case variable
 names are used for numbers.</p>
+
+<p>&weierp;(S) is the <a href="http://en.wikipedia.org/wiki/Power_set">power set</a> of a set S</p>
+
 <p>When a function f is defined e.g. f : P &rarr; Q assume an
 additional implicit definition f: &weierp;(P) &rarr; &weierp;(Q) given
 by f(X) = {f(x): x &isin; X}</p>
@@ -68,14 +71,13 @@ comparator of the order of identifier types where</p>
 
 
 <p>Define</p>
+
 <p class="indent1">c (conflicting identifiers) : &weierp;(S) &rarr;
 &weierp;(S) given by</p>
 <p class="indent2">c(X,Y) = {x &isin; X : t(x<sub>id</sub>) &isin; t(Y<sub>id</sub>) and x<sub>id</sub>
 &notin; Y<sub>id</sub>}</p>
 <p class="indent1">V (valid identifier sets) = { X &sub; S : c(X,X)
 = &empty;}</p>
-
-<p class="indent1">ids : &weierp;(S) &rarr; S given by ids(Z) = {i : i &isin; X for some X &isin; Z} </p>
 
 <p class="indent1">Z' = { Z &sub; &weierp;(V) where elements of Z
 are disjoint sets}</p>
