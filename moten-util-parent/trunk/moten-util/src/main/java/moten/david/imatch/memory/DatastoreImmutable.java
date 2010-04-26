@@ -115,7 +115,7 @@ public class DatastoreImmutable {
         return null;
     }
 
-    private Set<TimedIdentifier> m(final Set<TimedIdentifier> x,
+    private Set<TimedIdentifier> product(final Set<TimedIdentifier> x,
             final Set<TimedIdentifier> y, final boolean strict) {
         if (strictSetComparator.compare(x, y) < 0)
             return Collections.EMPTY_SET;
@@ -135,11 +135,36 @@ public class DatastoreImmutable {
     }
 
     /**
+     * Returns all identifiers from set y whose type is not in set x.
+     * 
+     * @param x
+     * @param y
+     * @return
+     */
+    private Set<TimedIdentifier> beta(Set<TimedIdentifier> x,
+            Set<TimedIdentifier> y) {
+        final Set<IdentifierType> typesX = types(x);
+        Set<TimedIdentifier> p = Sets.filter(y,
+                new Predicate<TimedIdentifier>() {
+                    @Override
+                    public boolean apply(TimedIdentifier i) {
+                        return typesX.contains(i.getIdentifier()
+                                .getIdentifierType());
+                    }
+                });
+        return Sets.union(x, p);
+    }
+
+    /**
+     * @param a
+     * @return
+     */
+    /**
      * @param a
      * @return
      */
     public DatastoreImmutable add(final Set<TimedIdentifier> a) {
-        Set<TimedIdentifier> pmza = pm(a);
+        final Set<TimedIdentifier> pmza = pm(a);
         if (pmza.isEmpty())
             return new DatastoreImmutable(strictTypeComparator,
                     strictSetComparator, Sets.union(z, ImmutableSet.of(a)));
@@ -151,28 +176,33 @@ public class DatastoreImmutable {
                             return Sets.intersection(ids(y), ids(a)).size() > 0;
                         }
                     });
-            Set<TimedIdentifier> fold = Functional.fold(intersecting,
+            final Set<TimedIdentifier> fold = Functional.fold(intersecting,
                     new Fold<Set<TimedIdentifier>, Set<TimedIdentifier>>() {
                         @Override
                         public Set<TimedIdentifier> fold(
                                 Set<TimedIdentifier> previous,
                                 Set<TimedIdentifier> current) {
-
-                            Set<TimedIdentifier> result = m(previous, current,
-                                    true);
+                            Set<TimedIdentifier> result = product(previous,
+                                    current, true);
                             return result;
                         }
-                    }, m(pmza, a, true));
+                    }, product(beta(pmza, a), a, true));
             Set<Set<TimedIdentifier>> foldComplement = Functional.apply(
                     intersecting,
                     new Function<Set<TimedIdentifier>, Set<TimedIdentifier>>() {
-
                         @Override
                         public Set<TimedIdentifier> apply(Set<TimedIdentifier> s) {
-                            Set<TimedIdentifier> m = m(a, s, false);
-                            log.info("m(" + a + ", " + s + ",non-strict) = "
+                            Set<TimedIdentifier> m = product(a, s, false);
+                            log.info("prod(" + a + ", " + s + ",non-strict) = "
                                     + m);
                             return m;
+                        }
+                    });
+            foldComplement = Sets.filter(foldComplement,
+                    new Predicate<Set<TimedIdentifier>>() {
+                        @Override
+                        public boolean apply(Set<TimedIdentifier> set) {
+                            return !fold.containsAll(set);
                         }
                     });
             foldComplement = Sets.difference(foldComplement, ImmutableSet
