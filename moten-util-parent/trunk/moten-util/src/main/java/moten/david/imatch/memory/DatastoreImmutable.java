@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import moten.david.imatch.Identifier;
 import moten.david.imatch.IdentifierSetStrictComparator;
 import moten.david.imatch.IdentifierType;
 import moten.david.imatch.IdentifierTypeStrictComparator;
@@ -116,15 +117,17 @@ public class DatastoreImmutable {
 	}
 
 	private Set<TimedIdentifier> product(final Set<TimedIdentifier> x,
-			final Set<TimedIdentifier> y, final boolean strict) {
-		if (strictSetComparator.compare(x, y) < 0)
+			final Set<TimedIdentifier> y, final Set<TimedIdentifier> r,
+			final boolean strict) {
+		if (strictSetComparator.compare(r, y) < 0) {
+			final Set<Identifier> yIds = ids(y);
 			return Sets.filter(x, new Predicate<TimedIdentifier>() {
 				@Override
 				public boolean apply(TimedIdentifier i) {
-					return false;
+					return !yIds.contains(i);
 				}
 			});
-		else {
+		} else {
 			final Set<TimedIdentifier> g = g(x, y, strict);
 			final Set<IdentifierType> gTypes = types(g);
 			Set<TimedIdentifier> a = Sets.filter(x,
@@ -188,16 +191,16 @@ public class DatastoreImmutable {
 								Set<TimedIdentifier> previous,
 								Set<TimedIdentifier> current) {
 							Set<TimedIdentifier> result = product(previous,
-									current, true);
+									current, a, true);
 							return result;
 						}
-					}, product(beta(pmza, a), a, true));
+					}, product(beta(pmza, a), a, a, true));
 			Set<Set<TimedIdentifier>> foldComplement = Functional.apply(
 					intersecting,
 					new Function<Set<TimedIdentifier>, Set<TimedIdentifier>>() {
 						@Override
 						public Set<TimedIdentifier> apply(Set<TimedIdentifier> s) {
-							Set<TimedIdentifier> m = product(a, s, false);
+							Set<TimedIdentifier> m = product(a, s, a, false);
 							log.info("prod(" + a + ", " + s + ",non-strict) = "
 									+ m);
 							return m;
