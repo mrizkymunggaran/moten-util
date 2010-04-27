@@ -1,10 +1,18 @@
 package moten.david.imatch.memory;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 
 import moten.david.imatch.Identifier;
 import moten.david.imatch.TimedIdentifier;
+import moten.david.util.text.StringUtil;
+import moten.david.util.xml.TaggedOutputStream;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -25,6 +33,8 @@ public class DatastoreImmutableTest {
     @Inject
     private DatastoreImmutableFactory factory;
 
+    private final List<TestInfo> tests = new ArrayList<TestInfo>();
+
     private static long millis = 0;
 
     @Before
@@ -37,8 +47,43 @@ public class DatastoreImmutableTest {
 
     }
 
+    private static class TestInfo {
+        public TestInfo(DatastoreImmutable dsBefore, Set<TimedIdentifier> a,
+                DatastoreImmutable dsAfter) {
+            super();
+            this.dsBefore = dsBefore;
+            this.a = a;
+            this.dsAfter = dsAfter;
+        }
+
+        private final DatastoreImmutable dsBefore;
+        private final Set<TimedIdentifier> a;
+        private final DatastoreImmutable dsAfter;
+
+        /**
+         * @return the dsBefore
+         */
+        public DatastoreImmutable getDsBefore() {
+            return dsBefore;
+        }
+
+        /**
+         * @return the a
+         */
+        public Set<TimedIdentifier> getA() {
+            return a;
+        }
+
+        /**
+         * @return the dsAfter
+         */
+        public DatastoreImmutable getDsAfter() {
+            return dsAfter;
+        }
+    }
+
     @Test
-    public void test() {
+    public void test() throws IOException {
         ImmutableSet<Set<TimedIdentifier>> a = ImmutableSet.of();
         DatastoreImmutable d = factory.create(a);
         size(d, 0);
@@ -94,6 +139,25 @@ public class DatastoreImmutableTest {
         has(d, "name0:sal", "name1:bert", "name2:john", "name3:phil",
                 "name4:logo");
 
+        {
+            // merge test summary with the html docs
+            String text = display(tests);
+            String html = StringUtil.readString(
+                    new File("src/site/identifier-matching.html")).replace(
+                    "${tests}", text);
+            FileOutputStream os = new FileOutputStream(
+                    "target/identifier-matching-with-tests.html");
+            os.write(html.getBytes());
+            os.close();
+        }
+
+        {
+            FileOutputStream os = new FileOutputStream("target/style.css");
+            os.write(StringUtil.readString(new File("src/site/style.css"))
+                    .getBytes());
+            os.close();
+        }
+
         if (true)
             return;
 
@@ -103,6 +167,49 @@ public class DatastoreImmutableTest {
             d = add(d, "name" + j + ":value" + v);
         }
 
+    }
+
+    private String display(List<TestInfo> tests) {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        TaggedOutputStream t = new TaggedOutputStream(bytes, true);
+        t.startTag("table");
+        t.addAttribute("border", "1");
+        t.startTag("tr");
+        t.startTag("th");
+        t.append("Z");
+        t.closeTag();
+        t.startTag("th");
+        t.append("A");
+        t.closeTag();
+        t.startTag("th");
+        t.append("&alpha;(Z,A)");
+        t.closeTag();
+        t.closeTag();
+        for (TestInfo test : tests) {
+            t.startTag("tr");
+            t.startTag("td");
+            t.startTag("p");
+            t.addAttribute("class", "test");
+            t.append(test.getDsBefore().toString().replace("\n", "<br/>"));
+            t.closeTag();
+            t.closeTag();
+            t.startTag("td");
+            t.startTag("p");
+            t.addAttribute("class", "test");
+            t.append(test.getA().toString().replace("\n", "<br/>"));
+            t.closeTag();
+            t.closeTag();
+            t.startTag("td");
+            t.startTag("p");
+            t.addAttribute("class", "test");
+            t.append(test.getDsAfter().toString().replace("\n", "<br/>"));
+            t.closeTag();
+            t.closeTag();
+            t.closeTag();
+        }
+        t.closeTag();
+        t.close();
+        return bytes.toString();
     }
 
     private void has(DatastoreImmutable ds, String... values) {
@@ -154,6 +261,7 @@ public class DatastoreImmutableTest {
             final Set<TimedIdentifier> ids) {
         log.info("adding " + ids);
         DatastoreImmutable ds2 = ds.add(ids);
+        tests.add(new TestInfo(ds, ids, ds2));
         log.info(ds2.toString());
         return ds2;
     }

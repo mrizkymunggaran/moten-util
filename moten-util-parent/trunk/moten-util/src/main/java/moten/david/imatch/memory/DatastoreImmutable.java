@@ -222,11 +222,14 @@ public class DatastoreImmutable {
 
     @Override
     public String toString() {
+        if (z.size() == 0)
+            return "empty";
         StringBuffer s = new StringBuffer();
-        s.append("DataStoreImmutable=");
-        for (Set<TimedIdentifier> set : z)
-            s.append("\n" + set.toString());
+        for (Set<TimedIdentifier> set : z) {
+            if (s.length() > 0)
+                s.append("\n");
+            s.append(set.toString());
+        }
         return s.toString();
-
     }
 }

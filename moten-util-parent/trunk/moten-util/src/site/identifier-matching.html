@@ -63,9 +63,9 @@ by f(X) = {f(x): x &isin; X}</p>
 <p class="indent1">t: I &rarr; T, t: S &rarr; T categorise an identifier with an
 identifier type</p>
 <p class="indent1">&gt; : TxT &rarr; <b>B</b> is an infix comparator
-of the strength of identifier types</p>
+of the <i>strength</i> of identifier types</p>
 <p class="indent1">&gt;&gt; : TxT &rarr; <b>B</b> is an infix
-comparator of the order of identifier types where</p>
+comparator of the <i>order</i> of identifier types where</p>
 <p class="indent3">&forall; s,t &isin; T, (s !&gt; t and t !&gt; s)
 &hArr; s = t, s &gt; t &rArr; s &gt;&gt; t</p>
 
@@ -94,6 +94,7 @@ X<sub>id</sub> &forall; R  &isin; Z, R &ne; Y &nbsp;&nbsp;&nbsp;&nbsp;, otherwis
 <p class="indent2">G(X,Y) = </p>
 <p class="indent3">{ i &isin; Y : t(i) &notin; t(X) or
 i<sub>time</sub> &gt; j<sub>time</sub> where j &isin; X s.t. t(i<sub>id</sub>)=t(j<sub>id</sub>)  }</p>
+<p class="indent2">G(X,Y) is thus the subset of Y that has no type in X or those that match type with X but have a more recent time.</p>
 
 <p class="indent1">G<sub>ns</sub> : S &#x2a2f; S &#x2a2f; <b>B</b> &rarr; S by</p>
 <p class="indent2">G<sub>ns</sub>(X,Y) = </p>
@@ -123,7 +124,7 @@ G(X,Y) &nbsp;&nbsp;&nbsp;&nbsp;, otherwise</p>
 <p>&alpha;(Z,A) is thus the entity set obtained by merging timed identifier set A into entity set Z.</p>
 
 <h3>Notes</h3>
-<p>&gt;&gt; is an arbitrary comparator whose only purpose is to assure deterministic behaviour of &alpha;.</p>
+<p>&gt;&gt; is an arbitrary comparator whose only purpose is to ensure deterministic behaviour of &alpha;.</p>
 
 
 <h3>Properties</h3>
@@ -133,6 +134,7 @@ G(X,Y) &nbsp;&nbsp;&nbsp;&nbsp;, otherwise</p>
 	<p class="indent2">Proof: ...</p>
 
 <p class="indent1">(X &otimes; Y) &otimes; Z = (X &otimes; Z) &otimes; Y (partial commutativity)</p>
+	<p class="indent2">This property is a prerequisite for using the fold function.</p>
 	<p class="indent2">Proof: ...</p>
 
 <p class="indent1">&alpha;(&alpha;(Z,A),B) = &alpha;(&alpha;(Z,B),A) (commutative composition)</p>
@@ -140,7 +142,11 @@ G(X,Y) &nbsp;&nbsp;&nbsp;&nbsp;, otherwise</p>
 	
 <p class="indent1">pm is one-to-one</p>
 	<p class="indent2">Proof: ...</p>
+
 </div>
+	
+<h3>Tests</h3>
+${tests}
 	
 </body>
 </html>
