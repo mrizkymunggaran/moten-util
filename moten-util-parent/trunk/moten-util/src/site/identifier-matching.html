@@ -101,10 +101,13 @@ i<sub>time</sub> &gt; j<sub>time</sub> where j &isin; X s.t. t(i<sub>id</sub>)=t
 <p class="indent3">{ i &isin; Y : t(i) &notin; t(X) or
 i<sub>time</sub> &ge; j<sub>time</sub> where j &isin; X s.t. t(i<sub>id</sub>)=t(j<sub>id</sub>)  }</p>
 
+<p class="indent1">&gamma; : S &#x2a2f; S &rarr; S by</p>
+<p class="indent2">&gamma;(X,Y) = {x &isin; X : t(x) &notin; t(Y) }</p>
+
 <p class="indent1">&otimes;: S &#x2a2f; S &rarr; S by</p>
 <p class="indent2">X &otimes; Y =</p>
 <p class="indent3">&empty; &nbsp;&nbsp;&nbsp;&nbsp;, t(Y) &gt; t(X)</p>
-<p class="indent3">{i &isin; X : t(i) &notin; t(G(X,Y)}) &cup;
+<p class="indent3">&gamma;(X,G(X,Y)) &cup;
 G(X,Y) &nbsp;&nbsp;&nbsp;&nbsp;, otherwise</p>
 
 <p class="indent1">&beta; : S &rarr; S by</p>
