@@ -90,20 +90,21 @@ by</p>
 <p class="indent3">Y &isin; Z where Y<sub>id</sub> &cap; X<sub>id</sub> &gt;&gt; R<sub>id</sub> &cap;
 X<sub>id</sub> &forall; R  &isin; Z, R &ne; Y &nbsp;&nbsp;&nbsp;&nbsp;, otherwise</p>
 
+<p class="indent1">&gamma; : S &#x2a2f; S &rarr; S by</p>
+	<p class="indent2">&gamma;(X,Y) =</p>
+		<p class="indent3">{x &isin; X : t(x) &notin; t(Y) }</p>
+
 <p class="indent1">G : S &#x2a2f; S &#x2a2f; &rarr; S by</p>
-<p class="indent2">G(X,Y) = </p>
-<p class="indent3">{ i &isin; Y : t(i) &notin; t(X) or
-i<sub>time</sub> &gt; j<sub>time</sub> where j &isin; X s.t. t(i<sub>id</sub>)=t(j<sub>id</sub>)  }</p>
-<p class="indent2">G(X,Y) is thus the subset of Y that has no type in X or those that match type with X but have a more recent time.</p>
+	<p class="indent2">G(X,Y) = </p>
+		<p class="indent3"> &gamma;(Y,X) &cup; { i &isin; Y : &exist; j &isin; X s.t. t(i) &isin; t(X) and 
+			i<sub>time</sub> &gt; j<sub>time</sub> }</p>
+	<p class="indent2">G(X,Y) is thus the subset of Y that has no type in X or those that match type with X but have a more recent time.</p>
 
 <p class="indent1">G<sub>ns</sub> : S &#x2a2f; S &#x2a2f; <b>B</b> &rarr; S by</p>
-<p class="indent2">G<sub>ns</sub>(X,Y) = </p>
-<p class="indent3">{ i &isin; Y : t(i) &notin; t(X) or
-i<sub>time</sub> &ge; j<sub>time</sub> where j &isin; X s.t. t(i<sub>id</sub>)=t(j<sub>id</sub>)  }</p>
-
-<p class="indent1">&gamma; : S &#x2a2f; S &rarr; S by</p>
-<p class="indent2">&gamma;(X,Y) = {x &isin; X : t(x) &notin; t(Y) }</p>
-
+	<p class="indent2">G<sub>ns</sub>(X,Y) = </p>
+		<p class="indent3"> &gamma;(Y,X) &cup; { i &isin; Y : &exist; j &isin; X s.t. t(i) &isin; t(X) and 
+			i<sub>time</sub> &ge; j<sub>time</sub> }</p>
+	<p class="indent2">G(X,Y) is thus the subset of Y that has no type in X or those that match type with X but have a more recent time.</p>
 <p class="indent1">&otimes;: S &#x2a2f; S &rarr; S by</p>
 <p class="indent2">X &otimes; Y =</p>
 <p class="indent3">&empty; &nbsp;&nbsp;&nbsp;&nbsp;, t(Y) &gt; t(X)</p>
