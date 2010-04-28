@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import moten.david.imatch.Identifier;
 import moten.david.imatch.TimedIdentifier;
@@ -82,7 +84,17 @@ public class DatastoreImmutableTest {
 		}
 	}
 
-	@Test
+	private void equals(Set<TimedIdentifier> a, Set<TimedIdentifier> b) {
+		Assert.assertEquals(a, b);
+	}
+
+	private DatastoreImmutable createDatastore() {
+		ImmutableSet<Set<TimedIdentifier>> a = ImmutableSet.of();
+		DatastoreImmutable d = factory.create(a);
+		return d;
+	}
+
+	// @Test
 	public void test() throws IOException {
 		ImmutableSet<Set<TimedIdentifier>> a = ImmutableSet.of();
 		DatastoreImmutable d = factory.create(a);
@@ -151,9 +163,6 @@ public class DatastoreImmutableTest {
 				"name4:logo");
 		has(d, "name1:fred", "name3:argy");
 		has(d, "name2:fernando", "name4:gabriel");
-
-		if (true)
-			return;
 
 		d = add(d, "name3:argy", "name4:gabriel");
 		size(d, 3);
@@ -257,7 +266,21 @@ public class DatastoreImmutableTest {
 	}
 
 	private TimedIdentifier createTimedIdentifier(String value, long time) {
-		return createTimedIdentifier(createIdentifier(value), time);
+		Pattern pattern = Pattern.compile("^.*:.*:.*$");
+		Matcher matcher = pattern.matcher(value);
+		if (matcher.matches())
+			return createTimedIdentifier(value);
+		else
+			return createTimedIdentifier(createIdentifier(value), time);
+	}
+
+	private TimedIdentifier createTimedIdentifier(String value) {
+		String[] items = value.split(":");
+		int strength = 10 - Integer.parseInt(""
+				+ items[0].charAt(items[0].length() - 1));
+		long time = Integer.parseInt(items[2]);
+		return new MyTimedIdentifier(new MyIdentifier(new MyIdentifierType(
+				items[0], strength), items[1]), time);
 	}
 
 	private TimedIdentifier createTimedIdentifier(MyIdentifier id, long time) {
@@ -266,14 +289,13 @@ public class DatastoreImmutableTest {
 
 	private DatastoreImmutable add(final DatastoreImmutable ds,
 			final String... values) {
-		return add(ds, createTimedIdentifierSet(millis++, values));
+		return add(ds, ids(values));
 	}
 
-	private Set<TimedIdentifier> createTimedIdentifierSet(long time,
-			String[] values) {
+	private Set<TimedIdentifier> ids(String... values) {
 		Builder<TimedIdentifier> builder = ImmutableSet.builder();
 		for (String value : values)
-			builder.add(createTimedIdentifier(value, time));
+			builder.add(createTimedIdentifier(value));
 		return builder.build();
 	}
 
@@ -292,4 +314,42 @@ public class DatastoreImmutableTest {
 		return new MyIdentifier(type, value);
 	}
 
+	@Test
+	public void testProduct() {
+		DatastoreImmutable d = createDatastore();
+		Set<TimedIdentifier> s1;
+		Set<TimedIdentifier> s2;
+		Set<TimedIdentifier> s3;
+		Set<TimedIdentifier> p;
+		{
+			s1 = ids("name1:boo:0", "name2:john:0");
+			s2 = ids("name1:boo:1", "name2:fred:1");
+			s3 = ids("name1:boo:1", "name2:fred:1");
+			equals(s2, s3);
+			p = d.product(s1, s2, s2);
+			equals(s3, p);
+		}
+		{
+			s1 = ids("name1:boo:0", "name2:john:0");
+			s2 = ids("name1:boo:1", "name2:fred:1");
+			s3 = ids("name1:boo:1", "name2:fred:1");
+			p = d.product(s1, s2, s2);
+			equals(s3, p);
+		}
+		{
+			s1 = ids("name1:boo:0", "name2:john:0");
+			s2 = ids("name1:bill:1", "name2:john:1");
+			s3 = s2;
+			p = d.product(s1, s2, s2);
+			equals(s3, p);
+		}
+		{
+			s1 = ids("name0:boo:0", "name2:john:0");
+			s2 = ids("name1:bill:1", "name2:john:1");
+			s3 = ids("name0:boo:0", "name1:bill:1", "name2:john:1");
+			p = d.product(s1, s2, s2);
+			equals(s3, p);
+		}
+
+	}
 }
