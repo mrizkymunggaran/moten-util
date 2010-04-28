@@ -322,31 +322,31 @@ public class DatastoreImmutableTest {
 		Set<TimedIdentifier> s3;
 		Set<TimedIdentifier> p;
 		{
-			s1 = ids("name1:boo:0", "name2:john:0");
-			s2 = ids("name1:boo:1", "name2:fred:1");
-			s3 = ids("name1:boo:1", "name2:fred:1");
+			s1 = ids("n1:boo:0", "n2:john:0");
+			s2 = ids("n1:boo:1", "n2:fred:1");
+			s3 = ids("n1:boo:1", "n2:fred:1");
 			equals(s2, s3);
 			p = d.product(s1, s2, s2);
 			equals(s3, p);
 		}
 		{
-			s1 = ids("name1:boo:0", "name2:john:0");
-			s2 = ids("name1:boo:1", "name2:fred:1");
-			s3 = ids("name1:boo:1", "name2:fred:1");
+			s1 = ids("n1:boo:0", "n2:john:0");
+			s2 = ids("n1:boo:1", "n2:fred:1");
+			s3 = ids("n1:boo:1", "n2:fred:1");
 			p = d.product(s1, s2, s2);
 			equals(s3, p);
 		}
 		{
-			s1 = ids("name1:boo:0", "name2:john:0");
-			s2 = ids("name1:bill:1", "name2:john:1");
+			s1 = ids("n1:boo:0", "n2:john:0");
+			s2 = ids("n1:bill:1", "n2:john:1");
 			s3 = s2;
 			p = d.product(s1, s2, s2);
 			equals(s3, p);
 		}
 		{
-			s1 = ids("name0:boo:0", "name2:john:0");
-			s2 = ids("name1:bill:1", "name2:john:1");
-			s3 = ids("name0:boo:0", "name1:bill:1", "name2:john:1");
+			s1 = ids("n0:boo:0", "n2:john:0");
+			s2 = ids("n1:bill:1", "n2:john:1");
+			s3 = ids("n0:boo:0", "n1:bill:1", "n2:john:1");
 			p = d.product(s1, s2, s2);
 			equals(s3, p);
 		}

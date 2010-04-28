@@ -116,7 +116,12 @@ public class DatastoreImmutable {
 		return null;
 	}
 
-	private Set<TimedIdentifier> product(final Set<TimedIdentifier> x,
+	public Set<TimedIdentifier> product(final Set<TimedIdentifier> x,
+			final Set<TimedIdentifier> y, final Set<TimedIdentifier> r) {
+		return product(x, y, r, true);
+	}
+
+	public Set<TimedIdentifier> product(final Set<TimedIdentifier> x,
 			final Set<TimedIdentifier> y, final Set<TimedIdentifier> r,
 			final boolean strict) {
 		if (strictSetComparator.compare(r, y) < 0) {
@@ -195,15 +200,20 @@ public class DatastoreImmutable {
 							return result;
 						}
 					}, product(beta(pmza, a), a, a, true));
+			final Set<Identifier> foldIds = ids(fold);
 			Set<Set<TimedIdentifier>> foldComplement = Functional.apply(
 					intersecting,
 					new Function<Set<TimedIdentifier>, Set<TimedIdentifier>>() {
 						@Override
 						public Set<TimedIdentifier> apply(Set<TimedIdentifier> s) {
-							Set<TimedIdentifier> m = product(a, s, a, false);
-							log.info("prod(" + a + ", " + s + ",non-strict) = "
-									+ m);
-							return m;
+							return Sets.filter(s,
+									new Predicate<TimedIdentifier>() {
+										@Override
+										public boolean apply(TimedIdentifier i) {
+											return !foldIds.contains(i
+													.getIdentifier());
+										}
+									});
 						}
 					});
 			foldComplement = Sets.filter(foldComplement,
