@@ -320,6 +320,7 @@ public class DatastoreImmutableTest {
 		Set<TimedIdentifier> s1;
 		Set<TimedIdentifier> s2;
 		Set<TimedIdentifier> s3;
+		Set<TimedIdentifier> r;
 		Set<TimedIdentifier> p;
 		{
 			s1 = ids("n1:boo:0", "n2:john:0");
@@ -349,6 +350,18 @@ public class DatastoreImmutableTest {
 			s3 = ids("n0:boo:0", "n1:bill:1", "n2:john:1");
 			p = d.product(s1, s2, s2);
 			equals(s3, p);
+		}
+		{
+			s1 = ids("n0:boo:0", "n2:john:0");
+			s2 = ids("n1:bill:1", "n3:hiya:1");
+			s3 = ids("n2:john:3", "n3:hiya:1");
+			r = ids("n0:boo:0", "n2:john:0");
+			p = d.product(s1, s2, s3);
+			equals(r, p);
+			p = d.product(s1, s3, s3);
+			equals(ids("n0:boo:0", "n2:john:3", "n3:hiya:1"));
+			p = d.product(p, s2, s3);
+			equals(ids("n0:boo:0", "n2:john:3", "n3:hiya:1"));
 		}
 
 	}
