@@ -16,6 +16,7 @@ import moten.david.util.functional.Fold;
 import moten.david.util.functional.Function;
 import moten.david.util.functional.Functional;
 
+import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
@@ -23,15 +24,41 @@ import com.google.common.collect.Sets.SetView;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 
+/**
+ * Immutable Collection of timed identifier sets in combination with methods for
+ * adding more identifier sets.
+ * 
+ * @author dave
+ * 
+ */
 public class DatastoreImmutable {
 
+	/**
+	 * Logger.
+	 */
 	private static Logger log = Logger.getLogger(DatastoreImmutable.class
 			.getName());
 
-	public final ImmutableSet<Set<TimedIdentifier>> z;
+	/**
+	 * z contains the current set of timed identifier sets.
+	 */
+	private final ImmutableSet<Set<TimedIdentifier>> z;
+	/**
+	 * Strictly compares identifier types.
+	 */
 	private final IdentifierTypeStrictComparator strictTypeComparator;
+	/**
+	 * Strictly compares sets of identifiers.
+	 */
 	private final IdentifierSetStrictComparator strictSetComparator;
 
+	/**
+	 * Constructor.
+	 * 
+	 * @param strictTypeComparator
+	 * @param strictSetComparator
+	 * @param sets
+	 */
 	@Inject
 	public DatastoreImmutable(
 			IdentifierTypeStrictComparator strictTypeComparator,
@@ -39,21 +66,40 @@ public class DatastoreImmutable {
 			@Assisted Set<Set<TimedIdentifier>> sets) {
 		this.strictTypeComparator = strictTypeComparator;
 		this.strictSetComparator = strictSetComparator;
-		if (sets == null)
-			this.z = ImmutableSet.of();
-		else
-			this.z = ImmutableSet.copyOf(sets);
+		Preconditions.checkNotNull(sets);
+		this.z = ImmutableSet.copyOf(sets);
 	}
 
+	/**
+	 * Returns z.
+	 * 
+	 * @return
+	 */
 	public ImmutableSet<Set<TimedIdentifier>> sets() {
 		return z;
 	}
 
-	private ImmutableSet<TimedIdentifier> empty() {
-		ImmutableSet<TimedIdentifier> set = ImmutableSet.of();
-		return set;
+	/**
+	 * The empty set of TimedIdentifier.
+	 */
+	private static ImmutableSet<TimedIdentifier> empty = ImmutableSet.of();
+
+	/**
+	 * Accessor method for the empty set.
+	 * 
+	 * @return
+	 */
+	private static ImmutableSet<TimedIdentifier> empty() {
+
+		return empty;
 	}
 
+	/**
+	 * Returns the primary match for x.
+	 * 
+	 * @param x
+	 * @return
+	 */
 	private Set<TimedIdentifier> pm(final Set<TimedIdentifier> x) {
 		if (z.size() == 0)
 			return empty();
@@ -83,6 +129,13 @@ public class DatastoreImmutable {
 		}
 	}
 
+	/**
+	 * Returns the result of the function g on the parameters.
+	 * 
+	 * @param x
+	 * @param y
+	 * @return
+	 */
 	private Set<TimedIdentifier> g(final Set<TimedIdentifier> x,
 			final Set<TimedIdentifier> y) {
 		return Sets.filter(y, new Predicate<TimedIdentifier>() {
@@ -95,6 +148,14 @@ public class DatastoreImmutable {
 		});
 	}
 
+	/**
+	 * Returns the identifier of given IdentifierType if one exists else returns
+	 * null.
+	 * 
+	 * @param x
+	 * @param identifierType
+	 * @return
+	 */
 	private static TimedIdentifier getIdentifierOfType(Set<TimedIdentifier> x,
 			IdentifierType identifierType) {
 		for (TimedIdentifier i : x)
@@ -104,6 +165,14 @@ public class DatastoreImmutable {
 		return null;
 	}
 
+	/**
+	 * Returns the product of x and y given the new set r.
+	 * 
+	 * @param x
+	 * @param y
+	 * @param r
+	 * @return
+	 */
 	public Set<TimedIdentifier> product(final Set<TimedIdentifier> x,
 			final Set<TimedIdentifier> y, final Set<TimedIdentifier> r) {
 		if (y.size() == 0 || r.size() == 0)
@@ -132,6 +201,9 @@ public class DatastoreImmutable {
 	}
 
 	/**
+	 * Returns the result of merging a new set of timed identifiers with the
+	 * current z.
+	 * 
 	 * @param a
 	 * @return
 	 */
@@ -175,8 +247,6 @@ public class DatastoreImmutable {
 									});
 						}
 					});
-			log.info("intersecting=" + intersecting + ", foldComplement="
-					+ foldComplement + ", fold=" + fold);
 			SetView<Set<TimedIdentifier>> newZ = Sets.union(foldComplement,
 					ImmutableSet.of(fold));
 			// remove empty sets
