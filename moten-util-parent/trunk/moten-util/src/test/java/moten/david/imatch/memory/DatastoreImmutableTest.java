@@ -197,7 +197,7 @@ public class DatastoreImmutableTest {
 			os.close();
 		}
 
-		if (false)
+		if (true)
 			return;
 		for (int i = 0; i < 1000; i++) {
 			int j = (int) Math.floor(Math.random() * 10);
