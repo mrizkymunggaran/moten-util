@@ -1,0 +1,6 @@
+(?i)^.*CYCLING.*$
+(?i)^.*MOVIE.*$
+(?i)^.*MAN VS WILD.*$
+(?i)^.*CONCHORDS.*$
+(?i)^.*COOKING.*$
+(?i)^.*JAZZ.*$
