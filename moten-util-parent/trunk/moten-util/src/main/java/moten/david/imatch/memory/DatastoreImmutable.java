@@ -17,7 +17,6 @@ import moten.david.util.functional.Function;
 import moten.david.util.functional.Functional;
 
 import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Sets.SetView;
@@ -162,10 +161,7 @@ public class DatastoreImmutable {
 					}, product(pmza, a, a));
 			final Set<Identifier> foldIds = ids(fold);
 
-			final Set<Set<TimedIdentifier>> zWithoutPmza = Sets.filter(z,
-					Predicates.not(Predicates.equalTo(pmza)));
-			Set<Set<TimedIdentifier>> foldComplement = Functional.apply(
-					zWithoutPmza,
+			Set<Set<TimedIdentifier>> foldComplement = Functional.apply(z,
 					new Function<Set<TimedIdentifier>, Set<TimedIdentifier>>() {
 						@Override
 						public Set<TimedIdentifier> apply(Set<TimedIdentifier> s) {

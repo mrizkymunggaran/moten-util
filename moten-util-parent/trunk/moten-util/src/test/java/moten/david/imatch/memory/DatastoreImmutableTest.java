@@ -110,73 +110,104 @@ public class DatastoreImmutableTest {
 		has(d, "n1:joe", "n2:alfie");
 
 		d = add(d, "n1:joe", "n2:alf");
-		size(d, 2);
+		size(d, 3);
 		has(d, "n1:boo", "n2:john");
 		has(d, "n1:joe", "n2:alf");
+		has(d, "n2:alfie");
 
 		d = add(d, "n1:joe", "n2:john");
-		size(d, 2);
+		size(d, 4);
 		has(d, "n1:joe", "n2:john");
 		has(d, "n2:alf");
+		has(d, "n2:alfie");
+		has(d, "n1:boo");
 
 		d = add(d, "n0:sal", "n1:joe", "n2:john");
-		size(d, 2);
+		size(d, 4);
 		has(d, "n0:sal", "n1:joe", "n2:john");
 		has(d, "n2:alf");
+		has(d, "n2:alfie");
+		has(d, "n1:boo");
 
 		d = add(d, "n0:sal", "n2:john");
-		size(d, 2);
+		size(d, 4);
 		has(d, "n0:sal", "n1:joe", "n2:john");
 		has(d, "n2:alf");
+		has(d, "n2:alfie");
+		has(d, "n1:boo");
 
 		d = add(d, "n1:bert", "n2:john");
-		size(d, 2);
+		size(d, 5);
 		has(d, "n0:sal", "n1:bert", "n2:john");
 		has(d, "n2:alf");
+		has(d, "n2:alfie");
+		has(d, "n1:boo");
+		has(d, "n1:joe");
 
 		d = add(d, "n3:phil");
-		size(d, 3);
+		size(d, 6);
 		has(d, "n0:sal", "n1:bert", "n2:john");
 		has(d, "n3:phil");
 		has(d, "n2:alf");
+		has(d, "n2:alfie");
+		has(d, "n1:boo");
+		has(d, "n1:joe");
 
 		d = add(d, "n3:phil");
-		size(d, 3);
+		size(d, 6);
 		has(d, "n0:sal", "n1:bert", "n2:john");
 		has(d, "n3:phil");
 		has(d, "n2:alf");
+		has(d, "n2:alfie");
+		has(d, "n1:boo");
+		has(d, "n1:joe");
 
 		d = add(d, "n4:logo");
-		size(d, 4);
+		size(d, 7);
 		has(d, "n0:sal", "n1:bert", "n2:john");
 		has(d, "n3:phil");
 		has(d, "n4:logo");
 		has(d, "n2:alf");
+		has(d, "n2:alfie");
+		has(d, "n1:boo");
+		has(d, "n1:joe");
 
 		d = add(d, "n0:sal", "n3:phil", "n4:logo");
-		size(d, 2);
+		size(d, 5);
 		has(d, "n0:sal", "n1:bert", "n2:john", "n3:phil", "n4:logo");
 		has(d, "n2:alf");
+		has(d, "n2:alfie");
+		has(d, "n1:boo");
+		has(d, "n1:joe");
 
 		d = add(d, "n1:fred", "n3:argy");
-		size(d, 3);
+		size(d, 6);
 		has(d, "n0:sal", "n1:bert", "n2:john", "n3:phil", "n4:logo");
 		has(d, "n1:fred", "n3:argy");
 		has(d, "n2:alf");
+		has(d, "n2:alfie");
+		has(d, "n1:boo");
+		has(d, "n1:joe");
 
 		d = add(d, "n2:fernando", "n4:gabriel");
-		size(d, 4);
+		size(d, 7);
 		has(d, "n0:sal", "n1:bert", "n2:john", "n3:phil", "n4:logo");
 		has(d, "n1:fred", "n3:argy");
 		has(d, "n2:fernando", "n4:gabriel");
 		has(d, "n2:alf");
+		has(d, "n2:alfie");
+		has(d, "n1:boo");
+		has(d, "n1:joe");
 
 		d = add(d, "n3:argy", "n4:gabriel");
-		size(d, 4);
+		size(d, 7);
 		has(d, "n0:sal", "n1:bert", "n2:john", "n3:phil", "n4:logo");
 		has(d, "n1:fred", "n3:argy", "n4:gabriel");
 		has(d, "n2:fernando");
 		has(d, "n2:alf");
+		has(d, "n2:alfie");
+		has(d, "n1:boo");
+		has(d, "n1:joe");
 
 		{
 			// merge test summary with the html docs
@@ -197,13 +228,16 @@ public class DatastoreImmutableTest {
 			os.close();
 		}
 
-		if (true)
+		if (false)
 			return;
-		for (int i = 0; i < 1000; i++) {
+
+		for (int i = 0; i < 100; i++) {
 			int j = (int) Math.floor(Math.random() * 10);
 			int v = (int) Math.floor(Math.random() * 10);
 			d = add(d, "n" + j + ":value" + v);
 		}
+
+		System.out.println(Profiler.getInstance());
 
 	}
 
