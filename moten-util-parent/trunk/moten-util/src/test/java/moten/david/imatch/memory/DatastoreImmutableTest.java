@@ -94,82 +94,89 @@ public class DatastoreImmutableTest {
 		return d;
 	}
 
-	// @Test
+	@Test
 	public void test() throws IOException {
 		ImmutableSet<Set<TimedIdentifier>> a = ImmutableSet.of();
 		DatastoreImmutable d = factory.create(a);
 		size(d, 0);
 
-		d = add(d, "name1:boo", "name2:john");
+		d = add(d, "n1:boo", "n2:john");
 		size(d, 1);
-		has(d, "name1:boo", "name2:john");
+		has(d, "n1:boo", "n2:john");
 
-		d = add(d, "name1:joe", "name2:alfie");
+		d = add(d, "n1:joe", "n2:alfie");
 		size(d, 2);
-		has(d, "name1:boo", "name2:john");
-		has(d, "name1:joe", "name2:alfie");
+		has(d, "n1:boo", "n2:john");
+		has(d, "n1:joe", "n2:alfie");
 
-		d = add(d, "name1:joe", "name2:alf");
+		d = add(d, "n1:joe", "n2:alf");
 		size(d, 2);
-		has(d, "name1:boo", "name2:john");
-		has(d, "name1:joe", "name2:alf");
+		has(d, "n1:boo", "n2:john");
+		has(d, "n1:joe", "n2:alf");
 
-		d = add(d, "name1:joe", "name2:john");
-		size(d, 1);
-		has(d, "name1:joe", "name2:john");
-
-		d = add(d, "name0:sal", "name1:joe", "name2:john");
-		size(d, 1);
-		has(d, "name0:sal", "name1:joe", "name2:john");
-
-		d = add(d, "name0:sal", "name2:john");
-		size(d, 1);
-		has(d, "name0:sal", "name1:joe", "name2:john");
-
-		d = add(d, "name1:bert", "name2:john");
-		size(d, 1);
-		has(d, "name0:sal", "name1:bert", "name2:john");
-
-		d = add(d, "name3:phil");
+		d = add(d, "n1:joe", "n2:john");
 		size(d, 2);
-		has(d, "name0:sal", "name1:bert", "name2:john");
-		has(d, "name3:phil");
+		has(d, "n1:joe", "n2:john");
+		has(d, "n2:alf");
 
-		d = add(d, "name3:phil");
+		d = add(d, "n0:sal", "n1:joe", "n2:john");
 		size(d, 2);
-		has(d, "name0:sal", "name1:bert", "name2:john");
-		has(d, "name3:phil");
+		has(d, "n0:sal", "n1:joe", "n2:john");
+		has(d, "n2:alf");
 
-		d = add(d, "name4:logo");
+		d = add(d, "n0:sal", "n2:john");
+		size(d, 2);
+		has(d, "n0:sal", "n1:joe", "n2:john");
+		has(d, "n2:alf");
+
+		d = add(d, "n1:bert", "n2:john");
+		size(d, 2);
+		has(d, "n0:sal", "n1:bert", "n2:john");
+		has(d, "n2:alf");
+
+		d = add(d, "n3:phil");
 		size(d, 3);
-		has(d, "name0:sal", "name1:bert", "name2:john");
-		has(d, "name3:phil");
-		has(d, "name4:logo");
+		has(d, "n0:sal", "n1:bert", "n2:john");
+		has(d, "n3:phil");
+		has(d, "n2:alf");
 
-		d = add(d, "name0:sal", "name3:phil", "name4:logo");
-		size(d, 1);
-		has(d, "name0:sal", "name1:bert", "name2:john", "name3:phil",
-				"name4:logo");
+		d = add(d, "n3:phil");
+		size(d, 3);
+		has(d, "n0:sal", "n1:bert", "n2:john");
+		has(d, "n3:phil");
+		has(d, "n2:alf");
 
-		d = add(d, "name1:fred", "name3:argy");
+		d = add(d, "n4:logo");
+		size(d, 4);
+		has(d, "n0:sal", "n1:bert", "n2:john");
+		has(d, "n3:phil");
+		has(d, "n4:logo");
+		has(d, "n2:alf");
+
+		d = add(d, "n0:sal", "n3:phil", "n4:logo");
 		size(d, 2);
-		has(d, "name0:sal", "name1:bert", "name2:john", "name3:phil",
-				"name4:logo");
-		has(d, "name1:fred", "name3:argy");
+		has(d, "n0:sal", "n1:bert", "n2:john", "n3:phil", "n4:logo");
+		has(d, "n2:alf");
 
-		d = add(d, "name2:fernando", "name4:gabriel");
+		d = add(d, "n1:fred", "n3:argy");
 		size(d, 3);
-		has(d, "name0:sal", "name1:bert", "name2:john", "name3:phil",
-				"name4:logo");
-		has(d, "name1:fred", "name3:argy");
-		has(d, "name2:fernando", "name4:gabriel");
+		has(d, "n0:sal", "n1:bert", "n2:john", "n3:phil", "n4:logo");
+		has(d, "n1:fred", "n3:argy");
+		has(d, "n2:alf");
 
-		d = add(d, "name3:argy", "name4:gabriel");
-		size(d, 3);
-		has(d, "name0:sal", "name1:bert", "name2:john", "name3:phil",
-				"name4:logo");
-		has(d, "name1:fred", "name3:argy");
-		has(d, "name2:fernando", "name4:gabriel");
+		d = add(d, "n2:fernando", "n4:gabriel");
+		size(d, 4);
+		has(d, "n0:sal", "n1:bert", "n2:john", "n3:phil", "n4:logo");
+		has(d, "n1:fred", "n3:argy");
+		has(d, "n2:fernando", "n4:gabriel");
+		has(d, "n2:alf");
+
+		d = add(d, "n3:argy", "n4:gabriel");
+		size(d, 4);
+		has(d, "n0:sal", "n1:bert", "n2:john", "n3:phil", "n4:logo");
+		has(d, "n1:fred", "n3:argy", "n4:gabriel");
+		has(d, "n2:fernando");
+		has(d, "n2:alf");
 
 		{
 			// merge test summary with the html docs
@@ -190,10 +197,12 @@ public class DatastoreImmutableTest {
 			os.close();
 		}
 
+		if (true)
+			return;
 		for (int i = 0; i < 1000; i++) {
 			int j = (int) Math.floor(Math.random() * 10);
 			int v = (int) Math.floor(Math.random() * 10);
-			d = add(d, "name" + j + ":value" + v);
+			d = add(d, "n" + j + ":value" + v);
 		}
 
 	}
@@ -278,7 +287,9 @@ public class DatastoreImmutableTest {
 		String[] items = value.split(":");
 		int strength = 10 - Integer.parseInt(""
 				+ items[0].charAt(items[0].length() - 1));
-		long time = Integer.parseInt(items[2]);
+		long time = millis++;
+		if (items.length > 2)
+			time = Integer.parseInt(items[2]);
 		return new MyTimedIdentifier(new MyIdentifier(new MyIdentifierType(
 				items[0], strength), items[1]), time);
 	}
@@ -304,7 +315,7 @@ public class DatastoreImmutableTest {
 		log.info("adding " + ids);
 		DatastoreImmutable ds2 = ds.add(ids);
 		tests.add(new TestInfo(ds, ids, ds2));
-		log.info(ds2.toString());
+		log.info("\n" + ds2.toString());
 		return ds2;
 	}
 

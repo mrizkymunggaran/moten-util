@@ -113,21 +113,17 @@ X<sub>id</sub> &forall; R  &isin; Z, R &ne; Y &nbsp;&nbsp;&nbsp;&nbsp;, otherwis
 <p class="indent3">&gamma;(X,G(X,Y)) &cup;
 G(X,Y) &nbsp;&nbsp;&nbsp;&nbsp;, otherwise</p>
 
-<p class="indent1">&beta; : S &rarr; S by</p>
-	<p class="indent2">&beta;(X,Y) = X &cup; {y &isin; Y : t(y) &notin; X }</p>
-
 <p class="indent1">f: Z' &#x2a2f; S &#x2a2f; S &rarr; Z' by</p>
 <p class="indent2">f(Z,A) =</p>
 <p class="indent3">fold( {Y &isin;Z : Y<sub>id</sub> &cap; A<sub>id</sub> &ne; &empty;},&otimes;<sub>A</sub>
-, &beta;(pm(Z,A),A) &otimes;<sub>A</sub> A)</p>
+, pm(Z,A) &otimes;<sub>A</sub> A)</p>
 <p class="indent1"> About <a href="http://en.wikipedia.org/wiki/Fold_%28higher-order_function%29"><i>fold</i>.</a></p>
 
 <p>Finally, define &alpha;: Z' &#x2a2f; S &rarr; Z' by</p>
 <p class="indent1">&alpha;(Z,A) =</p>
 <p class="indent2">Z &cup; {A} &nbsp;&nbsp;&nbsp;&nbsp;, pm(Z,A) = &empty;</p>
-<p class="indent2">{{i &isin; X : i<sub>id</sub> &notin; f(Z,A)<sub>id</sub>} : X &isin; Z and X<sub>id</sub> &cap; A<sub>id</sub> &ne; &empty; } &cup; 
-{ X &isin; Z : X<sub>id</sub> &cap; A<sub>id</sub> = &empty;} 
- &cup; {f(Z,A)} &nbsp;&nbsp;&nbsp;&nbsp;, otherwise</p>
+<p class="indent2">({{i &isin; X : i<sub>id</sub> &notin; f(Z,A)<sub>id</sub>} : X &isin; Z, X &ne; pm(Z,A) } 
+ &cup; {f(Z,A)})\&empty; &nbsp;&nbsp;&nbsp;&nbsp;, otherwise</p>
 
 <p>&alpha;(Z,A) is thus the entity set obtained by merging timed identifier set A into entity set Z.</p>
 

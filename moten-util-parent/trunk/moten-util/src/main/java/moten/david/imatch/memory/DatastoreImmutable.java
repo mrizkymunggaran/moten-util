@@ -148,31 +148,6 @@ public class DatastoreImmutable {
 	}
 
 	/**
-	 * Returns all identifiers from set y whose type is not in set x.
-	 * 
-	 * @param x
-	 * @param y
-	 * @return
-	 */
-	private Set<TimedIdentifier> beta(Set<TimedIdentifier> x,
-			Set<TimedIdentifier> y) {
-		final Set<IdentifierType> typesX = types(x);
-		Set<TimedIdentifier> p = Sets.filter(y,
-				new Predicate<TimedIdentifier>() {
-					@Override
-					public boolean apply(TimedIdentifier i) {
-						return typesX.contains(i.getIdentifier()
-								.getIdentifierType());
-					}
-				});
-		return Sets.union(x, p);
-	}
-
-	/**
-	 * @param a
-	 * @return
-	 */
-	/**
 	 * @param a
 	 * @return
 	 */
@@ -199,10 +174,15 @@ public class DatastoreImmutable {
 									current, a, true);
 							return result;
 						}
-					}, product(beta(pmza, a), a, a, true));
+					}, product(pmza, a, a, true));
 			final Set<Identifier> foldIds = ids(fold);
+			log.info("pmza=" + pmza);
+			log.info("z=" + z);
+			final SetView<Set<TimedIdentifier>> zWithoutPmza = Sets.difference(
+					z, ImmutableSet.of(pmza));
+			log.info("z\\{pmza}=" + zWithoutPmza);
 			Set<Set<TimedIdentifier>> foldComplement = Functional.apply(
-					intersecting,
+					zWithoutPmza,
 					new Function<Set<TimedIdentifier>, Set<TimedIdentifier>>() {
 						@Override
 						public Set<TimedIdentifier> apply(Set<TimedIdentifier> s) {
@@ -216,22 +196,11 @@ public class DatastoreImmutable {
 									});
 						}
 					});
-			foldComplement = Sets.filter(foldComplement,
-					new Predicate<Set<TimedIdentifier>>() {
-						@Override
-						public boolean apply(Set<TimedIdentifier> set) {
-							return !fold.containsAll(set);
-						}
-					});
-			foldComplement = Sets.difference(foldComplement, ImmutableSet
-					.of(ImmutableSet.of()));
-			SetView<Set<TimedIdentifier>> nonIntersecting = Sets.difference(z,
-					intersecting);
-			log.info("intersecting=" + intersecting + ", non-intersecting"
-					+ nonIntersecting + ", foldComplement=" + foldComplement
-					+ ", fold=" + fold);
-			SetView<Set<TimedIdentifier>> newZ = Sets.union(nonIntersecting,
-					Sets.union(foldComplement, ImmutableSet.of(fold)));
+			log.info("intersecting=" + intersecting + ", foldComplement="
+					+ foldComplement + ", fold=" + fold);
+			SetView<Set<TimedIdentifier>> newZ = Sets.union(foldComplement,
+					ImmutableSet.of(fold));
+			// remove empty sets
 			newZ = Sets.difference(newZ, ImmutableSet.of(ImmutableSet.of()));
 			return new DatastoreImmutable(strictTypeComparator,
 					strictSetComparator, newZ);
