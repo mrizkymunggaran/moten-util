@@ -228,10 +228,10 @@ public class DatastoreImmutableTest {
 			os.close();
 		}
 
-		if (false)
+		if (true)
 			return;
 
-		for (int i = 0; i < 100; i++) {
+		for (int i = 0; i < 10; i++) {
 			int j = (int) Math.floor(Math.random() * 10);
 			int v = (int) Math.floor(Math.random() * 10);
 			d = add(d, "n" + j + ":value" + v);
