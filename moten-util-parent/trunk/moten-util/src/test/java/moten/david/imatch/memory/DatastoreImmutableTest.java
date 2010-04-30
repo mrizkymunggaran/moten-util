@@ -4,9 +4,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Formatter;
+import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -96,6 +101,9 @@ public class DatastoreImmutableTest {
 
 	@Test
 	public void test() throws IOException {
+		log.info("starting");
+		log.getParent().getHandlers()[0].setFormatter(createMyFormatter());
+
 		ImmutableSet<Set<TimedIdentifier>> a = ImmutableSet.of();
 		DatastoreImmutable d = factory.create(a);
 		size(d, 0);
@@ -239,6 +247,22 @@ public class DatastoreImmutableTest {
 
 		System.out.println(Profiler.getInstance());
 
+	}
+
+	private static DateFormat df = new SimpleDateFormat("yyyyMMdd HH:mm:ss.SSS");
+
+	private Formatter createMyFormatter() {
+		return new Formatter() {
+			@Override
+			public String format(LogRecord record) {
+				String recordStr = df.format(new Date()) + " "
+						+ record.getLevel() + " " + record.getSourceClassName()
+						+ " " + record.getSourceMethodName() + " "
+						+ record.getMessage() + "\n";
+				return recordStr;
+
+			}
+		};
 	}
 
 	private String display(List<TestInfo> tests) {
