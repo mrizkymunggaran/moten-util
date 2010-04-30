@@ -17,6 +17,7 @@ import moten.david.util.functional.Function;
 import moten.david.util.functional.Functional;
 
 import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Sets.SetView;
@@ -44,16 +45,6 @@ public class DatastoreImmutable {
 		else
 			this.z = ImmutableSet.copyOf(sets);
 	}
-
-	// private IdentifierSet c(final IdentifierSet x, final IdentifierSet y) {
-	// return x.filter(new Predicate<Identifier>() {
-	// @Override
-	// public boolean apply(Identifier i) {
-	// return y.types().set().contains(i.getIdentifierType())
-	// && !y.contains(i);
-	// }
-	// });
-	// }
 
 	public ImmutableSet<Set<TimedIdentifier>> sets() {
 		return z;
@@ -94,15 +85,13 @@ public class DatastoreImmutable {
 	}
 
 	private Set<TimedIdentifier> g(final Set<TimedIdentifier> x,
-			final Set<TimedIdentifier> y, final boolean strict) {
+			final Set<TimedIdentifier> y) {
 		return Sets.filter(y, new Predicate<TimedIdentifier>() {
 			@Override
 			public boolean apply(TimedIdentifier i) {
 				TimedIdentifier j = getIdentifierOfType(x, i.getIdentifier()
 						.getIdentifierType());
-				return j == null
-						|| (strict ? i.getTime() > j.getTime()
-								: i.getTime() >= j.getTime());
+				return j == null || (i.getTime() > j.getTime());
 			}
 		});
 	}
@@ -118,13 +107,9 @@ public class DatastoreImmutable {
 
 	public Set<TimedIdentifier> product(final Set<TimedIdentifier> x,
 			final Set<TimedIdentifier> y, final Set<TimedIdentifier> r) {
-		return product(x, y, r, true);
-	}
-
-	public Set<TimedIdentifier> product(final Set<TimedIdentifier> x,
-			final Set<TimedIdentifier> y, final Set<TimedIdentifier> r,
-			final boolean strict) {
-		if (strictSetComparator.compare(r, y) < 0) {
+		if (y.size() == 0 || r.size() == 0)
+			return x;
+		else if (strictSetComparator.compare(r, y) < 0) {
 			final Set<Identifier> yIds = ids(y);
 			return Sets.filter(x, new Predicate<TimedIdentifier>() {
 				@Override
@@ -133,7 +118,7 @@ public class DatastoreImmutable {
 				}
 			});
 		} else {
-			final Set<TimedIdentifier> g = g(x, y, strict);
+			final Set<TimedIdentifier> g = g(x, y);
 			final Set<IdentifierType> gTypes = types(g);
 			Set<TimedIdentifier> a = Sets.filter(x,
 					new Predicate<TimedIdentifier>() {
@@ -171,16 +156,14 @@ public class DatastoreImmutable {
 								Set<TimedIdentifier> previous,
 								Set<TimedIdentifier> current) {
 							Set<TimedIdentifier> result = product(previous,
-									current, a, true);
+									current, a);
 							return result;
 						}
-					}, product(pmza, a, a, true));
+					}, product(pmza, a, a));
 			final Set<Identifier> foldIds = ids(fold);
-			log.info("pmza=" + pmza);
-			log.info("z=" + z);
-			final SetView<Set<TimedIdentifier>> zWithoutPmza = Sets.difference(
-					z, ImmutableSet.of(pmza));
-			log.info("z\\{pmza}=" + zWithoutPmza);
+
+			final Set<Set<TimedIdentifier>> zWithoutPmza = Sets.filter(z,
+					Predicates.not(Predicates.equalTo(pmza)));
 			Set<Set<TimedIdentifier>> foldComplement = Functional.apply(
 					zWithoutPmza,
 					new Function<Set<TimedIdentifier>, Set<TimedIdentifier>>() {
