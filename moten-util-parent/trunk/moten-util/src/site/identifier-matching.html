@@ -92,19 +92,22 @@ X<sub>id</sub> &forall; R  &isin; Z, R &ne; Y &nbsp;&nbsp;&nbsp;&nbsp;, otherwis
 
 <p class="indent1">&gamma; : S &#x2a2f; S &rarr; S by</p>
 	<p class="indent2">&gamma;(X,Y) =</p>
-		<p class="indent3">{x &isin; X : t(x) &notin; t(Y) }</p>
+		<p class="indent3">{y &isin; Y : t(y) &notin; t(X) }</p>
+
+<p class="indent1">&mu; : S &#x2a2f; S &rarr; S by</p>
+	<p class="indent2">&mu;(X,Y) =</p>
+		<p class="indent3">{y &isin; Y : &exist; x &isin; X s.t. t(y) = t(x) and y<sub>time</sub> > x<sub>time</sub> }</p>
 
 <p class="indent1">G : S &#x2a2f; S &#x2a2f; &rarr; S by</p>
 	<p class="indent2">G(X,Y) = </p>
-		<p class="indent3"> &gamma;(Y,X) &cup; { i &isin; Y : &exist; j &isin; X s.t. t(i) &isin; t(X) and 
-			i<sub>time</sub> &gt; j<sub>time</sub> }</p>
+		<p class="indent3"> &gamma;(X,Y) &cup; &mu;(X,Y)</p>
 	<p class="indent2">G(X,Y) is thus the subset of Y that has no type in X or those that match type with X but have a more recent time.</p>
 
-<p class="indent1">&otimes;: S &#x2a2f; S &#x2a2f; S &rarr; S by</p>
+<p class="indent1">&otimes; : S &#x2a2f; S &#x2a2f; S &rarr; S by</p>
 <p class="indent2">X &otimes;<sub>R</sub> Y =</p>
 <p class="indent3">X &nbsp;&nbsp;&nbsp;&nbsp;, Y = &empty; or R = &empty;</p>
 <p class="indent3">{ x &isin; X : x<sub>id</sub> &notin; Y<sub>id</sub>} &nbsp;&nbsp;&nbsp;&nbsp;, t<sub>max</sub>(Y) &gt; t<sub>max</sub>(R) </p>
-<p class="indent3">&gamma;(X,G(X,Y)) &cup;
+<p class="indent3">&gamma;(G(X,Y),X) &cup;
 G(X,Y) &nbsp;&nbsp;&nbsp;&nbsp;, otherwise</p>
 
 <p class="indent1">f: Z' &#x2a2f; S &rarr; Z' by</p>
@@ -128,14 +131,18 @@ G(X,Y) &nbsp;&nbsp;&nbsp;&nbsp;, otherwise</p>
 <h3>Properties</h3>
 <p>The functions above have the following properties:</p>
 
-<p class="indent1">(X &otimes; Y) &otimes; Y = X &otimes; Y</p>
+<p class="indent1">X<sub>id</sub> &sub; (X &otimes;<sub>R</sub> Y)<sub>id</sub></p>
+<p class="indent2">Proof: ...</p>
+
+<p class="indent1">(X &otimes;<sub>R</sub> Y) &otimes;<sub>R</sub> Y = X &otimes;<sub>R</sub> Y</p>
 	<p class="indent2">Proof: ...</p>
 
-<p class="indent1">(X &otimes; Y) &otimes; Z = (X &otimes; Z) &otimes; Y (partial commutativity)</p>
+<p class="indent1">(X &otimes;<sub>R</sub> Y) &otimes;<sub>R</sub> Z = (X &otimes;<sub>R</sub> Z) &otimes;<sub>R</sub> Y (partial commutativity)</p>
 	<p class="indent2">This property is a prerequisite for using the fold function.</p>
 	<p class="indent2">Proof: ...</p>
 
-<p class="indent1">&alpha;(&alpha;(Z,A),B) = &alpha;(&alpha;(Z,B),A) (commutative composition)</p>
+<p class="indent1">&alpha;(&alpha;(Z,A),B) = &alpha;(&alpha;(Z,B),A) (commutative composition
+	<p class="indent2">If this property is true then time order of addition of sets is irrelevant.</p>
 	<p class="indent2">Proof: ...</p>
 	
 <p class="indent1">pm is one-to-one</p>

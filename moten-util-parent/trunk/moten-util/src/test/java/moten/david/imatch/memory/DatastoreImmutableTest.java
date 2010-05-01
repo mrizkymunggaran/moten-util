@@ -236,6 +236,8 @@ public class DatastoreImmutableTest {
 			os.close();
 		}
 
+		System.out.println(Profiler.getInstance());
+
 		if (true)
 			return;
 
@@ -244,8 +246,6 @@ public class DatastoreImmutableTest {
 			int v = (int) Math.floor(Math.random() * 10);
 			d = add(d, "n" + j + ":value" + v);
 		}
-
-		System.out.println(Profiler.getInstance());
 
 	}
 

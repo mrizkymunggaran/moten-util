@@ -16,6 +16,8 @@ import moten.david.util.functional.Fold;
 import moten.david.util.functional.Function;
 import moten.david.util.functional.Functional;
 
+import org.junit.Assert;
+
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
@@ -100,7 +102,7 @@ public class DatastoreImmutable {
 	 * @param x
 	 * @return
 	 */
-	private Set<TimedIdentifier> pm(final Set<TimedIdentifier> x) {
+	protected Set<TimedIdentifier> pm(final Set<TimedIdentifier> x) {
 		if (z.size() == 0)
 			return empty();
 		else {
@@ -136,16 +138,9 @@ public class DatastoreImmutable {
 	 * @param y
 	 * @return
 	 */
-	private Set<TimedIdentifier> g(final Set<TimedIdentifier> x,
+	protected Set<TimedIdentifier> g(final Set<TimedIdentifier> x,
 			final Set<TimedIdentifier> y) {
-		return Sets.filter(y, new Predicate<TimedIdentifier>() {
-			@Override
-			public boolean apply(TimedIdentifier i) {
-				TimedIdentifier j = getIdentifierOfType(x, i.getIdentifier()
-						.getIdentifierType());
-				return j == null || (i.getTime() > j.getTime());
-			}
-		});
+		return Sets.union(gamma(x, y), mu(x, y));
 	}
 
 	/**
@@ -156,8 +151,8 @@ public class DatastoreImmutable {
 	 * @param identifierType
 	 * @return
 	 */
-	private static TimedIdentifier getIdentifierOfType(Set<TimedIdentifier> x,
-			IdentifierType identifierType) {
+	protected static TimedIdentifier getIdentifierOfType(
+			Set<TimedIdentifier> x, IdentifierType identifierType) {
 		for (TimedIdentifier i : x)
 			if (i.getIdentifier().getIdentifierType().equals(identifierType))
 				return i;
@@ -186,18 +181,38 @@ public class DatastoreImmutable {
 				}
 			});
 		} else {
+			Assert.assertEquals(x, gamma(gamma(x, y), x));
+			Assert.assertEquals(Sets.intersection(x, gamma(mu(x, y), x)),
+					gamma(mu(x, y), x));
 			final Set<TimedIdentifier> g = g(x, y);
-			final Set<IdentifierType> gTypes = types(g);
-			Set<TimedIdentifier> a = Sets.filter(x,
-					new Predicate<TimedIdentifier>() {
-						@Override
-						public boolean apply(final TimedIdentifier i) {
-							return !gTypes.contains(i.getIdentifier()
-									.getIdentifierType());
-						}
-					});
-			return Sets.union(a, g);
+			return Sets.union(gamma(g, x), g);
+			// return Sets.union(gamma(mu(x, y), x), Sets.union(gamma(x, y),
+			// mu(x,
+			// y)));
 		}
+	}
+
+	protected Set<TimedIdentifier> gamma(Set<TimedIdentifier> x,
+			Set<TimedIdentifier> y) {
+		final Set<IdentifierType> typesX = types(x);
+		return Sets.filter(y, new Predicate<TimedIdentifier>() {
+			@Override
+			public boolean apply(TimedIdentifier i) {
+				return !typesX.contains(i.getIdentifier().getIdentifierType());
+			}
+		});
+	}
+
+	protected Set<TimedIdentifier> mu(final Set<TimedIdentifier> x,
+			Set<TimedIdentifier> y) {
+		return Sets.filter(y, new Predicate<TimedIdentifier>() {
+			@Override
+			public boolean apply(TimedIdentifier i) {
+				TimedIdentifier id = getIdentifierOfType(x, i.getIdentifier()
+						.getIdentifierType());
+				return id != null && i.getTime() > id.getTime();
+			}
+		});
 	}
 
 	/**
