@@ -16,8 +16,6 @@ import moten.david.util.functional.Fold;
 import moten.david.util.functional.Function;
 import moten.david.util.functional.Functional;
 
-import org.junit.Assert;
-
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
@@ -181,9 +179,6 @@ public class DatastoreImmutable {
 				}
 			});
 		} else {
-			Assert.assertEquals(x, gamma(gamma(x, y), x));
-			Assert.assertEquals(Sets.intersection(x, gamma(mu(x, y), x)),
-					gamma(mu(x, y), x));
 			final Set<TimedIdentifier> g = g(x, y);
 			return Sets.union(gamma(g, x), g);
 			// return Sets.union(gamma(mu(x, y), x), Sets.union(gamma(x, y),

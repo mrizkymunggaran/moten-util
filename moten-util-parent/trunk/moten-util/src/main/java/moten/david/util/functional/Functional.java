@@ -1,17 +1,17 @@
 package moten.david.util.functional;
 
-import java.util.HashSet;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableSet.Builder;
 
 public class Functional {
 
 	public static <S, T> Set<T> apply(Set<S> set, Function<S, T> f) {
-		Set<T> result = new HashSet<T>();
+		Builder<T> builder = ImmutableSet.builder();
 		for (S s : set)
-			result.add(f.apply(s));
-		return ImmutableSet.copyOf(result);
+			builder.add(f.apply(s));
+		return builder.build();
 	}
 
 	public static <T, S> S fold(Set<T> set, Fold<T, S> fold, S initialValue) {
