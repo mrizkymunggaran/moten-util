@@ -17,6 +17,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import moten.david.imatch.Identifier;
+import moten.david.imatch.IdentifierSetStrictComparator;
 import moten.david.imatch.TimedIdentifier;
 import moten.david.util.text.StringUtil;
 import moten.david.util.xml.TaggedOutputStream;
@@ -27,16 +28,14 @@ import org.junit.Test;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSet.Builder;
-import com.google.inject.Guice;
 import com.google.inject.Inject;
-import com.google.inject.Injector;
 
 public class DatastoreImmutableTest {
 	private static Logger log = Logger.getLogger(DatastoreImmutableTest.class
 			.getName());
 
-	private final Injector injector = Guice
-			.createInjector(new InjectorModule());
+	// private final Injector injector = Guice
+	// .createInjector(new InjectorModule());
 	@Inject
 	private DatastoreImmutableFactory factory;
 
@@ -46,7 +45,19 @@ public class DatastoreImmutableTest {
 
 	@Before
 	public void init() {
-		injector.injectMembers(this);
+		factory = new DatastoreImmutableFactory() {
+
+			@Override
+			public DatastoreImmutable create(Set<Set<TimedIdentifier>> sets) {
+				return new DatastoreImmutable(
+						new MyIdentifierTypeStrictComparator(
+								new MyIdentifierTypeStrengthComparator()),
+						new IdentifierSetStrictComparator(
+								new MyIdentifierTypeStrictComparator(
+										new MyIdentifierTypeStrengthComparator())),
+						sets);
+			}
+		};
 	}
 
 	@Test
@@ -104,8 +115,7 @@ public class DatastoreImmutableTest {
 		log.info("starting");
 		log.getParent().getHandlers()[0].setFormatter(createMyFormatter());
 
-		ImmutableSet<Set<TimedIdentifier>> a = ImmutableSet.of();
-		DatastoreImmutable d = factory.create(a);
+		DatastoreImmutable d = createDatastore();
 		size(d, 0);
 
 		d = add(d, "n1:boo", "n2:john");

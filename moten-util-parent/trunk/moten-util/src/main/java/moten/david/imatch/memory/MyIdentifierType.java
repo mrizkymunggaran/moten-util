@@ -2,8 +2,6 @@ package moten.david.imatch.memory;
 
 import moten.david.imatch.IdentifierType;
 
-import com.google.inject.internal.Objects;
-
 public class MyIdentifierType implements IdentifierType {
 
 	private final String name;
@@ -16,8 +14,28 @@ public class MyIdentifierType implements IdentifierType {
 	}
 
 	@Override
+	public String toString() {
+		return name;
+	}
+
+	@Override
+	public double getStrength() {
+		return strength;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	@Override
 	public int hashCode() {
-		return Objects.hashCode(name, strength);
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		long temp;
+		temp = Double.doubleToLongBits(strength);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		return result;
 	}
 
 	@Override
@@ -38,19 +56,5 @@ public class MyIdentifierType implements IdentifierType {
 				.doubleToLongBits(other.strength))
 			return false;
 		return true;
-	}
-
-	@Override
-	public String toString() {
-		return name;
-	}
-
-	@Override
-	public double getStrength() {
-		return strength;
-	}
-
-	public String getName() {
-		return name;
 	}
 }

@@ -20,6 +20,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import com.google.common.collect.ImmutableSet.Builder;
 import com.google.common.collect.Sets.SetView;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
@@ -67,7 +68,9 @@ public class DatastoreImmutable {
 		this.strictTypeComparator = strictTypeComparator;
 		this.strictSetComparator = strictSetComparator;
 		Preconditions.checkNotNull(sets);
+		log.info("constructor - copying sets");
 		this.z = ImmutableSet.copyOf(sets);
+		log.info("constructor - finished copying sets");
 	}
 
 	/**
@@ -94,6 +97,14 @@ public class DatastoreImmutable {
 		return empty;
 	}
 
+	private boolean containsAny(Set<Identifier> x, Set<Identifier> y) {
+		log.info("calculating containsAny");
+		for (Identifier i : y)
+			if (x.contains(i))
+				return true;
+		return false;
+	}
+
 	/**
 	 * Returns the primary match for x.
 	 * 
@@ -101,32 +112,35 @@ public class DatastoreImmutable {
 	 * @return
 	 */
 	protected Set<TimedIdentifier> pm(final Set<TimedIdentifier> x) {
-		if (z.size() == 0)
-			return empty();
+		final Set<Identifier> idsX = ids(x);
+		log.info("pm filtering");
+		Set<Set<TimedIdentifier>> intersecting = Sets.filter(z,
+				new Predicate<Set<TimedIdentifier>>() {
+					@Override
+					public boolean apply(Set<TimedIdentifier> i) {
+						return containsAny(idsX, ids(i));
+					}
+				});
+		log.info("pm finished filtering");
+		log.info("calculating size");
+		int size = intersecting.size();
+		log.info("size = " + size);
+		if (size == 0)
+			return Collections.EMPTY_SET;
 		else {
-			Boolean noIntersectInZ = Functional.fold(z,
-					new Fold<Set<TimedIdentifier>, Boolean>() {
-						@Override
-						public Boolean fold(Boolean lastValue,
-								Set<TimedIdentifier> t) {
-							return lastValue
-									&& Sets.intersection(ids(x), ids(t)).size() == 0;
-						}
-
-					}, true);
-			if (noIntersectInZ)
-				return Collections.EMPTY_SET;
-			else {
-				Set<TimedIdentifier> y = Collections.max(Sets.filter(z,
-						new Predicate<Set<TimedIdentifier>>() {
-							@Override
-							public boolean apply(Set<TimedIdentifier> i) {
-								return Sets.intersection(ids(x), ids(i)).size() > 0;
-							}
-						}), strictSetComparator);
-				return y;
-			}
+			log.info("pm calculating max");
+			Set<TimedIdentifier> result = Collections.max(intersecting,
+					strictSetComparator);
+			log.info("pm calculated result");
+			return result;
 		}
+	}
+
+	private Set<Identifier> allIds(Set<Set<TimedIdentifier>> z) {
+		Builder<Identifier> builder = ImmutableSet.builder();
+		for (Set<TimedIdentifier> set : z)
+			builder.addAll(ids(set));
+		return builder.build();
 	}
 
 	/**
@@ -223,6 +237,7 @@ public class DatastoreImmutable {
 			return new DatastoreImmutable(strictTypeComparator,
 					strictSetComparator, Sets.union(z, ImmutableSet.of(a)));
 		else {
+			log.info("calculating intersecting");
 			final Set<Set<TimedIdentifier>> intersecting = Sets.filter(z,
 					new Predicate<Set<TimedIdentifier>>() {
 						@Override
@@ -230,6 +245,7 @@ public class DatastoreImmutable {
 							return Sets.intersection(ids(y), ids(a)).size() > 0;
 						}
 					});
+			log.info("calculating fold");
 			final Set<TimedIdentifier> fold = Functional.fold(intersecting,
 					new Fold<Set<TimedIdentifier>, Set<TimedIdentifier>>() {
 						@Override
@@ -241,8 +257,10 @@ public class DatastoreImmutable {
 							return result;
 						}
 					}, product(pmza, a, a));
+			log.info("calculating fold ids");
 			final Set<Identifier> foldIds = ids(fold);
 
+			log.info("calculating fold complement");
 			Set<Set<TimedIdentifier>> foldComplement = Functional.apply(z,
 					new Function<Set<TimedIdentifier>, Set<TimedIdentifier>>() {
 						@Override
@@ -257,9 +275,11 @@ public class DatastoreImmutable {
 									});
 						}
 					});
+			log.info("calculating union");
 			SetView<Set<TimedIdentifier>> newZ = Sets.union(foldComplement,
 					ImmutableSet.of(fold));
 			// remove empty sets
+			log.info("removing empty set");
 			newZ = Sets.difference(newZ, ImmutableSet.of(ImmutableSet.of()));
 			return new DatastoreImmutable(strictTypeComparator,
 					strictSetComparator, newZ);
