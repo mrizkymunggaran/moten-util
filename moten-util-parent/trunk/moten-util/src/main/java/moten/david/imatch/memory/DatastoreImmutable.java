@@ -81,23 +81,7 @@ public class DatastoreImmutable {
 		return z;
 	}
 
-	/**
-	 * The empty set of TimedIdentifier.
-	 */
-	private static ImmutableSet<TimedIdentifier> empty = ImmutableSet.of();
-
-	/**
-	 * Accessor method for the empty set.
-	 * 
-	 * @return
-	 */
-	private static ImmutableSet<TimedIdentifier> empty() {
-
-		return empty;
-	}
-
 	private boolean containsAnyTimed(Set<Identifier> x, Set<TimedIdentifier> y) {
-		log.info("calculating containsAnyTimed");
 		for (TimedIdentifier i : y)
 			if (x.contains(i.getIdentifier()))
 				return true;
@@ -187,9 +171,6 @@ public class DatastoreImmutable {
 		} else {
 			final Set<TimedIdentifier> g = g(x, y);
 			return Sets.union(gamma(g, x), g);
-			// return Sets.union(gamma(mu(x, y), x), Sets.union(gamma(x, y),
-			// mu(x,
-			// y)));
 		}
 	}
 

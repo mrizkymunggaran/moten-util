@@ -13,8 +13,6 @@ import java.util.Set;
 import java.util.logging.Formatter;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import moten.david.imatch.Identifier;
 import moten.david.imatch.IdentifierSetStrictComparator;
@@ -58,11 +56,6 @@ public class DatastoreImmutableTest {
 						sets);
 			}
 		};
-	}
-
-	@Test
-	public void dummy() {
-
 	}
 
 	private static class TestInfo {
@@ -246,17 +239,27 @@ public class DatastoreImmutableTest {
 			os.close();
 		}
 
-		System.out.println(Profiler.getInstance());
-
-		if (true)
-			return;
-
-		for (int i = 0; i < 10; i++) {
-			int j = (int) Math.floor(Math.random() * 10);
-			int v = (int) Math.floor(Math.random() * 10);
-			d = add(d, "n" + j + ":value" + v);
+		{
+			log.info("measuring performance");
+			long t = System.currentTimeMillis();
+			long n = 100;
+			for (int i = 0; i < n; i++) {
+				String id = createRandomIdentifier();
+				String id2 = createRandomIdentifier();
+				d = add(d, id, id2);
+			}
+			log.info("rate = " + n * 1000.0 / (System.currentTimeMillis() - t)
+					+ " per second");
 		}
 
+	}
+
+	private String createRandomIdentifier() {
+		int range = 10;
+		int j = (int) Math.floor(Math.random() * range);
+		int v = (int) Math.floor(Math.random() * range);
+		String id = "n" + j + ":value" + v;
+		return id;
 	}
 
 	private static DateFormat df = new SimpleDateFormat("yyyyMMdd HH:mm:ss.SSS");
@@ -342,15 +345,6 @@ public class DatastoreImmutableTest {
 				items[1]);
 	}
 
-	private TimedIdentifier createTimedIdentifier(String value, long time) {
-		Pattern pattern = Pattern.compile("^.*:.*:.*$");
-		Matcher matcher = pattern.matcher(value);
-		if (matcher.matches())
-			return createTimedIdentifier(value);
-		else
-			return createTimedIdentifier(createIdentifier(value), time);
-	}
-
 	private TimedIdentifier createTimedIdentifier(String value) {
 		String[] items = value.split(":");
 		int strength = 10 - Integer.parseInt(""
@@ -360,10 +354,6 @@ public class DatastoreImmutableTest {
 			time = Integer.parseInt(items[2]);
 		return new MyTimedIdentifier(new MyIdentifier(new MyIdentifierType(
 				items[0], strength), items[1]), time);
-	}
-
-	private TimedIdentifier createTimedIdentifier(MyIdentifier id, long time) {
-		return new MyTimedIdentifier(id, time);
 	}
 
 	private DatastoreImmutable add(final DatastoreImmutable ds,
@@ -385,12 +375,6 @@ public class DatastoreImmutableTest {
 		tests.add(new TestInfo(ds, ids, ds2));
 		log.info("\n" + ds2.toString());
 		return ds2;
-	}
-
-	private Identifier createIdentifier(String name, String value,
-			int strength, long time) {
-		MyIdentifierType type = new MyIdentifierType(name, strength);
-		return new MyIdentifier(type, value);
 	}
 
 	@Test
@@ -445,14 +429,4 @@ public class DatastoreImmutableTest {
 
 	}
 
-	// @Test
-	public void testSpeed() {
-		for (int i = 0; i < 1000; i++) {
-			Set<TimedIdentifier> s = ids("n0:boo:0", "n1:bill:1", "n2:john:1",
-					"n3:gary", "n4:brian");
-			log.info("contains");
-			s.contains(createTimedIdentifier("n4:barry"));
-		}
-		log.info("finished");
-	}
 }
