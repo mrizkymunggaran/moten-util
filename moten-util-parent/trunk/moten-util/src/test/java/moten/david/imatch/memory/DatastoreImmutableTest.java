@@ -444,4 +444,15 @@ public class DatastoreImmutableTest {
 		}
 
 	}
+
+	@Test
+	public void testSpeed() {
+		for (int i = 0; i < 1000; i++) {
+			Set<TimedIdentifier> s = ids("n0:boo:0", "n1:bill:1", "n2:john:1",
+					"n3:gary", "n4:brian");
+			log.info("contains");
+			s.contains(createTimedIdentifier("n4:barry"));
+		}
+		log.info("finished");
+	}
 }

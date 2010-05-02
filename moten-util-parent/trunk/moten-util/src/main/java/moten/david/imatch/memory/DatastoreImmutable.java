@@ -97,6 +97,14 @@ public class DatastoreImmutable {
 		return empty;
 	}
 
+	private boolean containsAnyTimed(Set<Identifier> x, Set<TimedIdentifier> y) {
+		log.info("calculating containsAnyTimed");
+		for (TimedIdentifier i : y)
+			if (x.contains(i.getIdentifier()))
+				return true;
+		return false;
+	}
+
 	private boolean containsAny(Set<Identifier> x, Set<Identifier> y) {
 		log.info("calculating containsAny");
 		for (Identifier i : y)
@@ -118,7 +126,7 @@ public class DatastoreImmutable {
 				new Predicate<Set<TimedIdentifier>>() {
 					@Override
 					public boolean apply(Set<TimedIdentifier> i) {
-						return containsAny(idsX, ids(i));
+						return containsAnyTimed(idsX, i);
 					}
 				});
 		log.info("pm finished filtering");
