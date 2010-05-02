@@ -5,6 +5,7 @@ import static moten.david.imatch.memory.Util.types;
 
 import java.util.Collections;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
 import java.util.logging.Logger;
 
 import moten.david.imatch.Identifier;
@@ -52,6 +53,10 @@ public class DatastoreImmutable {
 	 */
 	private final IdentifierSetStrictComparator strictSetComparator;
 
+	private final ExecutorService executorService;
+
+	private final DatastoreImmutableFactory factory;
+
 	/**
 	 * Constructor.
 	 * 
@@ -60,10 +65,13 @@ public class DatastoreImmutable {
 	 * @param sets
 	 */
 	@Inject
-	public DatastoreImmutable(
+	public DatastoreImmutable(ExecutorService executorService,
+			DatastoreImmutableFactory factory,
 			IdentifierTypeStrictComparator strictTypeComparator,
 			IdentifierSetStrictComparator strictSetComparator,
 			@Assisted Set<Set<TimedIdentifier>> sets) {
+		this.executorService = executorService;
+		this.factory = factory;
 		this.strictTypeComparator = strictTypeComparator;
 		this.strictSetComparator = strictSetComparator;
 		Preconditions.checkNotNull(sets);
@@ -207,8 +215,7 @@ public class DatastoreImmutable {
 	public DatastoreImmutable add(final Set<TimedIdentifier> a) {
 		final Set<TimedIdentifier> pmza = pm(a);
 		if (pmza.isEmpty())
-			return new DatastoreImmutable(strictTypeComparator,
-					strictSetComparator, Sets.union(z, ImmutableSet.of(a)));
+			return factory.create(Sets.union(z, ImmutableSet.of(a)));
 		else {
 			log.info("calculating intersecting");
 			final Set<Set<TimedIdentifier>> intersecting = Functional.filter(z,
@@ -254,8 +261,7 @@ public class DatastoreImmutable {
 			// remove empty sets
 			log.info("removing empty set");
 			newZ = Sets.difference(newZ, ImmutableSet.of(ImmutableSet.of()));
-			return new DatastoreImmutable(strictTypeComparator,
-					strictSetComparator, newZ);
+			return factory.create(newZ);
 		}
 	}
 

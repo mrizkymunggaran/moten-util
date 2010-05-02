@@ -15,7 +15,6 @@ import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 import moten.david.imatch.Identifier;
-import moten.david.imatch.IdentifierSetStrictComparator;
 import moten.david.imatch.TimedIdentifier;
 import moten.david.util.text.StringUtil;
 import moten.david.util.xml.TaggedOutputStream;
@@ -26,14 +25,14 @@ import org.junit.Test;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSet.Builder;
+import com.google.inject.Guice;
 import com.google.inject.Inject;
+import com.google.inject.Injector;
 
 public class DatastoreImmutableTest {
 	private static Logger log = Logger.getLogger(DatastoreImmutableTest.class
 			.getName());
 
-	// private final Injector injector = Guice
-	// .createInjector(new InjectorModule());
 	@Inject
 	private DatastoreImmutableFactory factory;
 
@@ -43,19 +42,8 @@ public class DatastoreImmutableTest {
 
 	@Before
 	public void init() {
-		factory = new DatastoreImmutableFactory() {
-
-			@Override
-			public DatastoreImmutable create(Set<Set<TimedIdentifier>> sets) {
-				return new DatastoreImmutable(
-						new MyIdentifierTypeStrictComparator(
-								new MyIdentifierTypeStrengthComparator()),
-						new IdentifierSetStrictComparator(
-								new MyIdentifierTypeStrictComparator(
-										new MyIdentifierTypeStrengthComparator())),
-						sets);
-			}
-		};
+		Injector injector = Guice.createInjector(new InjectorModule());
+		injector.injectMembers(this);
 	}
 
 	private static class TestInfo {

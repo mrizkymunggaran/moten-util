@@ -1,5 +1,8 @@
 package moten.david.imatch.memory;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import moten.david.imatch.IdentifierTypeStrengthComparator;
 import moten.david.imatch.IdentifierTypeStrictComparator;
 
@@ -18,6 +21,7 @@ public class InjectorModule extends AbstractModule {
 		bind(DatastoreImmutableFactory.class).toProvider(
 				FactoryProvider.newFactory(DatastoreImmutableFactory.class,
 						DatastoreImmutable.class)).in(Scopes.SINGLETON);
+		bind(ExecutorService.class).toInstance(Executors.newFixedThreadPool(8));
 		// bindInterceptor(Matchers.subclassesOf(DatastoreImmutable.class),
 		// Matchers.any(), Profiler.getInstance());
 
