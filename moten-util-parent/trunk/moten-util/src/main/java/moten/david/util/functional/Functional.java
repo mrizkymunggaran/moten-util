@@ -2,6 +2,7 @@ package moten.david.util.functional;
 
 import java.util.Set;
 
+import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSet.Builder;
 
@@ -19,5 +20,13 @@ public class Functional {
 		for (T t : set)
 			value = fold.fold(value, t);
 		return value;
+	}
+
+	public static <T> Set<T> filter(Set<T> set, Predicate<T> predicate) {
+		Builder<T> builder = ImmutableSet.builder();
+		for (T s : set)
+			if (predicate.apply(s))
+				builder.add(s);
+		return builder.build();
 	}
 }

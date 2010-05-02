@@ -20,7 +20,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
-import com.google.common.collect.ImmutableSet.Builder;
 import com.google.common.collect.Sets.SetView;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
@@ -105,14 +104,6 @@ public class DatastoreImmutable {
 		return false;
 	}
 
-	private boolean containsAny(Set<Identifier> x, Set<Identifier> y) {
-		log.info("calculating containsAny");
-		for (Identifier i : y)
-			if (x.contains(i))
-				return true;
-		return false;
-	}
-
 	/**
 	 * Returns the primary match for x.
 	 * 
@@ -122,7 +113,7 @@ public class DatastoreImmutable {
 	protected Set<TimedIdentifier> pm(final Set<TimedIdentifier> x) {
 		final Set<Identifier> idsX = ids(x);
 		log.info("pm filtering");
-		Set<Set<TimedIdentifier>> intersecting = Sets.filter(z,
+		Set<Set<TimedIdentifier>> intersecting = Functional.filter(z,
 				new Predicate<Set<TimedIdentifier>>() {
 					@Override
 					public boolean apply(Set<TimedIdentifier> i) {
@@ -142,13 +133,6 @@ public class DatastoreImmutable {
 			log.info("pm calculated result");
 			return result;
 		}
-	}
-
-	private Set<Identifier> allIds(Set<Set<TimedIdentifier>> z) {
-		Builder<Identifier> builder = ImmutableSet.builder();
-		for (Set<TimedIdentifier> set : z)
-			builder.addAll(ids(set));
-		return builder.build();
 	}
 
 	/**
@@ -194,7 +178,7 @@ public class DatastoreImmutable {
 			return x;
 		else if (strictSetComparator.compare(r, y) < 0) {
 			final Set<Identifier> yIds = ids(y);
-			return Sets.filter(x, new Predicate<TimedIdentifier>() {
+			return Functional.filter(x, new Predicate<TimedIdentifier>() {
 				@Override
 				public boolean apply(TimedIdentifier i) {
 					return !yIds.contains(i);
@@ -212,7 +196,7 @@ public class DatastoreImmutable {
 	protected Set<TimedIdentifier> gamma(Set<TimedIdentifier> x,
 			Set<TimedIdentifier> y) {
 		final Set<IdentifierType> typesX = types(x);
-		return Sets.filter(y, new Predicate<TimedIdentifier>() {
+		return Functional.filter(y, new Predicate<TimedIdentifier>() {
 			@Override
 			public boolean apply(TimedIdentifier i) {
 				return !typesX.contains(i.getIdentifier().getIdentifierType());
@@ -222,7 +206,7 @@ public class DatastoreImmutable {
 
 	protected Set<TimedIdentifier> mu(final Set<TimedIdentifier> x,
 			Set<TimedIdentifier> y) {
-		return Sets.filter(y, new Predicate<TimedIdentifier>() {
+		return Functional.filter(y, new Predicate<TimedIdentifier>() {
 			@Override
 			public boolean apply(TimedIdentifier i) {
 				TimedIdentifier id = getIdentifierOfType(x, i.getIdentifier()
@@ -246,7 +230,7 @@ public class DatastoreImmutable {
 					strictSetComparator, Sets.union(z, ImmutableSet.of(a)));
 		else {
 			log.info("calculating intersecting");
-			final Set<Set<TimedIdentifier>> intersecting = Sets.filter(z,
+			final Set<Set<TimedIdentifier>> intersecting = Functional.filter(z,
 					new Predicate<Set<TimedIdentifier>>() {
 						@Override
 						public boolean apply(Set<TimedIdentifier> y) {
@@ -273,7 +257,7 @@ public class DatastoreImmutable {
 					new Function<Set<TimedIdentifier>, Set<TimedIdentifier>>() {
 						@Override
 						public Set<TimedIdentifier> apply(Set<TimedIdentifier> s) {
-							return Sets.filter(s,
+							return Functional.filter(s,
 									new Predicate<TimedIdentifier>() {
 										@Override
 										public boolean apply(TimedIdentifier i) {
