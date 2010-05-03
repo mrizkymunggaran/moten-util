@@ -11,7 +11,6 @@ import java.util.logging.Logger;
 import moten.david.imatch.Identifier;
 import moten.david.imatch.IdentifierSetStrictComparator;
 import moten.david.imatch.IdentifierType;
-import moten.david.imatch.IdentifierTypeStrictComparator;
 import moten.david.imatch.TimedIdentifier;
 import moten.david.util.functional.Fold;
 import moten.david.util.functional.Function;
@@ -34,7 +33,7 @@ import com.google.inject.assistedinject.Assisted;
  */
 public class DatastoreImmutable {
 
-	private static final int PARTITION_SIZE = 100;
+	public static int PARTITION_SIZE = 10;
 
 	/**
 	 * Logger.
@@ -47,10 +46,6 @@ public class DatastoreImmutable {
 	 */
 	private final ImmutableSet<Set<TimedIdentifier>> z;
 	/**
-	 * Strictly compares identifier types.
-	 */
-	private final IdentifierTypeStrictComparator strictTypeComparator;
-	/**
 	 * Strictly compares sets of identifiers.
 	 */
 	private final IdentifierSetStrictComparator strictSetComparator;
@@ -62,19 +57,16 @@ public class DatastoreImmutable {
 	/**
 	 * Constructor.
 	 * 
-	 * @param strictTypeComparator
 	 * @param strictSetComparator
 	 * @param sets
 	 */
 	@Inject
 	public DatastoreImmutable(ExecutorService executorService,
 			DatastoreImmutableFactory factory,
-			IdentifierTypeStrictComparator strictTypeComparator,
 			IdentifierSetStrictComparator strictSetComparator,
 			@Assisted Set<Set<TimedIdentifier>> sets) {
 		this.executorService = executorService;
 		this.factory = factory;
-		this.strictTypeComparator = strictTypeComparator;
 		this.strictSetComparator = strictSetComparator;
 		Preconditions.checkNotNull(sets);
 		log.info("constructor - copying sets");
@@ -119,7 +111,7 @@ public class DatastoreImmutable {
 		int size = intersecting.size();
 		log.info("size = " + size);
 		if (size == 0)
-			return Collections.EMPTY_SET;
+			return ImmutableSet.of();
 		else {
 			log.info("pm calculating max");
 			Set<TimedIdentifier> result = Collections.max(intersecting,
