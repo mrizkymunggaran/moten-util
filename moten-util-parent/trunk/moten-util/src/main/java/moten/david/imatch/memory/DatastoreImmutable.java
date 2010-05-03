@@ -34,6 +34,8 @@ import com.google.inject.assistedinject.Assisted;
  */
 public class DatastoreImmutable {
 
+	private static final int PARTITION_SIZE = 100;
+
 	/**
 	 * Logger.
 	 */
@@ -224,7 +226,7 @@ public class DatastoreImmutable {
 						public boolean apply(Set<TimedIdentifier> y) {
 							return Sets.intersection(ids(y), ids(a)).size() > 0;
 						}
-					}, executorService, 200);
+					}, executorService, PARTITION_SIZE);
 			log.info("calculating fold");
 			final Set<TimedIdentifier> fold = Functional.fold(intersecting,
 					new Fold<Set<TimedIdentifier>, Set<TimedIdentifier>>() {
@@ -254,7 +256,7 @@ public class DatastoreImmutable {
 										}
 									});
 						}
-					}, executorService, 200);
+					}, executorService, PARTITION_SIZE);
 			log.info("calculating union");
 			SetView<Set<TimedIdentifier>> newZ = Sets.union(foldComplement,
 					ImmutableSet.of(fold));
