@@ -103,10 +103,14 @@ X<sub>id</sub> &forall; R  &isin; Z, R &ne; Y &nbsp;&nbsp;&nbsp;&nbsp;, otherwis
 		<p class="indent3"> &gamma;(X,Y) &cup; &mu;(X,Y)</p>
 	<p class="indent2">G(X,Y) is thus the subset of Y that has no type in X or those that match type with X but have a more recent time.</p>
 
+<p class="indent1">&psi; : S &#x2a2f; S &#x2a2f; &rarr; S by</p>
+	<p class="indent2">&psi(X,Y) =</p>
+		<p class="indent3">{ x &isin; X : x<sub>id</sub> &notin; Y<sub>id</sub>}</p>
+
 <p class="indent1">&otimes; : S &#x2a2f; S &#x2a2f; S &rarr; S by</p>
 <p class="indent2">X &otimes;<sub>R</sub> Y =</p>
 <p class="indent3">X &nbsp;&nbsp;&nbsp;&nbsp;, Y = &empty; or R = &empty;</p>
-<p class="indent3">{ x &isin; X : x<sub>id</sub> &notin; Y<sub>id</sub>} &nbsp;&nbsp;&nbsp;&nbsp;, t<sub>max</sub>(Y) &gt; t<sub>max</sub>(R) </p>
+<p class="indent3">&psi;(X,Y) &nbsp;&nbsp;&nbsp;&nbsp;, t<sub>max</sub>(Y) &gt; t<sub>max</sub>(R) </p>
 <p class="indent3">&gamma;(G(X,Y),X) &cup;
 G(X,Y) &nbsp;&nbsp;&nbsp;&nbsp;, otherwise</p>
 
