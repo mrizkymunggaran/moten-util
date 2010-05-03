@@ -46,9 +46,8 @@ public class Util {
 				List<Expression> list = new ArrayList<Expression>();
 				for (Expression e : params)
 					list.add(replace(e, expressionToReplace, replaceWith));
-				return new Function(function.name(), function.isInfix(),
-						function.requiresBrackets(), function.isCommutative(),
-						list.toArray(new Expression[] {}));
+				return new Function(function.getFunctionName(), list
+						.toArray(new Expression[] {}));
 			} else if (expression instanceof Marker)
 				return expression;
 			else
@@ -93,6 +92,10 @@ public class Util {
 			return map;
 		} else
 			return null;
+	}
+
+	public static Expression sort(Expression e) {
+		return null;
 	}
 
 	public static Map<Marker, Expression> matches(Expression e,

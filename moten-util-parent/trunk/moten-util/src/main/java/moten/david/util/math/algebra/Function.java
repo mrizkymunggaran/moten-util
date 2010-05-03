@@ -8,27 +8,10 @@ import com.google.common.collect.ImmutableList.Builder;
 public class Function implements Expression, Named {
 
 	private final List<Expression> parameters;
-	private final boolean infix;
-
-	private final String name;
-	private final boolean requiresBrackets;
-	private final boolean commutative;
-
-	public Function(String name, Expression... parameters) {
-		this(name, false, false, false, parameters);
-	}
+	private final FunctionName functionName;
 
 	public Function(FunctionName functionName, Expression... parameters) {
-		this(functionName.getName(), functionName.isInfix(), functionName
-				.requiresBrackets(), functionName.isCommutative(), parameters);
-	}
-
-	public Function(String name, boolean infix, boolean requiresBrackets,
-			boolean commutative, Expression... parameters) {
-		this.name = name;
-		this.infix = infix;
-		this.requiresBrackets = requiresBrackets;
-		this.commutative = commutative;
+		this.functionName = functionName;
 		Builder<Expression> builder = ImmutableList.builder();
 		for (Expression parameter : parameters)
 			builder.add(parameter);
@@ -40,22 +23,22 @@ public class Function implements Expression, Named {
 	}
 
 	public String name() {
-		return name;
+		return functionName.getName();
 	}
 
-	public boolean isInfix() {
-		return infix;
+	public FunctionName getFunctionName() {
+		return functionName;
 	}
 
 	@Override
 	public String toString() {
 		StringBuffer s = new StringBuffer();
-		if (infix) {
+		if (functionName.isInfix()) {
 			for (Expression p : parameters) {
 				if (s.length() > 0)
-					s.append(" " + name + " ");
+					s.append(" " + functionName.getName() + " ");
 				s.append(p.toString());
-				if (requiresBrackets) {
+				if (requiresBrackets()) {
 					s.insert(0, "(");
 					s.append(")");
 				}
@@ -68,7 +51,7 @@ public class Function implements Expression, Named {
 			}
 			s.insert(0, "(");
 			s.append(")");
-			s.insert(0, name);
+			s.insert(0, functionName.getName());
 		}
 		return s.toString();
 	}
@@ -77,7 +60,10 @@ public class Function implements Expression, Named {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime
+				* result
+				+ ((functionName.getName() == null) ? 0 : functionName
+						.getName().hashCode());
 		result = prime * result
 				+ ((parameters == null) ? 0 : parameters.hashCode());
 		return result;
@@ -92,10 +78,10 @@ public class Function implements Expression, Named {
 		if (getClass() != obj.getClass())
 			return false;
 		Function other = (Function) obj;
-		if (name == null) {
-			if (other.name != null)
+		if (functionName.getName() == null) {
+			if (other.functionName.getName() != null)
 				return false;
-		} else if (!name.equals(other.name))
+		} else if (!functionName.getName().equals(other.functionName.getName()))
 			return false;
 		if (parameters == null) {
 			if (other.parameters != null)
@@ -106,11 +92,19 @@ public class Function implements Expression, Named {
 	}
 
 	public boolean requiresBrackets() {
-		return requiresBrackets;
+		return functionName.requiresBrackets();
 	}
 
 	public boolean isCommutative() {
-		return commutative;
+		return functionName.isCommutative();
+	}
+
+	@Override
+	public int compareTo(Expression o) {
+		if (o instanceof Named)
+			return functionName.getName().compareTo(((Named) o).name());
+		else
+			return 0;
 	}
 
 }

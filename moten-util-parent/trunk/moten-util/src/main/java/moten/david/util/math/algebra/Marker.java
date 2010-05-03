@@ -43,4 +43,11 @@ public class Marker implements Expression, Named {
 		return true;
 	}
 
+	@Override
+	public int compareTo(Expression o) {
+		if (o instanceof Named)
+			return name.compareTo(((Named) o).name());
+		else
+			return 0;
+	}
 }

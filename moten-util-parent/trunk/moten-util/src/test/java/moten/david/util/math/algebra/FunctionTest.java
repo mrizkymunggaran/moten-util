@@ -9,6 +9,8 @@ import org.junit.Test;
 
 public class FunctionTest {
 
+	private static final String unionChar = "\u222A";
+	private static final String intersectChar = "\u2229";
 	private static Logger log = Logger.getLogger(FunctionTest.class.getName());
 
 	@Test
@@ -21,11 +23,13 @@ public class FunctionTest {
 		FunctionName g = new FunctionName("g");
 		FunctionName mu = new FunctionName("mu");
 		FunctionName nu = new FunctionName("nu");
-		FunctionName intersect = new FunctionName("^", true, true, true);
-		FunctionName union = new FunctionName("U", true, false, true);
+		FunctionName intersect = new FunctionName(intersectChar, true, true,
+				true);
+		FunctionName union = new FunctionName(unionChar, true, false, true);
 		Function f = function(gamma, x, y);
 		Assert.assertEquals("gamma(x,y)", f.toString());
-		Assert.assertEquals("x U y", function(union, x, y).toString());
+		Assert.assertEquals("x " + unionChar + " y", function(union, x, y)
+				.toString());
 
 		Function prod = function(union, function(gamma, function(mu, x, y), x),
 				function(g, x, y));
@@ -85,13 +89,18 @@ public class FunctionTest {
 				a, y));
 		Assert.assertEquals(function(mu, x, x), e);
 
+		// real stuff
 		e = log(function(union, function(gamma, function(mu, x, y), x),
 				function(g, x, y)));
 		e = log(Util.replace(e, x, e));
 		e = log(Util.replaceAll(e, function(g, a, b), function(union, function(
 				gamma, a, b), function(mu, a, b))));
-		e = log(Util.replace(e, function(gamma, function(union, a, b), c),
-				function(union, function(gamma, a, c), function(gamma, b, c))));
+		e = log(Util.replaceAll(e, function(gamma, function(union, a, b), c),
+				function(intersect, function(gamma, a, c),
+						function(gamma, b, c))));
+		e = log(Util.replaceAll(e, function(gamma, a, function(union, b, c)),
+				function(union, function(gamma, a, b), function(gamma, a, c))));
+
 	}
 
 	private Expression log(Expression e) {
