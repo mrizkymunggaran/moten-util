@@ -77,14 +77,26 @@ public class FunctionTest {
 			Assert.assertEquals(result.get(c), function(union, y, z));
 		}
 		e = function(union, e, function(mu, x, x));
-		e = Util.replaceAll(e, function(mu, a, y), function(nu, a, y));
-		log.info(e + "");
+		e = log(Util.replaceAll(e, function(mu, a, y), function(nu, a, y)));
 		e = Util.replace(function(mu, y, y), function(mu, a, y), function(nu,
 				a, y));
 		Assert.assertEquals(function(nu, y, y), e);
 		e = Util.replace(function(mu, x, x), function(mu, a, y), function(nu,
 				a, y));
 		Assert.assertEquals(function(mu, x, x), e);
+
+		e = log(function(union, function(gamma, function(mu, x, y), x),
+				function(g, x, y)));
+		e = log(Util.replace(e, x, e));
+		e = log(Util.replaceAll(e, function(g, a, b), function(union, function(
+				gamma, a, b), function(mu, a, b))));
+		e = log(Util.replace(e, function(gamma, function(union, a, b), c),
+				function(union, function(gamma, a, c), function(gamma, b, c))));
+	}
+
+	private Expression log(Expression e) {
+		log.info(e.toString());
+		return e;
 	}
 
 	private static Variable var(String name) {
