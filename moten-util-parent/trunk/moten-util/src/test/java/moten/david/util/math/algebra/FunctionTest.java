@@ -1,5 +1,6 @@
 package moten.david.util.math.algebra;
 
+import java.util.Map;
 import java.util.logging.Logger;
 
 import junit.framework.Assert;
@@ -15,11 +16,13 @@ public class FunctionTest {
 		Variable x = var("x");
 		Variable y = var("y");
 		Variable z = var("z");
+		Variable t = var("t");
 		FunctionName gamma = new FunctionName("gamma");
 		FunctionName g = new FunctionName("g");
 		FunctionName mu = new FunctionName("mu");
-		FunctionName intersect = new FunctionName("^", true, true);
-		FunctionName union = new FunctionName("U", true, false);
+		FunctionName nu = new FunctionName("nu");
+		FunctionName intersect = new FunctionName("^", true, true, true);
+		FunctionName union = new FunctionName("U", true, false, true);
 		Function f = function(gamma, x, y);
 		Assert.assertEquals("gamma(x,y)", f.toString());
 		Assert.assertEquals("x U y", function(union, x, y).toString());
@@ -35,10 +38,53 @@ public class FunctionTest {
 		Marker a = new Marker("a");
 		Marker b = new Marker("b");
 		Marker c = new Marker("c");
-		log.info(Util.matches(x, a) + "");
-		log.info(Util.matches(function(gamma, function(union, x, y), z),
-				function(gamma, function(union, a, b), c))
-				+ "");
+		{
+			Map<Marker, Expression> result = Util.matches(x, a);
+			log.info(result + "");
+			Assert.assertEquals(1, result.size());
+			Assert.assertEquals(x, result.get(a));
+		}
+		{
+			Map<Marker, Expression> result = Util.matches(x, x);
+			log.info(result + "");
+			Assert.assertEquals(0, result.size());
+		}
+		{
+			Map<Marker, Expression> result = Util.matches(function(gamma,
+					function(union, x, y), z), function(gamma, function(union,
+					a, b), c));
+			log.info(result + "");
+			Assert.assertEquals(3, result.size());
+			Assert.assertEquals(result.get(a), x);
+			Assert.assertEquals(result.get(b), y);
+			Assert.assertEquals(result.get(c), z);
+		}
+		{
+			Map<Marker, Expression> result = Util.matches(function(gamma,
+					function(union, x, y), z), function(gamma, function(union,
+					a, b), a));
+			log.info(result + "");
+			Assert.assertNull(result);
+		}
+		{
+			Map<Marker, Expression> result = Util.matches(function(gamma,
+					function(union, x, y), function(union, y, z)), function(
+					gamma, function(union, a, b), c));
+			log.info(result + "");
+			Assert.assertEquals(3, result.size());
+			Assert.assertEquals(result.get(a), x);
+			Assert.assertEquals(result.get(b), y);
+			Assert.assertEquals(result.get(c), function(union, y, z));
+		}
+		e = function(union, e, function(mu, x, x));
+		e = Util.replaceAll(e, function(mu, a, y), function(nu, a, y));
+		log.info(e + "");
+		e = Util.replace(function(mu, y, y), function(mu, a, y), function(nu,
+				a, y));
+		Assert.assertEquals(function(nu, y, y), e);
+		e = Util.replace(function(mu, x, x), function(mu, a, y), function(nu,
+				a, y));
+		Assert.assertEquals(function(mu, x, x), e);
 	}
 
 	private static Variable var(String name) {

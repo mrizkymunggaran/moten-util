@@ -12,21 +12,23 @@ public class Function implements Expression, Named {
 
 	private final String name;
 	private final boolean requiresBrackets;
+	private final boolean commutative;
 
 	public Function(String name, Expression... parameters) {
-		this(name, false, false, parameters);
+		this(name, false, false, false, parameters);
 	}
 
 	public Function(FunctionName functionName, Expression... parameters) {
 		this(functionName.getName(), functionName.isInfix(), functionName
-				.requiresBrackets(), parameters);
+				.requiresBrackets(), functionName.isCommutative(), parameters);
 	}
 
 	public Function(String name, boolean infix, boolean requiresBrackets,
-			Expression... parameters) {
+			boolean commutative, Expression... parameters) {
 		this.name = name;
 		this.infix = infix;
 		this.requiresBrackets = requiresBrackets;
+		this.commutative = commutative;
 		Builder<Expression> builder = ImmutableList.builder();
 		for (Expression parameter : parameters)
 			builder.add(parameter);
@@ -105,6 +107,10 @@ public class Function implements Expression, Named {
 
 	public boolean requiresBrackets() {
 		return requiresBrackets;
+	}
+
+	public boolean isCommutative() {
+		return commutative;
 	}
 
 }

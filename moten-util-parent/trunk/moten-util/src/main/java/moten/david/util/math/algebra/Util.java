@@ -9,9 +9,33 @@ import com.google.common.collect.ImmutableMap.Builder;
 
 public class Util {
 
+	public static Expression replaceAll(Expression expression,
+			Expression expressionToReplace, Expression replaceWith) {
+		Expression previousResult = null;
+		Expression result = replace(expression, expressionToReplace,
+				replaceWith);
+		while (!result.equals(previousResult)) {
+			previousResult = result;
+			result = replace(result, expressionToReplace, replaceWith);
+		}
+		return result;
+	}
+
 	public static Expression replace(Expression expression,
 			Expression expressionToReplace, Expression replaceWith) {
-		if (expression.equals(expressionToReplace))
+
+		Map<Marker, Expression> matches;
+		if (expressionToReplace instanceof Marker)
+			matches = null;
+		else
+			matches = matches(expression, expressionToReplace);
+
+		if (matches != null) {
+			Expression r = replaceWith;
+			for (Marker marker : matches.keySet())
+				r = replace(r, marker, matches.get(marker));
+			return r;
+		} else if (expression.equals(expressionToReplace))
 			return replaceWith;
 		else {
 			if (expression instanceof Variable)
@@ -23,8 +47,8 @@ public class Util {
 				for (Expression e : params)
 					list.add(replace(e, expressionToReplace, replaceWith));
 				return new Function(function.name(), function.isInfix(),
-						function.requiresBrackets(), list
-								.toArray(new Expression[] {}));
+						function.requiresBrackets(), function.isCommutative(),
+						list.toArray(new Expression[] {}));
 			} else if (expression instanceof Marker)
 				return expression;
 			else
@@ -60,9 +84,11 @@ public class Util {
 				return null;
 			Map<Marker, Expression> map = assignments;
 			for (int i = 0; i < f1.parameters().size(); i++) {
-				Expression p1 = f1.parameters().get(i);
-				Expression p2 = f2.parameters().get(i);
-				map = matches(p1, p2, map);
+				if (map != null) {
+					Expression p1 = f1.parameters().get(i);
+					Expression p2 = f2.parameters().get(i);
+					map = matches(p1, p2, map);
+				}
 			}
 			return map;
 		} else
