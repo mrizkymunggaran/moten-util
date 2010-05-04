@@ -100,6 +100,12 @@ public class FunctionTest {
 		Variable muxy = var("mu");
 		e = log(Util.replaceAll(e, function(gamma, x, y), gammaxy));
 		e = log(Util.replaceAll(e, function(mu, x, y), muxy));
+		Variable empty = var("\u2205");
+		e = log(Util.replaceAll(e, function(gamma, function(mu, a, b), b),
+				empty));
+		e = log(Util.replaceAll(e, function(union, empty, a), a));
+		e = log(Util.replaceAll(e, function(mu, function(union, a, b), c),
+				function(union, function(mu, a, c), function(mu, b, c))));
 
 	}
 

@@ -38,10 +38,10 @@ public class Function implements Expression, Named {
 				if (s.length() > 0)
 					s.append(" " + functionName.getName() + " ");
 				s.append(p.toString());
-				if (requiresBrackets()) {
-					s.insert(0, "(");
-					s.append(")");
-				}
+			}
+			if (requiresBrackets()) {
+				s.insert(0, "(");
+				s.append(")");
 			}
 		} else {
 			for (Expression p : parameters) {
