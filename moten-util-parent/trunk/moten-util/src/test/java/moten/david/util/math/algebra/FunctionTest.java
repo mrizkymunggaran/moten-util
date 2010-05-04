@@ -88,25 +88,34 @@ public class FunctionTest {
 		e = log(function(union, function(gamma, function(mu, x, y), x),
 				function(g, x, y)));
 		e = log(Util.replace(exz, x, e));
-		e = log(Util.replaceAll(e, function(g, a, b), function(union, function(
-				gamma, a, b), function(mu, a, b))));
-		e = log(Util.replaceAll(e, function(gamma, function(union, a, b), c),
-				function(intersect, function(gamma, a, c),
-						function(gamma, b, c))));
-		e = log(Util.replaceAll(e, function(gamma, a, function(union, b, c)),
-				function(union, function(gamma, a, b), function(gamma, a, c))));
-		e = log(Util.replaceAll(e, function(gamma, function(mu, x, y), x), t));
+		e = replaceAll(e, function(g, a, b), function(union, function(gamma, a,
+				b), function(mu, a, b)));
+		e = replaceAll(e, function(gamma, function(union, a, b), c), function(
+				intersect, function(gamma, a, c), function(gamma, b, c)));
+		e = replaceAll(e, function(gamma, a, function(union, b, c)), function(
+				union, function(gamma, a, b), function(gamma, a, c)));
+		e = replaceAll(e, function(gamma, function(mu, x, y), x), t);
 		Variable gammaxy = var("gamma");
 		Variable muxy = var("mu");
-		e = log(Util.replaceAll(e, function(gamma, x, y), gammaxy));
-		e = log(Util.replaceAll(e, function(mu, x, y), muxy));
+		e = replaceAll(e, function(gamma, x, y), gammaxy);
+		e = replaceAll(e, function(mu, x, y), muxy);
 		Variable empty = var("\u2205");
-		e = log(Util.replaceAll(e, function(gamma, function(mu, a, b), b),
-				empty));
-		e = log(Util.replaceAll(e, function(union, empty, a), a));
-		e = log(Util.replaceAll(e, function(mu, function(union, a, b), c),
-				function(union, function(mu, a, c), function(mu, b, c))));
+		e = replaceAll(e, function(gamma, function(mu, a, b), b), empty);
+		e = replaceAll(e, function(union, empty, a), a);
+		e = replaceAll(e, function(mu, function(union, a, b), c), function(
+				union, function(mu, a, c), function(mu, b, c)));
+	}
 
+	private Expression replaceAll(Expression e, Expression toReplace,
+			Expression replaceWith) {
+		log("\n    replacing all " + toReplace + " with " + replaceWith + ":\n");
+		Expression result = Util.replaceAll(e, toReplace, replaceWith);
+		log(result);
+		return result;
+	}
+
+	private void log(Object s) {
+		System.out.println(s);
 	}
 
 	private Expression log(Expression e) {
