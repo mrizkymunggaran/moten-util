@@ -33,12 +33,11 @@ public class FunctionTest {
 
         Function prod = function(union, function(gamma, function(mu, x, y), x),
                 function(g, x, y));
-        System.out.println(prod.toString());
+        log.info(prod.toString());
         Expression e = Util.replace(prod, x, prod);
-        System.out.println(e.toString().replace(", ", ","));
-        e = Util.replace(e, function(g, x, y), function(union, function(gamma,
-                x, y), function(mu, x, y)));
-        System.out.println(e);
+        e = log(Util.replace(e, function(g, x, y), function(union, function(
+                gamma, x, y), function(mu, x, y))));
+
         Marker a = new Marker("a");
         Marker b = new Marker("b");
         Marker c = new Marker("c");
