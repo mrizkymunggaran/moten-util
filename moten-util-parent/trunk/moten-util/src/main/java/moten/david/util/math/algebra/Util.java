@@ -3,11 +3,14 @@ package moten.david.util.math.algebra;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 
 public class Util {
+
+	private static Logger log = Logger.getLogger(Util.class.getName());
 
 	public static Expression replaceAll(Expression expression,
 			Expression expressionToReplace, Expression replaceWith) {

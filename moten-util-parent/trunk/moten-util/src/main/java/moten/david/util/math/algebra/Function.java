@@ -60,10 +60,8 @@ public class Function implements Expression, Named {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime
-				* result
-				+ ((functionName.getName() == null) ? 0 : functionName
-						.getName().hashCode());
+		result = prime * result
+				+ ((functionName == null) ? 0 : functionName.hashCode());
 		result = prime * result
 				+ ((parameters == null) ? 0 : parameters.hashCode());
 		return result;
@@ -78,10 +76,10 @@ public class Function implements Expression, Named {
 		if (getClass() != obj.getClass())
 			return false;
 		Function other = (Function) obj;
-		if (functionName.getName() == null) {
-			if (other.functionName.getName() != null)
+		if (functionName == null) {
+			if (other.functionName != null)
 				return false;
-		} else if (!functionName.getName().equals(other.functionName.getName()))
+		} else if (!functionName.equals(other.functionName))
 			return false;
 		if (parameters == null) {
 			if (other.parameters != null)
