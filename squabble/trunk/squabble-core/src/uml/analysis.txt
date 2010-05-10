@@ -1,0 +1,15 @@
+Use Cases
+--------------------------
+user create
+user joins game
+user submits a word
+user submits a chat line
+user leaves game
+
+Sequence
+--------------------------
+get cookie - if not user ask for username
+submit word
+
+
+
