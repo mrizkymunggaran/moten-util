@@ -1,5 +1,6 @@
 package moten.david.squabble;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -9,6 +10,7 @@ import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.collect.ImmutableList.Builder;
 
@@ -19,6 +21,7 @@ public class Controller {
 
 	private ImmutableListMultimap<String, String> add(String user, String word) {
 		Iterable<String> words = createWordFrom(getCurrentWords(), word);
+		throw new RuntimeException("not implemented");
 	}
 
 	private Iterable<String> createWordFrom(List<String> currentWords,
@@ -36,24 +39,37 @@ public class Controller {
 		return intersects;
 	}
 
-	private Iterable<String> createWordFrom(Iterable<String> used,
+	public static Iterable<String> createWordFrom(Iterable<String> used,
 			Iterable<String> unused, final String word) {
-		String usedJoined = getSingledWord(used);
+		String usedJoined = sort(getSingledWord(used));
 		if (usedJoined.length() > word.length())
 			return null;
+		else if ((usedJoined).equals(sort(word)))
+			return used;
+		else if (!unused.iterator().hasNext())
+			return null;
 		else {
-			if (getSet(usedJoined).equals(usedJoined))
+			for (int i = 0; i < Iterables.size(unused); i++) {
+				ArrayList<String> a = Lists.newArrayList(used);
+				ArrayList<String> b = Lists.newArrayList(unused);
+				a.add(b.get(i));
+				b.remove(i);
+				Iterable<String> result = createWordFrom(a, b, word);
+				if (result != null)
+					return result;
+			}
+			return null;
 		}
 	}
 
-	private String getSingledWord(Iterable<String> strings) {
+	private static String getSingledWord(Iterable<String> strings) {
 		StringBuffer s = new StringBuffer();
 		for (String str : strings)
 			s.append(str);
 		return s.toString();
 	}
 
-	private String sort(String word) {
+	private static String sort(String word) {
 		com.google.common.collect.ImmutableSortedSet.Builder<Character> builder = ImmutableSortedSet
 				.naturalOrder();
 		for (Character ch : word.toCharArray())
@@ -73,8 +89,8 @@ public class Controller {
 		return builder.build();
 	}
 
-	private Set<Character> getList(String word) {
-		com.google.common.collect.ImmutableSet.Builder<Character> builder = ImmutableSet
+	private List<Character> getList(String word) {
+		com.google.common.collect.ImmutableList.Builder<Character> builder = ImmutableList
 				.builder();
 		for (Character ch : word.toCharArray())
 			builder.add(ch);
