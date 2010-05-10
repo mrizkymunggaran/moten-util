@@ -120,7 +120,8 @@ public class FunctionTest {
 				gamma(x, y), mu(x, y)));
 		log("----------");
 		log(productExpansion);
-		e = replace(productExpansion, y, product(y, z));
+		e = replace(productExpansion, y, z);
+		e = replace(e, x, product(x, y));
 		e = replace(e, product(a, b), union(gamma(mu(a, b), a), union(gamma(a,
 				b), mu(a, b))));
 		e = replace(e, gamma(union(a, b), c), intersect(gamma(a, c),
@@ -132,6 +133,7 @@ public class FunctionTest {
 				gamma(b, c)));
 		e = replaceMulti(e, gamma(a, union(b, c)), union(gamma(a, b), gamma(a,
 				c)));
+
 	}
 
 	private Function gamma(Expression... e) {
@@ -165,7 +167,8 @@ public class FunctionTest {
 			Expression replaceWith) {
 		log("\n    replacing all " + toReplace + " with " + replaceWith + ":\n");
 		Expression result = Util.replaceAll(e, toReplace, replaceWith);
-		log(result);
+		// System.out.println(Util.toMultiline(result.toString()));
+		System.out.println(result.toString());
 		return result;
 	}
 

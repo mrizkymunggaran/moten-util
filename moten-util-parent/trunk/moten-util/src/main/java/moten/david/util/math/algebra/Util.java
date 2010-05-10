@@ -106,4 +106,31 @@ public class Util {
 		Map<Marker, Expression> empty = ImmutableMap.of();
 		return matches(e, marked, empty);
 	}
+
+	public static String toMultiline(String str) {
+		int count = -1;
+		StringBuffer s = new StringBuffer();
+		char lastCh = ' ';
+		String indent = "    ";
+		for (char ch : str.toCharArray()) {
+			if (ch == '(') {
+				count++;
+				if (Character.isLetter(lastCh))
+					s.append("(");
+				s.append("\n");
+				for (int i = 0; i < count; i++)
+					s.append(indent);
+				if (!Character.isLetter(lastCh))
+					s.append("(");
+			} else if (ch == ')') {
+				count--;
+				s.append(")\n");
+				for (int i = 0; i < count; i++)
+					s.append(indent);
+			} else
+				s.append(ch);
+			lastCh = ch;
+		}
+		return s.toString();
+	}
 }
