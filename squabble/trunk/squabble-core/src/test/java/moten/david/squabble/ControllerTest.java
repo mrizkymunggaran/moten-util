@@ -22,8 +22,8 @@ public class ControllerTest {
         assertEquals(list("a", "b"), Controller.createWordFrom(list("a", "b"),
                 "ba"));
         assertEquals(null, Controller.createWordFrom(list("a", "b"), "abc"));
-        assertEquals(list("a"), Controller.createWordFrom(list("a", "b"), "a"));
-        assertEquals(list("b"), Controller.createWordFrom(list("a", "b"), "b"));
+        assertEquals(null, Controller.createWordFrom(list("a", "b"), "a"));
+        assertEquals(null, Controller.createWordFrom(list("a", "b"), "b"));
         assertEquals(null, Controller.createWordFrom(list("a", "bc"), "b"));
         assertEquals(null, Controller.createWordFrom(list("a", "bb"), "b"));
         assertNull(Controller.createWordFrom(
