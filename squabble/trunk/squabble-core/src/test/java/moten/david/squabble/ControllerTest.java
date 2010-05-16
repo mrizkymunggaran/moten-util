@@ -11,14 +11,16 @@ public class ControllerTest {
 
 	@Test
 	public void test() {
-		assertEquals(list("hello", "there"), Controller.createWordFrom(list(
-				"hello", "there"), list(), "therheello"));
-		assertNull(Controller.createWordFrom(
-				list("ab", "ra", "ca", "da", "bra"), list(), "abracadabraz"));
+		assertEquals(list("hello", "there"), Controller.createWordFrom(list(),list(
+				"hello", "there"), "therheello"));
+		assertNull(Controller.createWordFrom( list(),
+				list("ab", "ra", "ca", "da", "bra"), "abracadabraz"));
 		System.out.println(Controller.createWordFrom(list("ab", "ra", "ca",
 				"da", "bra"), list(), "abracadabr"));
-		assertNull(Controller.createWordFrom(
-				list("ab", "ra", "ca", "da", "bra"), list(), "abracadabr"));
+		Iterable<String> result = Controller.createWordFrom(list(),
+				list("ab", "ra", "ca", "da", "bra") , "abracadabr");
+		System.out.println(result);
+		assertNull(result);
 	}
 
 	private Iterable<String> list(String... values) {

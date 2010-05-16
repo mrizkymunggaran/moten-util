@@ -52,10 +52,15 @@ public class Controller {
 			for (int i = 0; i < Iterables.size(unused); i++) {
 				ArrayList<String> a = Lists.newArrayList(used);
 				ArrayList<String> b = Lists.newArrayList(unused);
-				a.add(b.get(i));
+				String part = b.get(i);
+				a.add(part);
 				b.remove(i);
 				Iterable<String> result = createWordFrom(a, b, word);
 				if (result != null)
+					return result;
+				a.remove(part);
+				result = createWordFrom(a,b,word);
+				if (result!=null)
 					return result;
 			}
 			return null;
