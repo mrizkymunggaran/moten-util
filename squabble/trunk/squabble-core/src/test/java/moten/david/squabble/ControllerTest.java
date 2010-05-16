@@ -8,6 +8,8 @@ import java.util.List;
 
 import org.junit.Test;
 
+import com.google.common.collect.ImmutableList;
+
 public class ControllerTest {
 
     @Test
@@ -26,12 +28,15 @@ public class ControllerTest {
         assertEquals(null, Controller.createWordFrom(list("a", "bb"), "b"));
         assertNull(Controller.createWordFrom(
                 list("ab", "ra", "ca", "da", "bra"), "abracadabraz"));
-        System.out.println(Controller.createWordFrom(list("ab", "ra", "ca",
-                "da", "bra"), "abracadabr"));
         Iterable<Word> result = Controller.createWordFrom(list("ab", "ra",
                 "ca", "da", "bra"), "abracadabr");
-        System.out.println(result);
         assertNull(result);
+
+        Word word = new Word(null, "par", null);
+        result = Controller.createWordFrom(ImmutableList.of(word), "par");
+        System.out.println(result);
+        assertEquals(null, result);
+
     }
 
     private Iterable<Word> list(String... values) {

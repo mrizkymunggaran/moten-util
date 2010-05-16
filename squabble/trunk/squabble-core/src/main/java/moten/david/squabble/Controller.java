@@ -76,15 +76,20 @@ public class Controller {
     }
 
     private static boolean matchInHistory(Iterable<Word> words, String candidate) {
-        for (Word word : words)
-            if (matches(word.toString(), candidate))
+        for (Word word : words) {
+            if (word.getWord().equals(candidate))
                 return true;
+            if (word.getHistory() != null)
+                for (Word wd : word.getHistory())
+                    if (matches(word.toString(), candidate))
+                        return true;
+        }
         return false;
     }
 
     private static boolean matches(String w, String candidate) {
-        Set<String> set = ImmutableSet.of(w + "r", w + "s", w + "er", w + "es",
-                w + "d", w + "ed", w + "ing", "re" + w);
+        Set<String> set = ImmutableSet.of(w, w + "r", w + "s", w + "er", w
+                + "es", w + "d", w + "ed", w + "ing", "re" + w);
         return set.contains(candidate);
     }
 
