@@ -1,6 +1,7 @@
 package moten.david.squabble;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -39,6 +40,11 @@ public class Controller {
 		return intersects;
 	}
 
+	public static Iterable<String> createWordFrom(Iterable<String> list, String word){
+		List<String> empty = ImmutableList.of();
+		return createWordFrom(empty, list, word);
+	}
+	
 	public static Iterable<String> createWordFrom(Iterable<String> used,
 			Iterable<String> unused, final String word) {
 		String usedJoined = sort(getSingledWord(used));
@@ -75,15 +81,9 @@ public class Controller {
 	}
 
 	private static String sort(String word) {
-		com.google.common.collect.ImmutableSortedSet.Builder<Character> builder = ImmutableSortedSet
-				.naturalOrder();
-		for (Character ch : word.toCharArray())
-			builder.add(ch);
-		StringBuffer s = new StringBuffer();
-		for (Character ch : builder.build()) {
-			s.append(ch);
-		}
-		return s.toString();
+		char[] a = word.toCharArray();
+		Arrays.sort(a);
+		return new String(a);
 	}
 
 	private Set<Character> getSet(String word) {
