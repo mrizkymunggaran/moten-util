@@ -81,7 +81,7 @@ public class Controller {
                 return true;
             if (word.getHistory() != null)
                 for (Word wd : word.getHistory())
-                    if (matches(word.toString(), candidate))
+                    if (matches(wd.toString(), candidate))
                         return true;
         }
         return false;
