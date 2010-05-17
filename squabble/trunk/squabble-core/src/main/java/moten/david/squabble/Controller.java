@@ -5,13 +5,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.google.common.collect.ImmutableList.Builder;
 
 public class Controller {
@@ -21,22 +19,6 @@ public class Controller {
 
     private ImmutableListMultimap<String, String> add(User user, String word) {
         throw new RuntimeException("not implemented");
-    }
-
-    private Iterable<Word> createWordFrom(List<Word> currentWords,
-            final String word) {
-        final Set<Character> wordSet = getSet(word);
-        Iterable<Word> intersects = Iterables.filter(currentWords,
-                new Predicate<Word>() {
-                    @Override
-                    public boolean apply(Word w) {
-                        return w.getWord().length() <= word.length()
-                                && Sets.intersection(getSet(w.getWord()),
-                                        wordSet).size() > 0;
-                    }
-                });
-
-        return intersects;
     }
 
     public static Iterable<Word> createWordFrom(Iterable<Word> list, String word) {
