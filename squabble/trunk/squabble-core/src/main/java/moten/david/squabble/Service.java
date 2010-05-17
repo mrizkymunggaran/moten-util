@@ -3,8 +3,11 @@ package moten.david.squabble;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.List;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
+import com.google.common.collect.ImmutableListMultimap.Builder;
 
 public class Service {
 
@@ -18,10 +21,10 @@ public class Service {
         Word a = new Word(board, "a");
         Word c = new Word(board, "c");
         Word t = new Word(board, "t");
-
-        ImmutableListMultimap<User, Word> list = ImmutableListMultimap.of(
-                board, a, board, c, board, t);
-        data = new Data(list);
+        List<Word> list = ImmutableList.of(a, c, t);
+        Builder<User, Word> builder = ImmutableListMultimap.builder();
+        builder.putAll(board, list);
+        data = new Data(builder.build());
     }
 
     public void addWord(String user, String word) {
@@ -38,6 +41,8 @@ public class Service {
         String line;
         System.out.println("data:" + service.getData());
         while ((line = br.readLine()) != null) {
+            if ("q".equals(line))
+                break;
             String[] items = line.trim().split(" ");
             if (items.length >= 2) {
                 String user = items[0];
