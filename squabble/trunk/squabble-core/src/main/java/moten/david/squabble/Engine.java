@@ -12,7 +12,13 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.ImmutableList.Builder;
 
-public class Controller {
+public class Engine {
+
+    private final Dictionary dictionary;
+
+    public Engine(Dictionary dictionary) {
+        this.dictionary = dictionary;
+    }
 
     public static Iterable<Word> createWordFrom(Iterable<Word> list, String word) {
         List<Word> empty = ImmutableList.of();
@@ -81,30 +87,19 @@ public class Controller {
         return new String(a);
     }
 
-    private Set<Character> getSet(String word) {
-        com.google.common.collect.ImmutableSet.Builder<Character> builder = ImmutableSet
-                .builder();
-        for (Character ch : word.toCharArray())
-            builder.add(ch);
-        return builder.build();
-    }
-
-    private List<Character> getList(String word) {
-        com.google.common.collect.ImmutableList.Builder<Character> builder = ImmutableList
-                .builder();
-        for (Character ch : word.toCharArray())
-            builder.add(ch);
-        return builder.build();
-    }
-
     private List<Word> getCurrentWords(Data data) {
         Builder<Word> builder = ImmutableList.builder();
-        for (User user : data.getMap().keys())
-            builder.addAll(data.getMap().get(user));
+        if (data.getMap().keySet() != null)
+            for (User user : data.getMap().keySet())
+                builder.addAll(data.getMap().get(user));
         return builder.build();
     }
 
     public Data wordSubmitted(Data data, User user, String word) {
+        if (word.length() < user.getMinimumChars())
+            return data;
+        if (!dictionary.isValid(word))
+            return data;
         Iterable<Word> result = createWordFrom(getCurrentWords(data), word);
         if (result == null)
             return data;

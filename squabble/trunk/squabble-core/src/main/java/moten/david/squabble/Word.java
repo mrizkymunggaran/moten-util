@@ -1,5 +1,6 @@
 package moten.david.squabble;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Word {
@@ -61,6 +62,10 @@ public class Word {
 
     public List<Word> getMadeFrom() {
         return madeFrom;
+    }
+
+    public Word(User user, String word) {
+        this(user, word, new ArrayList<Word>());
     }
 
     public Word(User owner, String word, List<Word> madeFrom) {
