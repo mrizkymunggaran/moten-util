@@ -14,7 +14,8 @@ public class Word {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((history == null) ? 0 : history.hashCode());
+        result = prime * result
+                + ((madeFrom == null) ? 0 : madeFrom.hashCode());
         result = prime * result + ((owner == null) ? 0 : owner.hashCode());
         result = prime * result + ((word == null) ? 0 : word.hashCode());
         return result;
@@ -29,10 +30,10 @@ public class Word {
         if (getClass() != obj.getClass())
             return false;
         Word other = (Word) obj;
-        if (history == null) {
-            if (other.history != null)
+        if (madeFrom == null) {
+            if (other.madeFrom != null)
                 return false;
-        } else if (!history.equals(other.history))
+        } else if (!madeFrom.equals(other.madeFrom))
             return false;
         if (owner == null) {
             if (other.owner != null)
@@ -48,7 +49,7 @@ public class Word {
     }
 
     private final User owner;
-    private final List<Word> history;
+    private final List<Word> madeFrom;
 
     public String getWord() {
         return word;
@@ -58,14 +59,14 @@ public class Word {
         return owner;
     }
 
-    public List<Word> getHistory() {
-        return history;
+    public List<Word> getMadeFrom() {
+        return madeFrom;
     }
 
-    public Word(User owner, String word, List<Word> history) {
+    public Word(User owner, String word, List<Word> madeFrom) {
         super();
         this.owner = owner;
         this.word = word;
-        this.history = history;
+        this.madeFrom = madeFrom;
     }
 }

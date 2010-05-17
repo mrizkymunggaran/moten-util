@@ -14,13 +14,6 @@ import com.google.common.collect.ImmutableList.Builder;
 
 public class Controller {
 
-    private final ImmutableListMultimap<User, Word> map = ImmutableListMultimap
-            .of();
-
-    private ImmutableListMultimap<String, String> add(User user, String word) {
-        throw new RuntimeException("not implemented");
-    }
-
     public static Iterable<Word> createWordFrom(Iterable<Word> list, String word) {
         List<Word> empty = ImmutableList.of();
         return createWordFrom(empty, list, word);
@@ -61,8 +54,8 @@ public class Controller {
         for (Word word : words) {
             if (word.getWord().equals(candidate))
                 return true;
-            if (word.getHistory() != null)
-                for (Word wd : word.getHistory())
+            if (word.getMadeFrom() != null)
+                for (Word wd : word.getMadeFrom())
                     if (matches(wd.toString(), candidate))
                         return true;
         }
@@ -104,15 +97,38 @@ public class Controller {
         return builder.build();
     }
 
-    private List<Word> getCurrentWords() {
+    private List<Word> getCurrentWords(Data data) {
         Builder<Word> builder = ImmutableList.builder();
-        for (User user : map.keys())
-            builder.addAll(map.get(user));
+        for (User user : data.getMap().keys())
+            builder.addAll(data.getMap().get(user));
         return builder.build();
     }
 
-    public synchronized void wordSubmitted(User user, String word) {
+    public Data wordSubmitted(Data data, User user, String word) {
+        Iterable<Word> result = createWordFrom(getCurrentWords(data), word);
+        if (result == null)
+            return data;
+        else {
+            ImmutableListMultimap<User, Word> map = addWord(data, user, word,
+                    Lists.newArrayList(result));
+            return new Data(map);
+        }
+    }
 
+    private ImmutableListMultimap<User, Word> addWord(Data data, User user,
+            String word, List<Word> parts) {
+        Word w = new Word(user, word, parts);
+        com.google.common.collect.ImmutableListMultimap.Builder<User, Word> m = ImmutableListMultimap
+                .builder();
+        for (User u : data.getMap().keys()) {
+            ArrayList<Word> list = new ArrayList<Word>(data.getMap().get(u));
+            for (Word part : parts)
+                if (part.getOwner().equals(u))
+                    list.remove(part);
+            m.putAll(u, list);
+        }
+        m.put(user, w);
+        return m.build();
     }
 
     private void fireMessage(String message) {

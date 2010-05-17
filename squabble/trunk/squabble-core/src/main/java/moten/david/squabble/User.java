@@ -2,14 +2,20 @@ package moten.david.squabble;
 
 public class User {
     private final String name;
+    private final int minimumChars;
 
     public String getName() {
         return name;
     }
 
-    public User(String name) {
+    public User(String name, int minimumChars) {
         super();
         this.name = name;
+        this.minimumChars = minimumChars;
+    }
+
+    public int getMinimumChars() {
+        return minimumChars;
     }
 
     @Override

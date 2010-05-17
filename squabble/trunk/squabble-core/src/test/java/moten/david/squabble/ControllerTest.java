@@ -36,13 +36,12 @@ public class ControllerTest {
         result = Controller.createWordFrom(ImmutableList.of(word), "par");
         System.out.println(result);
         assertEquals(null, result);
-
     }
 
     private Iterable<Word> list(String... values) {
         List<Word> list = new ArrayList<Word>();
         for (String value : values)
-            list.add(new Word(new User("anyone"), value, null));
+            list.add(new Word(new User("anyone", 3), value, null));
         return list;
     }
 }
