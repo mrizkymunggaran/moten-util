@@ -1,12 +1,13 @@
 package moten.david.squabble;
 
 import com.google.common.collect.ImmutableListMultimap;
+import com.google.common.collect.ListMultimap;
 
 public class Data {
     private final ImmutableListMultimap<User, Word> map;
 
-    public Data(ImmutableListMultimap<User, Word> map) {
-        this.map = map;
+    public Data(ListMultimap<User, Word> map) {
+        this.map = ImmutableListMultimap.copyOf(map);
     }
 
     public ImmutableListMultimap<User, Word> getMap() {
@@ -16,7 +17,7 @@ public class Data {
     @Override
     public String toString() {
         StringBuffer s = new StringBuffer();
-        for (User user : map.keys()) {
+        for (User user : map.keySet()) {
             if (s.length() > 0)
                 s.append('\n');
             s.append(user.getName());

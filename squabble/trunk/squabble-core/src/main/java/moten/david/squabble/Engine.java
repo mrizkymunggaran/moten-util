@@ -3,26 +3,45 @@ package moten.david.squabble;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
+import java.util.logging.Logger;
 
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.ImmutableList.Builder;
 
 public class Engine {
 
-    private final Dictionary dictionary;
+    private static Logger log = Logger.getLogger(Engine.class.getName());
 
-    public Engine(Dictionary dictionary) {
+    private final Dictionary dictionary;
+    private final Letters letters;
+
+    public Engine(Dictionary dictionary, Letters letters) {
         this.dictionary = dictionary;
+        this.letters = letters;
     }
 
     public static Iterable<Word> createWordFrom(Iterable<Word> list, String word) {
         List<Word> empty = ImmutableList.of();
-        return createWordFrom(empty, list, word);
+        List<Word> intersect = Lists.newArrayList();
+        for (Word w : list)
+            if (toList(word).containsAll(toList(w.getWord())))
+                intersect.add(w);
+        return createWordFrom(empty, intersect, word);
+    }
+
+    private static List<String> toList(String s) {
+        List<String> list = Lists.newArrayList();
+        for (Character ch : s.toCharArray())
+            list.add(ch + "");
+        return list;
     }
 
     private static Iterable<Word> createWordFrom(Iterable<Word> used,
@@ -95,38 +114,81 @@ public class Engine {
         return builder.build();
     }
 
-    public Data wordSubmitted(Data data, User user, String word) {
+    public static class Result {
+        private final Data data;
+        private final WordStatus status;
+
+        public Data getData() {
+            return data;
+        }
+
+        public WordStatus getStatus() {
+            return status;
+        }
+
+        public Result(Data data, WordStatus status) {
+            super();
+            this.data = data;
+            this.status = status;
+        }
+    }
+
+    public static enum WordStatus {
+        NOT_LONG_ENOUGH, NOT_IN_DICTIONARY, NOT_ANAGRAM, OK;
+    }
+
+    public Result wordSubmitted(Data data, User user, String word) {
         if (word.length() < user.getMinimumChars())
-            return data;
+            return new Result(data, WordStatus.NOT_LONG_ENOUGH);
         if (!dictionary.isValid(word))
-            return data;
+            return new Result(data, WordStatus.NOT_IN_DICTIONARY);
         Iterable<Word> result = createWordFrom(getCurrentWords(data), word);
         if (result == null)
-            return data;
+            return new Result(data, WordStatus.NOT_ANAGRAM);
         else {
             ImmutableListMultimap<User, Word> map = addWord(data, user, word,
                     Lists.newArrayList(result));
-            return new Data(map);
+            return new Result(new Data(map), WordStatus.OK);
         }
     }
 
     private ImmutableListMultimap<User, Word> addWord(Data data, User user,
             String word, List<Word> parts) {
         Word w = new Word(user, word, parts);
-        com.google.common.collect.ImmutableListMultimap.Builder<User, Word> m = ImmutableListMultimap
-                .builder();
-        for (User u : data.getMap().keys()) {
-            ArrayList<Word> list = new ArrayList<Word>(data.getMap().get(u));
-            for (Word part : parts)
-                if (part.getOwner().equals(u))
-                    list.remove(part);
-            m.putAll(u, list);
+        ListMultimap<User, Word> map = ArrayListMultimap.create(data.getMap());
+        for (Word part : parts) {
+            map.remove(part.getOwner(), part);
         }
-        m.put(user, w);
-        return m.build();
+        map.put(user, w);
+        return ImmutableListMultimap.copyOf(map);
     }
 
-    private void fireMessage(String message) {
+    public Data turnLetter(Data data, User board) {
+        log.info("turning letter");
+        List<String> used = getUsedLetters(data);
+        List<String> available = Lists.newArrayList();
+        available.addAll(letters.getLetters());
+        for (String ch : used)
+            available.remove(ch);
+        int i = new Random().nextInt(available.size());
+        String nextLetter = available.get(i);
 
+        // add nextLetter to the board user
+        ListMultimap<User, Word> map = ArrayListMultimap.create(data.getMap());
+        map.put(board, new Word(board, nextLetter));
+        log.info("added letter " + nextLetter + " to board");
+        return new Data(map);
+    }
+
+    private List<String> getUsedLetters(Data data) {
+        List<String> list = Lists.newArrayList();
+        for (User user : data.getMap().keySet())
+            for (Word word : data.getMap().get(user)) {
+                String s = word.getWord();
+                for (Character ch : s.toCharArray()) {
+                    list.add(ch + "");
+                }
+            }
+        return list;
     }
 }

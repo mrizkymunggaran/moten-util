@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Word {
+
     @Override
     public String toString() {
         return word;
