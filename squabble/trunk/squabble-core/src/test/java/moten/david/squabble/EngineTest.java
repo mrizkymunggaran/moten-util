@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableList;
@@ -53,6 +54,30 @@ public class EngineTest {
         Word word = new Word(null, "par", null);
         result = Engine.createWordFrom(ImmutableList.of(word), "par");
         assertEquals(null, result);
+
+    }
+
+    @Test
+    public void testHistory() {
+        {
+            User user = new User("someone", 3);
+            Word vote = new Word(user, "vote");
+            Word veto = new Word(user, "veto", Lists.newArrayList(vote));
+            Word s = new Word(user, "s");
+            Assert.assertEquals(null, Engine.createWordFrom(Lists.newArrayList(
+                    veto, s), "votes"));
+            Assert.assertEquals(Sets.newHashSet(vote, s), Sets
+                    .newHashSet(Engine.createWordFrom(Lists.newArrayList(vote,
+                            s), "votes")));
+        }
+        {
+            User user = new User("someone", 3);
+            Word veto = new Word(user, "veto");
+            Word s = new Word(user, "s");
+            Assert.assertEquals(Sets.newHashSet(veto, s), Sets
+                    .newHashSet(Engine.createWordFrom(Lists.newArrayList(veto,
+                            s), "votes")));
+        }
     }
 
     private Iterable<Word> listCharacters(String s) {

@@ -88,7 +88,7 @@ public class Engine {
 
     private static boolean matchInHistory(Iterable<Word> words, String candidate) {
         for (Word word : words) {
-            if (word.getWord().equals(candidate))
+            if (matches(word.getWord(), candidate))
                 return true;
             if (word.getMadeFrom() != null)
                 for (Word wd : word.getMadeFrom())
@@ -145,7 +145,7 @@ public class Engine {
     }
 
     public static enum WordStatus {
-        NOT_LONG_ENOUGH, NOT_IN_DICTIONARY, NOT_ANAGRAM, OK;
+        NOT_LONG_ENOUGH, NOT_IN_DICTIONARY, NOT_ANAGRAM_OR_ROOT_IN_HISTORY, OK;
     }
 
     public Result wordSubmitted(Data data, User user, String word) {
@@ -155,7 +155,7 @@ public class Engine {
             return new Result(data, WordStatus.NOT_IN_DICTIONARY);
         Iterable<Word> result = createWordFrom(getCurrentWords(data), word);
         if (result == null)
-            return new Result(data, WordStatus.NOT_ANAGRAM);
+            return new Result(data, WordStatus.NOT_ANAGRAM_OR_ROOT_IN_HISTORY);
         else {
             ImmutableListMultimap<User, Word> map = addWord(data, user, word,
                     Lists.newArrayList(result));
