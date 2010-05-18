@@ -3,13 +3,29 @@ package moten.david.squabble;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ListMultimap;
 
+/**
+ * Wraps the list of words per user.
+ * 
+ * @author dave
+ * 
+ */
 public class Data {
     private final ImmutableListMultimap<User, Word> map;
 
+    /**
+     * Constructor.
+     * 
+     * @param map
+     */
     public Data(ListMultimap<User, Word> map) {
         this.map = ImmutableListMultimap.copyOf(map);
     }
 
+    /**
+     * Returns the map of users to word lists.
+     * 
+     * @return
+     */
     public ImmutableListMultimap<User, Word> getMap() {
         return map;
     }
