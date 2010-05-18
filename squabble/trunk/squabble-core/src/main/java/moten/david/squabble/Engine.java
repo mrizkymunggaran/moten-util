@@ -14,7 +14,9 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.google.common.collect.ImmutableList.Builder;
+import com.google.common.collect.Sets.SetView;
 
 public class Engine {
 
@@ -31,10 +33,19 @@ public class Engine {
     public static Iterable<Word> createWordFrom(Iterable<Word> list, String word) {
         List<Word> empty = ImmutableList.of();
         List<Word> intersect = Lists.newArrayList();
-        for (Word w : list)
-            if (toList(word).containsAll(toList(w.getWord())))
+        Set<String> allLetters = Sets.newHashSet();
+        for (Word w : list) {
+            if (toList(word).containsAll(toList(w.getWord()))) {
                 intersect.add(w);
-        return createWordFrom(empty, intersect, word);
+                allLetters.addAll(toList(w.getWord()));
+            }
+        }
+        Set<String> wordLetters = Sets.newHashSet(toList(word));
+        SetView<String> complement = Sets.difference(wordLetters, allLetters);
+        if (complement.size() > 0)
+            return null;
+        else
+            return createWordFrom(empty, intersect, word);
     }
 
     private static List<String> toList(String s) {
