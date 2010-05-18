@@ -58,7 +58,7 @@ public class EngineTest {
     }
 
     @Test
-    public void testHistory() {
+    public void testThatWordSubmittedIsRejectedIfInHistory() {
         {
             User user = new User("someone", 3);
             Word vote = new Word(user, "vote");
