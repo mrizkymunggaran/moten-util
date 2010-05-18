@@ -1,7 +1,7 @@
-package moten.david.imatch.memory;
+package moten.david.matchstack.memory;
 
-import moten.david.imatch.Identifier;
-import moten.david.imatch.IdentifierType;
+import moten.david.matchstack.Identifier;
+import moten.david.matchstack.IdentifierType;
 
 public class MyIdentifier implements Identifier {
 

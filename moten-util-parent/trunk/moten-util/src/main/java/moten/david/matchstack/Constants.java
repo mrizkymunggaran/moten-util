@@ -1,4 +1,4 @@
-package moten.david.imatch;
+package moten.david.matchstack;
 
 import moten.david.util.functional.Function;
 

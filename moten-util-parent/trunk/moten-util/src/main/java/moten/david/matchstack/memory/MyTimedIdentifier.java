@@ -1,6 +1,6 @@
-package moten.david.imatch.memory;
+package moten.david.matchstack.memory;
 
-import moten.david.imatch.TimedIdentifier;
+import moten.david.matchstack.TimedIdentifier;
 
 public class MyTimedIdentifier implements TimedIdentifier {
 

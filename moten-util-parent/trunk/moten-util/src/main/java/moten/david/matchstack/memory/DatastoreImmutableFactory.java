@@ -1,8 +1,8 @@
-package moten.david.imatch.memory;
+package moten.david.matchstack.memory;
 
 import java.util.Set;
 
-import moten.david.imatch.TimedIdentifier;
+import moten.david.matchstack.TimedIdentifier;
 
 public interface DatastoreImmutableFactory {
     DatastoreImmutable create(Set<Set<TimedIdentifier>> sets);

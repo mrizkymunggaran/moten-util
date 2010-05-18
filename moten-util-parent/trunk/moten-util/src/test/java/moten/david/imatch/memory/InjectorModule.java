@@ -3,8 +3,12 @@ package moten.david.imatch.memory;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import moten.david.imatch.IdentifierTypeStrengthComparator;
-import moten.david.imatch.IdentifierTypeStrictComparator;
+import moten.david.matchstack.IdentifierTypeStrengthComparator;
+import moten.david.matchstack.IdentifierTypeStrictComparator;
+import moten.david.matchstack.memory.DatastoreImmutable;
+import moten.david.matchstack.memory.DatastoreImmutableFactory;
+import moten.david.matchstack.memory.MyIdentifierTypeStrengthComparator;
+import moten.david.matchstack.memory.MyIdentifierTypeStrictComparator;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;

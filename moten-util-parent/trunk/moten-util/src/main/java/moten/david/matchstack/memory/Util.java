@@ -1,10 +1,10 @@
-package moten.david.imatch.memory;
+package moten.david.matchstack.memory;
 
 import java.util.Set;
 
-import moten.david.imatch.Identifier;
-import moten.david.imatch.IdentifierType;
-import moten.david.imatch.TimedIdentifier;
+import moten.david.matchstack.Identifier;
+import moten.david.matchstack.IdentifierType;
+import moten.david.matchstack.TimedIdentifier;
 import moten.david.util.functional.Function;
 import moten.david.util.functional.Functional;
 

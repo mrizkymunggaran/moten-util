@@ -1,17 +1,17 @@
-package moten.david.imatch.memory;
+package moten.david.matchstack.memory;
 
-import static moten.david.imatch.memory.Util.ids;
-import static moten.david.imatch.memory.Util.types;
+import static moten.david.matchstack.memory.Util.ids;
+import static moten.david.matchstack.memory.Util.types;
 
 import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Logger;
 
-import moten.david.imatch.Identifier;
-import moten.david.imatch.IdentifierSetStrictComparator;
-import moten.david.imatch.IdentifierType;
-import moten.david.imatch.TimedIdentifier;
+import moten.david.matchstack.Identifier;
+import moten.david.matchstack.IdentifierSetStrictComparator;
+import moten.david.matchstack.IdentifierType;
+import moten.david.matchstack.TimedIdentifier;
 import moten.david.util.functional.Fold;
 import moten.david.util.functional.Function;
 import moten.david.util.functional.Functional;
