@@ -19,6 +19,7 @@ public class Service {
     private final Engine engine;
     private Data data;
     private final User board = new User("board", 1);
+    private static final boolean TURN_ON_OK_WORD = true;
 
     public Service(Engine engine) {
         this.engine = engine;
@@ -32,7 +33,7 @@ public class Service {
                 new User(user, minimumChars), word);
         log.info(word + " status:" + result.getStatus());
         data = result.getData();
-        if (result.getStatus().equals(WordStatus.OK))
+        if (TURN_ON_OK_WORD && result.getStatus().equals(WordStatus.OK))
             turnLetter();
     }
 
