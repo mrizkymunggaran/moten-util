@@ -93,20 +93,42 @@ public class Engine {
         return list;
     }
 
+    /**
+     * Wrapper class for result of createWordFrom.
+     * 
+     * @author dxm
+     */
     public static class CreateResult {
         private final Iterable<Word> words;
         private final WordStatus status;
 
+        /**
+         * Constructor.
+         * 
+         * @param words
+         * @param status
+         */
         public CreateResult(Iterable<Word> words, WordStatus status) {
             super();
             this.words = words;
             this.status = status;
         }
 
+        /**
+         * Returns the words that make up the requested word. If status is not
+         * WordStatus.OK then returns null.
+         * 
+         * @return
+         */
         public Iterable<Word> getWords() {
             return words;
         }
 
+        /**
+         * Returns the status of the words returned.
+         * 
+         * @return
+         */
         public WordStatus getStatus() {
             return status;
         }
@@ -249,10 +271,23 @@ public class Engine {
         }
     }
 
+    /**
+     * Status for the word submitted.
+     * 
+     * @author dxm
+     */
     public static enum WordStatus {
         NOT_LONG_ENOUGH, NOT_IN_DICTIONARY, NOT_ANAGRAM, OK, ROOT_IN_HISTORY;
     }
 
+    /**
+     * Returns the new Data after a word is submitted by a user.
+     * 
+     * @param data
+     * @param user
+     * @param word
+     * @return
+     */
     public Result wordSubmitted(Data data, User user, String word) {
         if (word.length() < user.getMinimumChars())
             return new Result(data, WordStatus.NOT_LONG_ENOUGH);
@@ -268,6 +303,15 @@ public class Engine {
         }
     }
 
+    /**
+     * Add a word to user and return the new Data (Data is immutable).
+     * 
+     * @param data
+     * @param user
+     * @param word
+     * @param parts
+     * @return
+     */
     private ImmutableListMultimap<User, Word> addWord(Data data, User user,
             String word, List<Word> parts) {
         Word w = new Word(user, word, parts);
@@ -296,6 +340,12 @@ public class Engine {
         return new Data(map);
     }
 
+    /**
+     * Returns the list of letters currently used across all user words.
+     * 
+     * @param data
+     * @return
+     */
     private List<String> getUsedLetters(Data data) {
         List<String> list = Lists.newArrayList();
         for (User user : data.getMap().keySet())
