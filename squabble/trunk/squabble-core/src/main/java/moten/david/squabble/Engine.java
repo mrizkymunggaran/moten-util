@@ -23,7 +23,6 @@ import com.google.common.collect.Sets.SetView;
  * Data objects.
  * 
  * @author dave
- * 
  */
 public class Engine {
 
@@ -58,7 +57,7 @@ public class Engine {
      * @param word
      * @return
      */
-    public static Iterable<Word> createWordFrom(Iterable<Word> list, String word) {
+    public static CreateResult createWordFrom(Iterable<Word> list, String word) {
         List<Word> empty = ImmutableList.of();
         // perform a couple of optimizations
 
@@ -76,7 +75,7 @@ public class Engine {
         Set<String> wordLetters = Sets.newHashSet(toList(word));
         SetView<String> complement = Sets.difference(wordLetters, allLetters);
         if (complement.size() > 0)
-            return null;
+            return new CreateResult(null, WordStatus.NOT_ANAGRAM);
         else
             return createWordFrom(empty, intersect, word);
     }
@@ -94,6 +93,25 @@ public class Engine {
         return list;
     }
 
+    public static class CreateResult {
+        private final Iterable<Word> words;
+        private final WordStatus status;
+
+        public CreateResult(Iterable<Word> words, WordStatus status) {
+            super();
+            this.words = words;
+            this.status = status;
+        }
+
+        public Iterable<Word> getWords() {
+            return words;
+        }
+
+        public WordStatus getStatus() {
+            return status;
+        }
+    }
+
     /**
      * Returns null if the word cannot be made from a sublist of the lists used
      * and unused, otherwise returns the list of words from used and unused that
@@ -104,18 +122,18 @@ public class Engine {
      * @param word
      * @return
      */
-    private static Iterable<Word> createWordFrom(Iterable<Word> used,
+    private static CreateResult createWordFrom(Iterable<Word> used,
             Iterable<Word> unused, final String word) {
         String usedJoined = sort(concatenate(used));
         if (usedJoined.length() > word.length())
-            return null;
+            return new CreateResult(null, WordStatus.NOT_ANAGRAM);
         else if (usedJoined.equals(sort(word))) {
             if (matchInHistory(used, word))
-                return null;
+                return new CreateResult(null, WordStatus.ROOT_IN_HISTORY);
             else
-                return used;
+                return new CreateResult(used, WordStatus.OK);
         } else if (!unused.iterator().hasNext())
-            return null;
+            return new CreateResult(used, WordStatus.NOT_ANAGRAM);
         else {
             for (int i = 0; i < Iterables.size(unused); i++) {
                 ArrayList<Word> a = Lists.newArrayList(used);
@@ -123,15 +141,15 @@ public class Engine {
                 Word part = b.get(i);
                 a.add(part);
                 b.remove(i);
-                Iterable<Word> result = createWordFrom(a, b, word);
-                if (result != null)
+                CreateResult result = createWordFrom(a, b, word);
+                if (result.getStatus().equals(WordStatus.OK))
                     return result;
                 a.remove(part);
                 result = createWordFrom(a, b, word);
-                if (result != null)
+                if (result.getStatus().equals(WordStatus.OK))
                     return result;
             }
-            return null;
+            return new CreateResult(null, WordStatus.NOT_ANAGRAM);
         }
     }
 
@@ -211,7 +229,6 @@ public class Engine {
      * Holds the result of a user suggesting a word.
      * 
      * @author dave
-     * 
      */
     public static class Result {
         private final Data data;
@@ -233,7 +250,7 @@ public class Engine {
     }
 
     public static enum WordStatus {
-        NOT_LONG_ENOUGH, NOT_IN_DICTIONARY, NOT_ANAGRAM_OR_ROOT_IN_HISTORY, OK;
+        NOT_LONG_ENOUGH, NOT_IN_DICTIONARY, NOT_ANAGRAM, OK, ROOT_IN_HISTORY;
     }
 
     public Result wordSubmitted(Data data, User user, String word) {
@@ -241,12 +258,12 @@ public class Engine {
             return new Result(data, WordStatus.NOT_LONG_ENOUGH);
         if (!dictionary.isValid(word))
             return new Result(data, WordStatus.NOT_IN_DICTIONARY);
-        Iterable<Word> result = createWordFrom(getCurrentWords(data), word);
-        if (result == null)
-            return new Result(data, WordStatus.NOT_ANAGRAM_OR_ROOT_IN_HISTORY);
+        CreateResult result = createWordFrom(getCurrentWords(data), word);
+        if (!result.getStatus().equals(WordStatus.OK))
+            return new Result(data, result.getStatus());
         else {
             ImmutableListMultimap<User, Word> map = addWord(data, user, word,
-                    Lists.newArrayList(result));
+                    Lists.newArrayList(result.getWords()));
             return new Result(new Data(map), WordStatus.OK);
         }
     }
