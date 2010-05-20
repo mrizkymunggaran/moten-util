@@ -1,5 +1,4 @@
 package moten.david.matchstack.scala
-import moten.david.matchstack._
 
 class DataStore {
       
@@ -34,7 +33,7 @@ class DataStore {
      
      def pm(z: Set[Set[TimedIdentifier]], r:Set[TimedIdentifier], x:Set[TimedIdentifier]) = {
        if (z.size==0) z
-       else z
+       else  z
      }
 }
 
