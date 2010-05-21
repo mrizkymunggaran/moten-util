@@ -38,8 +38,8 @@
 			<p>Squabble is a game of anagrams. The aim is to have the most number
 				of words at the end of the game.</p>
 			<p>To submit a word, type it into the command window and hit submit
-				or press enter. If you start the command with a period '.' the line
-				you type will come through in the chat window.</p>
+				or press enter. If you start the command with a space the line
+				you type will be a chat line.</p>
 			<p>
 				You
 				<i>cannot</i>

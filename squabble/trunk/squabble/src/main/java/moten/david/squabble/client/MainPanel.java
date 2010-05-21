@@ -144,7 +144,7 @@ public class MainPanel extends Composite {
 
     @UiHandler("submit")
     void handleClick(ClickEvent e) {
-        if (command.getText().startsWith("."))
+        if (command.getText().startsWith(" "))
             applicationService.submitMessage(name.getText(), command.getText()
                     .substring(1), submitMessageCallback);
         else
