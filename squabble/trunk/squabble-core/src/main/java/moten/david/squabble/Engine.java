@@ -37,6 +37,8 @@ public class Engine {
      */
     private final Letters letters;
 
+    private final Random random = new Random(System.currentTimeMillis());
+
     /**
      * Constructor.
      * 
@@ -330,7 +332,7 @@ public class Engine {
         available.addAll(letters.getLetters());
         for (String ch : used)
             available.remove(ch);
-        int i = new Random().nextInt(available.size());
+        int i = random.nextInt(available.size());
         String nextLetter = available.get(i);
 
         // add nextLetter to the board user
