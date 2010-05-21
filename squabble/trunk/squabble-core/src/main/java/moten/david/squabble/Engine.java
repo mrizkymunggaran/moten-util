@@ -204,7 +204,7 @@ public class Engine {
      */
     private static boolean matches(String w, String candidate) {
         Set<String> set = ImmutableSet.of(w, w + "r", w + "s", w + "er", w
-                + "es", w + "d", w + "ed", w + "ing", "re" + w);
+                + "es", w + "d", w + "ed", w + "ing", w + "n", "re" + w);
         return set.contains(candidate);
     }
 
