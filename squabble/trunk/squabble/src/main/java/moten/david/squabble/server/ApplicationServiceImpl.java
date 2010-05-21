@@ -3,6 +3,11 @@ package moten.david.squabble.server;
 import java.util.ArrayList;
 import java.util.List;
 
+import moten.david.squabble.Data;
+import moten.david.squabble.DictionaryAlwaysValid;
+import moten.david.squabble.Engine;
+import moten.david.squabble.Letters;
+import moten.david.squabble.Service;
 import moten.david.squabble.client.ApplicationService;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
@@ -12,7 +17,10 @@ public class ApplicationServiceImpl extends RemoteServiceServlet implements
 
     private static final long serialVersionUID = 8564374631589515374L;
 
-    private static final List<String> chat = new ArrayList<String>();
+    private final List<String> chat = new ArrayList<String>();
+
+    private final Service service = new Service(new Engine(
+            new DictionaryAlwaysValid(), new Letters("eng")));
 
     @Override
     public String getChat() {
@@ -28,16 +36,19 @@ public class ApplicationServiceImpl extends RemoteServiceServlet implements
 
     @Override
     public String getGame() {
-        // TODO Auto-generated method stub
-        return "Franco: some words here";
+        Data data = service.getData();
+        return data.toString();
     }
 
     @Override
     public synchronized String submitWord(String user, String words) {
         String[] items = words.split(" ");
         String result = "";
-        for (String word : items)
+        for (String word : items) {
             result = submitChatLine(user + " submitted " + word);
+            service.addWord(user, word);
+        }
+        service.turnLetter();
         return result;
     }
 

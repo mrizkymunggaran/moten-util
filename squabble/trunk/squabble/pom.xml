@@ -37,7 +37,11 @@
 			<version>${gwt.version}</version>
 			<scope>provided</scope>
 		</dependency>
-
+		<dependency>
+			<groupId>moten.david.squabble</groupId>
+			<artifactId>squabble-core</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
 		<!-- test -->
 		<dependency>
 			<groupId>junit</groupId>

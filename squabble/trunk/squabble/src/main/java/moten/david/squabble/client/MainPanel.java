@@ -8,6 +8,7 @@ import com.google.gwt.event.dom.client.KeyPressHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
@@ -41,6 +42,7 @@ public class MainPanel extends Composite {
             .create(ApplicationService.class);
     private final AsyncCallback<String> submitMessageCallback;
     private final AsyncCallback<String> getChatCallback;
+    private final AsyncCallback<String> getGameCallback;
 
     private final AsyncCallback<String> submitWordCallback;
 
@@ -56,6 +58,7 @@ public class MainPanel extends Composite {
         submitMessageCallback = createSubmitMessageCallback();
         getChatCallback = createGetChatCallback();
         submitWordCallback = createSubmitWordCallback();
+        getGameCallback = createGetGameCallback();
         command.addKeyPressHandler(new KeyPressHandler() {
             @Override
             public void onKeyPress(KeyPressEvent event) {
@@ -63,6 +66,31 @@ public class MainPanel extends Composite {
                     submit.click();
             }
         });
+        Timer timer = new Timer() {
+
+            @Override
+            public void run() {
+                applicationService.getGame(getGameCallback);
+            }
+        };
+        timer.scheduleRepeating(1000);
+        timer.run();
+    }
+
+    private AsyncCallback<String> createGetGameCallback() {
+        return new AsyncCallback<String>() {
+
+            @Override
+            public void onFailure(Throwable t) {
+                reportError(t);
+            }
+
+            @Override
+            public void onSuccess(String gameLines) {
+                game.setText(gameLines);
+            }
+        };
+
     }
 
     private AsyncCallback<String> createSubmitWordCallback() {
