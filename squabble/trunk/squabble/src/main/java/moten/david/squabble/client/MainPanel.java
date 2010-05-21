@@ -2,6 +2,9 @@ package moten.david.squabble.client;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.event.dom.client.KeyPressEvent;
+import com.google.gwt.event.dom.client.KeyPressHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -48,11 +51,18 @@ public class MainPanel extends Composite {
         name.setText("Franco");
         game.setText("Board: a b g c\nDave: bard garam\nJane: cheerio harass");
         chat
-                .setText("Jane submitted word ARCHER but it was rejected\nDave: shame Jane!");
+                .setText("Welcome to Squabble! Enter a word in the command box whenever you want.");
         command.setText("");
         submitMessageCallback = createSubmitMessageCallback();
         getChatCallback = createGetChatCallback();
         submitWordCallback = createSubmitWordCallback();
+        command.addKeyPressHandler(new KeyPressHandler() {
+            @Override
+            public void onKeyPress(KeyPressEvent event) {
+                if (KeyCodes.KEY_ENTER == event.getNativeEvent().getKeyCode())
+                    submit.click();
+            }
+        });
     }
 
     private AsyncCallback<String> createSubmitWordCallback() {
@@ -64,6 +74,8 @@ public class MainPanel extends Composite {
 
             public void onSuccess(String chatLines) {
                 chat.setText(chatLines);
+                command.setText("");
+                command.setFocus(true);
             }
         };
     }

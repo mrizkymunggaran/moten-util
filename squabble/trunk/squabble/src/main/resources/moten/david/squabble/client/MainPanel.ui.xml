@@ -7,11 +7,10 @@
 		.game { width:500px;
 		height:200px; }
 		.chat { height:300px; width:500px; }
-		.command {
-		width:400px; height:2em;}
 		.name {width:500px; }
 		.leftLabel { width:100px; }
-		.submit { height:2em; width:100px;}
+		.command { width:400px; height:3em; }
+		.submit { width:100px; height:3em;}
 	</ui:style>
 	<g:HorizontalPanel styleName="{style.main}">
 		<g:VerticalPanel>
@@ -31,7 +30,7 @@
 			<g:HorizontalPanel>
 				<g:Label styleName="{style.leftLabel}">Command:</g:Label>
 				<g:TextArea ui:field="command" styleName="{style.command}"></g:TextArea>
-				<g:Button ui:field="submit" styleName="{style.submit}">Submit</g:Button>
+				<g:Button ui:field="submit" addStyleNames="{style.submit}">Submit</g:Button>
 			</g:HorizontalPanel>
 		</g:VerticalPanel>
 		<g:HTMLPanel styleName="{style.help}">
@@ -41,7 +40,12 @@
 			<p>To submit a word, type it into the command window and hit submit
 				or press enter. If you start the command with a period '.' the line
 				you type will come through in the chat window.</p>
-			<p>You <i>cannot</i> make a word from an existing word (or any word in that word's history) using:</p>
+			<p>
+				You
+				<i>cannot</i>
+				make a word from an existing word (or any word in that word's
+				history) using:
+			</p>
 			<ul>
 				<li>Suffixes r, s, er, es, d, ed, ing, or n </li>
 				<li>Prefix re</li>
