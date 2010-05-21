@@ -1,0 +1,50 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+	xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+	<ui:style>
+		.main { margin-left:50px; margin-top:50px; }
+		.help {
+		width:300px; margin-left:20px;}
+		.game { width:500px;
+		height:200px; }
+		.chat { height:300px; width:500px; }
+		.command {
+		width:400px;}
+		.name {width:400px; }
+		.leftLabel { width:100px; }
+	</ui:style>
+	<g:HorizontalPanel styleName="{style.main}">
+		<g:VerticalPanel>
+			<g:HorizontalPanel>
+				<g:Label styleName="{style.leftLabel}">Name:</g:Label>
+				<g:TextBox ui:field="name" styleName="{style.name}"></g:TextBox>
+			</g:HorizontalPanel>
+			<g:HorizontalPanel>
+				<g:Label styleName="{style.leftLabel}">Game:</g:Label>
+				<g:TextArea ui:field="game" styleName="{style.game}"></g:TextArea>
+			</g:HorizontalPanel>
+			<g:HorizontalPanel>
+				<g:Label styleName="{style.leftLabel}">Chat:</g:Label>
+				<g:TextArea ui:field="chat" styleName="{style.chat}"
+					readOnly="true"></g:TextArea>
+			</g:HorizontalPanel>
+			<g:HorizontalPanel>
+				<g:Label styleName="{style.leftLabel}">Command:</g:Label>
+				<g:TextBox ui:field="command" styleName="{style.command}"></g:TextBox>
+				<g:Button ui:field="submit">Submit</g:Button>
+			</g:HorizontalPanel>
+		</g:VerticalPanel>
+		<g:HTMLPanel styleName="{style.help}">
+			<h3>Squabble</h3>
+			<p>Squabble is a game of anagrams. The aim is to have the most number
+				of words at the end of the game.</p>
+			<p>To submit a word, type it into the command window and hit submit
+				or press enter. If you start the command with a period '.' the line
+				you type will come through in the chat window.</p>
+			<p>You <i>cannot</i> make a word from an existing word (or any word in that word's history) using:</p>
+			<ul>
+				<li>Suffixes r, s, er, es, d, ed, ing, or n </li>
+				<li>Prefixes re</li>
+			</ul>
+		</g:HTMLPanel>
+	</g:HorizontalPanel>
+</ui:UiBinder>
