@@ -17,8 +17,8 @@
 		<gwt.version>2.0.3</gwt.version>
 
 		<!--  tell the compiler we can use 1.5 -->
-		<maven.compiler.source>1.5</maven.compiler.source>
-		<maven.compiler.target>1.5</maven.compiler.target>
+		<maven.compiler.source>1.6</maven.compiler.source>
+		<maven.compiler.target>1.6</maven.compiler.target>
 
 	</properties>
 
@@ -59,8 +59,8 @@
 					<execution>
 						<goals>
 							<goal>compile</goal>
-							<goal>generateAsync</goal>
-							<goal>test</goal>
+							<!-- <goal>generateAsync</goal> -->
+							<!-- <goal>test</goal> -->
 						</goals>
 					</execution>
 				</executions>

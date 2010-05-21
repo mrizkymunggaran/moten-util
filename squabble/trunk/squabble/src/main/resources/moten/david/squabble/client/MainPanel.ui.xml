@@ -8,9 +8,10 @@
 		height:200px; }
 		.chat { height:300px; width:500px; }
 		.command {
-		width:400px;}
-		.name {width:400px; }
+		width:400px; height:2em;}
+		.name {width:500px; }
 		.leftLabel { width:100px; }
+		.submit { height:2em; width:100px;}
 	</ui:style>
 	<g:HorizontalPanel styleName="{style.main}">
 		<g:VerticalPanel>
@@ -29,8 +30,8 @@
 			</g:HorizontalPanel>
 			<g:HorizontalPanel>
 				<g:Label styleName="{style.leftLabel}">Command:</g:Label>
-				<g:TextBox ui:field="command" styleName="{style.command}"></g:TextBox>
-				<g:Button ui:field="submit">Submit</g:Button>
+				<g:TextArea ui:field="command" styleName="{style.command}"></g:TextArea>
+				<g:Button ui:field="submit" styleName="{style.submit}">Submit</g:Button>
 			</g:HorizontalPanel>
 		</g:VerticalPanel>
 		<g:HTMLPanel styleName="{style.help}">
@@ -43,8 +44,9 @@
 			<p>You <i>cannot</i> make a word from an existing word (or any word in that word's history) using:</p>
 			<ul>
 				<li>Suffixes r, s, er, es, d, ed, ing, or n </li>
-				<li>Prefixes re</li>
+				<li>Prefix re</li>
 			</ul>
+			<p>All other words are fair game!</p>
 		</g:HTMLPanel>
 	</g:HorizontalPanel>
 </ui:UiBinder>
