@@ -1,0 +1,38 @@
+.main {
+	margin-left: 50px;
+	margin-top: 50px;
+}
+
+.help {
+	width: 300px;
+	margin-left: 20px;
+}
+
+.game {
+	width: 500px;
+	height: 200px;
+}
+
+.chat {
+	height: 170px;
+	width: 500px;
+	background-color: aqua;
+}
+
+.name {
+	width: 500px;
+}
+
+.leftLabel {
+	width: 100px;
+}
+
+.command {
+	width: 400px;
+	height: 4em;
+}
+
+.submit {
+	width: 100px;
+	height: 2em;
+}

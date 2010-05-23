@@ -113,7 +113,7 @@ public class MainPanel extends Composite {
                         turnLetter.setEnabled(true);
                     }
                 };
-                timer.schedule(2000);
+                timer.schedule(100);
             }
         };
     }

@@ -1,19 +1,6 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
 	xmlns:g='urn:import:com.google.gwt.user.client.ui'>
-	<ui:style>
-		.main { margin-left:50px; margin-top:50px; }
-		.help {
-		width:300px; margin-left:20px;}
-		.game { width:500px;
-		height:200px; }
-		.chat { height:170px; width:500px; }
-		.name {width:500px; }
-		.leftLabel {
-		width:100px; }
-		.command { width:400px; height:4em; }
-		.submit {
-		width:100px;height:2em;}
-	</ui:style>
+	<ui:style src="style.css" />
 	<g:HorizontalPanel styleName="{style.main}">
 		<g:VerticalPanel>
 			<g:HorizontalPanel>
@@ -46,10 +33,21 @@
 			<h3>Squabble</h3>
 			<p>Squabble is a game of anagrams. The aim is to have the most number
 				of words at the end of the game.</p>
-			<p>To submit a word, type it into the command window and hit submit
-				or press enter. If you start the command with a space the line
-				you
-				type will be a chat line.</p>
+			<p>Commands (click in Commands box):</p>
+			<table style="border:thin">
+				<tr>
+					<td>Enter</td>
+					<td>Turn a letter</td>
+				</tr>
+				<tr>
+					<td>Word(s) + Enter</td>
+					<td>Submit word(s)</td>
+				</tr>
+				<tr>
+					<td>Space + typing + Enter</td>
+					<td>Chat</td>
+				</tr>
+			</table>
 			<p>
 				You
 				<i>cannot</i>
