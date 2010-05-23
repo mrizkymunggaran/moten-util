@@ -8,15 +8,17 @@
 		height:200px; }
 		.chat { height:300px; width:500px; }
 		.name {width:500px; }
-		.leftLabel { width:100px; }
-		.command { width:400px; height:3em; }
-		.submit { width:100px; height:3em;}
+		.leftLabel {
+		width:100px; }
+		.command { width:400px; height:4em; }
+		.submit {
+		width:100px;height:2em;}
 	</ui:style>
 	<g:HorizontalPanel styleName="{style.main}">
 		<g:VerticalPanel>
 			<g:HorizontalPanel>
 				<g:Label styleName="{style.leftLabel}">Name:</g:Label>
-				<g:TextBox ui:field="name" styleName="{style.name}"></g:TextBox>
+				<g:TextBox ui:field="name" styleName="{style.name}">Franco</g:TextBox>
 			</g:HorizontalPanel>
 			<g:HorizontalPanel>
 				<g:Label styleName="{style.leftLabel}">Game:</g:Label>
@@ -25,12 +27,17 @@
 			<g:HorizontalPanel>
 				<g:Label styleName="{style.leftLabel}">Chat:</g:Label>
 				<g:TextArea ui:field="chat" styleName="{style.chat}"
-					readOnly="true"></g:TextArea>
+					readOnly="true">Welcome to Squabble!</g:TextArea>
 			</g:HorizontalPanel>
 			<g:HorizontalPanel>
 				<g:Label styleName="{style.leftLabel}">Command:</g:Label>
 				<g:TextArea ui:field="command" styleName="{style.command}"></g:TextArea>
-				<g:Button ui:field="submit" addStyleNames="{style.submit}">Submit</g:Button>
+				<g:VerticalPanel>
+					<g:Button ui:field="submit" addStyleNames="{style.submit}">Submit
+					</g:Button>
+					<g:Button ui:field="turnLetter" addStyleNames="{style.submit}">Turn
+					</g:Button>
+				</g:VerticalPanel>
 			</g:HorizontalPanel>
 		</g:VerticalPanel>
 		<g:HTMLPanel styleName="{style.help}">
@@ -39,7 +46,8 @@
 				of words at the end of the game.</p>
 			<p>To submit a word, type it into the command window and hit submit
 				or press enter. If you start the command with a space the line
-				you type will be a chat line.</p>
+				you
+				type will be a chat line.</p>
 			<p>
 				You
 				<i>cannot</i>

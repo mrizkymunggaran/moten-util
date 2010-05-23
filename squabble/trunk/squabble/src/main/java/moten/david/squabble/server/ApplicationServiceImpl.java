@@ -8,6 +8,7 @@ import moten.david.squabble.DictionaryAlwaysValid;
 import moten.david.squabble.Engine;
 import moten.david.squabble.Letters;
 import moten.david.squabble.Service;
+import moten.david.squabble.Engine.WordStatus;
 import moten.david.squabble.client.ApplicationService;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
@@ -19,8 +20,14 @@ public class ApplicationServiceImpl extends RemoteServiceServlet implements
 
     private final List<String> chat = new ArrayList<String>();
 
-    private final Service service = new Service(new Engine(
-            new DictionaryAlwaysValid(), new Letters("eng")));
+    private final Service service;
+
+    public ApplicationServiceImpl() {
+        service = new Service(new Engine(new DictionaryAlwaysValid(),
+                new Letters("eng")));
+        service.turnLetter();
+        service.turnLetter();
+    }
 
     @Override
     public String getChat() {
@@ -41,15 +48,29 @@ public class ApplicationServiceImpl extends RemoteServiceServlet implements
     }
 
     @Override
+    public void turnLetter(String user) {
+        service.turnLetter();
+        submitChatLine(user + " turned a letter");
+    }
+
+    @Override
     public synchronized String submitWord(String user, String words) {
         String[] items = words.split(" ");
-        String result = "";
+        boolean success = false;
         for (String word : items) {
-            result = submitChatLine(user + " submitted " + word);
-            service.addWord(user, word);
+            WordStatus result = service.addWord(user, word);
+            String message = user + " submitted " + word;
+            if (result.equals(WordStatus.OK)) {
+                success = true;
+                message += " - ACCEPTED";
+            } else
+                message += " - REJECTED - " + result;
+            submitChatLine(message);
         }
-        service.turnLetter();
-        return result;
+        if (success)
+            return WordStatus.OK.toString();
+        else
+            return null;
     }
 
     private String submitChatLine(String message) {

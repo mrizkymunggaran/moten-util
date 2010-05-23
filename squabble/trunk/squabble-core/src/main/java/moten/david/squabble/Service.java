@@ -19,7 +19,7 @@ public class Service {
     private final Engine engine;
     private Data data;
     private final User board = new User("board", 1);
-    private static final boolean TURN_ON_OK_WORD = true;
+    private static final boolean TURN_ON_OK_WORD = false;
 
     public Service(Engine engine) {
         this.engine = engine;
@@ -28,13 +28,14 @@ public class Service {
         data = engine.turnLetter(data, board);
     }
 
-    public void addWord(String user, String word) {
+    public WordStatus addWord(String user, String word) {
         Result result = engine.wordSubmitted(data,
                 new User(user, minimumChars), word);
         log.info(word + " status:" + result.getStatus());
         data = result.getData();
         if (TURN_ON_OK_WORD && result.getStatus().equals(WordStatus.OK))
             turnLetter();
+        return result.getStatus();
     }
 
     public void turnLetter() {

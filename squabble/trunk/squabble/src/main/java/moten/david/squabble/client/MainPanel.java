@@ -2,6 +2,7 @@ package moten.david.squabble.client;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyPressEvent;
 import com.google.gwt.event.dom.client.KeyPressHandler;
@@ -35,6 +36,9 @@ public class MainPanel extends Composite {
     @UiField
     Button submit;
 
+    @UiField
+    Button turnLetter;
+
     /**
      * Create a remote service proxy to talk to the server-side service.
      */
@@ -45,36 +49,83 @@ public class MainPanel extends Composite {
     private final AsyncCallback<String> getGameCallback;
 
     private final AsyncCallback<String> submitWordCallback;
+    private final AsyncCallback<Void> turnLetterCallback;
 
     private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
 
     public MainPanel() {
         initWidget(uiBinder.createAndBindUi(this));
-        name.setText("Franco");
-        game.setText("Board: a b g c\nDave: bard garam\nJane: cheerio harass");
-        chat
-                .setText("Welcome to Squabble! Enter a word in the command box whenever you want.");
         command.setText("");
         submitMessageCallback = createSubmitMessageCallback();
         getChatCallback = createGetChatCallback();
         submitWordCallback = createSubmitWordCallback();
         getGameCallback = createGetGameCallback();
-        command.addKeyPressHandler(new KeyPressHandler() {
+        turnLetterCallback = createTurnLetterCallback();
+        command.addKeyPressHandler(createCommandKeyPressHandler());
+        turnLetter.addClickHandler(createTurnLetterClickHandler());
+        createTimer();
+        command.setFocus(true);
+    }
+
+    private AsyncCallback<Void> createTurnLetterCallback() {
+        return new AsyncCallback<Void>() {
+
             @Override
-            public void onKeyPress(KeyPressEvent event) {
-                if (KeyCodes.KEY_ENTER == event.getNativeEvent().getKeyCode())
-                    submit.click();
+            public void onFailure(Throwable t) {
+                reportError(t);
             }
-        });
+
+            @Override
+            public void onSuccess(Void v) {
+                command.setText("");
+                command.setFocus(true);
+                turnLetter.setEnabled(false);
+                Timer timer = new Timer() {
+                    @Override
+                    public void run() {
+                        turnLetter.setEnabled(true);
+                    }
+                };
+                timer.schedule(2000);
+            }
+        };
+    }
+
+    private ClickHandler createTurnLetterClickHandler() {
+        return new ClickHandler() {
+
+            @Override
+            public void onClick(ClickEvent event) {
+                applicationService.turnLetter(name.getText(),
+                        turnLetterCallback);
+            }
+        };
+    }
+
+    private Timer createTimer() {
         Timer timer = new Timer() {
 
             @Override
             public void run() {
                 applicationService.getGame(getGameCallback);
+                applicationService.getChat(getChatCallback);
             }
         };
         timer.scheduleRepeating(1000);
         timer.run();
+        return timer;
+    }
+
+    private KeyPressHandler createCommandKeyPressHandler() {
+        return new KeyPressHandler() {
+            @Override
+            public void onKeyPress(KeyPressEvent event) {
+                if (KeyCodes.KEY_ENTER == event.getNativeEvent().getKeyCode()) {
+                    submit.click();
+                    command.setText("");
+                }
+            }
+        };
     }
 
     private AsyncCallback<String> createGetGameCallback() {
@@ -98,12 +149,15 @@ public class MainPanel extends Composite {
 
             public void onFailure(Throwable t) {
                 reportError(t);
+                submit.setEnabled(true);
             }
 
-            public void onSuccess(String chatLines) {
-                chat.setText(chatLines);
+            public void onSuccess(String result) {
                 command.setText("");
                 command.setFocus(true);
+                submit.setEnabled(true);
+                if (!result.equals(null))
+                    turnLetter.setEnabled(true);
             }
         };
     }
@@ -121,8 +175,6 @@ public class MainPanel extends Composite {
 
             public void onSuccess(String chatLines) {
                 chat.setText(chatLines);
-                command.setText("");
-                command.setFocus(true);
             }
         };
     }
@@ -144,11 +196,14 @@ public class MainPanel extends Composite {
 
     @UiHandler("submit")
     void handleClick(ClickEvent e) {
-        if (command.getText().startsWith(" "))
+        if (command.getText().trim().equals(""))
+            turnLetter.click();
+        else if (command.getText().startsWith(" "))
             applicationService.submitMessage(name.getText(), command.getText()
                     .substring(1), submitMessageCallback);
         else
             applicationService.submitWord(name.getText(), command.getText(),
                     submitWordCallback);
     }
+
 }
