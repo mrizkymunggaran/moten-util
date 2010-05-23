@@ -6,7 +6,7 @@
 		width:300px; margin-left:20px;}
 		.game { width:500px;
 		height:200px; }
-		.chat { height:300px; width:500px; }
+		.chat { height:170px; width:500px; }
 		.name {width:500px; }
 		.leftLabel {
 		width:100px; }
@@ -18,7 +18,7 @@
 		<g:VerticalPanel>
 			<g:HorizontalPanel>
 				<g:Label styleName="{style.leftLabel}">Name:</g:Label>
-				<g:TextBox ui:field="name" styleName="{style.name}">Franco</g:TextBox>
+				<g:TextBox ui:field="name" styleName="{style.name}">Unnamed</g:TextBox>
 			</g:HorizontalPanel>
 			<g:HorizontalPanel>
 				<g:Label styleName="{style.leftLabel}">Game:</g:Label>
@@ -33,9 +33,9 @@
 				<g:Label styleName="{style.leftLabel}">Command:</g:Label>
 				<g:TextArea ui:field="command" styleName="{style.command}"></g:TextArea>
 				<g:VerticalPanel>
-					<g:Button ui:field="submit" addStyleNames="{style.submit}">Submit
+					<g:Button ui:field="submit" addStyleNames="{style.submit}" >Submit
 					</g:Button>
-					<g:Button ui:field="turnLetter" addStyleNames="{style.submit}">Turn
+					<g:Button ui:field="turnLetter" addStyleNames="{style.submit}" >Turn
 					</g:Button>
 				</g:VerticalPanel>
 			</g:HorizontalPanel>

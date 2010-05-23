@@ -1,6 +1,10 @@
 package moten.david.squabble.client;
 
+import java.util.Date;
+
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
@@ -9,6 +13,7 @@ import com.google.gwt.event.dom.client.KeyPressHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
+import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
@@ -18,6 +23,8 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
 
 public class MainPanel extends Composite {
+    private static final String COOKIE_SQUABBLE_NAME = "squabble.name";
+
     interface MyUiBinder extends UiBinder<Widget, MainPanel> {
     };
 
@@ -65,6 +72,26 @@ public class MainPanel extends Composite {
         turnLetter.addClickHandler(createTurnLetterClickHandler());
         createTimer();
         command.setFocus(true);
+        String nameCookie = Cookies.getCookie(COOKIE_SQUABBLE_NAME);
+        if (nameCookie != null && nameCookie.trim().length() > 0)
+            name.setText(nameCookie);
+        name.addChangeHandler(createNameChangeHandler());
+    }
+
+    private ChangeHandler createNameChangeHandler() {
+        return new ChangeHandler() {
+            @Override
+            public void onChange(ChangeEvent event) {
+                Cookies.removeCookie(COOKIE_SQUABBLE_NAME);
+                Cookies.setCookie(COOKIE_SQUABBLE_NAME, name.getName(),
+                        new Date(System.currentTimeMillis() + 60 * 24 * 60 * 60
+                                * 1000));
+                command.setEnabled(true);
+                command.setText("");
+                turnLetter.setEnabled(true);
+                submit.setEnabled(true);
+            }
+        };
     }
 
     private AsyncCallback<Void> createTurnLetterCallback() {

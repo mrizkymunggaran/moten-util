@@ -36,7 +36,7 @@ public class Data {
         for (User user : map.keySet()) {
             if (s.length() > 0)
                 s.append('\n');
-            s.append(user.getName());
+            s.append(user.getName() + ":");
             for (Word word : map.get(user))
                 s.append(" " + word.getWord());
         }

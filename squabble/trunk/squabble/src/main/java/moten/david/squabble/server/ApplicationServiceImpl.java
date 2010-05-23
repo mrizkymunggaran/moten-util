@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import moten.david.squabble.Data;
-import moten.david.squabble.DictionaryAlwaysValid;
 import moten.david.squabble.Engine;
 import moten.david.squabble.Letters;
 import moten.david.squabble.Service;
 import moten.david.squabble.Engine.WordStatus;
 import moten.david.squabble.client.ApplicationService;
+import moten.david.util.words.DictionarySowpods;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
@@ -23,8 +23,8 @@ public class ApplicationServiceImpl extends RemoteServiceServlet implements
     private final Service service;
 
     public ApplicationServiceImpl() {
-        service = new Service(new Engine(new DictionaryAlwaysValid(),
-                new Letters("eng")));
+        service = new Service(new Engine(new DictionarySowpods(), new Letters(
+                "eng")));
         service.turnLetter();
         service.turnLetter();
     }
