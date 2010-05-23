@@ -33,9 +33,11 @@
 				<g:Label styleName="{style.leftLabel}">Command:</g:Label>
 				<g:TextArea ui:field="command" styleName="{style.command}"></g:TextArea>
 				<g:VerticalPanel>
-					<g:Button ui:field="submit" addStyleNames="{style.submit}" >Submit
+					<g:Button ui:field="submit" addStyleNames="{style.submit}">
+						Submit
 					</g:Button>
-					<g:Button ui:field="turnLetter" addStyleNames="{style.submit}" >Turn
+					<g:Button ui:field="turnLetter" addStyleNames="{style.submit}">
+						Turn
 					</g:Button>
 				</g:VerticalPanel>
 			</g:HorizontalPanel>
@@ -59,6 +61,12 @@
 				<li>Prefix re</li>
 			</ul>
 			<p>All other words are fair game!</p>
+			<p>
+				Words are checked for validity against the union of the British and
+				American English official Scrabble competition word lists (See
+				<a href="http://en.wikipedia.org/wiki/SOWPODS">here</a>
+				). This list has about 267,000 words.
+			</p>
 		</g:HTMLPanel>
 	</g:HorizontalPanel>
 </ui:UiBinder>
