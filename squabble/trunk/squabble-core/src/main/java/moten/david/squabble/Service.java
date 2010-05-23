@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 
 import moten.david.squabble.Engine.Result;
 import moten.david.squabble.Engine.WordStatus;
+import moten.david.util.words.DictionaryAlwaysValid;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;

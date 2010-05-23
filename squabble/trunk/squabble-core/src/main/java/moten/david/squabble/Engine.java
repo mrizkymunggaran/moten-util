@@ -7,6 +7,8 @@ import java.util.Random;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import moten.david.util.words.Dictionary;
+
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;

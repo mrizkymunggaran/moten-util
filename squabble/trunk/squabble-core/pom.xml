@@ -22,6 +22,11 @@
 			<artifactId>google-collections</artifactId>
 			<version>1.0</version>
 		</dependency>
+		<dependency>
+			<groupId>org.moten.david.util.words</groupId>
+			<artifactId>sowpods</artifactId>
+			<version>1.0.0</version>
+		</dependency>
 	</dependencies>
 	<build>
 		<finalName>squabble-core</finalName>
