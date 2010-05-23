@@ -1,8 +1,40 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>org.moten.david.util.words</groupId>
-  <artifactId>sowpods</artifactId>
-  <version>1.0.0</version>
-  <name>sowpods</name>
-  <description>International Scrabble Word List</description>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.moten.david.util.words</groupId>
+	<artifactId>sowpods</artifactId>
+	<version>1.0.0</version>
+	<name>sowpods</name>
+	<description>International Scrabble Word List</description>
+	<properties>
+		<compiler.source.version>1.5</compiler.source.version>
+	</properties>
+	<dependencies>
+	<dependency>
+			<groupId>com.google.collections</groupId>
+			<artifactId>google-collections</artifactId>
+			<version>1.0</version>
+		</dependency>
+	<dependency>
+		<groupId>junit</groupId>
+		<artifactId>junit</artifactId>
+		<version>4.8.1</version>
+		<scope>test</scope>
+	</dependency>
+	</dependencies>
+	<build>
+		<plugins>
+			<plugin>
+				<inherited>true</inherited>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<verbose>true</verbose>
+					<fork>true</fork>
+					<source>${compiler.source.version}</source>
+					<target>${compiler.source.version}</target>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 </project>
