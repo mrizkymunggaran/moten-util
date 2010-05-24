@@ -17,7 +17,7 @@
 		<!--  tell the compiler we can use 1.5 -->
 		<maven.compiler.source>1.6</maven.compiler.source>
 		<maven.compiler.target>1.6</maven.compiler.target>
-		<jetty.port>8080</jetty.port>
+		<jetty.port>9292</jetty.port>
 	</properties>
 
 	<dependencies>
