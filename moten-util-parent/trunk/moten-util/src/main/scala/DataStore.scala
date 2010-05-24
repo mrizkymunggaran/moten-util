@@ -24,7 +24,7 @@ class DataStore {
      
      def id(x:Set[TimedIdentifier]) = x.map(_.identifier) 
      
-     def gamma(x:Set[TimedIdentifier], y: Set[TimedIdentifier]) = y.filter(a => t(x) contains t(a))
+     def gamma(x:Set[TimedIdentifier], y: Set[TimedIdentifier]) = y.filter(t(x) contains t(_))
      
      def mu(x:Set[TimedIdentifier], y:Set[TimedIdentifier])  
          = y.filter(a => !x.find(b => (t(x) contains t(b)) && a.time>b.time).isEmpty)
