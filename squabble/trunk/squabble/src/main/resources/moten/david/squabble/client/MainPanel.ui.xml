@@ -34,7 +34,7 @@
 			<p>Squabble is a game of anagrams. The aim is to have the most number
 				of words at the end of the game.</p>
 			<p>Commands (click in Commands box):</p>
-			<table style="border:thin">
+			<table style="border:thin,solid">
 				<tr>
 					<td>Enter</td>
 					<td>Turn a letter</td>

@@ -11,12 +11,13 @@
 .game {
 	width: 500px;
 	height: 200px;
+	background-color:#D9D5F7
 }
 
 .chat {
 	height: 170px;
 	width: 500px;
-	background-color: aqua;
+	background-color: #F7BBBB;
 }
 
 .name {
