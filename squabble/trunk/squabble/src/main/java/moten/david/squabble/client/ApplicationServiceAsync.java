@@ -13,5 +13,7 @@ public interface ApplicationServiceAsync {
     void submitMessage(String user, String message,
             AsyncCallback<String> callback);
 
-    void turnLetter(String user, AsyncCallback<Void> callback);
+    void turnLetter(String user, AsyncCallback<Boolean> callback);
+
+    void restart(String user, AsyncCallback<Void> callback);
 }

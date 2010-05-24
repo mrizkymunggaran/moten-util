@@ -334,6 +334,8 @@ public class Engine {
         available.addAll(letters.getLetters());
         for (String ch : used)
             available.remove(ch);
+        if (available.size() == 0)
+            return data;
         int i = random.nextInt(available.size());
         String nextLetter = available.get(i);
 

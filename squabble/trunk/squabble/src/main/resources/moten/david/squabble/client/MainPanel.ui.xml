@@ -29,42 +29,49 @@
 				</g:VerticalPanel>
 			</g:HorizontalPanel>
 		</g:VerticalPanel>
-		<g:HTMLPanel styleName="{style.help}">
-			<h3>Squabble</h3>
-			<p>Squabble is a game of anagrams. The aim is to have the most number
-				of words at the end of the game.</p>
-			<p>Commands (click in Commands box):</p>
-			<table style="border:thin,solid">
-				<tr>
-					<td>Enter</td>
-					<td>Turn a letter</td>
-				</tr>
-				<tr>
-					<td>Word(s) + Enter</td>
-					<td>Submit word(s)</td>
-				</tr>
-				<tr>
-					<td>Space + typing + Enter</td>
-					<td>Chat</td>
-				</tr>
-			</table>
-			<p>
-				You
-				<i>cannot</i>
-				make a word from an existing word (or any word in that word's
-				history) using:
-			</p>
-			<ul>
-				<li>Suffixes r, s, er, es, d, ed, ing, or n </li>
-				<li>Prefix re</li>
-			</ul>
-			<p>All other words are fair game!</p>
-			<p>
-				Words are checked for validity against the union of the British and
-				American English official Scrabble competition word lists (See
-				<a href="http://en.wikipedia.org/wiki/SOWPODS">here</a>
-				). This list has about 267,000 words.
-			</p>
-		</g:HTMLPanel>
+		<g:VerticalPanel>
+			<g:HTMLPanel styleName="{style.help}">
+				<h3>Squabble</h3>
+				<p>Squabble is a game of anagrams. The aim is to have the most
+					number
+					of words at the end of the game.</p>
+				<p>Commands (click in Commands box):</p>
+				<table style="border:thin,solid;">
+					<tr>
+						<td>Enter</td>
+						<td>Turn a letter</td>
+					</tr>
+					<tr>
+						<td>Word(s) + Enter</td>
+						<td>Submit word(s)</td>
+					</tr>
+					<tr>
+						<td>Space + typing + Enter</td>
+						<td>Chat</td>
+					</tr>
+				</table>
+				<p>
+					You
+					<i>cannot</i>
+					make a word from an existing word (or any word in that word's
+					history) using:
+				</p>
+				<ul>
+					<li>Suffixes r, s, er, es, d, ed, ing, or n </li>
+					<li>Prefix re</li>
+				</ul>
+				<p>All other words are fair game!</p>
+				<p>
+					Words are checked for validity against the union of the British and
+					American English official Scrabble competition word lists (See
+					<a href="http://en.wikipedia.org/wiki/SOWPODS">here</a>
+					). This list has about 267,000 words.
+				</p>
+			</g:HTMLPanel>
+			<g:Button ui:field="restart" addStyleNames="{style.submit},{style.restart}"
+				enabled="false">
+				Restart
+					</g:Button>
+		</g:VerticalPanel>
 	</g:HorizontalPanel>
 </ui:UiBinder>

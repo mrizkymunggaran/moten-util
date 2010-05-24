@@ -46,6 +46,9 @@ public class MainPanel extends Composite {
     @UiField
     Button turnLetter;
 
+    @UiField
+    Button restart;
+
     /**
      * Create a remote service proxy to talk to the server-side service.
      */
@@ -56,8 +59,8 @@ public class MainPanel extends Composite {
     private final AsyncCallback<String> getGameCallback;
 
     private final AsyncCallback<String> submitWordCallback;
-    private final AsyncCallback<Void> turnLetterCallback;
-
+    private final AsyncCallback<Boolean> turnLetterCallback;
+    private final AsyncCallback<Void> restartCallback;
     private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
 
     public MainPanel() {
@@ -76,6 +79,33 @@ public class MainPanel extends Composite {
         if (nameCookie != null && nameCookie.trim().length() > 0)
             name.setText(nameCookie);
         name.addChangeHandler(createNameChangeHandler());
+        restartCallback = createRestartCallback();
+        restart.addClickHandler(createRestartClickHandler());
+    }
+
+    private AsyncCallback<Void> createRestartCallback() {
+        return new AsyncCallback<Void>() {
+
+            @Override
+            public void onFailure(Throwable t) {
+                reportError(t);
+            }
+
+            @Override
+            public void onSuccess(Void v) {
+
+            }
+        };
+    }
+
+    private ClickHandler createRestartClickHandler() {
+        return new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                applicationService.restart(name.getText(), restartCallback);
+                restart.setEnabled(false);
+            }
+        };
     }
 
     private ChangeHandler createNameChangeHandler() {
@@ -94,8 +124,8 @@ public class MainPanel extends Composite {
         };
     }
 
-    private AsyncCallback<Void> createTurnLetterCallback() {
-        return new AsyncCallback<Void>() {
+    private AsyncCallback<Boolean> createTurnLetterCallback() {
+        return new AsyncCallback<Boolean>() {
 
             @Override
             public void onFailure(Throwable t) {
@@ -103,7 +133,7 @@ public class MainPanel extends Composite {
             }
 
             @Override
-            public void onSuccess(Void v) {
+            public void onSuccess(Boolean v) {
                 command.setText("");
                 command.setFocus(true);
                 turnLetter.setEnabled(false);
@@ -113,7 +143,8 @@ public class MainPanel extends Composite {
                         turnLetter.setEnabled(true);
                     }
                 };
-                timer.schedule(100);
+                timer.schedule(3000);
+                restart.setEnabled(true);
             }
         };
     }

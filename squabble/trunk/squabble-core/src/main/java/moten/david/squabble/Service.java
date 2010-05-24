@@ -39,8 +39,16 @@ public class Service {
         return result.getStatus();
     }
 
-    public void turnLetter() {
+    /**
+     * Returns true if and only a letter was turned. If a letter was not turned
+     * then the letters have run out and the game is voef
+     * 
+     * @return
+     */
+    public boolean turnLetter() {
+        Data oldData = data;
         data = engine.turnLetter(data, board);
+        return data != oldData;
     }
 
     public Data getData() {

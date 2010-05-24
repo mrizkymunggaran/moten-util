@@ -17,5 +17,7 @@ public interface ApplicationService extends RemoteService {
 
     String submitWord(String user, String word);
 
-    void turnLetter(String user);
+    boolean turnLetter(String user);
+
+    void restart(String user);
 }

@@ -20,13 +20,18 @@ public class ApplicationServiceImpl extends RemoteServiceServlet implements
 
     private final List<String> chat = new ArrayList<String>();
 
-    private final Service service;
+    private Service service;
 
     public ApplicationServiceImpl() {
-        service = new Service(new Engine(new DictionarySowpods(), new Letters(
-                "eng")));
+        service = createService();
+    }
+
+    private Service createService() {
+        Service service = new Service(new Engine(new DictionarySowpods(),
+                new Letters("eng")));
         service.turnLetter();
         service.turnLetter();
+        return service;
     }
 
     @Override
@@ -48,9 +53,13 @@ public class ApplicationServiceImpl extends RemoteServiceServlet implements
     }
 
     @Override
-    public void turnLetter(String user) {
-        service.turnLetter();
-        submitChatLine(user + " turned a letter");
+    public boolean turnLetter(String user) {
+        boolean letterTurned = service.turnLetter();
+        if (letterTurned)
+            submitChatLine(user + " turned a letter");
+        else
+            submitChatLine("No more letters left! Game Over!");
+        return letterTurned;
     }
 
     @Override
@@ -82,6 +91,12 @@ public class ApplicationServiceImpl extends RemoteServiceServlet implements
     @Override
     public String submitMessage(String user, String message) {
         return submitChatLine(user + ": " + message);
+    }
+
+    @Override
+    public synchronized void restart(String user) {
+        submitChatLine(user + " requested a restart");
+        service = createService();
     }
 
 }
