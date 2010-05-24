@@ -12,14 +12,12 @@
 	<name>squabble</name>
 
 	<properties>
-
 		<!-- convenience to define GWT version in one place -->
 		<gwt.version>2.0.3</gwt.version>
-
 		<!--  tell the compiler we can use 1.5 -->
 		<maven.compiler.source>1.6</maven.compiler.source>
 		<maven.compiler.target>1.6</maven.compiler.target>
-
+		<jetty.port>8080</jetty.port>
 	</properties>
 
 	<dependencies>
@@ -103,7 +101,7 @@
 					<stopKey>foo</stopKey>
 					<connectors>
 						<connector implementation="org.mortbay.jetty.nio.SelectChannelConnector">
-							<port>8080</port>
+							<port>${jetty.port}</port>
 							<maxIdleTime>60000</maxIdleTime>
 						</connector>
 					</connectors>
