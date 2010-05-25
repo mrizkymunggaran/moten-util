@@ -28,6 +28,7 @@ public class ApplicationServiceImpl extends RemoteServiceServlet implements
 
     public ApplicationServiceImpl() {
         service = createService();
+        updateGame();
     }
 
     private Service createService() {
@@ -35,7 +36,6 @@ public class ApplicationServiceImpl extends RemoteServiceServlet implements
                 new Letters("eng")));
         service.turnLetter();
         service.turnLetter();
-        updateGame();
         return service;
     }
 
@@ -62,36 +62,55 @@ public class ApplicationServiceImpl extends RemoteServiceServlet implements
 
     @Override
     public Versioned getChat(Long version) {
-        while (version == chat.getVersion())
-            try {
-                Thread.sleep(LONG_POLL_SLEEP_MS);
-            } catch (InterruptedException e) {
-                // do nothing
-            }
-        return getChat(chat);
+        try {
+            while (version == chat.getVersion())
+                try {
+                    Thread.sleep(LONG_POLL_SLEEP_MS);
+                } catch (InterruptedException e) {
+                    // do nothing
+                }
+            return getChat(chat);
+        } catch (RuntimeException e) {
+            reportError(e);
+            throw e;
+        }
     }
 
     @Override
     public Versioned getGame(Long version) {
-        while (version == game.getVersion())
-            try {
-                Thread.sleep(LONG_POLL_SLEEP_MS);
-            } catch (InterruptedException e) {
-                // do nothing
-            }
+        try {
+            while (version == game.getVersion())
+                try {
+                    Thread.sleep(LONG_POLL_SLEEP_MS);
+                } catch (InterruptedException e) {
+                    // do nothing
+                }
 
-        return new Versioned(game.getData().toString(), game.getVersion());
+            return new Versioned(game.getData().toString(), game.getVersion());
+        } catch (RuntimeException e) {
+            reportError(e);
+            throw e;
+        }
     }
 
     @Override
     public boolean turnLetter(String user) {
-        boolean letterTurned = service.turnLetter();
-        updateGame();
-        if (letterTurned)
-            submitChatLine(user + " turned a letter");
-        else
-            submitChatLine("No more letters left! Game Over!");
-        return letterTurned;
+        try {
+            boolean letterTurned = service.turnLetter();
+            updateGame();
+            if (letterTurned)
+                submitChatLine(user + " turned a letter");
+            else
+                submitChatLine("No more letters left! Game Over!");
+            return letterTurned;
+        } catch (RuntimeException e) {
+            reportError(e);
+            throw e;
+        }
+    }
+
+    private void reportError(RuntimeException e) {
+        e.printStackTrace();
     }
 
     @Override
@@ -123,13 +142,24 @@ public class ApplicationServiceImpl extends RemoteServiceServlet implements
 
     @Override
     public void submitMessage(String user, String message) {
-        submitChatLine(user + ": " + message);
+        try {
+            submitChatLine(user + ": " + message);
+        } catch (RuntimeException e) {
+            reportError(e);
+            throw e;
+        }
     }
 
     @Override
     public synchronized void restart(String user) {
-        submitChatLine(user + " requested a restart");
-        service = createService();
+        try {
+            submitChatLine(user + " requested a restart");
+            service = createService();
+            updateGame();
+        } catch (RuntimeException e) {
+            reportError(e);
+            throw e;
+        }
     }
 
 }

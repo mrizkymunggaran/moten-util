@@ -54,6 +54,10 @@ public class MainPanel extends Composite {
      */
     private final ApplicationServiceAsync applicationService = GWT
             .create(ApplicationService.class);
+    private final ApplicationServiceAsync gameService = GWT
+            .create(ApplicationService.class);
+    private final ApplicationServiceAsync chatService = GWT
+            .create(ApplicationService.class);
     private final AsyncCallback<Void> submitMessageCallback;
     private final AsyncCallback<Versioned> getChatCallback;
     private final AsyncCallback<Versioned> getGameCallback;
@@ -75,7 +79,6 @@ public class MainPanel extends Composite {
         turnLetterCallback = createTurnLetterCallback();
         command.addKeyPressHandler(createCommandKeyPressHandler());
         turnLetter.addClickHandler(createTurnLetterClickHandler());
-        createTimer();
         command.setFocus(true);
         String nameCookie = Cookies.getCookie(COOKIE_SQUABBLE_NAME);
         if (nameCookie != null && nameCookie.trim().length() > 0)
@@ -83,6 +86,9 @@ public class MainPanel extends Composite {
         name.addChangeHandler(createNameChangeHandler());
         restartCallback = createRestartCallback();
         restart.addClickHandler(createRestartClickHandler());
+        // start streaming game and chat via long-polling
+        gameService.getGame(gameVersion, getGameCallback);
+        chatService.getChat(chatVersion, getChatCallback);
     }
 
     private AsyncCallback<Void> createRestartCallback() {
@@ -162,20 +168,6 @@ public class MainPanel extends Composite {
         };
     }
 
-    private Timer createTimer() {
-        Timer timer = new Timer() {
-
-            @Override
-            public void run() {
-                applicationService.getGame(gameVersion, getGameCallback);
-                applicationService.getChat(chatVersion, getChatCallback);
-            }
-        };
-        timer.scheduleRepeating(1000);
-        timer.run();
-        return timer;
-    }
-
     private KeyPressHandler createCommandKeyPressHandler() {
         return new KeyPressHandler() {
             @Override
@@ -194,12 +186,21 @@ public class MainPanel extends Composite {
             @Override
             public void onFailure(Throwable t) {
                 reportError(t);
+                Timer timer = new Timer() {
+
+                    @Override
+                    public void run() {
+                        gameService.getGame(gameVersion, getGameCallback);
+                    }
+                };
+                timer.schedule(5000);
             }
 
             @Override
             public void onSuccess(Versioned v) {
                 gameVersion = v.getVersion();
                 game.setText(v.getValue());
+                gameService.getGame(gameVersion, getGameCallback);
             }
         };
 
@@ -232,11 +233,20 @@ public class MainPanel extends Composite {
 
             public void onFailure(Throwable t) {
                 reportError(t);
+                Timer timer = new Timer() {
+
+                    @Override
+                    public void run() {
+                        chatService.getChat(chatVersion, getChatCallback);
+                    }
+                };
+                timer.schedule(5000);
             }
 
             public void onSuccess(Versioned v) {
                 chatVersion = v.getVersion();
                 chat.setText(v.getValue());
+                chatService.getChat(chatVersion, getChatCallback);
             }
         };
     }

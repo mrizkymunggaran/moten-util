@@ -7,7 +7,6 @@ public class Game {
     private final Data data;
 
     public Game(long version, Data data) {
-        super();
         this.version = version;
         this.data = data;
     }

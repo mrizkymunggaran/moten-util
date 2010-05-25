@@ -23,6 +23,13 @@ public class Versioned implements Serializable {
         this.version = version;
     }
 
+    /**
+     * Zero argument constructor required for serialization to gwt client.
+     */
+    public Versioned() {
+
+    }
+
     public Versioned(String value, Long version) {
         super();
         this.value = value;
