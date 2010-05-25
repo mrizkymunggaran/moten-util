@@ -21,7 +21,8 @@
 .chat {
 	height: 170px;
 	width: 500px;
-	background-color: #F7BBBB;
+	background-color: #CCFFFF;
+	color: #003366;
 	padding-left: 5px;
 	padding-top: 5px;
 }
