@@ -42,7 +42,8 @@
 	border-bottom: thin solid black;
 	border-left: thin solid black;
 	border-right: thin solid black;
-	padding-left: 5px;
+	padding-left: 2px;
+	padding-top: 2px;
 }
 
 .submit {
