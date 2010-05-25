@@ -146,8 +146,6 @@ public class MainPanel extends Composite {
 
             @Override
             public void onSuccess(Boolean v) {
-                command.setText("");
-                command.setFocus(true);
                 turnLetter.setEnabled(true);
                 Timer timer = new Timer() {
                     @Override
@@ -168,6 +166,7 @@ public class MainPanel extends Composite {
             public void onClick(ClickEvent event) {
                 applicationService.turnLetter(name.getText(),
                         turnLetterCallback);
+                command.setText("");
             }
         };
     }
@@ -219,7 +218,6 @@ public class MainPanel extends Composite {
             }
 
             public void onSuccess(String result) {
-                command.setText("");
                 command.setFocus(true);
                 submit.setEnabled(true);
                 if (!result.equals(null))
@@ -263,7 +261,6 @@ public class MainPanel extends Composite {
             }
 
             public void onSuccess(Void v) {
-                command.setText("");
                 command.setFocus(true);
             }
         };
@@ -273,12 +270,15 @@ public class MainPanel extends Composite {
     void handleClick(ClickEvent e) {
         if (command.getText().trim().equals(""))
             turnLetter.click();
-        else if (command.getText().startsWith(" "))
+        else if (command.getText().startsWith(" ")) {
             applicationService.submitMessage(name.getText(), command.getText()
                     .substring(1), submitMessageCallback);
-        else
+            command.setText("");
+        } else {
             applicationService.submitWord(name.getText(), command.getText(),
                     submitWordCallback);
+            command.setText("");
+        }
     }
 
 }
