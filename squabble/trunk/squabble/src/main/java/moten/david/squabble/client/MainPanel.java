@@ -18,8 +18,10 @@ import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.TextBox;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 public class MainPanel extends Composite {
@@ -32,7 +34,7 @@ public class MainPanel extends Composite {
     TextBox name;
 
     @UiField
-    TextArea game;
+    VerticalPanel game;
 
     @UiField
     TextArea chat;
@@ -54,10 +56,20 @@ public class MainPanel extends Composite {
      */
     private final ApplicationServiceAsync applicationService = GWT
             .create(ApplicationService.class);
+
+    /**
+     * Extra service for long-polling.
+     */
     private final ApplicationServiceAsync gameService = GWT
             .create(ApplicationService.class);
+    /**
+     * Extra service for long-polling.
+     */
     private final ApplicationServiceAsync chatService = GWT
             .create(ApplicationService.class);
+
+    // Callbacks
+
     private final AsyncCallback<Void> submitMessageCallback;
     private final AsyncCallback<Versioned> getChatCallback;
     private final AsyncCallback<Versioned> getGameCallback;
@@ -203,11 +215,63 @@ public class MainPanel extends Composite {
             @Override
             public void onSuccess(Versioned v) {
                 gameVersion = v.getVersion();
-                game.setText(v.getValue());
+                game.clear();
+                game.add(new HTMLPanel(gameAsHtml(v.getValue())));
+                // game.add(new HTMLPanel(gameAsSvg(v.getValue())));
                 gameService.getGame(gameVersion, getGameCallback);
             }
-        };
 
+            private String gameAsHtml(String value) {
+                StringBuffer s = new StringBuffer();
+                if (value != null && value.trim().length() > 0) {
+                    String board = "";
+                    String[] lines = value.split("\n");
+                    for (String line : lines) {
+                        String[] items = line.split(":");
+                        String name = items[0].trim();
+                        String[] words = items[1].trim().split(" ");
+                        StringBuffer h = new StringBuffer();
+                        h.append("<p style=\"display:inline;\">" + name
+                                + ":</p>&nbsp;");
+                        for (String word : words) {
+                            h.append("&nbsp;");
+                            h
+                                    .append("<p style=\"display:inline;background:#f0e4a2;\">"
+                                            + word.toUpperCase() + "</p>");
+                        }
+                        h.append("<br/>");
+                        if (name.equalsIgnoreCase("board"))
+                            board = h.toString();
+                        else
+                            s.append(h.toString());
+                    }
+                    s.insert(0, board + "<br/>");
+                }
+                return s.toString();
+            }
+        };
+    }
+
+    private String gameAsSvg(String value) {
+        StringBuffer h = new StringBuffer();
+        if (value != null && value.trim().length() > 0) {
+            String[] lines = value.split("\n");
+            for (String line : lines) {
+                String[] items = line.split(":");
+                String name = items[0].trim();
+                String[] words = items[1].trim().split(" ");
+                h.append("<p style=\"margin-top:0px;margin-bottom:0px;\">"
+                        + name + ":&nbsp;&nbsp;");
+                for (String word : words) {
+                    for (char ch : word.toCharArray())
+                        h.append("<img src=\"../letter.jsp?val="
+                                + Character.toUpperCase(ch) + "\"/>");
+                    h.append("&nbsp;&nbsp;");
+                }
+                h.append("</p>");
+            }
+        }
+        return h.toString();
     }
 
     private AsyncCallback<String> createSubmitWordCallback() {

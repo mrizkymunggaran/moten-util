@@ -9,7 +9,7 @@
 			</g:HorizontalPanel>
 			<g:HorizontalPanel>
 				<g:Label styleName="{style.leftLabel}">Game:</g:Label>
-				<g:TextArea ui:field="game" styleName="{style.game}"></g:TextArea>
+				<g:VerticalPanel ui:field="game" styleName="{style.game}"></g:VerticalPanel>
 			</g:HorizontalPanel>
 			<g:HorizontalPanel>
 				<g:Label styleName="{style.leftLabel}">Chat:</g:Label>
@@ -65,7 +65,7 @@
 					Words are checked for validity against the union of the British and
 					American English official Scrabble competition word lists (See
 					<a href="http://en.wikipedia.org/wiki/SOWPODS">here</a>
-					). This list has about 267,000 words.
+					). This list has about 267,000 words. <img src="../letter.svg"/>
 				</p>
 			</g:HTMLPanel>
 			<g:Button ui:field="restart" addStyleNames="{style.submit},{style.restart}"
