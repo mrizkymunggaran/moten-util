@@ -54,14 +54,16 @@ public class MainPanel extends Composite {
      */
     private final ApplicationServiceAsync applicationService = GWT
             .create(ApplicationService.class);
-    private final AsyncCallback<String> submitMessageCallback;
-    private final AsyncCallback<String> getChatCallback;
-    private final AsyncCallback<String> getGameCallback;
+    private final AsyncCallback<Void> submitMessageCallback;
+    private final AsyncCallback<Versioned> getChatCallback;
+    private final AsyncCallback<Versioned> getGameCallback;
 
     private final AsyncCallback<String> submitWordCallback;
     private final AsyncCallback<Boolean> turnLetterCallback;
     private final AsyncCallback<Void> restartCallback;
     private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
+    private long gameVersion = 0;
+    private long chatVersion = 0;
 
     public MainPanel() {
         initWidget(uiBinder.createAndBindUi(this));
@@ -165,8 +167,8 @@ public class MainPanel extends Composite {
 
             @Override
             public void run() {
-                applicationService.getGame(getGameCallback);
-                applicationService.getChat(getChatCallback);
+                applicationService.getGame(gameVersion, getGameCallback);
+                applicationService.getChat(chatVersion, getChatCallback);
             }
         };
         timer.scheduleRepeating(1000);
@@ -186,8 +188,8 @@ public class MainPanel extends Composite {
         };
     }
 
-    private AsyncCallback<String> createGetGameCallback() {
-        return new AsyncCallback<String>() {
+    private AsyncCallback<Versioned> createGetGameCallback() {
+        return new AsyncCallback<Versioned>() {
 
             @Override
             public void onFailure(Throwable t) {
@@ -195,8 +197,9 @@ public class MainPanel extends Composite {
             }
 
             @Override
-            public void onSuccess(String gameLines) {
-                game.setText(gameLines);
+            public void onSuccess(Versioned v) {
+                gameVersion = v.getVersion();
+                game.setText(v.getValue());
             }
         };
 
@@ -224,28 +227,28 @@ public class MainPanel extends Composite {
         chat.setText(chat.getText() + "\n" + t.getMessage());
     }
 
-    private AsyncCallback<String> createGetChatCallback() {
-        return new AsyncCallback<String>() {
+    private AsyncCallback<Versioned> createGetChatCallback() {
+        return new AsyncCallback<Versioned>() {
 
             public void onFailure(Throwable t) {
                 reportError(t);
             }
 
-            public void onSuccess(String chatLines) {
-                chat.setText(chatLines);
+            public void onSuccess(Versioned v) {
+                chatVersion = v.getVersion();
+                chat.setText(v.getValue());
             }
         };
     }
 
-    private AsyncCallback<String> createSubmitMessageCallback() {
-        return new AsyncCallback<String>() {
+    private AsyncCallback<Void> createSubmitMessageCallback() {
+        return new AsyncCallback<Void>() {
 
             public void onFailure(Throwable t) {
                 reportError(t);
             }
 
-            public void onSuccess(String chatLines) {
-                chat.setText(chatLines);
+            public void onSuccess(Void v) {
                 command.setText("");
                 command.setFocus(true);
             }

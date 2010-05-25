@@ -9,14 +9,34 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 @RemoteServiceRelativePath("service")
 public interface ApplicationService extends RemoteService {
 
-    String getGame();
+    /**
+     * Designed for long-polling.
+     * 
+     * @param version
+     *            is the last version received.
+     * @return
+     */
+    Versioned getGame(Long version);
 
-    String getChat();
+    /**
+     * Designed for long-polling.
+     * 
+     * @param version
+     *            is the last version received.
+     * @return
+     */
+    Versioned getChat(Long version);
 
-    String submitMessage(String user, String message);
+    void submitMessage(String user, String message);
 
     String submitWord(String user, String word);
 
+    /**
+     * Returns true if and only there was another letter available to turn.
+     * 
+     * @param user
+     * @return
+     */
     boolean turnLetter(String user);
 
     void restart(String user);
