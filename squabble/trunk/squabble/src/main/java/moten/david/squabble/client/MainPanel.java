@@ -111,7 +111,7 @@ public class MainPanel extends Composite {
             @Override
             public void onClick(ClickEvent event) {
                 applicationService.restart(name.getText(), restartCallback);
-                restart.setEnabled(false);
+                // restart.setEnabled(false);
             }
         };
     }

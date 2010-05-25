@@ -69,7 +69,7 @@
 				</p>
 			</g:HTMLPanel>
 			<g:Button ui:field="restart" addStyleNames="{style.submit},{style.restart}"
-				enabled="false">
+				enabled="true">
 				Restart
 					</g:Button>
 		</g:VerticalPanel>
