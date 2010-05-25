@@ -11,7 +11,11 @@
 .game {
 	width: 500px;
 	height: 200px;
-	border: thin solid black;
+	border-top: thin solid black;
+	border-left: thin solid black;
+	border-right: thin solid black;
+	padding-left: 5px;
+	padding-top: 5px;
 }
 
 .chat {
@@ -31,6 +35,9 @@
 .command {
 	width: 400px;
 	height: 4em;
+	border-bottom: thin solid black;
+	border-left: thin solid black;
+	border-right: thin solid black;
 }
 
 .submit {
@@ -39,6 +46,6 @@
 }
 
 .restart {
-	margin-left:50px;
-	margin-top:50px;
+	margin-left: 50px;
+	margin-top: 50px;
 }
