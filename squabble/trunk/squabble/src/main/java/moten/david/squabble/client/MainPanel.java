@@ -148,14 +148,14 @@ public class MainPanel extends Composite {
             public void onSuccess(Boolean v) {
                 command.setText("");
                 command.setFocus(true);
-                turnLetter.setEnabled(false);
+                turnLetter.setEnabled(true);
                 Timer timer = new Timer() {
                     @Override
                     public void run() {
                         turnLetter.setEnabled(true);
                     }
                 };
-                timer.schedule(3000);
+                // timer.schedule(3000);
                 restart.setEnabled(true);
             }
         };
