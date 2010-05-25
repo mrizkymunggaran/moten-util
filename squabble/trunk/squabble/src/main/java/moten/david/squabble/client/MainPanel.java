@@ -116,14 +116,18 @@ public class MainPanel extends Composite {
         };
     }
 
+    private void updateCookies() {
+        Cookies.removeCookie(COOKIE_SQUABBLE_NAME);
+        Cookies.setCookie(COOKIE_SQUABBLE_NAME, name.getText(), new Date(System
+                .currentTimeMillis()
+                + 60 * 24 * 60 * 60 * 1000));
+    }
+
     private ChangeHandler createNameChangeHandler() {
         return new ChangeHandler() {
             @Override
             public void onChange(ChangeEvent event) {
-                Cookies.removeCookie(COOKIE_SQUABBLE_NAME);
-                Cookies.setCookie(COOKIE_SQUABBLE_NAME, name.getName(),
-                        new Date(System.currentTimeMillis() + 60 * 24 * 60 * 60
-                                * 1000));
+                updateCookies();
                 command.setEnabled(true);
                 command.setText("");
                 turnLetter.setEnabled(true);
