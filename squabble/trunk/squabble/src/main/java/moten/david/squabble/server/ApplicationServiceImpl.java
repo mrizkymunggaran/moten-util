@@ -17,6 +17,8 @@ import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 public class ApplicationServiceImpl extends RemoteServiceServlet implements
         ApplicationService {
 
+    public static boolean keepGoing = true;
+
     private static final long serialVersionUID = 8564374631589515374L;
 
     private static final long LONG_POLL_SLEEP_MS = 100;
@@ -63,7 +65,7 @@ public class ApplicationServiceImpl extends RemoteServiceServlet implements
     @Override
     public Versioned getChat(Long version) {
         try {
-            while (version == chat.getVersion())
+            while (version == chat.getVersion() && keepGoing)
                 try {
                     Thread.sleep(LONG_POLL_SLEEP_MS);
                 } catch (InterruptedException e) {
@@ -79,7 +81,7 @@ public class ApplicationServiceImpl extends RemoteServiceServlet implements
     @Override
     public Versioned getGame(Long version) {
         try {
-            while (version == game.getVersion())
+            while (version == game.getVersion() && keepGoing)
                 try {
                     Thread.sleep(LONG_POLL_SLEEP_MS);
                 } catch (InterruptedException e) {
