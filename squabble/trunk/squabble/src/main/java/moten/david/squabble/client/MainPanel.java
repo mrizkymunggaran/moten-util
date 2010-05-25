@@ -177,7 +177,7 @@ public class MainPanel extends Composite {
             public void onKeyPress(KeyPressEvent event) {
                 if (KeyCodes.KEY_ENTER == event.getNativeEvent().getKeyCode()) {
                     submit.click();
-                    command.setText("");
+                    event.preventDefault();
                     event.stopPropagation();
                 }
             }
