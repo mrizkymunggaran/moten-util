@@ -231,9 +231,8 @@ public class MainPanel extends Composite {
                         String name = items[0].trim();
                         String[] words = items[1].trim().split(" ");
                         StringBuffer h = new StringBuffer();
-                        h
-                                .append("<p style=\"margin-left:0px;margin-bottom:0px;\">"
-                                        + name + ":&nbsp;");
+                        h.append("<p style=\"margin:0px;padding:0px;\">" + name
+                                + ":&nbsp;");
                         for (String word : words) {
                             h.append("&nbsp;");
                             h.append("<span style=\"background:#f0e4a2;\">"
