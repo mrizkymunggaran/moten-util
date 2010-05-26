@@ -231,15 +231,15 @@ public class MainPanel extends Composite {
                         String name = items[0].trim();
                         String[] words = items[1].trim().split(" ");
                         StringBuffer h = new StringBuffer();
-                        h.append("<p style=\"display:inline;\">" + name
-                                + ":</p>&nbsp;");
+                        h
+                                .append("<p style=\"margin-left:0px;margin-bottom:0px;\">"
+                                        + name + ":&nbsp;");
                         for (String word : words) {
                             h.append("&nbsp;");
-                            h
-                                    .append("<p style=\"display:inline;background:#f0e4a2;\">"
-                                            + word.toUpperCase() + "</p>");
+                            h.append("<span style=\"background:#f0e4a2;\">"
+                                    + word.toUpperCase() + "</span>");
                         }
-                        h.append("<br/>");
+                        h.append("</p>");
                         if (name.equalsIgnoreCase("board"))
                             board = h.toString();
                         else
