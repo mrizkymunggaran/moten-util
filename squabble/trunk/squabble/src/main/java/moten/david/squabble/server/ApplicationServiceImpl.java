@@ -158,10 +158,10 @@ public class ApplicationServiceImpl extends RemoteServiceServlet implements
             submitChatLine(user + " requested a restart");
             service = createService();
             updateGame();
+            chat = new Chat(1, ImmutableList.of("Welcome to Squabble!"));
         } catch (RuntimeException e) {
             reportError(e);
             throw e;
         }
     }
-
 }
