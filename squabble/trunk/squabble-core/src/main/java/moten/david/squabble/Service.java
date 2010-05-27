@@ -18,49 +18,57 @@ public class Service {
 
     private static final int minimumChars = 3;
     private final Engine engine;
-    private Data data;
     private final User board = new User("board", 1);
     private static final boolean TURN_ON_OK_WORD = false;
 
-    public Service(Engine engine) {
+    private final DataManager dataManager;
+
+    public Service(Engine engine, DataManager dataManager) {
         this.engine = engine;
+        this.dataManager = dataManager;
         ListMultimap<User, Word> map = ArrayListMultimap.create();
-        data = new Data(map);
+        Data data = new Data(map);
         data = engine.turnLetter(data, board);
+        dataManager.getTransaction().begin();
+        dataManager.setData(data);
+        dataManager.getTransaction().commit();
     }
 
     public WordStatus addWord(String user, String word) {
+        dataManager.getTransaction().begin();
+        Data data = dataManager.getData();
         Result result = engine.wordSubmitted(data,
                 new User(user, minimumChars), word);
         log.info(word + " status:" + result.getStatus());
-        data = result.getData();
+        dataManager.setData(result.getData());
         if (TURN_ON_OK_WORD && result.getStatus().equals(WordStatus.OK))
             turnLetter();
+        dataManager.getTransaction().commit();
         return result.getStatus();
     }
 
     /**
      * Returns true if and only a letter was turned. If a letter was not turned
-     * then the letters have run out and the game is voef
+     * then the letters have run out and the game is over
      * 
      * @return
      */
     public boolean turnLetter() {
-        Data oldData = data;
-        data = engine.turnLetter(data, board);
-        return data != oldData;
-    }
-
-    public Data getData() {
-        return data;
+        dataManager.getTransaction().begin();
+        Data data = dataManager.getData();
+        Data newData = engine.turnLetter(dataManager.getData(), board);
+        if (newData != data)
+            dataManager.setData(newData);
+        dataManager.getTransaction().commit();
+        return newData != data;
     }
 
     public static void main(String[] args) throws IOException {
         Service service = new Service(new Engine(new DictionaryAlwaysValid(),
-                new Letters("eng")));
+                new Letters("eng")), new DataManagerImpl());
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         String line;
-        System.out.println("data:\n" + service.getData());
+        System.out.println("data:\n" + service.dataManager.getData());
         while ((line = br.readLine()) != null) {
             if (line.trim().length() == 0)
                 service.turnLetter();
@@ -75,7 +83,7 @@ public class Service {
                     }
                 }
             }
-            System.out.println("data:\n" + service.getData());
+            System.out.println("data:\n" + service.dataManager.getData());
         }
     }
 }
