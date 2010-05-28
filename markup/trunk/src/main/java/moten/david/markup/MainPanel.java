@@ -12,6 +12,7 @@ import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 
 import javax.swing.ButtonGroup;
@@ -128,6 +129,17 @@ public class MainPanel extends JPanel {
 
 			@Override
 			public void mousePressed(MouseEvent e) {
+				if (!e.isPopupTrigger()) {
+					StyledDocument doc = text.getStyledDocument();
+					int i = text.getSelectionStart();
+					Enumeration<?> names = doc.getCharacterElement(i)
+							.getAttributes().getAttributeNames();
+					while (names.hasMoreElements()) {
+						Object attribute = names.nextElement();
+						System.out.println(attribute.getClass().getName() + ":"
+								+ attribute);
+					}
+				}
 				maybeShowPopup(e);
 			}
 
