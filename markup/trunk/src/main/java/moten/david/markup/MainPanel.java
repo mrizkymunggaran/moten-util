@@ -1,7 +1,9 @@
 package moten.david.markup;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -83,32 +85,40 @@ public class MainPanel extends JPanel {
 					Element element = doc.getParagraphElement(start);
 					Element element2 = doc.getParagraphElement(finish);
 
-					SelectionMode selectionMode = SelectionMode.SENTENCE;
 					if (selectionMode.equals(SelectionMode.PARAGRAPH))
 						doc.setCharacterAttributes(element.getStartOffset(),
 								element2.getEndOffset()
 										- element.getStartOffset(), doc
 										.getStyle(tag), false);
 					else if (selectionMode.equals(SelectionMode.SENTENCE)) {
-						int i = start;
-						try {
-							while (i >= element.getStartOffset()
-									&& !".".equals(doc.getText(i, 1)))
-								i--;
-							if (".".equals(doc.getText(i, 1)))
-								i++;
-							int j = finish;
-							while (j <= element2.getEndOffset()
-									&& !".".equals(doc.getText(j, 1)))
-								j++;
-							if (".".equals(doc.getText(j, 1)))
-								j--;
-							doc.setCharacterAttributes(i, j - i + 1, doc
-									.getStyle(tag), false);
-						} catch (BadLocationException e1) {
-							throw new RuntimeException(e1);
-						}
+						selectDelimitedBy(doc, ".", start, finish, tag);
+					} else {
+						doc.setCharacterAttributes(start, finish - start + 1,
+								doc.getStyle(tag), false);
+					}
+				}
 
+				private void selectDelimitedBy(StyledDocument doc,
+						String delimiter, int start, int finish, String style) {
+					Element element = doc.getParagraphElement(start);
+					Element element2 = doc.getParagraphElement(finish);
+					int i = start;
+					try {
+						while (i >= element.getStartOffset()
+								&& !delimiter.equals(doc.getText(i, 1)))
+							i--;
+						if (delimiter.equals(doc.getText(i, 1)))
+							i++;
+						int j = finish;
+						while (j <= element2.getEndOffset()
+								&& !delimiter.equals(doc.getText(j, 1)))
+							j++;
+						if (delimiter.equals(doc.getText(j, 1)))
+							j--;
+						doc.setCharacterAttributes(i, j - i + 1, doc
+								.getStyle(tag), false);
+					} catch (BadLocationException e1) {
+						throw new RuntimeException(e1);
 					}
 				}
 			});
@@ -188,6 +198,7 @@ public class MainPanel extends JPanel {
 					@Override
 					public void actionPerformed(ActionEvent e) {
 						selectionMode = mode;
+						System.out.println(selectionMode);
 					}
 				});
 			}
@@ -208,7 +219,12 @@ public class MainPanel extends JPanel {
 		final MainPanel panel = injector.getInstance(MainPanel.class);
 		frame.setJMenuBar(panel.createMenuBar());
 		frame.setLayout(new GridLayout(1, 1));
-		frame.setSize(800, 800);
+		Toolkit tk = Toolkit.getDefaultToolkit();
+		Dimension screenSize = tk.getScreenSize();
+		int screenHeight = screenSize.height;
+		int screenWidth = screenSize.width;
+		frame.setSize(screenWidth / 2, screenHeight / 3 * 2);
+		frame.setLocationRelativeTo(null);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().add(panel);
 
