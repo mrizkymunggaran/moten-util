@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public abstract class ControllerBase {
+public abstract class ControllerBase implements Controller {
 	protected final Map<Class<? extends Event>, List<ControllerListener<? extends Event>>> map = new HashMap<Class<? extends Event>, List<ControllerListener<? extends Event>>>();
 
 	/**
