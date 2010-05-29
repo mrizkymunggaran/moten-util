@@ -1,6 +1,5 @@
 package moten.david.markup;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Toolkit;
@@ -11,7 +10,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
@@ -71,24 +69,42 @@ public class MainPanel extends JPanel {
     private final Set<DocumentTag> documentTags = new HashSet<DocumentTag>();
     private Set<Tag> visibleTags = new HashSet<Tag>();
 
+    private final TagsLoader tagsLoader;
+
     @Inject
-    public MainPanel(Controller controller) {
+    public MainPanel(Controller controller, TagsLoader tagsLoader) {
         this.controller = controller;
+        this.tagsLoader = tagsLoader;
         setLayout(new GridLayout(1, 1));
         text = new JTextPane();
         JScrollPane scroll = new JScrollPane(text);
         add(scroll);
-        init();
         controller.addListener(TagSelectionChanged.class,
-                new ControllerListener<TagSelectionChanged>() {
+                createTagSelectionChangedListener());
+        controller.addListener(TagsChanged.class, createTagsChangedListener());
+        init();
+    }
 
-                    @Override
-                    public void event(TagSelectionChanged event) {
-                        visibleTags = ImmutableSet.of(event.getList().toArray(
-                                new Tag[] {}));
-                        refresh();
-                    }
-                });
+    private ControllerListener<TagsChanged> createTagsChangedListener() {
+        return new ControllerListener<TagsChanged>() {
+
+            @Override
+            public void event(TagsChanged event) {
+                tags = event.getTags();
+            }
+        };
+    }
+
+    private ControllerListener<TagSelectionChanged> createTagSelectionChangedListener() {
+        return new ControllerListener<TagSelectionChanged>() {
+
+            @Override
+            public void event(TagSelectionChanged event) {
+                visibleTags = ImmutableSet.of(event.getList().toArray(
+                        new Tag[] {}));
+                refresh();
+            }
+        };
     }
 
     private enum SelectionMode {
@@ -112,13 +128,6 @@ public class MainPanel extends JPanel {
             }
         }
         text.setStyledDocument(doc);
-    }
-
-    private Tag getTag(String name) {
-        for (Tag tag : tags)
-            if (tag.getName().equals(name))
-                return tag;
-        return null;
     }
 
     private MouseListener createTextMouseListener(List<Tag> tags) {
@@ -223,32 +232,11 @@ public class MainPanel extends JPanel {
             String s = IOUtils.toString(getClass().getResourceAsStream(
                     "/example.txt"));
             text.setText(s);
-            initDocumentStyles();
+            tagsLoader.load();
             text.addMouseListener(createTextMouseListener(tags));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    private void initDocumentStyles() {
-        List<String> list;
-        try {
-            list = IOUtils.readLines(getClass()
-                    .getResourceAsStream("/tags.txt"));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        tags = new ArrayList<Tag>();
-        for (String line : list) {
-            line = line.trim();
-            if (line.length() > 0 && !line.startsWith("#")) {
-                String[] items = line.split("\t");
-                String name = items[0];
-                Color colour = Color.decode("0x" + items[1]);
-                tags.add(new Tag(name, colour));
-            }
-        }
-        controller.event(new TagsChanged(tags));
     }
 
     private JMenuBar createMenuBar() {
