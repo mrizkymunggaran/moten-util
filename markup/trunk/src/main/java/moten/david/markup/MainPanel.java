@@ -18,6 +18,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JFrame;
@@ -34,6 +35,7 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Element;
+import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
@@ -56,6 +58,8 @@ import com.google.inject.Injector;
  * 
  */
 public class MainPanel extends JPanel {
+
+    private static Logger log = Logger.getLogger(MainPanel.class.getName());
 
     private final JTextPane text;
     private final Controller controller;
@@ -92,8 +96,10 @@ public class MainPanel extends JPanel {
     }
 
     private void refresh() {
+        log.info("refreshing");
         StyledDocument doc = text.getStyledDocument();
-
+        doc.setCharacterAttributes(0, doc.getLength(),
+                SimpleAttributeSet.EMPTY, true);
         for (DocumentTag documentTag : documentTags) {
             if (visibleTags.contains(documentTag.getTag())) {
                 Style style = doc.addStyle(documentTag.getTag(), null);
@@ -101,8 +107,7 @@ public class MainPanel extends JPanel {
                         .getTag()));
                 doc.setCharacterAttributes(documentTag.getStart(), documentTag
                         .getLength(), doc.getStyle(documentTag.getTag()), true);
-            } else
-                doc.removeStyle(documentTag.getTag());
+            }
         }
         text.setStyledDocument(doc);
     }

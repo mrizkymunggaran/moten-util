@@ -40,7 +40,7 @@ public class TagsPanel extends JPanel {
 
                     @Override
                     public void event(TextTagged event) {
-                        list.setSelectedValue(event.getTag(), false);
+                        list.setSelectedValue(event.getTag(), true);
                         controller.event(new TagSelectionChanged(tags));
                     }
                 });
