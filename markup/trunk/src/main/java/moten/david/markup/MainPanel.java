@@ -13,14 +13,14 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -41,12 +41,15 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
 import moten.david.markup.events.TagSelectionChanged;
+import moten.david.markup.events.TagsChanged;
 import moten.david.markup.events.TextTagged;
 import moten.david.util.controller.Controller;
 import moten.david.util.controller.ControllerListener;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.jdesktop.swingx.JXMultiSplitPane;
+import org.jdesktop.swingx.MultiSplitLayout;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Guice;
@@ -63,13 +66,10 @@ public class MainPanel extends JPanel {
 
     private final JTextPane text;
     private final Controller controller;
-    private Style red;
-    private Style blue;
-    private List<String> tags;
+    private List<Tag> tags;
     private SelectionMode selectionMode = SelectionMode.SENTENCE;
     private final Set<DocumentTag> documentTags = new HashSet<DocumentTag>();
-    private Set<String> visibleTags = new HashSet<String>();
-    private final Map<String, Color> tagColors = new HashMap<String, Color>();
+    private Set<Tag> visibleTags = new HashSet<Tag>();
 
     @Inject
     public MainPanel(Controller controller) {
@@ -85,7 +85,7 @@ public class MainPanel extends JPanel {
                     @Override
                     public void event(TagSelectionChanged event) {
                         visibleTags = ImmutableSet.of(event.getList().toArray(
-                                new String[] {}));
+                                new Tag[] {}));
                         refresh();
                     }
                 });
@@ -102,20 +102,29 @@ public class MainPanel extends JPanel {
                 SimpleAttributeSet.EMPTY, true);
         for (DocumentTag documentTag : documentTags) {
             if (visibleTags.contains(documentTag.getTag())) {
-                Style style = doc.addStyle(documentTag.getTag(), null);
-                StyleConstants.setBackground(style, tagColors.get(documentTag
-                        .getTag()));
+                Style style = doc
+                        .addStyle(documentTag.getTag().getName(), null);
+                StyleConstants.setBackground(style, documentTag.getTag()
+                        .getColor());
                 doc.setCharacterAttributes(documentTag.getStart(), documentTag
-                        .getLength(), doc.getStyle(documentTag.getTag()), true);
+                        .getLength(), doc.getStyle(documentTag.getTag()
+                        .getName()), true);
             }
         }
         text.setStyledDocument(doc);
     }
 
-    private MouseListener createTextMouseListener(List<String> tags) {
+    private Tag getTag(String name) {
+        for (Tag tag : tags)
+            if (tag.getName().equals(name))
+                return tag;
+        return null;
+    }
+
+    private MouseListener createTextMouseListener(List<Tag> tags) {
         final JPopupMenu popup = new JPopupMenu();
-        for (final String tag : tags) {
-            JMenuItem code = new JMenuItem(tag);
+        for (final Tag tag : tags) {
+            JMenuItem code = new JMenuItem(tag.getName());
             popup.add(code);
             code.addActionListener(new ActionListener() {
                 @Override
@@ -131,7 +140,8 @@ public class MainPanel extends JPanel {
                                 .getStartOffset(), element2.getEndOffset()
                                 - element.getStartOffset() + 1));
                     else if (selectionMode.equals(SelectionMode.SENTENCE)) {
-                        selectDelimitedBy(doc, ".", start, finish, tag);
+                        selectDelimitedBy(doc, ".", start, finish, tag
+                                .getName());
                     } else {
                         // exact
                         documentTags.add(new DocumentTag(tag, start, finish
@@ -215,7 +225,6 @@ public class MainPanel extends JPanel {
             text.setText(s);
             initDocumentStyles();
             text.addMouseListener(createTextMouseListener(tags));
-            showTags();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -229,31 +238,17 @@ public class MainPanel extends JPanel {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        tags = new ArrayList<String>();
-        StyledDocument doc = text.getStyledDocument();
+        tags = new ArrayList<Tag>();
         for (String line : list) {
             line = line.trim();
             if (line.length() > 0 && !line.startsWith("#")) {
                 String[] items = line.split("\t");
                 String name = items[0];
                 Color colour = Color.decode("0x" + items[1]);
-                tags.add(name);
-                tagColors.put(name, colour);
+                tags.add(new Tag(name, colour));
             }
         }
-    }
-
-    private void showTags() {
-        final JFrame frame = new JFrame("Tags");
-        frame.getContentPane().setLayout(new GridLayout(1, 1));
-        frame.getContentPane().add(new TagsPanel(controller, tags));
-        frame.setSize(250, 500);
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                frame.setVisible(true);
-            }
-        });
+        controller.event(new TagsChanged(tags));
     }
 
     private JMenuBar createMenuBar() {
@@ -287,34 +282,63 @@ public class MainPanel extends JPanel {
         return menuBar;
     }
 
+    private JXMultiSplitPane createMultiSplitPane(JComponent panel,
+            JComponent panel2) {
+
+        JXMultiSplitPane msp = new JXMultiSplitPane();
+
+        String layoutDef = "(COLUMN (ROW weight=0.8 (COLUMN weight=0.25 "
+                + "(LEAF name=left.top weight=0.5) (LEAF name=left.middle weight=0.5))"
+                + "(LEAF name=editor weight=0.75)) (LEAF name=bottom weight=0.2))";
+
+        layoutDef = "(ROW (LEAF name=left weight=0.25) (LEAF name=right weight=0.75))";
+
+        MultiSplitLayout.Node modelRoot = MultiSplitLayout
+                .parseModel(layoutDef);
+        msp.getMultiSplitLayout().setModel(modelRoot);
+
+        msp.add(panel, "left");
+        msp.add(panel2, "right");
+
+        // ADDING A BORDER TO THE MULTISPLITPANE CAUSES ALL SORTS OF ISSUES
+        msp.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
+        return msp;
+    }
+
     public static void main(String[] args) throws InterruptedException,
             InvocationTargetException, ClassNotFoundException,
             InstantiationException, IllegalAccessException,
             UnsupportedLookAndFeelException {
         UIManager
                 .setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
-        Injector injector = Guice.createInjector(new InjectorModule());
-        final JFrame frame = new JFrame("Markup");
-        final MainPanel panel = injector.getInstance(MainPanel.class);
-        frame.setJMenuBar(panel.createMenuBar());
-        frame.setLayout(new GridLayout(1, 1));
-        Toolkit tk = Toolkit.getDefaultToolkit();
-        Dimension screenSize = tk.getScreenSize();
-        int screenHeight = screenSize.height;
-        int screenWidth = screenSize.width;
-        frame.setSize(screenWidth / 2, screenHeight / 3 * 2);
-        frame.setLocationRelativeTo(null);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.getContentPane().add(panel);
 
         SwingUtilities.invokeLater(new Runnable() {
 
             @Override
             public void run() {
+                Injector injector = Guice.createInjector(new InjectorModule());
+                final JFrame frame = new JFrame("Markup");
+                final TagsPanel tagsPanel = injector
+                        .getInstance(TagsPanel.class);
+                final MainPanel panel = injector.getInstance(MainPanel.class);
+
+                frame.setJMenuBar(panel.createMenuBar());
+                frame.setLayout(new GridLayout(1, 1));
+                Toolkit tk = Toolkit.getDefaultToolkit();
+                Dimension screenSize = tk.getScreenSize();
+                int screenHeight = screenSize.height;
+                int screenWidth = screenSize.width;
+                frame.setSize(screenWidth / 2, screenHeight / 3 * 2);
+                frame.setLocationRelativeTo(null);
+                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                frame.getContentPane().add(
+                        panel.createMultiSplitPane(tagsPanel, panel));
+
                 frame.setVisible(true);
                 panel.requestFocus();
             }
         });
 
     }
+
 }

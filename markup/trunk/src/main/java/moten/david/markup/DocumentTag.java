@@ -1,15 +1,15 @@
 package moten.david.markup;
 
 public class DocumentTag {
-    private String tag;
+    private Tag tag;
     private int start;
     private int length;
 
-    public String getTag() {
+    public Tag getTag() {
         return tag;
     }
 
-    public void setTag(String tag) {
+    public void setTag(Tag tag) {
         this.tag = tag;
     }
 
@@ -60,7 +60,7 @@ public class DocumentTag {
         this.length = length;
     }
 
-    public DocumentTag(String tag, int start, int finish) {
+    public DocumentTag(Tag tag, int start, int finish) {
         super();
         this.tag = tag;
         this.start = start;

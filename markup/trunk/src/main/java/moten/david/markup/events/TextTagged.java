@@ -1,15 +1,16 @@
 package moten.david.markup.events;
 
+import moten.david.markup.Tag;
 import moten.david.util.controller.Event;
 
 public class TextTagged implements Event {
-    private final String tag;
+    private final Tag tag;
 
-    public String getTag() {
+    public Tag getTag() {
         return tag;
     }
 
-    public TextTagged(String tag) {
+    public TextTagged(Tag tag) {
         super();
         this.tag = tag;
     }

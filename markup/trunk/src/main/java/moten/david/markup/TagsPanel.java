@@ -11,16 +11,33 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import moten.david.markup.events.TagSelectionChanged;
+import moten.david.markup.events.TagsChanged;
 import moten.david.markup.events.TextTagged;
 import moten.david.util.controller.Controller;
 import moten.david.util.controller.ControllerListener;
 
+import com.google.inject.Inject;
+
 public class TagsPanel extends JPanel {
 
-    public TagsPanel(final Controller controller, final List<String> tags) {
+    private final Controller controller;
+
+    @Inject
+    public TagsPanel(final Controller controller) {
+        this.controller = controller;
         setLayout(new GridLayout(1, 1));
+        controller.addListener(TagsChanged.class,
+                new ControllerListener<TagsChanged>() {
+                    @Override
+                    public void event(TagsChanged event) {
+                        setTags(event.getTags());
+                    }
+                });
+    }
+
+    public void setTags(final List<Tag> tags) {
         DefaultListModel model = new DefaultListModel();
-        for (String tag : tags) {
+        for (Tag tag : tags) {
             model.addElement(tag);
         }
         final JList list = new JList(model);
@@ -28,11 +45,7 @@ public class TagsPanel extends JPanel {
         list.addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent e) {
-                List<String> tags = new ArrayList<String>();
-                for (Object obj : list.getSelectedValues()) {
-                    tags.add(obj.toString());
-                }
-                controller.event(new TagSelectionChanged(tags));
+                fireChanged(list);
             }
         });
         controller.addListener(TextTagged.class,
@@ -41,10 +54,17 @@ public class TagsPanel extends JPanel {
                     @Override
                     public void event(TextTagged event) {
                         list.setSelectedValue(event.getTag(), true);
-                        controller.event(new TagSelectionChanged(tags));
+                        fireChanged(list);
                     }
                 });
+    }
 
+    private void fireChanged(JList list) {
+        List<Tag> tags = new ArrayList<Tag>();
+        for (Object obj : list.getSelectedValues()) {
+            tags.add((Tag) obj);
+        }
+        controller.event(new TagSelectionChanged(tags));
     }
 
 }
