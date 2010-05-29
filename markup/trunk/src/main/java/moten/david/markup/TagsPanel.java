@@ -4,11 +4,14 @@ import java.awt.GridLayout;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.DefaultListModel;
-import javax.swing.JList;
 import javax.swing.JPanel;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
+import javax.swing.JScrollPane;
+import javax.swing.JTree;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
+import javax.swing.text.Position;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreePath;
 
 import moten.david.markup.events.TagSelectionChanged;
 import moten.david.markup.events.TagsChanged;
@@ -26,45 +29,83 @@ public class TagsPanel extends JPanel {
     public TagsPanel(final Controller controller) {
         this.controller = controller;
         setLayout(new GridLayout(1, 1));
-        controller.addListener(TagsChanged.class,
-                new ControllerListener<TagsChanged>() {
-                    @Override
-                    public void event(TagsChanged event) {
-                        setTags(event.getTags());
-                    }
-                });
+        controller.addListener(TagsChanged.class, createTagChangedListener());
+    }
+
+    private ControllerListener<TagsChanged> createTagChangedListener() {
+        return new ControllerListener<TagsChanged>() {
+            @Override
+            public void event(TagsChanged event) {
+                setTags(event.getTags());
+            }
+        };
     }
 
     public void setTags(final List<Tag> tags) {
-        DefaultListModel model = new DefaultListModel();
-        for (Tag tag : tags) {
-            model.addElement(tag);
-        }
-        final JList list = new JList(model);
-        add(list);
-        list.addListSelectionListener(new ListSelectionListener() {
+
+        DefaultMutableTreeNode top = new DefaultMutableTreeNode("Tags");
+        createNodes(top, tags);
+        JTree tree = new JTree(top);
+
+        JScrollPane treeView = new JScrollPane(tree);
+        removeAll();
+        add(treeView);
+        tree.addTreeSelectionListener(createTreeSelectionListener(tree));
+        // DefaultListModel model = new DefaultListModel();
+        // for (Tag tag : tags) {
+        // model.addElement(tag);
+        // }
+        // final JList list = new JList(model);
+        // add(list);
+        // list.addListSelectionListener(new ListSelectionListener() {
+        // @Override
+        // public void valueChanged(ListSelectionEvent e) {
+        // fireChanged(list);
+        // }
+        // });
+        controller
+                .addListener(TextTagged.class, createTextTaggedListener(tree));
+    }
+
+    private TreeSelectionListener createTreeSelectionListener(final JTree tree) {
+        return new TreeSelectionListener() {
+
             @Override
-            public void valueChanged(ListSelectionEvent e) {
-                fireChanged(list);
+            public void valueChanged(TreeSelectionEvent e) {
+                fireChanged(tree);
             }
-        });
-        controller.addListener(TextTagged.class,
-                new ControllerListener<TextTagged>() {
-
-                    @Override
-                    public void event(TextTagged event) {
-                        list.setSelectedValue(event.getTag(), true);
-                        fireChanged(list);
-                    }
-                });
+        };
     }
 
-    private void fireChanged(JList list) {
-        List<Tag> tags = new ArrayList<Tag>();
-        for (Object obj : list.getSelectedValues()) {
-            tags.add((Tag) obj);
+    private void fireChanged(JTree tree) {
+        List<Tag> list = new ArrayList<Tag>();
+        for (TreePath path : tree.getSelectionPaths()) {
+            DefaultMutableTreeNode node = (DefaultMutableTreeNode) path
+                    .getLastPathComponent();
+            Tag tag = (Tag) node.getUserObject();
+            list.add(tag);
         }
-        controller.event(new TagSelectionChanged(tags));
+        controller.event(new TagSelectionChanged(list));
     }
 
+    private void createNodes(DefaultMutableTreeNode top, List<Tag> tags) {
+        for (Tag tag : tags) {
+            DefaultMutableTreeNode node = new DefaultMutableTreeNode(tag);
+            top.add(node);
+        }
+    }
+
+    private ControllerListener<TextTagged> createTextTaggedListener(
+            final JTree tree) {
+        return new ControllerListener<TextTagged>() {
+
+            @Override
+            public void event(TextTagged event) {
+                TreePath path = tree.getNextMatch(event.getTag().getName(), 0,
+                        Position.Bias.Forward);
+                tree.addSelectionPath(path);
+                fireChanged(tree);
+            }
+        };
+    }
 }
