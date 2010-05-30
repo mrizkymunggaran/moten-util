@@ -13,6 +13,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
@@ -70,7 +71,7 @@ public class MainPanel extends JPanel {
 	private final Controller controller;
 	private final Tags tags;
 	private SelectionMode selectionMode = SelectionMode.SENTENCE;
-	private final Set<DocumentTag> documentTags = new HashSet<DocumentTag>();
+	private final Set<DocumentTag<? extends Serializable>> documentTags = new HashSet<DocumentTag<? extends Serializable>>();
 	private Set<Tag> visibleTags = new HashSet<Tag>();
 
 	@Inject

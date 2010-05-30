@@ -26,6 +26,7 @@ public class DocumentTag<T extends Serializable> {
 		return result;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
