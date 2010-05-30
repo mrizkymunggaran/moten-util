@@ -37,13 +37,12 @@ public class Tags {
 		}
 		tags.clear();
 		float s = 1;
-		float b = 240f / 255;
+		float b = 0.95f;
 		float h = 0;
 		float step = 1f / names.size();
 
 		for (String name : names) {
 			h += step;
-			System.out.println("h=" + h);
 			Color colour = new Color(Color.HSBtoRGB(h, s, b));
 			tags.add(new Tag(name, colour));
 		}
