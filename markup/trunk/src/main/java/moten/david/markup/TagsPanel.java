@@ -1,6 +1,6 @@
 package moten.david.markup;
 
-import java.awt.BorderLayout;
+import java.awt.GridLayout;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,11 +45,11 @@ public class TagsPanel extends JPanel {
         DefaultMutableTreeNode top = new DefaultMutableTreeNode("Tags");
         createNodes(top, tags);
         JTree tree = new JTree(top);
-
+        tree.setRootVisible(false);
         JScrollPane treeView = new JScrollPane(tree);
         removeAll();
-        setLayout(new BorderLayout());
-        add(treeView, BorderLayout.NORTH);
+        setLayout(new GridLayout(1, 1));
+        add(treeView);
         tree.addTreeSelectionListener(createTreeSelectionListener(tree));
         controller
                 .addListener(TextTagged.class, createTextTaggedListener(tree));
