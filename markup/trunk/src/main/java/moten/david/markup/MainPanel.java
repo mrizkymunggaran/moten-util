@@ -85,31 +85,37 @@ public class MainPanel extends JPanel {
 				try {
 					for (DocumentTag documentTag : documentTags) {
 						if (visibleTags.contains(documentTag.getTag())) {
-							Rectangle r = new Rectangle(text
-									.modelToView(documentTag.getStart()));
-							for (int i = 1; i <= documentTag.getLength(); i++) {
-								Rectangle r2 = new Rectangle(
-										text.modelToView(documentTag.getStart()
-												+ i));
-								if (r2.y > r.y) {
-									// on a new line, draw the rectangle r so
-									// far
-									// and replace it with r2
+							for (int i = 0; i <= documentTag.getLength() - 1; i++) {
+								int characterStart = documentTag.getStart() + i;
+								int index = 0;
+								int count = 0;
+								for (DocumentTag dt : documentTags) {
+									if (visibleTags.contains(dt.getTag()))
+										if (characterStart >= dt.getStart()
+												&& characterStart < dt
+														.getStart()
+														+ dt.getLength()) {
+											if (dt == documentTag)
+												index = count;
+											count++;
+										}
+								}
+								Rectangle r = text.modelToView(characterStart);
+								Rectangle r2 = text
+										.modelToView(characterStart + 1);
+								if (r2.x > r.x && r2.y == r.y) {
 									g.setXORMode(Color.decode(""
 											+ (~documentTag.getTag().getColor()
 													.getRGB())));
-									g.fillRect(r.x, r.y, r.width, r.height);
-									System.out.println("filled " + r);
-									r = r2;
-								} else {
-									r.width = r2.x - r.x;
+									int step = r.height / count;
+									int stepHeight = step;
+									if (index == count - 1)
+										stepHeight = r.height - (count - 1)
+												* step;
+									g.fillRect(r.x, r.y + index * step, r2.x
+											- r.x, stepHeight);
 								}
-
 							}
-							g.setXORMode(Color.decode(""
-									+ (~documentTag.getTag().getColor()
-											.getRGB())));
-							g.fillRect(r.x, r.y, r.width, r.height);
 						}
 					}
 
