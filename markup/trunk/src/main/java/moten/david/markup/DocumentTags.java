@@ -8,15 +8,19 @@ import java.util.Set;
 
 public class DocumentTags {
 
-	private final List<DocumentTag<? extends Serializable>> list = new ArrayList<DocumentTag<? extends Serializable>>();
-	private final Set<DocumentTag<? extends Serializable>> visible = new HashSet<DocumentTag<? extends Serializable>>();
+    private final List<DocumentTag<? extends Serializable>> list = new ArrayList<DocumentTag<? extends Serializable>>();
+    private final Set<Tag> visible = new HashSet<Tag>();
 
-	public List<DocumentTag<? extends Serializable>> getList() {
-		return list;
-	}
+    public List<DocumentTag<? extends Serializable>> getList() {
+        return list;
+    }
 
-	public Set<DocumentTag<? extends Serializable>> getVisible() {
-		return visible;
-	}
+    public Set<Tag> getVisible() {
+        return visible;
+    }
+
+    public boolean isVisible(DocumentTag documentTag) {
+        return visible.contains(documentTag.getTag());
+    }
 
 }
