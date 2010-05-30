@@ -2,14 +2,15 @@ package moten.david.markup;
 
 import java.awt.Dimension;
 import java.awt.GridLayout;
-import java.awt.Toolkit;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
@@ -27,6 +28,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
+import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -43,7 +45,7 @@ import moten.david.util.controller.Controller;
 import moten.david.util.controller.ControllerListener;
 import moten.david.util.swing.PositionRememberingWindowListener;
 
-import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jdesktop.swingx.JXMultiSplitPane;
 import org.jdesktop.swingx.MultiSplitLayout;
@@ -69,16 +71,17 @@ public class MainPanel extends JPanel {
 	private Set<Tag> visibleTags = new HashSet<Tag>();
 
 	@Inject
-	public MainPanel(Controller controller, Tags tags) {
+	public MainPanel(Controller controller, Tags tags, StripesPanel stripes) {
 		this.controller = controller;
 		this.tags = tags;
 		setLayout(new GridLayout(1, 1));
 		text = new JTextPane();
-		JScrollPane scroll = new JScrollPane(text);
-		add(scroll);
+		loadText();
+		add(new JScrollPane(text));
+
 		controller.addListener(TagSelectionChanged.class,
 				createTagSelectionChangedListener());
-		loadText();
+
 		text.addMouseListener(createTextMouseListener(tags));
 	}
 
@@ -190,6 +193,11 @@ public class MainPanel extends JPanel {
 						System.out.println(attribute.getClass().getName() + ":"
 								+ attribute);
 					}
+					try {
+						Rectangle modelToView = text.modelToView(i);
+					} catch (BadLocationException e1) {
+						throw new RuntimeException(e1);
+					}
 				}
 				maybeShowPopup(e);
 			}
@@ -216,8 +224,8 @@ public class MainPanel extends JPanel {
 
 	private void loadText() {
 		try {
-			String s = IOUtils.toString(getClass().getResourceAsStream(
-					"/example.txt"));
+			String s = FileUtils.readFileToString(new File(
+					"src/test/resources/study1/example.txt"));
 			text.setText(s);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
@@ -228,8 +236,39 @@ public class MainPanel extends JPanel {
 		JMenuBar menuBar = new JMenuBar();
 		{
 			JMenu menu = new JMenu("File", true);
-			JMenuItem fileOpen = new JMenuItem("Open...");
-			menu.add(fileOpen);
+			{
+				JMenuItem item = new JMenuItem("Open Study...");
+				item.setMnemonic(KeyEvent.VK_O);
+				item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O,
+						ActionEvent.CTRL_MASK));
+				menu.add(item);
+			}
+			{
+				JMenuItem item = new JMenuItem("Add File...");
+				item.setMnemonic(KeyEvent.VK_A);
+				item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A,
+						ActionEvent.CTRL_MASK));
+				menu.add(item);
+			}
+			{
+				JMenuItem item = new JMenuItem("Save");
+				item.setMnemonic(KeyEvent.VK_S);
+				item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,
+						ActionEvent.CTRL_MASK));
+				menu.add(item);
+			}
+			{
+				JMenuItem item = new JMenuItem("Save As...");
+				menu.add(item);
+			}
+			{
+				menu.addSeparator();
+			}
+			{
+				JMenuItem item = new JMenuItem("Exit");
+				item.setMnemonic(KeyEvent.VK_X);
+				menu.add(item);
+			}
 			menuBar.add(menu);
 		}
 		{
@@ -260,17 +299,14 @@ public class MainPanel extends JPanel {
 
 		JXMultiSplitPane msp = new JXMultiSplitPane();
 
-		String layoutDef = "(COLUMN (ROW weight=0.8 (COLUMN weight=0.25 "
-				+ "(LEAF name=left.top weight=0.5) (LEAF name=left.middle weight=0.5))"
-				+ "(LEAF name=editor weight=0.75)) (LEAF name=bottom weight=0.2))";
-
-		layoutDef = "(ROW (LEAF name=left weight=0.25) (LEAF name=right weight=0.7))";
+		String layoutDef = "(ROW (LEAF name=left weight=0.25) (LEAF name=right weight=0.7))";
 
 		MultiSplitLayout.Node modelRoot = MultiSplitLayout
 				.parseModel(layoutDef);
 		msp.getMultiSplitLayout().setModel(modelRoot);
 
 		msp.add(panel, "left");
+		panel2.setPreferredSize(new Dimension(200, 0));
 		msp.add(panel2, "right");
 
 		// ADDING A BORDER TO THE MULTISPLITPANE CAUSES ALL SORTS OF ISSUES
@@ -278,12 +314,23 @@ public class MainPanel extends JPanel {
 		return msp;
 	}
 
-	public static void main(String[] args) throws InterruptedException,
-			InvocationTargetException, ClassNotFoundException,
-			InstantiationException, IllegalAccessException,
-			UnsupportedLookAndFeelException {
-		UIManager
-				.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
+	private static void setLookAndFeel() {
+		try {
+			UIManager
+					.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (UnsupportedLookAndFeelException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static void main(String[] args) {
+		setLookAndFeel();
 		Injector injector = Guice.createInjector(new InjectorModule());
 		final JFrame frame = new JFrame("Markup");
 		final TagsPanel tagsPanel = injector.getInstance(TagsPanel.class);
@@ -291,17 +338,10 @@ public class MainPanel extends JPanel {
 
 		frame.setJMenuBar(panel.createMenuBar());
 		frame.setLayout(new GridLayout(1, 1));
-		Toolkit tk = Toolkit.getDefaultToolkit();
-		Dimension screenSize = tk.getScreenSize();
-		int screenHeight = screenSize.height;
-		int screenWidth = screenSize.width;
-		// frame.setSize(screenWidth / 2, screenHeight / 3 * 2);
-		// frame.setLocationRelativeTo(null);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		tagsPanel.setMinimumSize(new Dimension(150, 0));
+		// tagsPanel.setMinimumSize(new Dimension(150, 0));
 		frame.getContentPane()
 				.add(panel.createMultiSplitPane(tagsPanel, panel));
-		frame.pack();
 		frame.addWindowListener(new PositionRememberingWindowListener(frame,
 				"main"));
 		SwingUtilities.invokeLater(new Runnable() {
