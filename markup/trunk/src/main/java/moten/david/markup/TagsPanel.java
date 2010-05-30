@@ -14,7 +14,6 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 
 import moten.david.markup.events.TagSelectionChanged;
-import moten.david.markup.events.TagsChanged;
 import moten.david.markup.events.TextTagged;
 import moten.david.util.controller.Controller;
 import moten.david.util.controller.ControllerListener;
@@ -23,77 +22,68 @@ import com.google.inject.Inject;
 
 public class TagsPanel extends JPanel {
 
-    private final Controller controller;
+	private final Controller controller;
 
-    @Inject
-    public TagsPanel(final Controller controller) {
-        this.controller = controller;
-        controller.addListener(TagsChanged.class, createTagChangedListener());
-    }
+	@Inject
+	public TagsPanel(final Controller controller, Tags tags) {
+		this.controller = controller;
+		setTags(tags);
+	}
 
-    private ControllerListener<TagsChanged> createTagChangedListener() {
-        return new ControllerListener<TagsChanged>() {
-            @Override
-            public void event(TagsChanged event) {
-                setTags(event.getTags());
-            }
-        };
-    }
+	private void setTags(final Tags tags) {
 
-    public void setTags(final List<Tag> tags) {
+		DefaultMutableTreeNode top = new DefaultMutableTreeNode("Tags");
+		createNodes(top, tags.get());
+		JTree tree = new JTree(top);
+		tree.setRootVisible(false);
+		JScrollPane treeView = new JScrollPane(tree);
+		removeAll();
+		setLayout(new GridLayout(1, 1));
+		add(treeView);
+		tree.addTreeSelectionListener(createTreeSelectionListener(tree));
+		controller
+				.addListener(TextTagged.class, createTextTaggedListener(tree));
+	}
 
-        DefaultMutableTreeNode top = new DefaultMutableTreeNode("Tags");
-        createNodes(top, tags);
-        JTree tree = new JTree(top);
-        tree.setRootVisible(false);
-        JScrollPane treeView = new JScrollPane(tree);
-        removeAll();
-        setLayout(new GridLayout(1, 1));
-        add(treeView);
-        tree.addTreeSelectionListener(createTreeSelectionListener(tree));
-        controller
-                .addListener(TextTagged.class, createTextTaggedListener(tree));
-    }
+	private TreeSelectionListener createTreeSelectionListener(final JTree tree) {
+		return new TreeSelectionListener() {
 
-    private TreeSelectionListener createTreeSelectionListener(final JTree tree) {
-        return new TreeSelectionListener() {
+			@Override
+			public void valueChanged(TreeSelectionEvent e) {
+				fireChanged(tree);
+			}
+		};
+	}
 
-            @Override
-            public void valueChanged(TreeSelectionEvent e) {
-                fireChanged(tree);
-            }
-        };
-    }
+	private void fireChanged(JTree tree) {
+		List<Tag> list = new ArrayList<Tag>();
+		for (TreePath path : tree.getSelectionPaths()) {
+			DefaultMutableTreeNode node = (DefaultMutableTreeNode) path
+					.getLastPathComponent();
+			Tag tag = (Tag) node.getUserObject();
+			list.add(tag);
+		}
+		controller.event(new TagSelectionChanged(list));
+	}
 
-    private void fireChanged(JTree tree) {
-        List<Tag> list = new ArrayList<Tag>();
-        for (TreePath path : tree.getSelectionPaths()) {
-            DefaultMutableTreeNode node = (DefaultMutableTreeNode) path
-                    .getLastPathComponent();
-            Tag tag = (Tag) node.getUserObject();
-            list.add(tag);
-        }
-        controller.event(new TagSelectionChanged(list));
-    }
+	private void createNodes(DefaultMutableTreeNode top, List<Tag> tags) {
+		for (Tag tag : tags) {
+			DefaultMutableTreeNode node = new DefaultMutableTreeNode(tag);
+			top.add(node);
+		}
+	}
 
-    private void createNodes(DefaultMutableTreeNode top, List<Tag> tags) {
-        for (Tag tag : tags) {
-            DefaultMutableTreeNode node = new DefaultMutableTreeNode(tag);
-            top.add(node);
-        }
-    }
+	private ControllerListener<TextTagged> createTextTaggedListener(
+			final JTree tree) {
+		return new ControllerListener<TextTagged>() {
 
-    private ControllerListener<TextTagged> createTextTaggedListener(
-            final JTree tree) {
-        return new ControllerListener<TextTagged>() {
-
-            @Override
-            public void event(TextTagged event) {
-                TreePath path = tree.getNextMatch(event.getTag().getName(), 0,
-                        Position.Bias.Forward);
-                tree.addSelectionPath(path);
-                fireChanged(tree);
-            }
-        };
-    }
+			@Override
+			public void event(TextTagged event) {
+				TreePath path = tree.getNextMatch(event.getTag().getName(), 0,
+						Position.Bias.Forward);
+				tree.addSelectionPath(path);
+				fireChanged(tree);
+			}
+		};
+	}
 }

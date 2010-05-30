@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Enumeration;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -39,10 +38,10 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
 import moten.david.markup.events.TagSelectionChanged;
-import moten.david.markup.events.TagsChanged;
 import moten.david.markup.events.TextTagged;
 import moten.david.util.controller.Controller;
 import moten.david.util.controller.ControllerListener;
+import moten.david.util.swing.PositionRememberingWindowListener;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -60,274 +59,260 @@ import com.google.inject.Injector;
  */
 public class MainPanel extends JPanel {
 
-    private static Logger log = Logger.getLogger(MainPanel.class.getName());
+	private static Logger log = Logger.getLogger(MainPanel.class.getName());
 
-    private final JTextPane text;
-    private final Controller controller;
-    private List<Tag> tags;
-    private SelectionMode selectionMode = SelectionMode.SENTENCE;
-    private final Set<DocumentTag> documentTags = new HashSet<DocumentTag>();
-    private Set<Tag> visibleTags = new HashSet<Tag>();
+	private final JTextPane text;
+	private final Controller controller;
+	private final Tags tags;
+	private SelectionMode selectionMode = SelectionMode.SENTENCE;
+	private final Set<DocumentTag> documentTags = new HashSet<DocumentTag>();
+	private Set<Tag> visibleTags = new HashSet<Tag>();
 
-    private final TagsLoader tagsLoader;
+	@Inject
+	public MainPanel(Controller controller, Tags tags) {
+		this.controller = controller;
+		this.tags = tags;
+		setLayout(new GridLayout(1, 1));
+		text = new JTextPane();
+		JScrollPane scroll = new JScrollPane(text);
+		add(scroll);
+		controller.addListener(TagSelectionChanged.class,
+				createTagSelectionChangedListener());
+		loadText();
+		text.addMouseListener(createTextMouseListener(tags));
+	}
 
-    @Inject
-    public MainPanel(Controller controller, TagsLoader tagsLoader) {
-        this.controller = controller;
-        this.tagsLoader = tagsLoader;
-        setLayout(new GridLayout(1, 1));
-        text = new JTextPane();
-        JScrollPane scroll = new JScrollPane(text);
-        add(scroll);
-        controller.addListener(TagSelectionChanged.class,
-                createTagSelectionChangedListener());
-        controller.addListener(TagsChanged.class, createTagsChangedListener());
-        init();
-    }
+	private ControllerListener<TagSelectionChanged> createTagSelectionChangedListener() {
+		return new ControllerListener<TagSelectionChanged>() {
 
-    private ControllerListener<TagsChanged> createTagsChangedListener() {
-        return new ControllerListener<TagsChanged>() {
+			@Override
+			public void event(TagSelectionChanged event) {
+				visibleTags = ImmutableSet.of(event.getList().toArray(
+						new Tag[] {}));
+				refresh();
+			}
+		};
+	}
 
-            @Override
-            public void event(TagsChanged event) {
-                tags = event.getTags();
-            }
-        };
-    }
+	private enum SelectionMode {
+		EXACT, WORD, SENTENCE, PARAGRAPH;
+	}
 
-    private ControllerListener<TagSelectionChanged> createTagSelectionChangedListener() {
-        return new ControllerListener<TagSelectionChanged>() {
+	private void refresh() {
+		log.info("refreshing");
+		StyledDocument doc = text.getStyledDocument();
+		doc.setCharacterAttributes(0, doc.getLength(),
+				SimpleAttributeSet.EMPTY, true);
+		for (DocumentTag documentTag : documentTags) {
+			if (visibleTags.contains(documentTag.getTag())) {
+				Style style = doc
+						.addStyle(documentTag.getTag().getName(), null);
+				StyleConstants.setBackground(style, documentTag.getTag()
+						.getColor());
+				doc.setCharacterAttributes(documentTag.getStart(), documentTag
+						.getLength(), doc.getStyle(documentTag.getTag()
+						.getName()), true);
+			}
+		}
+		text.setStyledDocument(doc);
+	}
 
-            @Override
-            public void event(TagSelectionChanged event) {
-                visibleTags = ImmutableSet.of(event.getList().toArray(
-                        new Tag[] {}));
-                refresh();
-            }
-        };
-    }
+	private MouseListener createTextMouseListener(Tags tags) {
+		final JPopupMenu popup = new JPopupMenu();
+		for (final Tag tag : tags.get()) {
+			JMenuItem code = new JMenuItem(tag.getName());
+			popup.add(code);
+			code.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					int start = text.getSelectionStart();
+					int finish = text.getSelectionEnd();
+					StyledDocument doc = text.getStyledDocument();
+					Element element = doc.getParagraphElement(start);
+					Element element2 = doc.getParagraphElement(finish);
 
-    private enum SelectionMode {
-        EXACT, WORD, SENTENCE, PARAGRAPH;
-    }
+					if (selectionMode.equals(SelectionMode.PARAGRAPH))
+						documentTags.add(new DocumentTag(tag, element
+								.getStartOffset(), element2.getEndOffset()
+								- element.getStartOffset() + 1));
+					else if (selectionMode.equals(SelectionMode.SENTENCE)) {
+						selectDelimitedBy(doc, ".", start, finish, tag
+								.getName());
+					} else {
+						// exact
+						documentTags.add(new DocumentTag(tag, start, finish
+								- start + 1));
+					}
+					controller.event(new TextTagged(tag));
+					refresh();
+				}
 
-    private void refresh() {
-        log.info("refreshing");
-        StyledDocument doc = text.getStyledDocument();
-        doc.setCharacterAttributes(0, doc.getLength(),
-                SimpleAttributeSet.EMPTY, true);
-        for (DocumentTag documentTag : documentTags) {
-            if (visibleTags.contains(documentTag.getTag())) {
-                Style style = doc
-                        .addStyle(documentTag.getTag().getName(), null);
-                StyleConstants.setBackground(style, documentTag.getTag()
-                        .getColor());
-                doc.setCharacterAttributes(documentTag.getStart(), documentTag
-                        .getLength(), doc.getStyle(documentTag.getTag()
-                        .getName()), true);
-            }
-        }
-        text.setStyledDocument(doc);
-    }
+				private void selectDelimitedBy(StyledDocument doc,
+						String delimiter, int start, int finish, String style) {
+					Element element = doc.getParagraphElement(start);
+					Element element2 = doc.getParagraphElement(finish);
+					int i = start;
+					try {
+						while (i > element.getStartOffset()
+								&& !delimiter.equals(doc.getText(i, 1)))
+							i--;
+						while (delimiter.equals(doc.getText(i, 1))
+								|| Character.isWhitespace(doc.getText(i, 1)
+										.charAt(0)))
+							i++;
+						int j = finish;
+						while (j < element2.getEndOffset()
+								&& !delimiter.equals(doc.getText(j, 1)))
+							j++;
+						if (delimiter.equals(doc.getText(j, 1))
+								|| Character.isWhitespace(doc.getText(j, 1)
+										.charAt(0)))
+							j--;
+						documentTags.add(new DocumentTag(tag, i, j - i + 1));
+					} catch (BadLocationException e1) {
+						throw new RuntimeException(e1);
+					}
+				}
+			});
+		}
 
-    private MouseListener createTextMouseListener(List<Tag> tags) {
-        final JPopupMenu popup = new JPopupMenu();
-        for (final Tag tag : tags) {
-            JMenuItem code = new JMenuItem(tag.getName());
-            popup.add(code);
-            code.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    int start = text.getSelectionStart();
-                    int finish = text.getSelectionEnd();
-                    StyledDocument doc = text.getStyledDocument();
-                    Element element = doc.getParagraphElement(start);
-                    Element element2 = doc.getParagraphElement(finish);
+		return new MouseAdapter() {
 
-                    if (selectionMode.equals(SelectionMode.PARAGRAPH))
-                        documentTags.add(new DocumentTag(tag, element
-                                .getStartOffset(), element2.getEndOffset()
-                                - element.getStartOffset() + 1));
-                    else if (selectionMode.equals(SelectionMode.SENTENCE)) {
-                        selectDelimitedBy(doc, ".", start, finish, tag
-                                .getName());
-                    } else {
-                        // exact
-                        documentTags.add(new DocumentTag(tag, start, finish
-                                - start + 1));
-                    }
-                    controller.event(new TextTagged(tag));
-                    refresh();
-                }
+			@Override
+			public void mousePressed(MouseEvent e) {
+				if (!e.isPopupTrigger()) {
+					StyledDocument doc = text.getStyledDocument();
+					int i = text.getSelectionStart();
+					Enumeration<?> names = doc.getCharacterElement(i)
+							.getAttributes().getAttributeNames();
+					while (names.hasMoreElements()) {
+						Object attribute = names.nextElement();
+						System.out.println(attribute.getClass().getName() + ":"
+								+ attribute);
+					}
+				}
+				maybeShowPopup(e);
+			}
 
-                private void selectDelimitedBy(StyledDocument doc,
-                        String delimiter, int start, int finish, String style) {
-                    Element element = doc.getParagraphElement(start);
-                    Element element2 = doc.getParagraphElement(finish);
-                    int i = start;
-                    try {
-                        while (i > element.getStartOffset()
-                                && !delimiter.equals(doc.getText(i, 1)))
-                            i--;
-                        while (delimiter.equals(doc.getText(i, 1))
-                                || Character.isWhitespace(doc.getText(i, 1)
-                                        .charAt(0)))
-                            i++;
-                        int j = finish;
-                        while (j < element2.getEndOffset()
-                                && !delimiter.equals(doc.getText(j, 1)))
-                            j++;
-                        if (delimiter.equals(doc.getText(j, 1))
-                                || Character.isWhitespace(doc.getText(j, 1)
-                                        .charAt(0)))
-                            j--;
-                        documentTags.add(new DocumentTag(tag, i, j - i + 1));
-                    } catch (BadLocationException e1) {
-                        throw new RuntimeException(e1);
-                    }
-                }
-            });
-        }
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				maybeShowPopup(e);
+			}
 
-        return new MouseAdapter() {
+			private void maybeShowPopup(MouseEvent e) {
+				if (e.isPopupTrigger()) {
+					popup.show(e.getComponent(), e.getX(), e.getY());
+				}
+			}
 
-            @Override
-            public void mousePressed(MouseEvent e) {
-                if (!e.isPopupTrigger()) {
-                    StyledDocument doc = text.getStyledDocument();
-                    int i = text.getSelectionStart();
-                    Enumeration<?> names = doc.getCharacterElement(i)
-                            .getAttributes().getAttributeNames();
-                    while (names.hasMoreElements()) {
-                        Object attribute = names.nextElement();
-                        System.out.println(attribute.getClass().getName() + ":"
-                                + attribute);
-                    }
-                }
-                maybeShowPopup(e);
-            }
+		};
+	}
 
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                maybeShowPopup(e);
-            }
+	@Override
+	public void requestFocus() {
+		super.requestFocus();
+		text.requestFocus();
+	}
 
-            private void maybeShowPopup(MouseEvent e) {
-                if (e.isPopupTrigger()) {
-                    popup.show(e.getComponent(), e.getX(), e.getY());
-                }
-            }
+	private void loadText() {
+		try {
+			String s = IOUtils.toString(getClass().getResourceAsStream(
+					"/example.txt"));
+			text.setText(s);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
-        };
-    }
+	private JMenuBar createMenuBar() {
+		JMenuBar menuBar = new JMenuBar();
+		{
+			JMenu menu = new JMenu("File", true);
+			JMenuItem fileOpen = new JMenuItem("Open...");
+			menu.add(fileOpen);
+			menuBar.add(menu);
+		}
+		{
+			JMenu menu = new JMenu("Selection", true);
+			ButtonGroup group = new ButtonGroup();
+			for (final SelectionMode mode : SelectionMode.values()) {
+				JRadioButtonMenuItem item = new JRadioButtonMenuItem(
+						StringUtils.capitalize(mode.toString().toLowerCase()),
+						mode.equals(selectionMode));
+				menu.add(item);
+				group.add(item);
+				item.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						selectionMode = mode;
+						System.out.println(selectionMode);
+					}
+				});
+			}
+			menuBar.add(menu);
+		}
 
-    @Override
-    public void requestFocus() {
-        super.requestFocus();
-        text.requestFocus();
-    }
+		return menuBar;
+	}
 
-    private void init() {
-        try {
-            String s = IOUtils.toString(getClass().getResourceAsStream(
-                    "/example.txt"));
-            text.setText(s);
-            tagsLoader.load();
-            text.addMouseListener(createTextMouseListener(tags));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
+	private JXMultiSplitPane createMultiSplitPane(JComponent panel,
+			JComponent panel2) {
 
-    private JMenuBar createMenuBar() {
-        JMenuBar menuBar = new JMenuBar();
-        {
-            JMenu menu = new JMenu("File", true);
-            JMenuItem fileOpen = new JMenuItem("Open...");
-            menu.add(fileOpen);
-            menuBar.add(menu);
-        }
-        {
-            JMenu menu = new JMenu("Selection", true);
-            ButtonGroup group = new ButtonGroup();
-            for (final SelectionMode mode : SelectionMode.values()) {
-                JRadioButtonMenuItem item = new JRadioButtonMenuItem(
-                        StringUtils.capitalize(mode.toString().toLowerCase()),
-                        mode.equals(selectionMode));
-                menu.add(item);
-                group.add(item);
-                item.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        selectionMode = mode;
-                        System.out.println(selectionMode);
-                    }
-                });
-            }
-            menuBar.add(menu);
-        }
+		JXMultiSplitPane msp = new JXMultiSplitPane();
 
-        return menuBar;
-    }
+		String layoutDef = "(COLUMN (ROW weight=0.8 (COLUMN weight=0.25 "
+				+ "(LEAF name=left.top weight=0.5) (LEAF name=left.middle weight=0.5))"
+				+ "(LEAF name=editor weight=0.75)) (LEAF name=bottom weight=0.2))";
 
-    private JXMultiSplitPane createMultiSplitPane(JComponent panel,
-            JComponent panel2) {
+		layoutDef = "(ROW (LEAF name=left weight=0.25) (LEAF name=right weight=0.7))";
 
-        JXMultiSplitPane msp = new JXMultiSplitPane();
+		MultiSplitLayout.Node modelRoot = MultiSplitLayout
+				.parseModel(layoutDef);
+		msp.getMultiSplitLayout().setModel(modelRoot);
 
-        String layoutDef = "(COLUMN (ROW weight=0.8 (COLUMN weight=0.25 "
-                + "(LEAF name=left.top weight=0.5) (LEAF name=left.middle weight=0.5))"
-                + "(LEAF name=editor weight=0.75)) (LEAF name=bottom weight=0.2))";
+		msp.add(panel, "left");
+		msp.add(panel2, "right");
 
-        layoutDef = "(ROW (LEAF name=left weight=0.25) (LEAF name=right weight=0.7))";
+		// ADDING A BORDER TO THE MULTISPLITPANE CAUSES ALL SORTS OF ISSUES
+		msp.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
+		return msp;
+	}
 
-        MultiSplitLayout.Node modelRoot = MultiSplitLayout
-                .parseModel(layoutDef);
-        msp.getMultiSplitLayout().setModel(modelRoot);
+	public static void main(String[] args) throws InterruptedException,
+			InvocationTargetException, ClassNotFoundException,
+			InstantiationException, IllegalAccessException,
+			UnsupportedLookAndFeelException {
+		UIManager
+				.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
+		Injector injector = Guice.createInjector(new InjectorModule());
+		final JFrame frame = new JFrame("Markup");
+		final TagsPanel tagsPanel = injector.getInstance(TagsPanel.class);
+		final MainPanel panel = injector.getInstance(MainPanel.class);
 
-        msp.add(panel, "left");
-        msp.add(panel2, "right");
+		frame.setJMenuBar(panel.createMenuBar());
+		frame.setLayout(new GridLayout(1, 1));
+		Toolkit tk = Toolkit.getDefaultToolkit();
+		Dimension screenSize = tk.getScreenSize();
+		int screenHeight = screenSize.height;
+		int screenWidth = screenSize.width;
+		// frame.setSize(screenWidth / 2, screenHeight / 3 * 2);
+		// frame.setLocationRelativeTo(null);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		tagsPanel.setMinimumSize(new Dimension(150, 0));
+		frame.getContentPane()
+				.add(panel.createMultiSplitPane(tagsPanel, panel));
+		frame.pack();
+		frame.addWindowListener(new PositionRememberingWindowListener(frame,
+				"main"));
+		SwingUtilities.invokeLater(new Runnable() {
 
-        // ADDING A BORDER TO THE MULTISPLITPANE CAUSES ALL SORTS OF ISSUES
-        msp.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
-        return msp;
-    }
+			@Override
+			public void run() {
 
-    public static void main(String[] args) throws InterruptedException,
-            InvocationTargetException, ClassNotFoundException,
-            InstantiationException, IllegalAccessException,
-            UnsupportedLookAndFeelException {
-        UIManager
-                .setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
+				frame.setVisible(true);
+				panel.requestFocus();
+			}
+		});
 
-        SwingUtilities.invokeLater(new Runnable() {
-
-            @Override
-            public void run() {
-                Injector injector = Guice.createInjector(new InjectorModule());
-                final JFrame frame = new JFrame("Markup");
-                final TagsPanel tagsPanel = injector
-                        .getInstance(TagsPanel.class);
-                final MainPanel panel = injector.getInstance(MainPanel.class);
-
-                frame.setJMenuBar(panel.createMenuBar());
-                frame.setLayout(new GridLayout(1, 1));
-                Toolkit tk = Toolkit.getDefaultToolkit();
-                Dimension screenSize = tk.getScreenSize();
-                int screenHeight = screenSize.height;
-                int screenWidth = screenSize.width;
-                // frame.setSize(screenWidth / 2, screenHeight / 3 * 2);
-                // frame.setLocationRelativeTo(null);
-                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                tagsPanel.setMinimumSize(new Dimension(150, 0));
-                frame.getContentPane().add(
-                        panel.createMultiSplitPane(tagsPanel, panel));
-                frame.pack();
-                frame.setVisible(true);
-                panel.requestFocus();
-            }
-        });
-
-    }
-
+	}
 }
