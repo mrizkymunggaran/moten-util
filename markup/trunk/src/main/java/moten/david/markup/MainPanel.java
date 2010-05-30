@@ -71,7 +71,7 @@ public class MainPanel extends JPanel {
     private final Document document = new Document("dummy", new DocumentTags());
 
     @Inject
-    public MainPanel(Controller controller, Tags tags, StripesPanel stripes) {
+    public MainPanel(Controller controller, Tags tags) {
         this.controller = controller;
         this.tags = tags;
         setLayout(new GridLayout(1, 1));
