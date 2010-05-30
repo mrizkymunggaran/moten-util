@@ -279,7 +279,7 @@ public class MainPanel extends JPanel {
                 + "(LEAF name=left.top weight=0.5) (LEAF name=left.middle weight=0.5))"
                 + "(LEAF name=editor weight=0.75)) (LEAF name=bottom weight=0.2))";
 
-        layoutDef = "(ROW (LEAF name=left weight=0.25) (LEAF name=right weight=0.75))";
+        layoutDef = "(ROW (LEAF name=left weight=0.3) (LEAF name=right weight=0.7))";
 
         MultiSplitLayout.Node modelRoot = MultiSplitLayout
                 .parseModel(layoutDef);
@@ -308,6 +308,7 @@ public class MainPanel extends JPanel {
                 final JFrame frame = new JFrame("Markup");
                 final TagsPanel tagsPanel = injector
                         .getInstance(TagsPanel.class);
+                tagsPanel.setPreferredSize(new Dimension(150, 150));
                 final MainPanel panel = injector.getInstance(MainPanel.class);
 
                 frame.setJMenuBar(panel.createMenuBar());

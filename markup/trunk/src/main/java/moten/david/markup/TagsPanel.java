@@ -1,6 +1,6 @@
 package moten.david.markup;
 
-import java.awt.GridLayout;
+import java.awt.BorderLayout;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,7 +28,6 @@ public class TagsPanel extends JPanel {
     @Inject
     public TagsPanel(final Controller controller) {
         this.controller = controller;
-        setLayout(new GridLayout(1, 1));
         controller.addListener(TagsChanged.class, createTagChangedListener());
     }
 
@@ -49,20 +48,9 @@ public class TagsPanel extends JPanel {
 
         JScrollPane treeView = new JScrollPane(tree);
         removeAll();
-        add(treeView);
+        setLayout(new BorderLayout());
+        add(treeView, BorderLayout.NORTH);
         tree.addTreeSelectionListener(createTreeSelectionListener(tree));
-        // DefaultListModel model = new DefaultListModel();
-        // for (Tag tag : tags) {
-        // model.addElement(tag);
-        // }
-        // final JList list = new JList(model);
-        // add(list);
-        // list.addListSelectionListener(new ListSelectionListener() {
-        // @Override
-        // public void valueChanged(ListSelectionEvent e) {
-        // fireChanged(list);
-        // }
-        // });
         controller
                 .addListener(TextTagged.class, createTextTaggedListener(tree));
     }
