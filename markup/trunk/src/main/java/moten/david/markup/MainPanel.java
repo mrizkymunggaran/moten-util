@@ -1,6 +1,8 @@
 package moten.david.markup;
 
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -39,6 +41,7 @@ import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
+import moten.david.markup.events.SelectionModeChanged;
 import moten.david.markup.events.TagSelectionChanged;
 import moten.david.markup.events.TextTagged;
 import moten.david.util.controller.Controller;
@@ -75,14 +78,64 @@ public class MainPanel extends JPanel {
 		this.controller = controller;
 		this.tags = tags;
 		setLayout(new GridLayout(1, 1));
-		text = new JTextPane();
+		text = new JTextPane() {
+			@Override
+			protected void paintComponent(Graphics g) {
+				super.paintComponent(g);
+				try {
+					for (DocumentTag documentTag : documentTags) {
+						if (visibleTags.contains(documentTag.getTag())) {
+							Rectangle r = new Rectangle(text
+									.modelToView(documentTag.getStart()));
+							for (int i = 1; i <= documentTag.getLength(); i++) {
+								Rectangle r2 = new Rectangle(
+										text.modelToView(documentTag.getStart()
+												+ i));
+								if (r2.y > r.y) {
+									// on a new line, draw the rectangle r so
+									// far
+									// and replace it with r2
+									g.setXORMode(Color.decode(""
+											+ (~documentTag.getTag().getColor()
+													.getRGB())));
+									g.fillRect(r.x, r.y, r.width, r.height);
+									System.out.println("filled " + r);
+									r = r2;
+								} else {
+									r.width = r2.x - r.x;
+								}
+
+							}
+							g.setXORMode(Color.decode(""
+									+ (~documentTag.getTag().getColor()
+											.getRGB())));
+							g.fillRect(r.x, r.y, r.width, r.height);
+						}
+					}
+
+				} catch (BadLocationException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		};
 		loadText();
 		add(new JScrollPane(text));
 
 		controller.addListener(TagSelectionChanged.class,
 				createTagSelectionChangedListener());
+		controller.addListener(SelectionModeChanged.class,
+				createSelectionModeChangedListener());
 
 		text.addMouseListener(createTextMouseListener(tags));
+	}
+
+	private ControllerListener<SelectionModeChanged> createSelectionModeChangedListener() {
+		return new ControllerListener<SelectionModeChanged>() {
+			@Override
+			public void event(SelectionModeChanged event) {
+				selectionMode = event.getSelectionMode();
+			}
+		};
 	}
 
 	private ControllerListener<TagSelectionChanged> createTagSelectionChangedListener() {
@@ -97,10 +150,6 @@ public class MainPanel extends JPanel {
 		};
 	}
 
-	private enum SelectionMode {
-		EXACT, WORD, SENTENCE, PARAGRAPH;
-	}
-
 	private void refresh() {
 		log.info("refreshing");
 		StyledDocument doc = text.getStyledDocument();
@@ -112,9 +161,10 @@ public class MainPanel extends JPanel {
 						.addStyle(documentTag.getTag().getName(), null);
 				StyleConstants.setBackground(style, documentTag.getTag()
 						.getColor());
-				doc.setCharacterAttributes(documentTag.getStart(), documentTag
-						.getLength(), doc.getStyle(documentTag.getTag()
-						.getName()), true);
+				// doc.setCharacterAttributes(documentTag.getStart(),
+				// documentTag
+				// .getLength(), doc.getStyle(documentTag.getTag()
+				// .getName()), true);
 			}
 		}
 		text.setStyledDocument(doc);
@@ -236,6 +286,7 @@ public class MainPanel extends JPanel {
 		JMenuBar menuBar = new JMenuBar();
 		{
 			JMenu menu = new JMenu("File", true);
+			menu.setMnemonic(KeyEvent.VK_F);
 			{
 				JMenuItem item = new JMenuItem("Open Study...");
 				item.setMnemonic(KeyEvent.VK_O);
@@ -273,6 +324,7 @@ public class MainPanel extends JPanel {
 		}
 		{
 			JMenu menu = new JMenu("Selection", true);
+			menu.setMnemonic(KeyEvent.VK_S);
 			ButtonGroup group = new ButtonGroup();
 			for (final SelectionMode mode : SelectionMode.values()) {
 				JRadioButtonMenuItem item = new JRadioButtonMenuItem(
@@ -283,10 +335,21 @@ public class MainPanel extends JPanel {
 				item.addActionListener(new ActionListener() {
 					@Override
 					public void actionPerformed(ActionEvent e) {
-						selectionMode = mode;
-						System.out.println(selectionMode);
+						controller.event(new SelectionModeChanged(mode));
 					}
 				});
+			}
+			menuBar.add(menu);
+		}
+		{
+			JMenu menu = new JMenu("Search", true);
+			menu.setMnemonic(KeyEvent.VK_E);
+			{
+				JMenuItem item = new JMenuItem("Find...");
+				item.setMnemonic(KeyEvent.VK_F);
+				item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F,
+						ActionEvent.CTRL_MASK));
+				menu.add(item);
 			}
 			menuBar.add(menu);
 		}
@@ -355,4 +418,5 @@ public class MainPanel extends JPanel {
 		});
 
 	}
+
 }
