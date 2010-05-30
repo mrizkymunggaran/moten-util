@@ -191,16 +191,16 @@ public class MainPanel extends JPanel {
 					Element element2 = doc.getParagraphElement(finish);
 
 					if (selectionMode.equals(SelectionMode.PARAGRAPH))
-						documentTags.add(new DocumentTag(tag, element
+						documentTags.add(new DocumentTag<Boolean>(tag, element
 								.getStartOffset(), element2.getEndOffset()
-								- element.getStartOffset() + 1));
+								- element.getStartOffset() + 1, true));
 					else if (selectionMode.equals(SelectionMode.SENTENCE)) {
 						selectDelimitedBy(doc, ".", start, finish, tag
 								.getName());
 					} else {
 						// exact
-						documentTags.add(new DocumentTag(tag, start, finish
-								- start + 1));
+						documentTags.add(new DocumentTag<Boolean>(tag, start,
+								finish - start + 1, true));
 					}
 					controller.event(new TextTagged(tag));
 					refresh();
@@ -227,7 +227,8 @@ public class MainPanel extends JPanel {
 								|| Character.isWhitespace(doc.getText(j, 1)
 										.charAt(0)))
 							j--;
-						documentTags.add(new DocumentTag(tag, i, j - i + 1));
+						documentTags.add(new DocumentTag<Boolean>(tag, i, j - i
+								+ 1, true));
 					} catch (BadLocationException e1) {
 						throw new RuntimeException(e1);
 					}

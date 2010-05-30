@@ -31,7 +31,7 @@ public class Tags {
 				String name = items[0];
 				Color colour = Color.decode("0x" + items[1]);
 
-				tags.add(new Tag(name, colour));
+				tags.add(new Tag(Boolean.class, name, colour));
 				names.add(name);
 			}
 		}
@@ -44,7 +44,7 @@ public class Tags {
 		for (String name : names) {
 			h += step;
 			Color colour = new Color(Color.HSBtoRGB(h, s, b));
-			tags.add(new Tag(name, colour));
+			tags.add(new Tag(Boolean.class, name, colour));
 		}
 
 	}
