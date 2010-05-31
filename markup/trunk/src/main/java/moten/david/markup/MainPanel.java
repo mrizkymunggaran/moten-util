@@ -184,6 +184,8 @@ public class MainPanel extends JPanel {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     Object value = true;
+                    // if tag type is boolean then it is a theme that refers to
+                    // the selection.
                     if (!tag.getType().equals(Boolean.class)) {
                         value = JOptionPane.showInputDialog(MainPanel.this, tag
                                 .getName(), "Tag value for "
