@@ -1,6 +1,6 @@
-Voluntary action	java.lang.Boolean	SELECTION
-Climate change	java.lang.Boolean	SELECTION
-Palm oil	java.lang.Boolean	SELECTION
-Caring attitude	java.lang.Boolean	SELECTION
-Gender	java.lang.String	DOCUMENT
-Age	java.math.BigDecimal	DOCUMENT
+1	Voluntary action	java.lang.Boolean	SELECTION
+2	Climate change	java.lang.Boolean	SELECTION
+3	Palm oil	java.lang.Boolean	SELECTION
+4	Caring attitude	java.lang.Boolean	SELECTION
+5	Gender	java.lang.String	DOCUMENT
+6	Age	java.math.BigDecimal	DOCUMENT

@@ -37,13 +37,14 @@ public class Tags {
         float step = 1f / lines.size();
         for (String line : lines) {
             String[] items = line.split("\t");
-            String name = items[0];
-            String type = items[1];
-            TagScope scope = TagScope.valueOf(items[2]);
+            String id = items[0];
+            String name = items[1];
+            String type = items[2];
+            TagScope scope = TagScope.valueOf(items[3]);
             h += step;
             Color colour = new Color(~Color.HSBtoRGB(h, s, b));
             try {
-                tags.add(new Tag(Class.forName(type), name, scope, colour));
+                tags.add(new Tag(id, Class.forName(type), name, scope, colour));
             } catch (ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }

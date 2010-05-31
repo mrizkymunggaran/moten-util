@@ -8,8 +8,11 @@ public class Tag<T extends Serializable> {
     private final String name;
     private final Class<T> type;
     private final TagScope scope;
+    private final String id;
 
-    public Tag(Class<T> type, String name, TagScope scope, Color color) {
+    public Tag(String id, Class<T> type, String name, TagScope scope,
+            Color color) {
+        this.id = id;
         this.type = type;
         this.name = name;
         this.scope = scope;

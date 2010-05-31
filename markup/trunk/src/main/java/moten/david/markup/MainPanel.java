@@ -410,9 +410,12 @@ public class MainPanel extends JPanel {
 
     private static void setLookAndFeel() {
         try {
-            // UIManager
-            // .setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            if (true)
+                UIManager
+                        .setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
+            else
+                UIManager.setLookAndFeel(UIManager
+                        .getSystemLookAndFeelClassName());
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         } catch (InstantiationException e) {
