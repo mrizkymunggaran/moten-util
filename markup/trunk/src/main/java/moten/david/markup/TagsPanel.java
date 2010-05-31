@@ -51,7 +51,6 @@ public class TagsPanel extends JPanel {
         checkTreeManager = new CheckTreeManager(tree);
         checkTreeManager.getSelectionModel().addTreeSelectionListener(
                 createTreeSelectionListener(tree));
-
     }
 
     private TreeSelectionListener createTreeSelectionListener(final JTree tree) {
@@ -96,7 +95,7 @@ public class TagsPanel extends JPanel {
             public void event(TextTagged event) {
                 TreePath path = tree.getNextMatch(event.getTag().getName(), 0,
                         Position.Bias.Forward);
-                tree.getSelectionModel().addSelectionPath(path);
+                checkTreeManager.getSelectionModel().addSelectionPath(path);
                 fireChanged(tree);
             }
         };
