@@ -23,6 +23,7 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JRadioButtonMenuItem;
@@ -168,10 +169,6 @@ public class MainPanel extends JPanel {
                         .addStyle(documentTag.getTag().getName(), null);
                 StyleConstants.setBackground(style, documentTag.getTag()
                         .getColor());
-                // doc.setCharacterAttributes(documentTag.getStart(),
-                // documentTag
-                // .getLength(), doc.getStyle(documentTag.getTag()
-                // .getName()), true);
             }
         }
         text.setStyledDocument(doc);
@@ -180,11 +177,19 @@ public class MainPanel extends JPanel {
     private MouseListener createTextMouseListener(Tags tags) {
         final JPopupMenu popup = new JPopupMenu();
         for (final Tag tag : tags.get()) {
-            JMenuItem code = new JMenuItem(tag.getName());
+            JMenuItem code = new JMenuItem(tag.getName()
+                    + (!tag.getType().equals(Boolean.class) ? "..." : ""));
             popup.add(code);
             code.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
+                    Object value = true;
+                    if (!tag.getType().equals(Boolean.class)) {
+                        value = JOptionPane.showInputDialog(MainPanel.this, tag
+                                .getName(), "Tag value for "
+                                + tag.getScope().toString().toLowerCase(),
+                                JOptionPane.PLAIN_MESSAGE, null, null, "");
+                    }
                     int start = text.getSelectionStart();
                     int finish = text.getSelectionEnd();
                     StyledDocument doc = text.getStyledDocument();
@@ -193,18 +198,18 @@ public class MainPanel extends JPanel {
 
                     if (selectionMode.equals(SelectionMode.PARAGRAPH))
                         document.getDocumentTags().getList().add(
-                                new DocumentTag<Boolean>(tag, element
-                                        .getStartOffset(), element2
-                                        .getEndOffset()
-                                        - element.getStartOffset() + 1, true));
+                                new DocumentTag(tag, element.getStartOffset(),
+                                        element2.getEndOffset()
+                                                - element.getStartOffset() + 1,
+                                        value));
                     else if (selectionMode.equals(SelectionMode.SENTENCE)) {
                         selectDelimitedBy(doc, ".", start, finish, tag
                                 .getName());
                     } else {
                         // exact
                         document.getDocumentTags().getList().add(
-                                new DocumentTag<Boolean>(tag, start, finish
-                                        - start + 1, true));
+                                new DocumentTag(tag, start, finish - start + 1,
+                                        value));
                     }
                     controller.event(new TextTagged(tag));
                     refresh();
@@ -237,6 +242,18 @@ public class MainPanel extends JPanel {
                     } catch (BadLocationException e1) {
                         throw new RuntimeException(e1);
                     }
+                }
+            });
+        }
+
+        popup.addSeparator();
+        {
+            JMenuItem item = new JMenuItem("Clear tags from selection");
+            popup.add(item);
+            item.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+
                 }
             });
         }
@@ -391,8 +408,9 @@ public class MainPanel extends JPanel {
 
     private static void setLookAndFeel() {
         try {
-            UIManager
-                    .setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
+            // UIManager
+            // .setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         } catch (InstantiationException e) {

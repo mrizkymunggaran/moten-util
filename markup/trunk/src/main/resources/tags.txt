@@ -1,4 +1,6 @@
-Voluntary action	ffc0cb
-Climate change	F5E8E2
-Palm oil	eedd82
-Caring attitude	b0c4de
+Voluntary action	java.lang.Boolean	SELECTION
+Climate change	java.lang.Boolean	SELECTION
+Palm oil	java.lang.Boolean	SELECTION
+Caring attitude	java.lang.Boolean	SELECTION
+Gender	java.lang.String	DOCUMENT
+Age	java.math.BigDecimal	DOCUMENT
