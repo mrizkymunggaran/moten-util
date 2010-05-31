@@ -1,4 +1,4 @@
-package moten.david.markup;
+package moten.david.util.swing;
 
 import java.awt.BorderLayout;
 import java.awt.Component;

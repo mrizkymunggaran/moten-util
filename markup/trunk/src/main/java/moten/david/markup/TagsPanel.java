@@ -18,6 +18,7 @@ import moten.david.markup.events.TagSelectionChanged;
 import moten.david.markup.events.TextTagged;
 import moten.david.util.controller.Controller;
 import moten.david.util.controller.ControllerListener;
+import moten.david.util.swing.CheckTreeManager;
 
 import com.google.inject.Inject;
 
@@ -37,7 +38,7 @@ public class TagsPanel extends JPanel {
         DefaultMutableTreeNode top = new DefaultMutableTreeNode("Tags");
         createNodes(top, tags.get());
         JTree tree = new JTree(top);
-        tree.setRootVisible(false);
+        tree.setRootVisible(true);
         DefaultTreeCellRenderer renderer = new DefaultTreeCellRenderer();
         renderer.setLeafIcon(null);
         tree.setCellRenderer(renderer);
@@ -72,8 +73,10 @@ public class TagsPanel extends JPanel {
             for (TreePath path : checkedPaths) {
                 DefaultMutableTreeNode node = (DefaultMutableTreeNode) path
                         .getLastPathComponent();
-                Tag tag = (Tag) node.getUserObject();
-                list.add(tag);
+                if (node.getUserObject() instanceof Tag) {
+                    Tag tag = (Tag) node.getUserObject();
+                    list.add(tag);
+                }
             }
             controller.event(new TagSelectionChanged(list));
         }

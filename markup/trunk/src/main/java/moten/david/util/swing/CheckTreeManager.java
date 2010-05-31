@@ -1,4 +1,4 @@
-package moten.david.markup;
+package moten.david.util.swing;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
