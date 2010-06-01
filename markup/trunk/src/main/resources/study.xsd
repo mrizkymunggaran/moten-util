@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://david.moten/markup/xml/study.xsd" targetNamespace="http://david.moten/markup/xml/study.xsd">
+    
+    <complexType name="study">
+    	<sequence>
+    		<element name="tag" type="tns:tag" maxOccurs="unbounded" minOccurs="0"></element>
+    		<element name="document" type="tns:document"
+    			maxOccurs="unbounded" minOccurs="0">
+    		</element>
+    	</sequence>
+    	<attribute name="name" type="string"></attribute>
+    </complexType>
+    
+    
+
+    <complexType name="documentTag">
+    	<attribute name="id" type="string" use="required"></attribute>
+    	<attribute name="start" type="int" use="required"></attribute>
+    	<attribute name="finish" type="int" use="required"></attribute>
+    	<attribute name="value" type="string"/>
+    </complexType>
+
+    <complexType name="document">
+    	<sequence>
+    		<element name="property" type="tns:property"
+    			maxOccurs="unbounded" minOccurs="0">
+    		</element>
+    		<element name="tag" type="tns:documentTag" maxOccurs="unbounded"
+    			minOccurs="0">
+    		</element>
+    	</sequence>
+
+    	<attribute name="name" type="string" use="required"></attribute>
+    </complexType>
+
+    <simpleType name="tagType">
+    	<restriction base="string">
+    		<enumeration value="BOOLEAN"></enumeration>
+    		<enumeration value="NUMERIC"></enumeration>
+    		<enumeration value="STRING"></enumeration>
+    	</restriction>
+    </simpleType>
+
+
+    <complexType name="property">
+    	<attribute name="name" type="string" use="required"></attribute>
+    	<attribute name="value" type="string"></attribute>
+    </complexType>
+
+    <complexType name="tagValue">
+    	<choice>
+    		<element name="booleanValue" type="boolean"></element>
+    		<element name="stringValue" type="string"></element>
+    		<element name="numericValue" type="decimal"></element>
+    	</choice>
+    </complexType>
+
+    <complexType name="tag">
+    	<attribute name="id" type="int" use="required"></attribute>
+    	<attribute name="name" type="string" use="required"></attribute>
+    	<attribute name="type" type="tns:tagType" use="required"></attribute>
+    </complexType>
+</schema>

@@ -1,0 +1,16 @@
+<study name="Pro Cycling Interview">
+	<tag id="1" name="Team spirit" type="BOOLEAN" />
+	<tag id="2" name="Encouragement" type="BOOLEAN" />
+	<tag id="3" name="Pride" type="BOOLEAN" />
+	<document name="example.txt">
+		<property name="name" value="Andy Schleck" />
+		<property name="yearOfBirth" value="1987" />
+		<property name="age" value="23" />
+		<tag id="1" start="100" finish="125">
+			<booleanValue>true</booleanValue>
+		</tag>
+		<tag id="2" start="140" finish="180">
+			<booleanValue>true</booleanValue>
+		</tag>
+	</document>
+</study>
