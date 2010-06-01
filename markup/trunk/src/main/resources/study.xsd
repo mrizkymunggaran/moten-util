@@ -62,5 +62,6 @@
     	<attribute name="id" type="int" use="required"></attribute>
     	<attribute name="name" type="string" use="required"></attribute>
     	<attribute name="type" type="tns:basicType" use="required"></attribute>
+    	<attribute name="color" type="int" use="optional"></attribute>
     </complexType>
 </schema>
