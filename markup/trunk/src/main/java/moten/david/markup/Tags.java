@@ -2,6 +2,7 @@ package moten.david.markup;
 
 import java.awt.Color;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,10 +16,18 @@ public class Tags {
 
     @Inject
     public Tags() {
+        this(Tags.class.getResourceAsStream("/study1/markup/tags.txt"));
+    }
+
+    public Tags(List<Tag> tags) {
+        this.tags = tags;
+    }
+
+    @SuppressWarnings("unchecked")
+    public Tags(InputStream is) {
         List<String> list;
         try {
-            list = IOUtils.readLines(getClass()
-                    .getResourceAsStream("/tags.txt"));
+            list = IOUtils.readLines(is);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

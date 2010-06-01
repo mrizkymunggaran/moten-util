@@ -1,25 +1,45 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>org.moten.david</groupId>
-  <artifactId>markup</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
-  <name>markup</name>
-  <description>Document markup for qualitative analysis	</description>
-  <dependencies>
-  	<dependency>
-  		<groupId>commons-io</groupId>
-  		<artifactId>commons-io</artifactId>
-  		<version>1.4</version>
-  	</dependency>
-  	<dependency>
-  		<groupId>org.moten.david</groupId>
-  		<artifactId>moten-util</artifactId>
-  		<version>0.0.2-SNAPSHOT</version>
-  	</dependency>
-  	<dependency>
-  		<groupId>org.swinglabs</groupId>
-  		<artifactId>swingx</artifactId>
-  		<version>1.6</version>
-  	</dependency>
-  </dependencies>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.moten.david</groupId>
+	<artifactId>markup</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>markup</name>
+	<description>Document markup for qualitative analysis</description>
+	<properties>
+		<compiler.source.version>1.6</compiler.source.version>
+		<cobertura.version>2.3</cobertura.version>
+	</properties>
+	<dependencies>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>1.4</version>
+		</dependency>
+		<dependency>
+			<groupId>org.moten.david</groupId>
+			<artifactId>moten-util</artifactId>
+			<version>0.0.2-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.swinglabs</groupId>
+			<artifactId>swingx</artifactId>
+			<version>1.6</version>
+		</dependency>
+	</dependencies>
+	<build>
+		<plugins>
+			<plugin>
+				<inherited>true</inherited>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<verbose>true</verbose>
+					<fork>true</fork>
+					<source>${compiler.source.version}</source>
+					<target>${compiler.source.version}</target>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 </project>
