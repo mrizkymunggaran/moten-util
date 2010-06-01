@@ -1,4 +1,4 @@
-<study name="Pro Cycling Interview">
+<study xmlns="http://david.moten/markup/study.xml" name="Pro Cycling Interview" >
 	<tag id="1" name="Team spirit" type="boolean" />
 	<tag id="2" name="Encouragement" type="boolean" />
 	<tag id="3" name="Pride" type="boolean" />
