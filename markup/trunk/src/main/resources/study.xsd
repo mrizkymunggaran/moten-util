@@ -14,10 +14,12 @@
     
 
     <complexType name="documentTag">
+    	<sequence>
+    		<element name="value" type="tns:basicValue"></element>
+    	</sequence>
     	<attribute name="id" type="string" use="required"></attribute>
     	<attribute name="start" type="int" use="required"></attribute>
     	<attribute name="finish" type="int" use="required"></attribute>
-    	<attribute name="value" type="string"/>
     </complexType>
 
     <complexType name="document">
@@ -33,7 +35,7 @@
     	<attribute name="name" type="string" use="required"></attribute>
     </complexType>
 
-    <simpleType name="tagType">
+    <simpleType name="basicType">
     	<restriction base="string">
     		<enumeration value="BOOLEAN"></enumeration>
     		<enumeration value="NUMERIC"></enumeration>
@@ -44,10 +46,11 @@
 
     <complexType name="property">
     	<attribute name="name" type="string" use="required"></attribute>
+    	<attribute name="type" type="tns:basicType"></attribute>
     	<attribute name="value" type="string"></attribute>
     </complexType>
-
-    <complexType name="tagValue">
+    
+    <complexType name="basicValue">
     	<choice>
     		<element name="booleanValue" type="boolean"></element>
     		<element name="stringValue" type="string"></element>
@@ -58,6 +61,6 @@
     <complexType name="tag">
     	<attribute name="id" type="int" use="required"></attribute>
     	<attribute name="name" type="string" use="required"></attribute>
-    	<attribute name="type" type="tns:tagType" use="required"></attribute>
+    	<attribute name="type" type="tns:basicType" use="required"></attribute>
     </complexType>
 </schema>

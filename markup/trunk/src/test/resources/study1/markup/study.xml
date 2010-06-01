@@ -6,9 +6,15 @@
 	<tag id="5" name="Fear" type="BOOLEAN" />
 	<tag id="6" name="Suffering" type="BOOLEAN" />
 	<document name="example.txt">
-		<property name="name" value="Andy Schleck" />
-		<property name="yearOfBirth" value="1987" />
-		<property name="age" value="23" />
+		<property name="name" type="STRING">
+			<stringValue>Andy Schleck</stringValue>
+		</property>
+		<property name="yearOfBirth" type="NUMERIC">
+			<numericValue>1987</numericValue>
+		</property>
+		<property name="age" type="NUMERIC">
+			<numericValue>23</numericValue>
+		</property>
 		<tag id="1" start="100" finish="125">
 			<booleanValue>true</booleanValue>
 		</tag>
