@@ -2,6 +2,9 @@
 	<tag id="1" name="Team spirit" type="BOOLEAN" />
 	<tag id="2" name="Encouragement" type="BOOLEAN" />
 	<tag id="3" name="Pride" type="BOOLEAN" />
+	<tag id="4" name="Ambition" type="BOOLEAN" />
+	<tag id="5" name="Fear" type="BOOLEAN" />
+	<tag id="6" name="Suffering" type="BOOLEAN" />
 	<document name="example.txt">
 		<property name="name" value="Andy Schleck" />
 		<property name="yearOfBirth" value="1987" />
