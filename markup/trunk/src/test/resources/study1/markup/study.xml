@@ -1,25 +1,25 @@
 <study name="Pro Cycling Interview">
-	<tag id="1" name="Team spirit" type="BOOLEAN" />
-	<tag id="2" name="Encouragement" type="BOOLEAN" />
-	<tag id="3" name="Pride" type="BOOLEAN" />
-	<tag id="4" name="Ambition" type="BOOLEAN" />
-	<tag id="5" name="Fear" type="BOOLEAN" />
-	<tag id="6" name="Suffering" type="BOOLEAN" />
+	<tag id="1" name="Team spirit" type="boolean" />
+	<tag id="2" name="Encouragement" type="boolean" />
+	<tag id="3" name="Pride" type="boolean" />
+	<tag id="4" name="Ambition" type="boolean" />
+	<tag id="5" name="Fear" type="boolean" />
+	<tag id="6" name="Suffering" type="boolean" />
 	<document name="example.txt">
-		<property name="name" type="STRING">
-			<stringValue>Andy Schleck</stringValue>
+		<property name="name" type="text">
+			<text>Andy Schleck</text>
 		</property>
-		<property name="yearOfBirth" type="NUMERIC">
-			<numericValue>1987</numericValue>
+		<property name="yearOfBirth" type="number">
+			<number>1987</number>
 		</property>
-		<property name="age" type="NUMERIC">
-			<numericValue>23</numericValue>
+		<property name="age" type="number">
+			<number>23</number>
 		</property>
 		<tag id="1" start="100" finish="125">
-			<booleanValue>true</booleanValue>
+			<boolean>true</boolean>
 		</tag>
 		<tag id="2" start="140" finish="180">
-			<booleanValue>true</booleanValue>
+			<boolean>true</boolean>
 		</tag>
 	</document>
 </study>

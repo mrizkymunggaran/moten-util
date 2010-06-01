@@ -37,9 +37,9 @@
 
     <simpleType name="basicType">
     	<restriction base="string">
-    		<enumeration value="BOOLEAN"></enumeration>
-    		<enumeration value="NUMERIC"></enumeration>
-    		<enumeration value="STRING"></enumeration>
+    		<enumeration value="text"></enumeration>
+    		<enumeration value="boolean"></enumeration>
+    		<enumeration value="number"></enumeration>
     	</restriction>
     </simpleType>
 
@@ -52,9 +52,9 @@
     
     <complexType name="basicValue">
     	<choice>
-    		<element name="booleanValue" type="boolean"></element>
-    		<element name="stringValue" type="string"></element>
-    		<element name="numericValue" type="decimal"></element>
+    		<element name="boolean" type="boolean"></element>
+    		<element name="text" type="string"></element>
+    		<element name="number" type="decimal"></element>
     	</choice>
     </complexType>
 
