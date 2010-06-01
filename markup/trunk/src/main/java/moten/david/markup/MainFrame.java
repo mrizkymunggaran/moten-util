@@ -150,7 +150,7 @@ public class MainFrame extends JFrame {
 
         JXMultiSplitPane msp = new JXMultiSplitPane();
 
-        String layoutDef = "(ROW (LEAF name=left weight=0.25) (LEAF name=right weight=0.7))";
+        String layoutDef = "(ROW (LEAF name=left weight=0.1) (LEAF name=right weight=0.9))";
 
         MultiSplitLayout.Node modelRoot = MultiSplitLayout
                 .parseModel(layoutDef);
