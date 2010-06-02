@@ -2,6 +2,7 @@ package moten.david.squabble.server;
 
 import java.util.List;
 
+import moten.david.squabble.DataManagerImpl;
 import moten.david.squabble.Engine;
 import moten.david.squabble.Letters;
 import moten.david.squabble.Service;
@@ -35,7 +36,7 @@ public class ApplicationServiceImpl extends RemoteServiceServlet implements
 
     private Service createService() {
         Service service = new Service(new Engine(new DictionarySowpods(),
-                new Letters("eng")));
+                new Letters("eng")), new DataManagerImpl());
         service.turnLetter();
         service.turnLetter();
         return service;
