@@ -11,7 +11,7 @@
         <memberOf>7</memberOf>
     </tag>
     <tag type="boolean" name="Emotion" id="7"/>
-    <document name="example.txt">
+    <document name="andy-schleck.txt">
         <property type="text" name="name">
             <text>Andy Schleck</text>
         </property>
@@ -64,4 +64,6 @@
             <boolean>true</boolean>
         </documentTag>
     </document>
+     <document name="taylor-phinney.txt">
+     </document>
 </study>
