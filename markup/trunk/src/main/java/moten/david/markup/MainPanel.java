@@ -263,18 +263,13 @@ public class MainPanel extends JPanel {
 				SimpleAttributeSet.EMPTY, true);
 		if (filterEnabled) {
 			Style style = doc.addStyle("hide", null);
-			StyleConstants.setLineSpacing(style, 0);
-			StyleConstants.setFontSize(style, -1);
+			StyleConstants.setFontSize(style, 0);
 			doc.setCharacterAttributes(0, doc.getLength(), style, true);
 			for (DocumentTag documentTag : document.getDocumentTag()) {
 				if (isVisible(documentTag.getId())) {
 					doc.setCharacterAttributes(documentTag.getStart(),
 							documentTag.getLength(), SimpleAttributeSet.EMPTY,
 							true);
-					// ; Style style = doc
-					// .addStyle(documentTag.getTag().getName(), null);
-					// StyleConstants.setBackground(style, documentTag.getTag()
-					// .getColor());
 				}
 			}
 		}
