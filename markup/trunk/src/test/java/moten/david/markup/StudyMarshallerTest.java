@@ -16,5 +16,6 @@ public class StudyMarshallerTest {
 				"/study1/markup/study.xml");
 		Study study = m.unmarshal(is);
 		Assert.assertEquals("Pro Cycling Interview", study.getName());
+		Assert.assertEquals(1, study.getDocument().size());
 	}
 }

@@ -16,6 +16,7 @@ import javax.swing.tree.TreePath;
 
 import moten.david.markup.events.TagSelectionChanged;
 import moten.david.markup.events.TextTagged;
+import moten.david.markup.xml.study.Tag;
 import moten.david.util.controller.Controller;
 import moten.david.util.controller.ControllerListener;
 import moten.david.util.swing.CheckTreeManager;
@@ -24,83 +25,82 @@ import com.google.inject.Inject;
 
 public class TagsPanel extends JPanel {
 
-    private final Controller controller;
-    private CheckTreeManager checkTreeManager;
+	private final Controller controller;
+	private CheckTreeManager checkTreeManager;
 
-    @Inject
-    public TagsPanel(final Controller controller, Tags tags) {
-        this.controller = controller;
-        setTags(tags);
-    }
+	@Inject
+	public TagsPanel(final Controller controller, CurrentStudy study) {
+		this.controller = controller;
+		setTags(study.get().getTag());
+	}
 
-    private void setTags(final Tags tags) {
+	private void setTags(final List<Tag> tags) {
 
-        DefaultMutableTreeNode top = new DefaultMutableTreeNode("Tags");
-        createNodes(top, tags.get());
-        JTree tree = new JTree(top);
-        tree.setRootVisible(true);
-        DefaultTreeCellRenderer renderer = new DefaultTreeCellRenderer();
-        renderer.setLeafIcon(null);
-        tree.setCellRenderer(renderer);
-        JScrollPane treeView = new JScrollPane(tree);
-        removeAll();
-        setLayout(new GridLayout(1, 1));
-        add(treeView);
+		DefaultMutableTreeNode top = new DefaultMutableTreeNode("Tags");
+		createNodes(top, tags);
+		JTree tree = new JTree(top);
+		tree.setRootVisible(true);
+		DefaultTreeCellRenderer renderer = new DefaultTreeCellRenderer();
+		renderer.setLeafIcon(null);
+		tree.setCellRenderer(renderer);
+		JScrollPane treeView = new JScrollPane(tree);
+		removeAll();
+		setLayout(new GridLayout(1, 1));
+		add(treeView);
 
-        controller
-                .addListener(TextTagged.class, createTextTaggedListener(tree));
-        checkTreeManager = new CheckTreeManager(tree);
-        checkTreeManager.getSelectionModel().addTreeSelectionListener(
-                createTreeSelectionListener(tree));
-    }
+		controller
+				.addListener(TextTagged.class, createTextTaggedListener(tree));
+		checkTreeManager = new CheckTreeManager(tree);
+		checkTreeManager.getSelectionModel().addTreeSelectionListener(
+				createTreeSelectionListener(tree));
+	}
 
-    private TreeSelectionListener createTreeSelectionListener(final JTree tree) {
-        return new TreeSelectionListener() {
+	private TreeSelectionListener createTreeSelectionListener(final JTree tree) {
+		return new TreeSelectionListener() {
 
-            @Override
-            public void valueChanged(TreeSelectionEvent e) {
-                fireChanged(tree);
-            }
-        };
-    }
+			@Override
+			public void valueChanged(TreeSelectionEvent e) {
+				fireChanged(tree);
+			}
+		};
+	}
 
-    private void fireChanged(JTree tree) {
-        List<Tag> list = new ArrayList<Tag>();
-        // to get the paths that were checked
-        TreePath checkedPaths[] = checkTreeManager.getSelectionModel()
-                .getSelectionPaths();
-        if (checkedPaths != null) {
-            for (TreePath path : checkedPaths) {
-                DefaultMutableTreeNode node = (DefaultMutableTreeNode) path
-                        .getLastPathComponent();
-                if (node.getUserObject() instanceof Tag) {
-                    Tag tag = (Tag) node.getUserObject();
-                    list.add(tag);
-                }
-            }
-            controller.event(new TagSelectionChanged(list));
-        }
-    }
+	private void fireChanged(JTree tree) {
+		List<Tag> list = new ArrayList<Tag>();
+		// to get the paths that were checked
+		TreePath checkedPaths[] = checkTreeManager.getSelectionModel()
+				.getSelectionPaths();
+		if (checkedPaths != null) {
+			for (TreePath path : checkedPaths) {
+				DefaultMutableTreeNode node = (DefaultMutableTreeNode) path
+						.getLastPathComponent();
+				if (node.getUserObject() instanceof Tag) {
+					Tag tag = (Tag) node.getUserObject();
+					list.add(tag);
+				}
+			}
+			controller.event(new TagSelectionChanged(list));
+		}
+	}
 
-    private void createNodes(DefaultMutableTreeNode top, List<Tag> tags) {
-        for (Tag tag : tags)
-            if (tag.getScope().equals(TagScope.SELECTION)) {
-                DefaultMutableTreeNode node = new DefaultMutableTreeNode(tag);
-                top.add(node);
-            }
-    }
+	private void createNodes(DefaultMutableTreeNode top, List<Tag> tags) {
+		for (Tag tag : tags) {
+			DefaultMutableTreeNode node = new DefaultMutableTreeNode(tag);
+			top.add(node);
+		}
+	}
 
-    private ControllerListener<TextTagged> createTextTaggedListener(
-            final JTree tree) {
-        return new ControllerListener<TextTagged>() {
+	private ControllerListener<TextTagged> createTextTaggedListener(
+			final JTree tree) {
+		return new ControllerListener<TextTagged>() {
 
-            @Override
-            public void event(TextTagged event) {
-                TreePath path = tree.getNextMatch(event.getTag().getName(), 0,
-                        Position.Bias.Forward);
-                checkTreeManager.getSelectionModel().addSelectionPath(path);
-                fireChanged(tree);
-            }
-        };
-    }
+			@Override
+			public void event(TextTagged event) {
+				TreePath path = tree.getNextMatch(event.getTag().getName(), 0,
+						Position.Bias.Forward);
+				checkTreeManager.getSelectionModel().addSelectionPath(path);
+				fireChanged(tree);
+			}
+		};
+	}
 }

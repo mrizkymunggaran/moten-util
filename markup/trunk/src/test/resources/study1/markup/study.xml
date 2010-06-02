@@ -1,4 +1,8 @@
-<study xmlns="http://david.moten/markup/study.xml" name="Pro Cycling Interview" >
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<study xmlns="http://david.moten/markup/xml/study.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://david.moten/markup/xml/study.xsd
+  ../../../../main/resources/study.xsd"
+ name="Pro Cycling Interview" >
 	<tag id="1" name="Team spirit" type="boolean" />
 	<tag id="2" name="Encouragement" type="boolean" />
 	<tag id="3" name="Pride" type="boolean" />
@@ -15,11 +19,11 @@
 		<property name="age" type="number">
 			<number>23</number>
 		</property>
-		<tag id="1" start="100" finish="125">
+		<documentTag id="1" start="100" length="25">
 			<boolean>true</boolean>
-		</tag>
-		<tag id="2" start="140" finish="180">
+		</documentTag>
+		<documentTag id="2" start="140" length="29">
 			<boolean>true</boolean>
-		</tag>
+		</documentTag>
 	</document>
 </study>

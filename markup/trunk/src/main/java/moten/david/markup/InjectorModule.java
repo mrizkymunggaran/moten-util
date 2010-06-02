@@ -12,7 +12,7 @@ public class InjectorModule extends AbstractModule {
 	protected void configure() {
 		bind(Controller.class).to(SynchronousController.class).in(
 				Scopes.SINGLETON);
-		bind(Tags.class).in(Scopes.SINGLETON);
+		bind(CurrentStudy.class).in(Scopes.SINGLETON);
 	}
 
 }

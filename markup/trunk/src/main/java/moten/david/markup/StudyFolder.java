@@ -6,10 +6,13 @@ import java.io.FileNotFoundException;
 
 import moten.david.markup.xml.study.Study;
 
+import com.google.inject.Inject;
+
 public class StudyFolder {
 
 	private final StudyMarshaller marshaller;
 
+	@Inject
 	public StudyFolder(StudyMarshaller marshaller) {
 		this.marshaller = marshaller;
 	}

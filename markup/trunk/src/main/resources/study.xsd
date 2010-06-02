@@ -1,67 +1,74 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://david.moten/markup/xml/study.xsd" targetNamespace="http://david.moten/markup/xml/study.xsd">
-    
-    <complexType name="study">
-    	<sequence>
-    		<element name="tag" type="tns:tag" maxOccurs="unbounded" minOccurs="0"></element>
-    		<element name="document" type="tns:document"
-    			maxOccurs="unbounded" minOccurs="0">
-    		</element>
-    	</sequence>
-    	<attribute name="name" type="string"></attribute>
-    </complexType>
-    
-    
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://david.moten/markup/xml/study.xsd"
+	targetNamespace="http://david.moten/markup/xml/study.xsd"
+	elementFormDefault="qualified" attributeFormDefault="unqualified">
 
-    <complexType name="documentTag">
-    	<sequence>
-    		<element name="value" type="tns:basicValue"></element>
-    	</sequence>
-    	<attribute name="id" type="string" use="required"></attribute>
-    	<attribute name="start" type="int" use="required"></attribute>
-    	<attribute name="finish" type="int" use="required"></attribute>
-    </complexType>
+	<complexType name="study">
+		<sequence>
+			<element name="tag" type="tns:tag" maxOccurs="unbounded"
+				minOccurs="0"></element>
+			<element name="document" type="tns:document" maxOccurs="unbounded"
+				minOccurs="0">
+			</element>
+		</sequence>
+		<attribute name="name" type="string"></attribute>
+	</complexType>
 
-    <complexType name="document">
-    	<sequence>
-    		<element name="property" type="tns:property"
-    			maxOccurs="unbounded" minOccurs="0">
-    		</element>
-    		<element name="tag" type="tns:documentTag" maxOccurs="unbounded"
-    			minOccurs="0">
-    		</element>
-    	</sequence>
+	<complexType name="documentTag">
+		<complexContent>
+			<extension base="tns:basicValue">
+				<attribute name="id" type="int" use="required"></attribute>
+				<attribute name="start" type="int" use="required"></attribute>
+				<attribute name="length" type="int" use="required"></attribute>
+			</extension>
+		</complexContent>
+	</complexType>
 
-    	<attribute name="name" type="string" use="required"></attribute>
-    </complexType>
+	<complexType name="document">
+		<sequence>
+			<element name="property" type="tns:property" maxOccurs="unbounded"
+				minOccurs="0">
+			</element>
+			<element name="documentTag" type="tns:documentTag" maxOccurs="unbounded"
+				minOccurs="0">
+			</element>
+		</sequence>
 
-    <simpleType name="basicType">
-    	<restriction base="string">
-    		<enumeration value="text"></enumeration>
-    		<enumeration value="boolean"></enumeration>
-    		<enumeration value="number"></enumeration>
-    	</restriction>
-    </simpleType>
+		<attribute name="name" type="string" use="required"></attribute>
+	</complexType>
+
+	<simpleType name="basicType">
+		<restriction base="string">
+			<enumeration value="text"></enumeration>
+			<enumeration value="boolean"></enumeration>
+			<enumeration value="number"></enumeration>
+		</restriction>
+	</simpleType>
 
 
-    <complexType name="property">
-    	<attribute name="name" type="string" use="required"></attribute>
-    	<attribute name="type" type="tns:basicType"></attribute>
-    	<attribute name="value" type="string"></attribute>
-    </complexType>
-    
-    <complexType name="basicValue">
-    	<choice>
-    		<element name="boolean" type="boolean"></element>
-    		<element name="text" type="string"></element>
-    		<element name="number" type="decimal"></element>
-    	</choice>
-    </complexType>
+	<complexType name="property">
+		<complexContent>
+			<extension base="tns:basicValue">
+				<attribute name="name" type="string" use="required"></attribute>
+				<attribute name="type" type="tns:basicType"></attribute>
+			</extension>
+		</complexContent>
+	</complexType>
 
-    <complexType name="tag">
-    	<attribute name="id" type="int" use="required"></attribute>
-    	<attribute name="name" type="string" use="required"></attribute>
-    	<attribute name="type" type="tns:basicType" use="required"></attribute>
-    	<attribute name="color" type="int" use="optional"></attribute>
-    </complexType>
+	<complexType name="basicValue">
+		<choice>
+			<element name="boolean" type="boolean"></element>
+			<element name="text" type="string"></element>
+			<element name="number" type="decimal"></element>
+		</choice>
+	</complexType>
+
+	<complexType name="tag">
+		<attribute name="id" type="int" use="required"></attribute>
+		<attribute name="name" type="string" use="required"></attribute>
+		<attribute name="type" type="tns:basicType" use="required"></attribute>
+		<attribute name="color" type="int" use="optional"></attribute>
+	</complexType>
+
+    <element name="study" type="tns:study"></element>
 </schema>
