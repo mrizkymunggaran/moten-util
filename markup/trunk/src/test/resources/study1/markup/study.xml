@@ -1,29 +1,64 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<study xmlns="http://david.moten/markup/xml/study.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://david.moten/markup/xml/study.xsd
-  ../../../../main/resources/study.xsd"
- name="Pro Cycling Interview" >
-	<tag id="1" name="Team spirit" type="boolean" />
-	<tag id="2" name="Encouragement" type="boolean" />
-	<tag id="3" name="Pride" type="boolean" />
-	<tag id="4" name="Ambition" type="boolean" />
-	<tag id="5" name="Fear" type="boolean" />
-	<tag id="6" name="Suffering" type="boolean" />
-	<document name="example.txt">
-		<property name="name" type="text">
-			<text>Andy Schleck</text>
-		</property>
-		<property name="yearOfBirth" type="number">
-			<number>1987</number>
-		</property>
-		<property name="age" type="number">
-			<number>23</number>
-		</property>
-		<documentTag id="1" start="100" length="25">
-			<boolean>true</boolean>
-		</documentTag>
-		<documentTag id="2" start="140" length="29">
-			<boolean>true</boolean>
-		</documentTag>
-	</document>
+<study xmlns="http://david.moten/markup/xml/study.xsd" name="Pro Cycling Interview">
+    <tag type="boolean" name="Team spirit" id="1"/>
+    <tag type="boolean" name="Encouragement" id="2"/>
+    <tag type="boolean" name="Pride" id="3"/>
+    <tag type="boolean" name="Ambition" id="4"/>
+    <tag type="boolean" name="Fear" id="5">
+        <memberOf>7</memberOf>
+    </tag>
+    <tag type="boolean" name="Suffering" id="6">
+        <memberOf>7</memberOf>
+    </tag>
+    <tag type="boolean" name="Emotion" id="7"/>
+    <document name="example.txt">
+        <property type="text" name="name">
+            <text>Andy Schleck</text>
+        </property>
+        <property type="number" name="yearOfBirth">
+            <number>1987</number>
+        </property>
+        <property type="number" name="age">
+            <number>23</number>
+        </property>
+        <documentTag length="176" start="657" id="3">
+            <boolean>true</boolean>
+        </documentTag>
+        <documentTag length="218" start="194" id="6">
+            <boolean>true</boolean>
+        </documentTag>
+        <documentTag length="73" start="1047" id="3">
+            <boolean>true</boolean>
+        </documentTag>
+        <documentTag length="112" start="1907" id="2">
+            <boolean>true</boolean>
+        </documentTag>
+        <documentTag length="62" start="2022" id="1">
+            <boolean>true</boolean>
+        </documentTag>
+        <documentTag length="60" start="2772" id="6">
+            <boolean>true</boolean>
+        </documentTag>
+        <documentTag length="49" start="2835" id="6">
+            <boolean>true</boolean>
+        </documentTag>
+        <documentTag length="177" start="2886" id="2">
+            <boolean>true</boolean>
+        </documentTag>
+        <documentTag length="187" start="3337" id="2">
+            <boolean>true</boolean>
+        </documentTag>
+        <documentTag length="82" start="3253" id="3">
+            <boolean>true</boolean>
+        </documentTag>
+        <documentTag length="176" start="657" id="1">
+            <boolean>true</boolean>
+        </documentTag>
+        <documentTag length="209" start="836" id="1">
+            <boolean>true</boolean>
+        </documentTag>
+        <documentTag length="95" start="2213" id="4">
+            <boolean>true</boolean>
+        </documentTag>
+    </document>
 </study>

@@ -2,7 +2,9 @@ package moten.david.markup;
 
 import java.awt.GridLayout;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
+import java.util.logging.Logger;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -27,6 +29,7 @@ public class TagsPanel extends JPanel {
 
 	private final Controller controller;
 	private CheckTreeManager checkTreeManager;
+	private static Logger log = Logger.getLogger(TagsPanel.class.getName());
 
 	@Inject
 	public TagsPanel(final Controller controller, CurrentStudy study) {
@@ -74,18 +77,29 @@ public class TagsPanel extends JPanel {
 			for (TreePath path : checkedPaths) {
 				DefaultMutableTreeNode node = (DefaultMutableTreeNode) path
 						.getLastPathComponent();
-				if (node.getUserObject() instanceof Tag) {
-					Tag tag = (Tag) node.getUserObject();
-					list.add(tag);
-				}
+				addNodeToList(node, list);
 			}
 			controller.event(new TagSelectionChanged(list));
 		}
 	}
 
+	private void addNodeToList(DefaultMutableTreeNode node, List<Tag> list) {
+		if (node.getUserObject() instanceof TagWrapper) {
+			Tag tag = ((TagWrapper) node.getUserObject()).getTag();
+			list.add(tag);
+		} else {
+			Enumeration<DefaultMutableTreeNode> en = node.children();
+			while (en.hasMoreElements()) {
+				DefaultMutableTreeNode n = en.nextElement();
+				addNodeToList(n, list);
+			}
+		}
+	}
+
 	private void createNodes(DefaultMutableTreeNode top, List<Tag> tags) {
 		for (Tag tag : tags) {
-			DefaultMutableTreeNode node = new DefaultMutableTreeNode(tag);
+			DefaultMutableTreeNode node = new DefaultMutableTreeNode(
+					new TagWrapper(tag));
 			top.add(node);
 		}
 	}

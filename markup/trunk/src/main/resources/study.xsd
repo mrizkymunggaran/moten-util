@@ -64,11 +64,17 @@
 	</complexType>
 
 	<complexType name="tag">
+		<sequence>
+			<element name="memberOf" type="int" minOccurs="0" maxOccurs="unbounded">
+				<annotation>
+					<documentation>the id of the tag that this tag is a member of. For example the tags Fear, Joy might be members of the tag Emotion.</documentation>
+				</annotation></element>
+		</sequence>
 		<attribute name="id" type="int" use="required"></attribute>
 		<attribute name="name" type="string" use="required"></attribute>
 		<attribute name="type" type="tns:basicType" use="required"></attribute>
 		<attribute name="color" type="int" use="optional"></attribute>
 	</complexType>
 
-    <element name="study" type="tns:study"></element>
+	<element name="study" type="tns:study"></element>
 </schema>
