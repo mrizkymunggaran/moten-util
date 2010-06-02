@@ -34,6 +34,10 @@ public class Service {
         dataManager.getTransaction().commit();
     }
 
+    public Data getData() {
+        return dataManager.getData();
+    }
+
     public WordStatus addWord(String user, String word) {
         dataManager.getTransaction().begin();
         Data data = dataManager.getData();
