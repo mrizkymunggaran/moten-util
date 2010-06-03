@@ -174,7 +174,7 @@ public class MainPanel extends JPanel {
             text.setDocument(text.getEditorKit().createDefaultDocument());
             text.setText(s);
             text.setSelectionStart(0);
-            text.setSelectionStart(0);
+            text.setSelectionEnd(0);
         }
     }
 
