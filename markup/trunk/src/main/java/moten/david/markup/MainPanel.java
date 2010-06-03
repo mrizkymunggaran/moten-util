@@ -72,6 +72,8 @@ public class MainPanel extends JPanel {
 
     private boolean filterEnabled;
 
+    private static int stripeWidth = 8;
+
     private Color getInvertedColor(int tagId) {
         int rgb = colors.get(tagId);
         return new Color(~rgb);
@@ -155,19 +157,20 @@ public class MainPanel extends JPanel {
                                     + documentTag.getLength());
                             g.setColor(new Color(colors
                                     .get(documentTag.getId())));
-                            int stripeWidth = 5;
+
                             int x = 3 + getTagIndex(documentTag.getId())
                                     * stripeWidth;
                             g.fillRect(x, rStart.y, stripeWidth, rEnd.y
                                     + rEnd.height - rStart.y);
                             g.setColor(Color.black);
                             AffineTransform at = new AffineTransform();
-                            at.setToRotation(-Math.PI / 2.0, getWidth() / 2.0,
-                                    getHeight() / 2.0);
+                            at.setToRotation(-Math.PI / 2.0, x + stripeWidth,
+                                    rEnd.y + rEnd.height);
                             AffineTransform transform = g2d.getTransform();
                             g2d.setTransform(at);
-                            g2d.drawString("Vertical text", x, (rStart.y
-                                    + rEnd.y + rEnd.height) / 2);
+                            g2d.setFont(g2d.getFont().deriveFont(9f));
+                            g2d.drawString(tags.get(documentTag.getId())
+                                    .getName(), x, +rEnd.y + rEnd.height);
                             g2d.setTransform(transform);
                         }
                         g.setColor(Color.black);
@@ -179,7 +182,6 @@ public class MainPanel extends JPanel {
 
         };
 
-        text.setMargin(new Insets(2, 50, 2, 2));
         add(new JScrollPane(text));
 
         controller.addListener(TagSelectionChanged.class,
@@ -224,6 +226,9 @@ public class MainPanel extends JPanel {
             text.setText(s);
             text.setSelectionStart(0);
             text.setSelectionEnd(0);
+            text.setMargin(new Insets(2, study.getTag().size() * stripeWidth
+                    + 3, 2, 2));
+            repaint();
         }
     }
 

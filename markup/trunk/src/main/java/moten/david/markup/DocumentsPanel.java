@@ -6,7 +6,6 @@ import java.util.List;
 
 import javax.swing.JList;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -31,7 +30,7 @@ public class DocumentsPanel extends JPanel {
         JList list = new JList(documents.toArray());
         list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         setLayout(new GridLayout(1, 1));
-        add(new JScrollPane(list));
+        add(list);
         list.setSelectedIndex(0);
         list.addListSelectionListener(createListSelectionListener(list));
     }

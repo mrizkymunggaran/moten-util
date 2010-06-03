@@ -212,19 +212,22 @@ public class MainFrame extends JFrame {
 
         JXMultiSplitPane msp = new JXMultiSplitPane();
 
-        String layoutDef = "(ROW (LEAF name=tags weight=0.1) (COLUMN weight=0.9 (LEAF name=files weight=0.1) (LEAF name=editor weight=0.9))";
+        String layoutDef = "(ROW (LEAF name=tags weight=0.0) (COLUMN weight=1.0 (LEAF name=files weight=0.1) (LEAF name=editor weight=0.9))";
 
         MultiSplitLayout.Node modelRoot = MultiSplitLayout
                 .parseModel(layoutDef);
         msp.getMultiSplitLayout().setModel(modelRoot);
 
-        tagsPanel.setMinimumSize(new Dimension(150, 0));
+        tagsPanel.setPreferredSize(new Dimension(150, 0));
+        mainPanel.setPreferredSize(new Dimension(200, 0));
+        filesPanel.setPreferredSize(new Dimension(200, 40));
+
         msp.add(tagsPanel, "tags");
 
         // this ensures that scrollbar gets drawn properly
-        mainPanel.setPreferredSize(new Dimension(200, 0));
+
         msp.add(mainPanel, "editor");
-        filesPanel.setPreferredSize(new Dimension(200, 20));
+        // filesPanel.setSize(new Dimension(200, 20));
         msp.add(filesPanel, "files");
 
         // ADDING A BORDER TO THE MULTISPLITPANE CAUSES ALL SORTS OF ISSUES
