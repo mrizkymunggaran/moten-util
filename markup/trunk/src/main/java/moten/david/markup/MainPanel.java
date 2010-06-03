@@ -2,13 +2,16 @@ package moten.david.markup;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.GridLayout;
+import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.geom.AffineTransform;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -35,6 +38,7 @@ import moten.david.markup.events.ClearTagsFromSelection;
 import moten.david.markup.events.DocumentSelectionChanged;
 import moten.david.markup.events.FilterChanged;
 import moten.david.markup.events.SelectionModeChanged;
+import moten.david.markup.events.StartingToPaintTags;
 import moten.david.markup.events.TagSelectionChanged;
 import moten.david.markup.events.TextTagged;
 import moten.david.markup.xml.study.BasicType;
@@ -79,7 +83,7 @@ public class MainPanel extends JPanel {
     }
 
     @Inject
-    public MainPanel(Controller controller, CurrentStudy current) {
+    public MainPanel(final Controller controller, CurrentStudy current) {
         this.controller = controller;
         this.current = current;
         this.study = current.get();
@@ -93,6 +97,8 @@ public class MainPanel extends JPanel {
             protected void paintComponent(Graphics g) {
                 synchronized (study) {
                     super.paintComponent(g);
+                    Graphics2D g2d = (Graphics2D) g;
+                    controller.event(new StartingToPaintTags());
                     try {
                         for (DocumentTag documentTag : document
                                 .getDocumentTag()) {
@@ -100,6 +106,9 @@ public class MainPanel extends JPanel {
                                 for (int i = 0; i <= documentTag.getLength() - 1; i++) {
                                     int characterStart = documentTag.getStart()
                                             + i;
+
+                                    // count the number of tags visible at
+                                    // characterStart
                                     int index = 0;
                                     int count = 0;
                                     for (DocumentTag dt : document
@@ -115,6 +124,8 @@ public class MainPanel extends JPanel {
                                                 count++;
                                             }
                                     }
+
+                                    // draw the slice of tag at characterStart
                                     Rectangle r = text
                                             .modelToView(characterStart);
                                     Rectangle r2 = text
@@ -134,13 +145,41 @@ public class MainPanel extends JPanel {
                                 }
                             }
                         }
-
+                        g.setPaintMode();
+                        for (DocumentTag documentTag : document
+                                .getDocumentTag()) {
+                            Rectangle rStart = text.modelToView(documentTag
+                                    .getStart());
+                            Rectangle rEnd = text.modelToView(documentTag
+                                    .getStart()
+                                    + documentTag.getLength());
+                            g.setColor(new Color(colors
+                                    .get(documentTag.getId())));
+                            int stripeWidth = 5;
+                            int x = 3 + getTagIndex(documentTag.getId())
+                                    * stripeWidth;
+                            g.fillRect(x, rStart.y, stripeWidth, rEnd.y
+                                    + rEnd.height - rStart.y);
+                            g.setColor(Color.black);
+                            AffineTransform at = new AffineTransform();
+                            at.setToRotation(-Math.PI / 2.0, getWidth() / 2.0,
+                                    getHeight() / 2.0);
+                            AffineTransform transform = g2d.getTransform();
+                            g2d.setTransform(at);
+                            g2d.drawString("Vertical text", x, (rStart.y
+                                    + rEnd.y + rEnd.height) / 2);
+                            g2d.setTransform(transform);
+                        }
+                        g.setColor(Color.black);
                     } catch (BadLocationException e) {
                         throw new RuntimeException(e);
                     }
                 }
             }
+
         };
+
+        text.setMargin(new Insets(2, 50, 2, 2));
         add(new JScrollPane(text));
 
         controller.addListener(TagSelectionChanged.class,
@@ -155,6 +194,16 @@ public class MainPanel extends JPanel {
 
         loadDocument(0);
         // text.getStyledDocument().addDocumentListener(createDocumentListener());
+    }
+
+    private int getTagIndex(int id) {
+        int count = 0;
+        for (Tag tag : study.getTag()) {
+            if (tag.getId() == id)
+                return count;
+            count++;
+        }
+        return -1;
     }
 
     private ControllerListener<DocumentSelectionChanged> createDocumentSelectionChangedListener() {

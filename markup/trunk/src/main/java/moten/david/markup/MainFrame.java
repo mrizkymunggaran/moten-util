@@ -11,6 +11,7 @@ import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -23,6 +24,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 import moten.david.markup.events.FilterChanged;
 import moten.david.markup.events.SelectionModeChanged;
 import moten.david.util.controller.Controller;
+import moten.david.util.swing.DisclosurePanel;
 import moten.david.util.swing.PositionRememberingWindowListener;
 
 import org.apache.commons.lang.StringUtils;
@@ -36,21 +38,22 @@ import com.google.inject.Injector;
 public class MainFrame extends JFrame {
 
     private final Controller controller;
-    private final MainPanel mainPanel;
 
     @Inject
     public MainFrame(MainPanel mainPanel, TagsPanel tagsPanel,
             DocumentsPanel documentsPanel, Controller controller) {
         super("Markup");
-        this.mainPanel = mainPanel;
         this.controller = controller;
 
         setJMenuBar(createMenuBar());
         setLayout(new GridLayout(1, 1));
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         // tagsPanel.setMinimumSize(new Dimension(150, 0));
+        DisclosurePanel documentsDisclosurePanel = new DisclosurePanel(
+                new JLabel("Documents"), documentsPanel, null);
         getContentPane().add(
-                createMultiSplitPane(tagsPanel, mainPanel, documentsPanel));
+                createMultiSplitPane(tagsPanel, mainPanel,
+                        documentsDisclosurePanel));
         addWindowListener(new PositionRememberingWindowListener(this, "main"));
     }
 
@@ -215,9 +218,13 @@ public class MainFrame extends JFrame {
                 .parseModel(layoutDef);
         msp.getMultiSplitLayout().setModel(modelRoot);
 
+        tagsPanel.setMinimumSize(new Dimension(150, 0));
         msp.add(tagsPanel, "tags");
+
+        // this ensures that scrollbar gets drawn properly
         mainPanel.setPreferredSize(new Dimension(200, 0));
         msp.add(mainPanel, "editor");
+        filesPanel.setPreferredSize(new Dimension(200, 20));
         msp.add(filesPanel, "files");
 
         // ADDING A BORDER TO THE MULTISPLITPANE CAUSES ALL SORTS OF ISSUES
