@@ -5,6 +5,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.Insets;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
@@ -13,11 +14,13 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Line2D;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.swing.JMenuItem;
@@ -73,7 +76,8 @@ public class MainPanel extends JPanel {
 
 	private boolean filterEnabled;
 
-	private static int stripeWidth = 8;
+	private static final int stripeWidth = 8;
+	private static final int stripesMarginLeft = 3;
 
 	private Color getInvertedColor(int tagId) {
 		int rgb = colors.get(tagId);
@@ -104,7 +108,6 @@ public class MainPanel extends JPanel {
 					Graphics2D g2d = (Graphics2D) g;
 					g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 							RenderingHints.VALUE_ANTIALIAS_ON);
-
 					controller.event(new StartingToPaintTags());
 					try {
 						for (DocumentTag documentTag : document
@@ -154,6 +157,7 @@ public class MainPanel extends JPanel {
 						}
 						g.setPaintMode();
 						g.setColor(Color.black);
+						Map<DocumentTag, Line2D.Float> stripeVerticalBounds = new HashMap<DocumentTag, Line2D.Float>();
 						for (DocumentTag documentTag : document
 								.getDocumentTag()) {
 							Rectangle rStart = text.modelToView(documentTag
@@ -164,22 +168,44 @@ public class MainPanel extends JPanel {
 							g.setColor(new Color(colors
 									.get(documentTag.getId())));
 
-							int x = 3 + getTagIndex(documentTag.getId())
+							int x = stripesMarginLeft
+									+ getTagIndex(documentTag.getId())
 									* stripeWidth + stripeWidth - 1;
-							int y = rEnd.y + rEnd.height
-									+ g.getFontMetrics().getDescent();
-							g.fillRect(x - stripeWidth, rStart.y, stripeWidth,
-									rEnd.y + rEnd.height - rStart.y);
+							int y = (rEnd.y + rEnd.height - rStart.y) / 2
+									+ rStart.y;
+							String name = tags.get(documentTag.getId())
+									.getName();
+							int stringWidth = g2d.getFontMetrics().stringWidth(
+									name);
+							int stringX = stripesMarginLeft
+									+ getTagIndex(documentTag.getId())
+									* stripeWidth + stripeWidth / 2
+									- stringWidth / 2;
+							int stringY = y + g2d.getFontMetrics().getAscent()
+									/ 2;
+							Rectangle r = new Rectangle(x - stripeWidth + 1,
+									rStart.y, stripeWidth, rEnd.y + rEnd.height
+											- rStart.y);
+							g2d.fillRect(r.x, r.y, r.width, r.height);
 							AffineTransform at = new AffineTransform();
-							at.setToRotation(-Math.PI / 2.0, x, y
-									- g.getFontMetrics().getDescent());
+							at.setToRotation(-Math.PI / 2.0, stringX
+									+ stringWidth / 2, stringY
+									- g2d.getFontMetrics().getAscent() / 2);
 							AffineTransform transform = g2d.getTransform();
 							g2d.setTransform(at);
 							g2d.setFont(g2d.getFont().deriveFont(9f));
 							g.setColor(Color.black);
-							g2d.drawString(tags.get(documentTag.getId())
-									.getName(), x, y);
+
+							// use a point object to hold the minY and maxY for
+							// the extents of the box with string
+							Point extentsY = new Point(Math.min(r.y, stringY
+									- stringWidth / 2), Math.max(
+									r.y + r.height, stringY + stringWidth / 2));
+
+							g2d.drawString(name, stringX, stringY);
 							g2d.setTransform(transform);
+							g2d.drawLine(r.x + r.width, extentsY.x, r.x
+									+ r.width, extentsY.y);
 						}
 
 					} catch (BadLocationException e) {
@@ -235,7 +261,7 @@ public class MainPanel extends JPanel {
 			text.setSelectionStart(0);
 			text.setSelectionEnd(0);
 			text.setMargin(new Insets(2, study.getTag().size() * stripeWidth
-					+ 3, 2, 2));
+					+ stripesMarginLeft, 2, 2));
 			repaint();
 		}
 	}
