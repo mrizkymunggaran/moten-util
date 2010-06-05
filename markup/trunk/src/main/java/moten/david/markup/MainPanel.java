@@ -168,42 +168,46 @@ public class MainPanel extends JPanel {
 							g.setColor(new Color(colors
 									.get(documentTag.getId())));
 
-							int x = stripesMarginLeft
-									+ getTagIndex(documentTag.getId())
-									* stripeWidth + stripeWidth - 1;
+							int index = getTagIndex(documentTag.getId());
+							index = 2;
+
+							int x = stripesMarginLeft + index * stripeWidth;
 							int y = (rEnd.y + rEnd.height - rStart.y) / 2
 									+ rStart.y;
 							String name = tags.get(documentTag.getId())
 									.getName();
 							int stringWidth = g2d.getFontMetrics().stringWidth(
 									name);
-							int stringX = stripesMarginLeft
-									+ getTagIndex(documentTag.getId())
-									* stripeWidth + stripeWidth / 2
-									- stringWidth / 2;
+							int stringX = stripesMarginLeft + index
+									* stripeWidth + stripeWidth;
 							int stringY = y + g2d.getFontMetrics().getAscent()
 									/ 2;
-							Rectangle r = new Rectangle(x - stripeWidth + 1,
-									rStart.y, stripeWidth, rEnd.y + rEnd.height
+							Rectangle r = new Rectangle(x, rStart.y,
+									stripeWidth, rEnd.y + rEnd.height
 											- rStart.y);
 							g2d.fillRect(r.x, r.y, r.width, r.height);
-							AffineTransform at = new AffineTransform();
-							at.setToRotation(-Math.PI / 2.0, stringX
-									+ stringWidth / 2, stringY
-									- g2d.getFontMetrics().getAscent() / 2);
 							AffineTransform transform = g2d.getTransform();
+							AffineTransform at = new AffineTransform();
+							Point rotationOrigin = new Point(stringX, stringY
+									- g.getFontMetrics().getAscent() / 2);
+							at.setToRotation(-Math.PI / 2.0, rotationOrigin.x,
+									rotationOrigin.y);
+							at.translate(-stringWidth / 2, 0);
+							// at.translate(0, g.getFontMetrics().getDescent());
 							g2d.setTransform(at);
 							g2d.setFont(g2d.getFont().deriveFont(9f));
 							g.setColor(Color.black);
+							g2d.drawString(name, rotationOrigin.x,
+									rotationOrigin.y);
+
+							// revert the transform
+							g2d.setTransform(transform);
 
 							// use a point object to hold the minY and maxY for
 							// the extents of the box with string
 							Point extentsY = new Point(Math.min(r.y, stringY
 									- stringWidth / 2), Math.max(
 									r.y + r.height, stringY + stringWidth / 2));
-
-							g2d.drawString(name, stringX, stringY);
-							g2d.setTransform(transform);
 							g2d.drawLine(r.x + r.width, extentsY.x, r.x
 									+ r.width, extentsY.y);
 						}
