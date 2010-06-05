@@ -67,5 +67,9 @@
             <boolean>true</boolean>
         </documentTag>
     </document>
-    <document name="taylor-phinney.txt"/>
+    <document name="taylor-phinney.txt">
+        <documentTag length="73" start="1734" id="6">
+            <boolean>true</boolean>
+        </documentTag>
+    </document>
 </study>
