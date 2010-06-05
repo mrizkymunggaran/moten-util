@@ -195,11 +195,13 @@ public class MainPanel extends JPanel {
 							at.translate(-stringWidth / 2, 0);
 							// at.translate(0, g.getFontMetrics().getDescent());
 							g2d.setTransform(at);
+
 							g2d.setFont(g2d.getFont().deriveFont(9f));
 							g.setColor(Color.black);
 							g2d.drawString(name, rotationOrigin.x,
 									rotationOrigin.y);
 
+							g.setColor(Color.black);
 							// revert the transform
 							g2d.setTransform(transform);
 
@@ -210,6 +212,9 @@ public class MainPanel extends JPanel {
 									r.y + r.height, stringY + stringWidth / 2));
 							g2d.drawLine(r.x + r.width, extentsY.x, r.x
 									+ r.width, extentsY.y);
+							g.setColor(Color.red);
+							g2d.drawLine(rotationOrigin.x, rotationOrigin.y,
+									rotationOrigin.x, rotationOrigin.y);
 						}
 
 					} catch (BadLocationException e) {
