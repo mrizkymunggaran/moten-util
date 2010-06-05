@@ -56,482 +56,481 @@ import com.google.inject.Inject;
  */
 public class MainPanel extends JPanel {
 
-	private static Logger log = Logger.getLogger(MainPanel.class.getName());
+    private static Logger log = Logger.getLogger(MainPanel.class.getName());
 
-	private final JTextPane text;
-	private final Controller controller;
-	private SelectionMode selectionMode = SelectionMode.SENTENCE;
-	private final Study study;
-	private Document document;
+    private final JTextPane text;
+    private final Controller controller;
+    private SelectionMode selectionMode = SelectionMode.SENTENCE;
+    private final Study study;
+    private Document document;
 
-	private final HashMap<Integer, Boolean> visible = new HashMap<Integer, Boolean>();
-	private HashMap<Integer, Tag> tags = new HashMap<Integer, Tag>();
-	private final HashMap<Integer, Integer> colors = new HashMap<Integer, Integer>();
+    private final HashMap<Integer, Boolean> visible = new HashMap<Integer, Boolean>();
+    private HashMap<Integer, Tag> tags = new HashMap<Integer, Tag>();
+    private final HashMap<Integer, Integer> colors = new HashMap<Integer, Integer>();
 
-	private final CurrentStudy current;
+    private final CurrentStudy current;
 
-	private boolean filterEnabled;
+    private boolean filterEnabled;
 
-	private static int stripeWidth = 8;
+    private static int stripeWidth = 8;
 
-	private Color getInvertedColor(int tagId) {
-		int rgb = colors.get(tagId);
-		return new Color(~rgb);
-	}
+    private Color getInvertedColor(int tagId) {
+        int rgb = colors.get(tagId);
+        return new Color(~rgb);
+    }
 
-	private boolean isVisible(int tagId) {
-		Boolean result = visible.get(tagId);
-		return (result != null) && result;
-	}
+    private boolean isVisible(int tagId) {
+        Boolean result = visible.get(tagId);
+        return (result != null) && result;
+    }
 
-	@Inject
-	public MainPanel(final Controller controller, CurrentStudy current) {
-		this.controller = controller;
-		this.current = current;
-		this.study = current.get();
-		// initialize to the first document in the list
+    @Inject
+    public MainPanel(final Controller controller, CurrentStudy current) {
+        this.controller = controller;
+        this.current = current;
+        this.study = current.get();
+        // initialize to the first document in the list
 
-		loadTagMap(study.getTag());
+        loadTagMap(study.getTag());
 
-		setLayout(new GridLayout(1, 1));
-		text = new JTextPane() {
-			@Override
-			protected void paintComponent(Graphics g) {
-				synchronized (study) {
-					super.paintComponent(g);
-					Graphics2D g2d = (Graphics2D) g;
-					controller.event(new StartingToPaintTags());
-					try {
-						for (DocumentTag documentTag : document
-								.getDocumentTag()) {
-							if (MainPanel.this.isVisible(documentTag.getId())) {
-								for (int i = 0; i <= documentTag.getLength() - 1; i++) {
-									int characterStart = documentTag.getStart()
-											+ i;
+        setLayout(new GridLayout(1, 1));
+        text = new JTextPane() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                synchronized (study) {
+                    super.paintComponent(g);
+                    Graphics2D g2d = (Graphics2D) g;
+                    controller.event(new StartingToPaintTags());
+                    for (DocumentTag documentTag : document.getDocumentTag()) {
+                        if (MainPanel.this.isVisible(documentTag.getId())) {
+                            for (int i = 0; i <= documentTag.getLength() - 1; i++) {
+                                drawSliceAt(g, documentTag, i);
+                            }
+                        }
+                    }
+                    g.setPaintMode();
+                    for (DocumentTag documentTag : document.getDocumentTag()) {
+                        Rectangle rStart;
+                        Rectangle rEnd;
+                        try {
+                            rStart = text.modelToView(documentTag.getStart());
+                            rEnd = text.modelToView(documentTag.getStart()
+                                    + documentTag.getLength());
+                        } catch (BadLocationException e) {
+                            throw new RuntimeException(e);
+                        }
 
-									// count the number of tags visible at
-									// characterStart
-									int index = 0;
-									int count = 0;
-									for (DocumentTag dt : document
-											.getDocumentTag()) {
-										if (MainPanel.this
-												.isVisible(dt.getId()))
-											if (characterStart >= dt.getStart()
-													&& characterStart < dt
-															.getStart()
-															+ dt.getLength()) {
-												if (dt == documentTag)
-													index = count;
-												count++;
-											}
-									}
+                        g.setColor(new Color(colors.get(documentTag.getId())));
 
-									// draw the slice of tag at characterStart
-									Rectangle r = text
-											.modelToView(characterStart);
-									Rectangle r2 = text
-											.modelToView(characterStart + 1);
-									if (r2.x > r.x && r2.y == r.y) {
-										g
-												.setXORMode(getInvertedColor(documentTag
-														.getId()));
-										int step = r.height / count;
-										int stepHeight = step;
-										if (index == count - 1)
-											stepHeight = r.height - (count - 1)
-													* step;
-										g.fillRect(r.x, r.y + index * step,
-												r2.x - r.x, stepHeight);
-									}
-								}
-							}
-						}
-						g.setPaintMode();
-						for (DocumentTag documentTag : document
-								.getDocumentTag()) {
-							Rectangle rStart = text.modelToView(documentTag
-									.getStart());
-							Rectangle rEnd = text.modelToView(documentTag
-									.getStart()
-									+ documentTag.getLength());
-							g.setColor(new Color(colors
-									.get(documentTag.getId())));
+                        int x = 3 + getTagIndex(documentTag.getId())
+                                * stripeWidth;
+                        g.fillRect(x, rStart.y, stripeWidth, rEnd.y
+                                + rEnd.height - rStart.y);
+                        g.setColor(Color.black);
+                        AffineTransform at = new AffineTransform();
+                        at.setToRotation(-Math.PI / 2.0, x + stripeWidth,
+                                rEnd.y + rEnd.height);
+                        AffineTransform transform = g2d.getTransform();
+                        g2d.setTransform(at);
+                        g2d.setFont(g2d.getFont().deriveFont(9f));
+                        g2d
+                                .drawString(tags.get(documentTag.getId())
+                                        .getName(), x + stripeWidth, +rEnd.y
+                                        + rEnd.height
+                                        + g2d.getFontMetrics().getDescent() - 1);
+                        g2d.setTransform(transform);
+                    }
+                    g.setColor(Color.black);
+                }
+            }
 
-							int x = 3 + getTagIndex(documentTag.getId())
-									* stripeWidth;
-							g.fillRect(x, rStart.y, stripeWidth, rEnd.y
-									+ rEnd.height - rStart.y);
-							g.setColor(Color.black);
-							AffineTransform at = new AffineTransform();
-							at.setToRotation(-Math.PI / 2.0, x + stripeWidth,
-									rEnd.y + rEnd.height);
-							AffineTransform transform = g2d.getTransform();
-							g2d.setTransform(at);
-							g2d.setFont(g2d.getFont().deriveFont(9f));
-							g2d.drawString(tags.get(documentTag.getId())
-									.getName(), x + stripeWidth, +rEnd.y
-									+ rEnd.height
-									+ g2d.getFontMetrics().getDescent() - 1);
-							g2d.setTransform(transform);
-						}
-						g.setColor(Color.black);
-					} catch (BadLocationException e) {
-						throw new RuntimeException(e);
-					}
-				}
-			}
+            private void drawSliceAt(Graphics g, DocumentTag documentTag, int i) {
+                try {
+                    int characterStart = documentTag.getStart() + i;
 
-		};
+                    // count the number of tags visible at
+                    // characterStart
+                    int index = 0;
+                    int count = 0;
+                    for (DocumentTag dt : document.getDocumentTag()) {
+                        if (MainPanel.this.isVisible(dt.getId()))
+                            if (characterStart >= dt.getStart()
+                                    && characterStart < dt.getStart()
+                                            + dt.getLength()) {
+                                if (dt == documentTag)
+                                    index = count;
+                                count++;
+                            }
+                    }
 
-		add(new JScrollPane(text));
+                    // draw the slice of tag at characterStart
+                    Rectangle r = text.modelToView(characterStart);
+                    Rectangle r2 = text.modelToView(characterStart + 1);
+                    if (r2.x > r.x && r2.y == r.y) {
+                        g.setXORMode(getInvertedColor(documentTag.getId()));
+                        int step = r.height / count;
+                        int stepHeight = step;
+                        if (index == count - 1)
+                            stepHeight = r.height - (count - 1) * step;
+                        g.fillRect(r.x, r.y + index * step, r2.x - r.x,
+                                stepHeight);
+                    }
 
-		controller.addListener(TagSelectionChanged.class,
-				createTagSelectionChangedListener());
-		controller.addListener(SelectionModeChanged.class,
-				createSelectionModeChangedListener());
-		controller.addListener(FilterChanged.class,
-				createFilterChangedListener());
-		controller.addListener(DocumentSelectionChanged.class,
-				createDocumentSelectionChangedListener());
-		text.addMouseListener(createTextMouseListener(study.getTag()));
+                } catch (BadLocationException e) {
+                    throw new RuntimeException(e);
+                }
+            }
 
-		loadDocument(0);
-		// text.getStyledDocument().addDocumentListener(createDocumentListener());
-	}
+        };
 
-	private int getTagIndex(int id) {
-		int count = 0;
-		for (Tag tag : study.getTag()) {
-			if (tag.getId() == id)
-				return count;
-			count++;
-		}
-		return -1;
-	}
+        add(new JScrollPane(text));
 
-	private ControllerListener<DocumentSelectionChanged> createDocumentSelectionChangedListener() {
-		return new ControllerListener<DocumentSelectionChanged>() {
-			@Override
-			public void event(DocumentSelectionChanged event) {
-				loadDocument(event.getIndex());
-				refresh();
-			}
-		};
-	}
+        controller.addListener(TagSelectionChanged.class,
+                createTagSelectionChangedListener());
+        controller.addListener(SelectionModeChanged.class,
+                createSelectionModeChangedListener());
+        controller.addListener(FilterChanged.class,
+                createFilterChangedListener());
+        controller.addListener(DocumentSelectionChanged.class,
+                createDocumentSelectionChangedListener());
+        text.addMouseListener(createTextMouseListener(study.getTag()));
 
-	private void loadDocument(int i) {
-		synchronized (study) {
-			document = study.getDocument().get(i);
-			String s = current.getText(document.getName());
-			text.setDocument(text.getEditorKit().createDefaultDocument());
-			text.setText(s);
-			text.setSelectionStart(0);
-			text.setSelectionEnd(0);
-			text.setMargin(new Insets(2, study.getTag().size() * stripeWidth
-					+ 3, 2, 2));
-			repaint();
-		}
-	}
+        loadDocument(0);
+        // text.getStyledDocument().addDocumentListener(createDocumentListener());
+    }
 
-	private DocumentListener createDocumentListener() {
-		return new DocumentListener() {
+    private int getTagIndex(int id) {
+        int count = 0;
+        for (Tag tag : study.getTag()) {
+            if (tag.getId() == id)
+                return count;
+            count++;
+        }
+        return -1;
+    }
 
-			@Override
-			public void changedUpdate(DocumentEvent e) {
+    private ControllerListener<DocumentSelectionChanged> createDocumentSelectionChangedListener() {
+        return new ControllerListener<DocumentSelectionChanged>() {
+            @Override
+            public void event(DocumentSelectionChanged event) {
+                loadDocument(event.getIndex());
+                refresh();
+            }
+        };
+    }
 
-			}
+    private void loadDocument(int i) {
+        synchronized (study) {
+            document = study.getDocument().get(i);
+            String s = current.getText(document.getName());
+            text.setDocument(text.getEditorKit().createDefaultDocument());
+            text.setText(s);
+            text.setSelectionStart(0);
+            text.setSelectionEnd(0);
+            text.setMargin(new Insets(2, study.getTag().size() * stripeWidth
+                    + 3, 2, 2));
+            repaint();
+        }
+    }
 
-			@Override
-			public void insertUpdate(DocumentEvent e) {
-				synchronized (document) {
-					for (DocumentTag dt : document.getDocumentTag()) {
-						if (e.getOffset() >= dt.getStart()
-								&& e.getOffset() <= dt.getStart()
-										+ dt.getLength()) {
-							dt.setLength(dt.getLength() + e.getLength());
-						}
-					}
-				}
-			}
+    private DocumentListener createDocumentListener() {
+        return new DocumentListener() {
 
-			@Override
-			public void removeUpdate(DocumentEvent e) {
-				synchronized (document) {
-					List<DocumentTag> removeThese = new ArrayList<DocumentTag>();
-					for (DocumentTag dt : document.getDocumentTag()) {
-						if (e.getOffset() > dt.getStart()
-								&& e.getOffset() <= dt.getStart()
-										+ dt.getLength()) {
-							dt.setLength(dt.getLength() - e.getLength());
-						} else if (e.getOffset() < dt.getStart()
-								&& e.getOffset() + e.getLength() < dt
-										.getStart()
-										+ dt.getLength()) {
+            @Override
+            public void changedUpdate(DocumentEvent e) {
 
-							int newStart = e.getOffset() + e.getLength() + 1;
-							dt.setLength(dt.getLength()
-									- (newStart - dt.getStart()));
-							dt.setStart(newStart);
-						} else if (e.getOffset() < dt.getStart()
-								&& e.getOffset() + e.getLength() >= dt
-										.getStart()
-										+ dt.getLength()) {
-							removeThese.add(dt);
-						}
-					}
-					document.getDocumentTag().removeAll(removeThese);
-				}
-			}
-		};
-	}
+            }
 
-	private ControllerListener<FilterChanged> createFilterChangedListener() {
-		return new ControllerListener<FilterChanged>() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                synchronized (document) {
+                    for (DocumentTag dt : document.getDocumentTag()) {
+                        if (e.getOffset() >= dt.getStart()
+                                && e.getOffset() <= dt.getStart()
+                                        + dt.getLength()) {
+                            dt.setLength(dt.getLength() + e.getLength());
+                        }
+                    }
+                }
+            }
 
-			@Override
-			public void event(FilterChanged event) {
-				MainPanel.this.filterEnabled = event.isEnabled();
-				// text.setEnabled(!filterEnabled);
-				refresh();
-			}
-		};
-	}
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                synchronized (document) {
+                    List<DocumentTag> removeThese = new ArrayList<DocumentTag>();
+                    for (DocumentTag dt : document.getDocumentTag()) {
+                        if (e.getOffset() > dt.getStart()
+                                && e.getOffset() <= dt.getStart()
+                                        + dt.getLength()) {
+                            dt.setLength(dt.getLength() - e.getLength());
+                        } else if (e.getOffset() < dt.getStart()
+                                && e.getOffset() + e.getLength() < dt
+                                        .getStart()
+                                        + dt.getLength()) {
 
-	private void loadTagMap(List<Tag> list) {
+                            int newStart = e.getOffset() + e.getLength() + 1;
+                            dt.setLength(dt.getLength()
+                                    - (newStart - dt.getStart()));
+                            dt.setStart(newStart);
+                        } else if (e.getOffset() < dt.getStart()
+                                && e.getOffset() + e.getLength() >= dt
+                                        .getStart()
+                                        + dt.getLength()) {
+                            removeThese.add(dt);
+                        }
+                    }
+                    document.getDocumentTag().removeAll(removeThese);
+                }
+            }
+        };
+    }
 
-		tags = new HashMap<Integer, Tag>();
-		int index = 0;
-		for (Tag tag : list) {
-			tags.put(tag.getId(), tag);
-			if (tag.getColor() != null)
-				colors.put(tag.getId(), tag.getColor());
-			else {
-				float b = 1.0f;
-				float s = 0.2f;
-				float h = (float) index / tags.size();
-				Color color = Color.getHSBColor(h, s, b);
-				colors.put(tag.getId(), color.getRGB());
-			}
-			index++;
-		}
-	}
+    private ControllerListener<FilterChanged> createFilterChangedListener() {
+        return new ControllerListener<FilterChanged>() {
 
-	private ControllerListener<SelectionModeChanged> createSelectionModeChangedListener() {
-		return new ControllerListener<SelectionModeChanged>() {
-			@Override
-			public void event(SelectionModeChanged event) {
-				selectionMode = event.getSelectionMode();
-			}
-		};
-	}
+            @Override
+            public void event(FilterChanged event) {
+                MainPanel.this.filterEnabled = event.isEnabled();
+                // text.setEnabled(!filterEnabled);
+                refresh();
+            }
+        };
+    }
 
-	private ControllerListener<TagSelectionChanged> createTagSelectionChangedListener() {
-		return new ControllerListener<TagSelectionChanged>() {
+    private void loadTagMap(List<Tag> list) {
 
-			@Override
-			public void event(TagSelectionChanged event) {
-				visible.clear();
-				for (Tag tag : event.getList())
-					visible.put(tag.getId(), true);
-				refresh();
-			}
-		};
-	}
+        tags = new HashMap<Integer, Tag>();
+        int index = 0;
+        for (Tag tag : list) {
+            tags.put(tag.getId(), tag);
+            if (tag.getColor() != null)
+                colors.put(tag.getId(), tag.getColor());
+            else {
+                float b = 1.0f;
+                float s = 0.2f;
+                float h = (float) index / tags.size();
+                Color color = Color.getHSBColor(h, s, b);
+                colors.put(tag.getId(), color.getRGB());
+            }
+            index++;
+        }
+    }
 
-	private void refresh() {
-		log.info("refreshing");
-		log.info("visible=" + visible);
-		StyledDocument doc = text.getStyledDocument();
-		doc.setCharacterAttributes(0, doc.getLength(),
-				SimpleAttributeSet.EMPTY, true);
-		if (filterEnabled) {
-			Style style = doc.addStyle("hide", null);
-			StyleConstants.setFontSize(style, 0);
-			doc.setCharacterAttributes(0, doc.getLength(), style, true);
-			for (DocumentTag documentTag : document.getDocumentTag()) {
-				if (isVisible(documentTag.getId())) {
-					doc.setCharacterAttributes(documentTag.getStart(),
-							documentTag.getLength(), SimpleAttributeSet.EMPTY,
-							true);
-				}
-			}
-		}
-		text.setStyledDocument(doc);
-		repaint();
-	}
+    private ControllerListener<SelectionModeChanged> createSelectionModeChangedListener() {
+        return new ControllerListener<SelectionModeChanged>() {
+            @Override
+            public void event(SelectionModeChanged event) {
+                selectionMode = event.getSelectionMode();
+            }
+        };
+    }
 
-	private static DocumentTag createDocumentTag(Tag tag, int start,
-			int length, Object value) {
-		DocumentTag d = new DocumentTag();
-		d.setId(tag.getId());
-		d.setStart(start);
-		d.setLength(length);
-		if (value instanceof Boolean)
-			d.setBoolean((Boolean) value);
-		else if (value instanceof String)
-			d.setText((String) value);
-		else if (value instanceof BigDecimal)
-			d.setNumber((BigDecimal) value);
-		else
-			throw new RuntimeException("unknown tag value type:"
-					+ (value != null ? value.getClass() : "") + "=" + value);
-		return d;
-	}
+    private ControllerListener<TagSelectionChanged> createTagSelectionChangedListener() {
+        return new ControllerListener<TagSelectionChanged>() {
 
-	private MouseListener createTextMouseListener(List<Tag> tags) {
-		final JPopupMenu popup = new JPopupMenu();
-		for (final Tag tag : tags) {
-			JMenuItem code = new JMenuItem(tag.getName()
-					+ (!tag.getType().equals(BasicType.BOOLEAN) ? "..." : ""));
-			popup.add(code);
-			code.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					Object value = true;
-					// if tag type is boolean then it is a theme that refers to
-					// the selection.
-					if (!tag.getType().equals(BasicType.BOOLEAN)) {
-						value = JOptionPane.showInputDialog(MainPanel.this, tag
-								.getName(), "Tag value for " + tag.getName(),
-								JOptionPane.PLAIN_MESSAGE, null, null, "");
-					}
-					int start = text.getSelectionStart();
-					int finish = text.getSelectionEnd();
-					StyledDocument doc = text.getStyledDocument();
-					Element element = doc.getParagraphElement(start);
-					Element element2 = doc.getParagraphElement(finish);
+            @Override
+            public void event(TagSelectionChanged event) {
+                visible.clear();
+                for (Tag tag : event.getList())
+                    visible.put(tag.getId(), true);
+                refresh();
+            }
+        };
+    }
 
-					synchronized (document) {
-						// synchronize so we don't clash with a delete action
-						if (selectionMode.equals(SelectionMode.PARAGRAPH))
-							document.getDocumentTag().add(
-									createDocumentTag(tag, element
-											.getStartOffset(), element2
-											.getEndOffset()
-											- element.getStartOffset() + 1,
-											value));
-						else if (selectionMode.equals(SelectionMode.SENTENCE)) {
-							selectDelimitedBy(doc, ".", start, finish, tag
-									.getName());
-						} else {
-							// exact
-							document.getDocumentTag().add(
-									createDocumentTag(tag, start, finish
-											- start + 1, value));
-						}
-					}
-					controller.event(new TextTagged(tag));
-					refresh();
-					save();
-				}
+    private void refresh() {
+        log.info("refreshing");
+        log.info("visible=" + visible);
+        StyledDocument doc = text.getStyledDocument();
+        doc.setCharacterAttributes(0, doc.getLength(),
+                SimpleAttributeSet.EMPTY, true);
+        if (filterEnabled) {
+            Style style = doc.addStyle("hide", null);
+            StyleConstants.setFontSize(style, 0);
+            doc.setCharacterAttributes(0, doc.getLength(), style, true);
+            for (DocumentTag documentTag : document.getDocumentTag()) {
+                if (isVisible(documentTag.getId())) {
+                    doc.setCharacterAttributes(documentTag.getStart(),
+                            documentTag.getLength(), SimpleAttributeSet.EMPTY,
+                            true);
+                }
+            }
+        }
+        text.setStyledDocument(doc);
+        repaint();
+    }
 
-				private void selectDelimitedBy(StyledDocument doc,
-						String delimiter, int start, int finish, String style) {
-					Element element = doc.getParagraphElement(start);
-					Element element2 = doc.getParagraphElement(finish);
-					int i = start;
-					try {
-						while (i > element.getStartOffset()
-								&& !delimiter.equals(doc.getText(i, 1)))
-							i--;
-						while (delimiter.equals(doc.getText(i, 1))
-								|| Character.isWhitespace(doc.getText(i, 1)
-										.charAt(0)))
-							i++;
-						int j = finish;
-						while (j < element2.getEndOffset()
-								&& !delimiter.equals(doc.getText(j, 1)))
-							j++;
-						if (delimiter.equals(doc.getText(j, 1))
-								|| Character.isWhitespace(doc.getText(j, 1)
-										.charAt(0)))
-							j--;
-						document.getDocumentTag().add(
-								createDocumentTag(tag, i, j - i + 1, true));
-					} catch (BadLocationException e1) {
-						throw new RuntimeException(e1);
-					}
-				}
-			});
-		}
+    private static DocumentTag createDocumentTag(Tag tag, int start,
+            int length, Object value) {
+        DocumentTag d = new DocumentTag();
+        d.setId(tag.getId());
+        d.setStart(start);
+        d.setLength(length);
+        if (value instanceof Boolean)
+            d.setBoolean((Boolean) value);
+        else if (value instanceof String)
+            d.setText((String) value);
+        else if (value instanceof BigDecimal)
+            d.setNumber((BigDecimal) value);
+        else
+            throw new RuntimeException("unknown tag value type:"
+                    + (value != null ? value.getClass() : "") + "=" + value);
+        return d;
+    }
 
-		popup.addSeparator();
-		{
-			JMenuItem item = new JMenuItem("Clear tags from selection");
-			popup.add(item);
-			item.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					controller.event(new ClearTagsFromSelection(text
-							.getSelectionStart(), text.getSelectionEnd()
-							- text.getSelectionStart()));
-				}
-			});
-		}
+    private MouseListener createTextMouseListener(List<Tag> tags) {
+        final JPopupMenu popup = new JPopupMenu();
+        for (final Tag tag : tags) {
+            JMenuItem code = new JMenuItem(tag.getName()
+                    + (!tag.getType().equals(BasicType.BOOLEAN) ? "..." : ""));
+            popup.add(code);
+            code.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    Object value = true;
+                    // if tag type is boolean then it is a theme that refers to
+                    // the selection.
+                    if (!tag.getType().equals(BasicType.BOOLEAN)) {
+                        value = JOptionPane.showInputDialog(MainPanel.this, tag
+                                .getName(), "Tag value for " + tag.getName(),
+                                JOptionPane.PLAIN_MESSAGE, null, null, "");
+                    }
+                    int start = text.getSelectionStart();
+                    int finish = text.getSelectionEnd();
+                    StyledDocument doc = text.getStyledDocument();
+                    Element element = doc.getParagraphElement(start);
+                    Element element2 = doc.getParagraphElement(finish);
 
-		controller.addListener(ClearTagsFromSelection.class,
-				new ControllerListener<ClearTagsFromSelection>() {
-					@Override
-					public void event(ClearTagsFromSelection event) {
-						synchronized (document) {
-							List<DocumentTag> removeThese = new ArrayList<DocumentTag>();
-							for (DocumentTag dt : document.getDocumentTag()) {
-								if (dt.getStart() <= event.getPosition()
-										&& dt.getStart() + dt.getLength() > event
-												.getPosition())
-									removeThese.add(dt);
-							}
-							document.getDocumentTag().removeAll(removeThese);
-						}
-					}
-				});
+                    synchronized (document) {
+                        // synchronize so we don't clash with a delete action
+                        if (selectionMode.equals(SelectionMode.PARAGRAPH))
+                            document.getDocumentTag().add(
+                                    createDocumentTag(tag, element
+                                            .getStartOffset(), element2
+                                            .getEndOffset()
+                                            - element.getStartOffset() + 1,
+                                            value));
+                        else if (selectionMode.equals(SelectionMode.SENTENCE)) {
+                            selectDelimitedBy(doc, ".", start, finish, tag
+                                    .getName());
+                        } else {
+                            // exact
+                            document.getDocumentTag().add(
+                                    createDocumentTag(tag, start, finish
+                                            - start + 1, value));
+                        }
+                    }
+                    controller.event(new TextTagged(tag));
+                    refresh();
+                    save();
+                }
 
-		return new MouseAdapter() {
+                private void selectDelimitedBy(StyledDocument doc,
+                        String delimiter, int start, int finish, String style) {
+                    Element element = doc.getParagraphElement(start);
+                    Element element2 = doc.getParagraphElement(finish);
+                    int i = start;
+                    try {
+                        while (i > element.getStartOffset()
+                                && !delimiter.equals(doc.getText(i, 1)))
+                            i--;
+                        while (delimiter.equals(doc.getText(i, 1))
+                                || Character.isWhitespace(doc.getText(i, 1)
+                                        .charAt(0)))
+                            i++;
+                        int j = finish;
+                        while (j < element2.getEndOffset()
+                                && !delimiter.equals(doc.getText(j, 1)))
+                            j++;
+                        if (delimiter.equals(doc.getText(j, 1))
+                                || Character.isWhitespace(doc.getText(j, 1)
+                                        .charAt(0)))
+                            j--;
+                        document.getDocumentTag().add(
+                                createDocumentTag(tag, i, j - i + 1, true));
+                    } catch (BadLocationException e1) {
+                        throw new RuntimeException(e1);
+                    }
+                }
+            });
+        }
 
-			@Override
-			public void mousePressed(MouseEvent e) {
-				if (!e.isPopupTrigger()) {
-					StyledDocument doc = text.getStyledDocument();
-					int i = text.getSelectionStart();
-					Enumeration<?> names = doc.getCharacterElement(i)
-							.getAttributes().getAttributeNames();
-					while (names.hasMoreElements()) {
-						Object attribute = names.nextElement();
-						System.out.println(attribute.getClass().getName() + ":"
-								+ attribute);
-					}
-					try {
-						Rectangle modelToView = text.modelToView(i);
-					} catch (BadLocationException e1) {
-						throw new RuntimeException(e1);
-					}
-				}
-				maybeShowPopup(e);
-			}
+        popup.addSeparator();
+        {
+            JMenuItem item = new JMenuItem("Clear tags from selection");
+            popup.add(item);
+            item.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    controller.event(new ClearTagsFromSelection(text
+                            .getSelectionStart(), text.getSelectionEnd()
+                            - text.getSelectionStart()));
+                }
+            });
+        }
 
-			@Override
-			public void mouseReleased(MouseEvent e) {
-				maybeShowPopup(e);
-			}
+        controller.addListener(ClearTagsFromSelection.class,
+                new ControllerListener<ClearTagsFromSelection>() {
+                    @Override
+                    public void event(ClearTagsFromSelection event) {
+                        synchronized (document) {
+                            List<DocumentTag> removeThese = new ArrayList<DocumentTag>();
+                            for (DocumentTag dt : document.getDocumentTag()) {
+                                if (dt.getStart() <= event.getPosition()
+                                        && dt.getStart() + dt.getLength() > event
+                                                .getPosition())
+                                    removeThese.add(dt);
+                            }
+                            document.getDocumentTag().removeAll(removeThese);
+                        }
+                    }
+                });
 
-			private void maybeShowPopup(MouseEvent e) {
-				if (e.isPopupTrigger()) {
-					popup.show(e.getComponent(), e.getX(), e.getY());
-				}
-			}
+        return new MouseAdapter() {
 
-		};
-	}
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if (!e.isPopupTrigger()) {
+                    StyledDocument doc = text.getStyledDocument();
+                    int i = text.getSelectionStart();
+                    Enumeration<?> names = doc.getCharacterElement(i)
+                            .getAttributes().getAttributeNames();
+                    while (names.hasMoreElements()) {
+                        Object attribute = names.nextElement();
+                        System.out.println(attribute.getClass().getName() + ":"
+                                + attribute);
+                    }
+                    try {
+                        Rectangle modelToView = text.modelToView(i);
+                    } catch (BadLocationException e1) {
+                        throw new RuntimeException(e1);
+                    }
+                }
+                maybeShowPopup(e);
+            }
 
-	private void save() {
-		current.save();
-	}
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                maybeShowPopup(e);
+            }
 
-	@Override
-	public void requestFocus() {
-		super.requestFocus();
-		text.requestFocus();
-	}
+            private void maybeShowPopup(MouseEvent e) {
+                if (e.isPopupTrigger()) {
+                    popup.show(e.getComponent(), e.getX(), e.getY());
+                }
+            }
+
+        };
+    }
+
+    private void save() {
+        current.save();
+    }
+
+    @Override
+    public void requestFocus() {
+        super.requestFocus();
+        text.requestFocus();
+    }
 
 }
