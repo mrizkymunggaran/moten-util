@@ -14,7 +14,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Line2D;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -60,6 +59,8 @@ import com.google.inject.Inject;
  */
 public class MainPanel extends JPanel {
 
+    private static final long serialVersionUID = -8442599211410850234L;
+
     private static Logger log = Logger.getLogger(MainPanel.class.getName());
 
     private final JTextPane text;
@@ -99,7 +100,28 @@ public class MainPanel extends JPanel {
         loadTagMap(study.getTag());
 
         setLayout(new GridLayout(1, 1));
-        text = new JTextPane() {
+        text = createTextPane();
+        add(new JScrollPane(text));
+
+        controller.addListener(TagSelectionChanged.class,
+                createTagSelectionChangedListener());
+        controller.addListener(SelectionModeChanged.class,
+                createSelectionModeChangedListener());
+        controller.addListener(FilterChanged.class,
+                createFilterChangedListener());
+        controller.addListener(DocumentSelectionChanged.class,
+                createDocumentSelectionChangedListener());
+        text.addMouseListener(createTextMouseListener(study.getTag()));
+
+        loadDocument(0);
+        // text.getStyledDocument().addDocumentListener(createDocumentListener());
+    }
+
+    private JTextPane createTextPane() {
+        return new JTextPane() {
+
+            private static final long serialVersionUID = 5014189093868870320L;
+
             @Override
             protected void paintComponent(Graphics graphics) {
                 synchronized (study) {
@@ -157,7 +179,8 @@ public class MainPanel extends JPanel {
                         }
                         g.setPaintMode();
                         g.setColor(Color.black);
-                        Map<DocumentTag, Line2D.Float> stripeVerticalBounds = new HashMap<DocumentTag, Line2D.Float>();
+                        int index = 0;
+                        Map<DocumentTag, Integer> indexes = new HashMap<DocumentTag, Integer>();
                         for (DocumentTag documentTag : document
                                 .getDocumentTag()) {
                             Rectangle rStart = text.modelToView(documentTag
@@ -165,11 +188,13 @@ public class MainPanel extends JPanel {
                             Rectangle rEnd = text.modelToView(documentTag
                                     .getStart()
                                     + documentTag.getLength());
-                            g.setColor(new Color(colors.get(documentTag
-                                    .getId())));
+                            g.setColor(new Color(colors
+                                    .get(documentTag.getId())));
 
-                            int index = getTagIndex(documentTag.getId());
-                            index = 2;
+                            // int index = getTagIndex(documentTag.getId());
+                            index++;
+                            if (index == 5)
+                                index = 0;
 
                             int x = stripesMarginLeft + index * stripeWidth;
                             int y = (rEnd.y + rEnd.height - rStart.y) / 2
@@ -193,7 +218,7 @@ public class MainPanel extends JPanel {
                             at.setToRotation(-Math.PI / 2.0, rotationOrigin.x,
                                     rotationOrigin.y);
                             at.translate(-stringWidth / 2, 0);
-                            // at.translate(0, g.getFontMetrics().getDescent());
+                            at.translate(0, g.getFontMetrics().getDescent());
                             g.setTransform(at);
 
                             g.setFont(g.getFont().deriveFont(9f));
@@ -207,11 +232,12 @@ public class MainPanel extends JPanel {
 
                             // use a point object to hold the minY and maxY for
                             // the extents of the box with string
-                            Point extentsY = new Point(Math.min(r.y, stringY
-                                    - stringWidth / 2), Math.max(
-                                    r.y + r.height, stringY + stringWidth / 2));
-                            g.drawLine(r.x + r.width, extentsY.x, r.x
-                                    + r.width, extentsY.y);
+                            Point extentsY = new Point(Math.min(r.y,
+                                    rotationOrigin.y - stringWidth / 2), Math
+                                    .max(r.y + r.height, rotationOrigin.y
+                                            + stringWidth / 2));
+                            g.drawLine(r.x + r.width, extentsY.x,
+                                    r.x + r.width, extentsY.y);
                             g.setColor(Color.red);
                             g.drawLine(rotationOrigin.x, rotationOrigin.y,
                                     rotationOrigin.x, rotationOrigin.y);
@@ -227,20 +253,6 @@ public class MainPanel extends JPanel {
 
         };
 
-        add(new JScrollPane(text));
-
-        controller.addListener(TagSelectionChanged.class,
-                createTagSelectionChangedListener());
-        controller.addListener(SelectionModeChanged.class,
-                createSelectionModeChangedListener());
-        controller.addListener(FilterChanged.class,
-                createFilterChangedListener());
-        controller.addListener(DocumentSelectionChanged.class,
-                createDocumentSelectionChangedListener());
-        text.addMouseListener(createTextMouseListener(study.getTag()));
-
-        loadDocument(0);
-        // text.getStyledDocument().addDocumentListener(createDocumentListener());
     }
 
     private int getTagIndex(int id) {

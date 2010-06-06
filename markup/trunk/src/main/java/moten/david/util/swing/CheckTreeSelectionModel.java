@@ -10,6 +10,7 @@ import javax.swing.tree.TreeSelectionModel;
 
 // @author Santhosh Kumar T - santhosh@in.fiorano.com 
 public class CheckTreeSelectionModel extends DefaultTreeSelectionModel {
+    private static final long serialVersionUID = -4676602743819449855L;
     private final TreeModel model;
 
     public CheckTreeSelectionModel(TreeModel model) {
@@ -53,10 +54,12 @@ public class CheckTreeSelectionModel extends DefaultTreeSelectionModel {
         return true;
     }
 
+    @Override
     public void setSelectionPaths(TreePath[] pPaths) {
         throw new UnsupportedOperationException("not implemented yet!!!");
     }
 
+    @Override
     public void addSelectionPaths(TreePath[] paths) {
         // unselect all descendants of paths[]
         for (int i = 0; i < paths.length; i++) {
@@ -117,6 +120,7 @@ public class CheckTreeSelectionModel extends DefaultTreeSelectionModel {
         return true;
     }
 
+    @Override
     public void removeSelectionPaths(TreePath[] paths) {
         for (int i = 0; i < paths.length; i++) {
             TreePath path = paths[i];

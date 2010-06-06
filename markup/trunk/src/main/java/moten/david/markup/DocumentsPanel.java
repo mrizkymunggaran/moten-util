@@ -18,6 +18,7 @@ import com.google.inject.Inject;
 
 public class DocumentsPanel extends JPanel {
 
+    private static final long serialVersionUID = -7045040788786395194L;
     private final Controller controller;
 
     @Inject

@@ -6,9 +6,11 @@ import javax.swing.JPanel;
 
 public class SearchPanel extends JPanel {
 
-	public SearchPanel() {
-		GridBagLayout layout = new GridBagLayout();
-		setLayout(layout);
-	}
+    private static final long serialVersionUID = -6462148403413450583L;
+
+    public SearchPanel() {
+        GridBagLayout layout = new GridBagLayout();
+        setLayout(layout);
+    }
 
 }
