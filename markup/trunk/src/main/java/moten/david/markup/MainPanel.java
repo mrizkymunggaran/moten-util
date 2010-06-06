@@ -1,6 +1,7 @@
 package moten.david.markup;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
@@ -27,6 +28,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JTextPane;
+import javax.swing.border.AbstractBorder;
+import javax.swing.border.Border;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
@@ -100,6 +103,7 @@ public class MainPanel extends JPanel {
 
 		setLayout(new GridLayout(1, 1));
 		text = createTextPane();
+		text.setBorder(createBorder());
 		add((text));
 
 		controller.addListener(TagSelectionChanged.class,
@@ -114,6 +118,29 @@ public class MainPanel extends JPanel {
 
 		loadDocument(0);
 		// text.getStyledDocument().addDocumentListener(createDocumentListener());
+	}
+
+	private Border createBorder() {
+		return new AbstractBorder() {
+
+			Insets insets = new Insets(2, study.getTag().size() * stripeWidth
+					+ stripesMarginLeft, 2, 2);
+
+			@Override
+			public void paintBorder(Component c, Graphics graphics, int x,
+					int y, int width, int height) {
+				super.paintBorder(c, graphics, x, y, width, height);
+				Graphics2D g = (Graphics2D) graphics;
+				g.drawString("hello", 2, 20);
+			}
+
+			@Override
+			public Insets getBorderInsets(Component c) {
+				return insets;
+			}
+
+		};
+
 	}
 
 	private JTextPane createTextPane() {
@@ -285,8 +312,6 @@ public class MainPanel extends JPanel {
 			text.setText(s);
 			text.setSelectionStart(0);
 			text.setSelectionEnd(0);
-			text.setMargin(new Insets(2, study.getTag().size() * stripeWidth
-					+ stripesMarginLeft, 2, 2));
 			repaint();
 		}
 	}
