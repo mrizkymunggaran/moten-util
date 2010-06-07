@@ -29,7 +29,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.border.AbstractBorder;
 import javax.swing.border.Border;
@@ -107,7 +106,7 @@ public class MainPanel extends JPanel {
         setLayout(new GridLayout(1, 1));
         text = createTextPane();
         text.setBorder(createBorder());
-        add(new JScrollPane(text));
+        add((text));
 
         controller.addListener(TagSelectionChanged.class,
                 createTagSelectionChangedListener());
@@ -138,18 +137,153 @@ public class MainPanel extends JPanel {
                     + stripesMarginLeft, 2, 2);
 
             @Override
-            public void paintBorder(Component c, Graphics graphics, int x,
-                    int y, int width, int height) {
+            public synchronized void paintBorder(Component c,
+                    Graphics graphics, int x, int y, int width, int height) {
                 super.paintBorder(c, graphics, x, y, width, height);
 
                 Graphics2D g = (Graphics2D) graphics.create();
                 g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                         RenderingHints.VALUE_ANTIALIAS_ON);
                 controller.event(new StartingToPaintTags());
-                paintBoxes(g);
                 paintLabels(g);
                 g.dispose();
+            }
 
+            private int[] getExtentY(Graphics2D g, DocumentTag dt) {
+                String name = tags.get(dt.getId()).getName();
+                int stringWidth = g.getFontMetrics().stringWidth(name);
+                Rectangle rStart = modelToView(dt.getStart());
+                Rectangle rEnd = modelToView(dt.getStart() + dt.getLength());
+                // (top, bottom of extent of rectangle with centred
+                // label drawn on it)
+                int minY = Math.min(rStart.y, (rStart.y + rEnd.y + rEnd.height)
+                        / 2 - stringWidth / 2);
+                int maxY = Math.max(rEnd.y + rEnd.height,
+                        (rStart.y + rEnd.y + rEnd.height) / 2 - stringWidth / 2
+                                + stringWidth / 2);
+                return new int[] { minY, maxY };
+            }
+
+            private void paintLabels(Graphics2D g) {
+
+                g.setColor(Color.black);
+                Map<DocumentTag, Integer> indexes = new HashMap<DocumentTag, Integer>();
+                {
+                    for (DocumentTag dt : document.getDocumentTag()) {
+                        int i = 0;
+                        List<DocumentTag> list = sortByStart(g, document
+                                .getDocumentTag());
+                        int index = 0;
+                        while (list.get(i) != dt) {
+                            if (intersect(g, dt, list.get(i), 10))
+                                index++;
+                            i++;
+                        }
+                        indexes.put(dt, index);
+                    }
+                }
+                g.setFont(g.getFont().deriveFont(9f));
+                for (DocumentTag documentTag : document.getDocumentTag()) {
+                    Rectangle rStart = modelToView(documentTag.getStart());
+                    Rectangle rEnd = modelToView(documentTag.getStart()
+                            + documentTag.getLength());
+                    g.setBackground(new Color(colors.get(documentTag.getId())));
+
+                    Integer index = indexes.get(documentTag);
+                    int x = stripesMarginLeft + index * stripeWidth;
+                    int y = (rEnd.y + rEnd.height + rStart.y) / 2;
+                    String name = tags.get(documentTag.getId()).getName();
+                    int stringWidth = g.getFontMetrics().stringWidth(name);
+                    int stringX = stripesMarginLeft + index * stripeWidth
+                            + stripeWidth;
+                    int stringY = y + g.getFontMetrics().getAscent() / 2;
+                    Rectangle r = new Rectangle(x, rStart.y, stripeWidth,
+                            rEnd.y + rEnd.height - rStart.y);
+                    g.clearRect(r.x, r.y, r.width, r.height);
+                    AffineTransform saved = g.getTransform();
+
+                    g.setColor(Color.black);
+
+                    Point rotationOrigin = new Point(stringX, stringY
+                            - g.getFontMetrics().getAscent() / 2);
+                    AffineTransform at = new AffineTransform();
+                    at.setToRotation(-Math.PI / 2.0, rotationOrigin.x,
+                            rotationOrigin.y);
+                    AffineTransform at2 = new AffineTransform();
+                    at2.concatenate(at);
+                    at2.translate(-stringWidth / 2, 0);
+                    g.setTransform(at2);
+
+                    g.drawString(name, rotationOrigin.x, rotationOrigin.y);
+
+                    g.setColor(Color.black);
+
+                    // revert the transform
+                    g.setTransform(saved);
+
+                    // g.drawLine(rotationOrigin.x, rotationOrigin.y,
+                    // rotationOrigin.x + 50, rotationOrigin.y);
+
+                    g.setColor(Color.red);
+                    g.drawLine(rotationOrigin.x, rotationOrigin.y,
+                            rotationOrigin.x, rotationOrigin.y);
+                }
+
+            }
+
+            private boolean intersect(Graphics2D g, DocumentTag a,
+                    DocumentTag b, int tolerance) {
+                int[] extents = getExtentY(g, a);
+                int aMin = extents[0];
+                int aMax = extents[1];
+
+                extents = getExtentY(g, b);
+                int bMin = extents[0];
+                int bMax = extents[1];
+
+                if (aMin >= bMin - tolerance && aMin <= bMax + tolerance)
+                    return true;
+                else if (bMin >= aMin - tolerance && bMin <= aMax + tolerance)
+                    return true;
+                else
+                    return false;
+            }
+
+            private List<DocumentTag> sortByStart(final Graphics2D g,
+                    List<DocumentTag> list) {
+                ArrayList<DocumentTag> sorted = new ArrayList<DocumentTag>(list);
+                Collections.sort(sorted, new Comparator<DocumentTag>() {
+
+                    @Override
+                    public int compare(DocumentTag a, DocumentTag b) {
+                        int[] extents = getExtentY(g, a);
+                        int minA = extents[0];
+                        extents = getExtentY(g, a);
+                        int minB = extents[0];
+                        return ((Integer) minA).compareTo(minB);
+                    }
+                });
+                return sorted;
+            }
+
+            @Override
+            public Insets getBorderInsets(Component c) {
+                return insets;
+            }
+
+        };
+
+    }
+
+    private JTextPane createTextPane() {
+        return new JTextPane() {
+
+            @Override
+            protected void paintComponent(Graphics graphics) {
+                super.paintComponent(graphics);
+                Graphics2D g = (Graphics2D) graphics.create();
+                paintBoxes(g);
+                g.dispose();
             }
 
             private void paintBoxes(Graphics2D g) {
@@ -173,8 +307,10 @@ public class MainPanel extends JPanel {
                                     }
                             }
                             // draw the slice of tag at characterStart
-                            Rectangle r = modelToView(characterStart);
-                            Rectangle r2 = modelToView(characterStart + 1);
+                            Rectangle r = MainPanel.this
+                                    .modelToView(characterStart);
+                            Rectangle r2 = MainPanel.this
+                                    .modelToView(characterStart + 1);
                             if (r2.x > r.x && r2.y == r.y) {
                                 g.setXORMode(getInvertedColor(documentTag
                                         .getId()));
@@ -190,131 +326,7 @@ public class MainPanel extends JPanel {
                 }
             }
 
-            private int[] getExtentY(Graphics2D g, DocumentTag dt) {
-                String name = tags.get(dt.getId()).getName();
-                int stringWidth = g.getFontMetrics().stringWidth(name);
-                Rectangle rStart = modelToView(dt.getStart());
-                Rectangle rEnd = modelToView(dt.getStart() + dt.getLength());
-                // (top, bottom of extent of rectangle with centred
-                // label drawn on it)
-                int minY = Math.min(rStart.y, (rStart.y + rEnd.y + rEnd.height)
-                        / 2 - stringWidth / 2);
-                int maxY = Math.max(rEnd.y + rEnd.height,
-                        (rStart.y + rEnd.y + rEnd.height) / 2 - stringWidth / 2
-                                + stringWidth / 2);
-                return new int[] { minY, maxY };
-            }
-
-            private void paintLabels(Graphics2D g) {
-                g.setPaintMode();
-                g.setColor(Color.black);
-                Map<DocumentTag, Integer> indexes = new HashMap<DocumentTag, Integer>();
-                {
-                    for (DocumentTag dt : document.getDocumentTag()) {
-                        int[] extents = getExtentY(g, dt);
-                        int minY = extents[0];
-                        int maxY = extents[1];
-                        int i = 0;
-                        List<DocumentTag> list = sortByStart(document
-                                .getDocumentTag());
-                        int index = 0;
-                        while (list.get(i) != dt) {
-                            if (intersect(dt, list.get(i)))
-                                index++;
-                            i++;
-                        }
-                        indexes.put(dt, index);
-                    }
-                }
-
-                for (DocumentTag documentTag : document.getDocumentTag()) {
-                    Rectangle rStart = modelToView(documentTag.getStart());
-                    Rectangle rEnd = modelToView(documentTag.getStart()
-                            + documentTag.getLength());
-                    g.setColor(new Color(colors.get(documentTag.getId())));
-
-                    // int index = getTagIndex(documentTag.getId());
-                    Integer index = indexes.get(documentTag);
-                    int x = stripesMarginLeft + index * stripeWidth;
-                    int y = (rEnd.y + rEnd.height - rStart.y) / 2 + rStart.y;
-                    String name = tags.get(documentTag.getId()).getName();
-                    int stringWidth = g.getFontMetrics().stringWidth(name);
-                    int stringX = stripesMarginLeft + index * stripeWidth
-                            + stripeWidth;
-                    int stringY = y + g.getFontMetrics().getAscent() / 2;
-                    Rectangle r = new Rectangle(x, rStart.y, stripeWidth,
-                            rEnd.y + rEnd.height - rStart.y);
-                    g.fillRect(r.x, r.y, r.width, r.height);
-                    AffineTransform saved = g.getTransform();
-
-                    Point rotationOrigin = new Point(stringX, stringY
-                            - g.getFontMetrics().getAscent() / 2);
-                    AffineTransform at = new AffineTransform();
-                    at.setToRotation(-Math.PI / 2.0, rotationOrigin.x,
-                            rotationOrigin.y);
-                    AffineTransform at2 = new AffineTransform();
-                    at2.concatenate(at);
-                    at2.translate(-stringWidth / 2, 0);
-                    g.setTransform(at2);
-
-                    g.setFont(g.getFont().deriveFont(9f));
-                    g.setColor(Color.black);
-                    g.drawString(name, rotationOrigin.x, rotationOrigin.y);
-
-                    g.setColor(Color.black);
-                    // revert the transform
-                    g.setTransform(saved);
-                    g.drawLine(rotationOrigin.x, rotationOrigin.y,
-                            rotationOrigin.x + 50, rotationOrigin.y);
-
-                    // use a point object to hold the minY and maxY for
-                    // the extents of the box with string
-                    Point extentsY = new Point(Math.min(r.y, rotationOrigin.y
-                            - stringWidth / 2), Math.max(r.y + r.height,
-                            rotationOrigin.y + stringWidth / 2));
-                    // g.drawLine(r.x + r.width, extentsY.x,
-                    // r.x + r.width, extentsY.y);
-                    g.setColor(Color.red);
-                    g.drawLine(rotationOrigin.x, rotationOrigin.y,
-                            rotationOrigin.x, rotationOrigin.y);
-                }
-
-            }
-
-            private boolean intersect(DocumentTag a, DocumentTag b) {
-                if (a.getStart() >= b.getStart()
-                        && a.getStart() <= b.getStart() + b.getLength())
-                    return true;
-                else if (b.getStart() >= a.getStart()
-                        && b.getStart() <= a.getStart() + a.getLength())
-                    return true;
-                else
-                    return false;
-            }
-
-            private List<DocumentTag> sortByStart(List<DocumentTag> list) {
-                ArrayList<DocumentTag> sorted = new ArrayList<DocumentTag>(list);
-                Collections.sort(sorted, new Comparator<DocumentTag>() {
-
-                    @Override
-                    public int compare(DocumentTag a, DocumentTag b) {
-                        return ((Integer) a.getStart()).compareTo(b.getStart());
-                    }
-                });
-                return sorted;
-            }
-
-            @Override
-            public Insets getBorderInsets(Component c) {
-                return insets;
-            }
-
         };
-
-    }
-
-    private JTextPane createTextPane() {
-        return new JTextPane();
     }
 
     private int getTagIndex(int id) {
