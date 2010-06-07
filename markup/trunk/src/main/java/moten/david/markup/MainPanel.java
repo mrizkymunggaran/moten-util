@@ -29,6 +29,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.border.AbstractBorder;
 import javax.swing.border.Border;
@@ -106,7 +107,8 @@ public class MainPanel extends JPanel {
         setLayout(new GridLayout(1, 1));
         text = createTextPane();
         text.setBorder(createBorder());
-        add((text));
+        text.setBackground(Color.WHITE);
+        add(new JScrollPane(text));
 
         controller.addListener(TagSelectionChanged.class,
                 createTagSelectionChangedListener());
@@ -132,9 +134,6 @@ public class MainPanel extends JPanel {
 
     private Border createBorder() {
         return new AbstractBorder() {
-
-            Insets insets = new Insets(2, study.getTag().size() * stripeWidth
-                    + stripesMarginLeft, 2, 2);
 
             @Override
             public synchronized void paintBorder(Component c,
@@ -268,6 +267,16 @@ public class MainPanel extends JPanel {
 
             @Override
             public Insets getBorderInsets(Component c) {
+                Insets insets = new Insets(2, study.getTag().size()
+                        * stripeWidth + stripesMarginLeft, 2, 2);
+                return insets;
+            }
+
+            @Override
+            public Insets getBorderInsets(Component c, Insets insets) {
+                insets.left = insets.right = insets.bottom = 2;
+                insets.top = study.getTag().size() * stripeWidth
+                        + stripesMarginLeft;
                 return insets;
             }
 
@@ -430,13 +439,15 @@ public class MainPanel extends JPanel {
         tags = new HashMap<Integer, Tag>();
         int index = 0;
         for (Tag tag : list) {
+            log.info(tag.getName());
             tags.put(tag.getId(), tag);
             if (tag.getColor() != null)
                 colors.put(tag.getId(), tag.getColor());
             else {
                 float b = 1.0f;
                 float s = 0.2f;
-                float h = (float) index / tags.size();
+                float h = (float) index / (float) list.size();
+                log.info(h + "," + s + "," + b);
                 Color color = Color.getHSBColor(h, s, b);
                 colors.put(tag.getId(), color.getRGB());
             }
