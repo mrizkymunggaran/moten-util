@@ -1,7 +1,0 @@
-1	Pride	java.lang.Boolean	SELECTION
-2	Aggression	java.lang.Boolean	SELECTION
-3	Ambition	java.lang.Boolean	SELECTION
-4	Encouragement	java.lang.Boolean	SELECTION
-5	Team spirit attitude	java.lang.Boolean	SELECTION
-6	Gender	java.lang.String	DOCUMENT
-7	Age	java.math.BigDecimal	DOCUMENT

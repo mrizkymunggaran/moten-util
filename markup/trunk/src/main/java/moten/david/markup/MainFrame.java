@@ -53,7 +53,7 @@ public class MainFrame extends JFrame {
 
     private static void setLookAndFeel() {
         try {
-            if (!"system".equals(System.getProperty("laf")))
+            if (false && !"system".equals(System.getProperty("laf")))
                 UIManager
                         .setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
             else
