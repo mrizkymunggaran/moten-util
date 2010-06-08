@@ -14,11 +14,14 @@ based on identifiers with types that are comparable.</p>
 
 <p>This document is best viewed with Firefox or another SGML compliant browser. IE has problems with the mathematical characters up to version 7.</p>
 <h3>Abstract</h3>
-<p>A set of entities with non-conflicting identities is represented
-by a set of disjoint identifier sets. Each identifier set has an
+<p>A set of entities with non-conflicting identifiers is represented
+by a set of disjoint identifier sets. Each identifier has an
 associated time. The problem is to define a function that takes a new
 set of identifiers representing an update on one entity with it's
 associated time and merges it with the existing entity set.</p>
+
+<p>The merge may create a new entity or replace or remove identifiers
+ from existing entities according to the functional definition that follows.</p>
 
 <h3>Conventions</h3>
 <p>Capital variable names are used for sets.</p>
@@ -49,14 +52,9 @@ comparator of the <i>order</i> of identifier types where</p>
 
 <p>Define</p>
 
-<p class="indent1">c (conflicting identifiers) : &weierp;(S) &rarr;
-&weierp;(S) given by</p>
-<p class="indent2">c(X,Y) = {x &isin; X : t(x<sub>id</sub>) &isin; t(Y<sub>id</sub>) and x<sub>id</sub>
-&notin; Y<sub>id</sub>}</p>
-<p class="indent1">V (valid identifier sets) = { X &sub; S : c(X,X)
-= &empty;}</p>
+<p class="indent1">V (valid identifier sets) = { X &sub; S : |t(X)|=|X|}</p>
 
-<p class="indent1">Z' = { Z &sub; &weierp;(V) where elements of Z
+<p class="indent1">Z' = { Z &sub; &weierp;(V) where elements of id(Z)
 are disjoint sets}</p>
 
 <p class="indent1">pm (primary match) : Z' &#x2a2f; S &rarr; S given
