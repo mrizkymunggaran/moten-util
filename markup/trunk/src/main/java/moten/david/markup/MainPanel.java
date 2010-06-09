@@ -220,10 +220,11 @@ public class MainPanel extends JPanel {
 			private Map<DocumentTag, Integer> getIndexes(Graphics2D g) {
 				Map<DocumentTag, Integer> indexes = new HashMap<DocumentTag, Integer>();
 				for (DocumentTag dt : document.getDocumentTag()) {
-					int i = 0;
+
 					List<DocumentTag> list = sortByStart(g, document
 							.getDocumentTag());
 					int index = 0;
+					int i = 0;
 					while (list.get(i) != dt) {
 						if (intersect(g, dt, list.get(i), 10))
 							index++;
@@ -261,7 +262,7 @@ public class MainPanel extends JPanel {
 					public int compare(DocumentTag a, DocumentTag b) {
 						int[] extents = getExtentY(g, a);
 						int minA = extents[0];
-						extents = getExtentY(g, a);
+						extents = getExtentY(g, b);
 						int minB = extents[0];
 						return ((Integer) minA).compareTo(minB);
 					}
