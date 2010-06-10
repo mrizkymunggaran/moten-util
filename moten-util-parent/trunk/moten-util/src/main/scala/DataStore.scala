@@ -4,6 +4,7 @@ class DataStore {
       
      trait IdentifierType {
          def strength: Double
+         def rank: Double
      }
      
      trait Identifier {
@@ -26,27 +27,33 @@ class DataStore {
      
      def gamma(x:Set[TimedIdentifier], y: Set[TimedIdentifier]) = y.filter(t(x) contains t(_))
      
-     def mu(x:Set[TimedIdentifier], y:Set[TimedIdentifier])  
-         = y.filter(a => !x.exists(b => (t(x) contains t(b)) && a.time>b.time))
+     def mu(x:Set[TimedIdentifier], y:Set[TimedIdentifier])   
+         = y.filter(a => !x.exists(b => x.exists(t(_)==t(b)) && a.time>b.time))
      
      def g(x:Set[TimedIdentifier], y:Set[TimedIdentifier]) = gamma(x,y) ++ mu(x,y)
      
-     def pm(z: Set[Set[TimedIdentifier]], r:Set[TimedIdentifier], x:Set[TimedIdentifier]) = {
+     def isValid(x: Set[TimedIdentifier]) = x.size == t(x).size
+     
+     def greater(a:TimedIdentifier, b:TimedIdentifier) = 
+             if (a!=null && a.identifier.identifierType.strength > b.identifier.identifierType.strength) 
+                a 
+             else   
+                b 
+     
+     //in scala 2.8 this one can be done using .max on a collection
+     def max(c:Collection[TimedIdentifier]):TimedIdentifier = 
+               c.foldLeft(null.asInstanceOf[TimedIdentifier])((a,b) => greater(a,b))
+     
+     def pm(z: Set[Set[TimedIdentifier]], x:Set[TimedIdentifier]) = {
        if (z.isEmpty) 
          z
        else  {
-         if ( !z.exists(a => !x.exists( t(a) contains t(_)))) 
+         if ( !z.exists(a => !x.exists( id(a) contains _.identifier))) 
            z
          else { 
-          //find the maximum strength identifier that intersects with R id
-           val intersects = z.filter(a => id(a).exists(id(x) contains _))
-           def greater(a:TimedIdentifier, b:TimedIdentifier) = 
-             if (a!=null && a.identifier.identifierType.strength > b.identifier.identifierType.strength) 
-             	a 
-             else  
-                b
-           def max(c:Collection[TimedIdentifier]):TimedIdentifier = 
-        	   c.foldLeft(null.asInstanceOf[TimedIdentifier])((a,b) => greater(a,b))  
+           val zid = z.map(id(_).intersect(id(x)))
+           
+             
            z
          }
        }
