@@ -86,13 +86,8 @@ public class MainPanel extends JPanel {
 
     private boolean filterEnabled;
 
-    private static final int stripeWidth = 8;
+    private static final int stripeWidth = 14;
     private static final int stripesMarginLeft = 3;
-
-    private Color getInvertedColor(int tagId) {
-        int rgb = colors.get(tagId);
-        return new Color(~rgb);
-    }
 
     private boolean isVisible(int tagId) {
         Boolean result = visible.get(tagId);
@@ -204,8 +199,9 @@ public class MainPanel extends JPanel {
                     String name = tags.get(documentTag.getId()).getName();
                     int stringWidth = g.getFontMetrics().stringWidth(name);
                     int stringX = stripesMarginLeft + index * stripeWidth
-                            + stripeWidth;
-                    int stringY = y + g.getFontMetrics().getAscent() / 2;
+                            + stripeWidth / 2
+                            - (g.getFontMetrics().getAscent());
+                    int stringY = y;
                     Rectangle r = new Rectangle(x, rStart.y, stripeWidth,
                             rEnd.y + rEnd.height - rStart.y);
                     g.fillRect(r.x, r.y, r.width, r.height);
@@ -215,11 +211,10 @@ public class MainPanel extends JPanel {
                         // save the current transform
                         AffineTransform saved = g.getTransform();
 
-                        g.setColor(Color.black);
+                        g.setColor(Color.GRAY);
 
                         // get the origin to draw a rotated string at
-                        Point rotationOrigin = new Point(stringX, stringY
-                                - g.getFontMetrics().getAscent() / 2);
+                        Point rotationOrigin = new Point(stringX, stringY);
 
                         // define the rotation transform
                         AffineTransform rotation = new AffineTransform();
@@ -236,12 +231,12 @@ public class MainPanel extends JPanel {
                         translation.setToTranslation(0, stringWidth / 2);
 
                         // set the current transform to a translation
-                        g.setTransform(translation);
+                        // g.setTransform(translation);
 
                         // draw the rotated string
-                        if (false)
+                        if (true)
                             rotatedTextLayout.draw(g, rotationOrigin.x,
-                                    rotationOrigin.y);
+                                    rotationOrigin.y + stringWidth / 2);
 
                         // revert the transform
                         g.setTransform(saved);
@@ -306,8 +301,8 @@ public class MainPanel extends JPanel {
 
             @Override
             public Insets getBorderInsets(Component c) {
-                Insets insets = new Insets(2, study.getTag().size()
-                        * stripeWidth + stripesMarginLeft, 2, 2);
+                Insets insets = new Insets(2, 4 * stripeWidth
+                        + stripesMarginLeft, 2, 2);
                 return insets;
             }
 
