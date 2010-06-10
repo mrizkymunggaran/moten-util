@@ -266,8 +266,12 @@ public class MainPanel extends JPanel {
 					int index = 0;
 					int i = 0;
 					while (list.get(i) != dt) {
-						if (intersect(g, dt, list.get(i), 20))
-							index++;
+						if (intersect(g, dt, list.get(i), 20)) {
+							int nextIndex = 0;
+							if (indexes.get(list.get(i)) != null)
+								nextIndex = indexes.get(list.get(i)) + 1;
+							index = nextIndex;
+						}
 						i++;
 					}
 					indexes.put(dt, index);
