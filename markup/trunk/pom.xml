@@ -7,7 +7,7 @@
 	<name>markup</name>
 	<description>Document markup for qualitative analysis</description>
 	<properties>
-		<compiler.source.version>1.6</compiler.source.version>
+		<compiler.source.version>1.5</compiler.source.version>
 		<cobertura.version>2.3</cobertura.version>
 	</properties>
 	<dependencies>
