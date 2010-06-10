@@ -137,8 +137,8 @@ public class MainPanel extends JPanel {
 
 			@Override
 			public void mouseMoved(MouseEvent e) {
-				if (e.getPoint().x < 50)
-					log.info(e.getPoint() + " in border");
+				if (e.getPoint().x < 50) {
+				}
 			}
 		};
 	}
@@ -171,7 +171,6 @@ public class MainPanel extends JPanel {
 				Font font = getRotationFont(g);
 				String name = tags.get(dt.getId()).getName();
 				int stringWidth = g.getFontMetrics().stringWidth(name);
-				log.info("width of " + name + "=" + stringWidth);
 				Rectangle rStart = modelToView(dt.getStart());
 				Rectangle rEnd = modelToView(dt.getStart() + dt.getLength());
 				// (top, bottom of extent of rectangle with centred
@@ -182,6 +181,9 @@ public class MainPanel extends JPanel {
 						.max(rEnd.y + rEnd.height,
 								(rStart.y + rEnd.y + rEnd.height) / 2
 										+ stringWidth / 2);
+				Color c = g.getColor();
+				g.setColor(Color.black);
+				g.drawLine(0, minY, 50, maxY);
 				return new int[] { minY, maxY };
 			}
 
@@ -251,7 +253,6 @@ public class MainPanel extends JPanel {
 
 						// revert the transform
 						g.setTransform(saved);
-
 					}
 					g.setColor(Color.black);
 				}
@@ -283,13 +284,7 @@ public class MainPanel extends JPanel {
 				extents = getExtentY(g, b);
 				int bMin = extents[0];
 				int bMax = extents[1];
-
-				if (aMin >= bMin - tolerance && aMin <= bMax + tolerance)
-					return true;
-				else if (bMin >= aMin - tolerance && bMin <= aMax + tolerance)
-					return true;
-				else
-					return false;
+				return Util.intersect(aMin, aMax, bMin, bMax, tolerance);
 			}
 
 			private List<DocumentTag> sortByStart(final Graphics2D g,
