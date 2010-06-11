@@ -653,9 +653,7 @@ public class MainPanel extends JPanel {
                         while (j < element2.getEndOffset()
                                 && !delimiter.equals(doc.getText(j, 1)))
                             j++;
-                        if (delimiter.equals(doc.getText(j, 1))
-                                || Character.isWhitespace(doc.getText(j, 1)
-                                        .charAt(0)))
+                        if (Character.isWhitespace(doc.getText(j, 1).charAt(0)))
                             j--;
                         document.getDocumentTag().add(
                                 createDocumentTag(tag, i, j - i + 1, true));
