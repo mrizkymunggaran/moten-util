@@ -8,6 +8,7 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.logging.Logger;
 
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -73,8 +74,9 @@ public class TagsPanel extends JPanel {
             public Component getTreeCellRendererComponent(JTree tree,
                     Object value, boolean sel, boolean expanded, boolean leaf,
                     int row, boolean hasFocus) {
-                Component component = super.getTreeCellRendererComponent(tree,
-                        value, sel, expanded, leaf, row, hasFocus);
+                JComponent component = (JComponent) super
+                        .getTreeCellRendererComponent(tree, value, sel,
+                                expanded, leaf, row, hasFocus);
                 if (value instanceof DefaultMutableTreeNode) {
                     DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
                     if (node.getUserObject() instanceof TagWrapper) {
@@ -87,6 +89,7 @@ public class TagsPanel extends JPanel {
                         component.setBackground(TagsPanel.this.getBackground());
                         ((JLabel) component).setOpaque(false);
                     }
+
                 }
                 return component;
             }
