@@ -24,9 +24,9 @@ public class DocumentsPanel extends JPanel {
     @Inject
     public DocumentsPanel(Controller controller, CurrentStudy study) {
         this.controller = controller;
-        List<DocumentWrapper> documents = new ArrayList<DocumentWrapper>();
+        List<String> documents = new ArrayList<String>();
         for (Document document : study.get().getDocument()) {
-            documents.add(new DocumentWrapper(document));
+            documents.add(document.getName());
         }
         JList list = new JList(documents.toArray());
         list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
