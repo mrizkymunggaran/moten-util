@@ -22,91 +22,91 @@ import au.edu.anu.delibdem.qsort.gui.injection.ApplicationInjector;
 
 public class DataTree extends JTree {
 
-	private static final long serialVersionUID = 2392669756231377460L;
+    private static final long serialVersionUID = 2392669756231377460L;
 
-	private DefaultMutableTreeNode referenceNode;
+    private DefaultMutableTreeNode referenceNode;
 
-	public DataTree(Data data) {
-		super(getRoot(data));
-		this.setEditable(true);
-		this.setCellEditor(new MyCellEditor());
+    public DataTree(Data data) {
+        super(getRoot(data));
+        this.setEditable(true);
+        this.setCellEditor(new MyCellEditor());
 
-		setRootVisible(false);
-		setShowsRootHandles(true);
-		DefaultTreeCellRenderer renderer = new MyRenderer();
-		setCellRenderer(renderer);
-		EventManager.getInstance().addListener(Events.REFERENCE_SET,
-				new EventManagerListener() {
-					@Override
-					public void notify(Event event) {
-						DefaultTreeModel treeModel = (DefaultTreeModel) getModel();
-						if (referenceNode != null)
-							treeModel.nodeChanged(referenceNode);
-						DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) getLastSelectedPathComponent();
-						if (selectedNode.getUserObject() instanceof MatrixProvider) {
-							if (selectedNode.getUserObject().equals(
-									Model.getInstance().getReference())) {
-								treeModel.nodeChanged(selectedNode);
-								referenceNode = selectedNode;
-							}
-						}
-					}
-				});
-	}
+        setRootVisible(false);
+        setShowsRootHandles(true);
+        DefaultTreeCellRenderer renderer = new MyRenderer();
+        setCellRenderer(renderer);
+        EventManager.getInstance().addListener(Events.REFERENCE_SET,
+                new EventManagerListener() {
+                    @Override
+                    public void notify(Event event) {
+                        DefaultTreeModel treeModel = (DefaultTreeModel) getModel();
+                        if (referenceNode != null)
+                            treeModel.nodeChanged(referenceNode);
+                        DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) getLastSelectedPathComponent();
+                        if (selectedNode.getUserObject() instanceof MatrixProvider) {
+                            if (selectedNode.getUserObject().equals(
+                                    Model.getInstance().getReference())) {
+                                treeModel.nodeChanged(selectedNode);
+                                referenceNode = selectedNode;
+                            }
+                        }
+                    }
+                });
+    }
 
-	private static void addDataSelectionNode(final Data data,
-			DefaultMutableTreeNode parent, final DataSelection combination) {
-		DefaultMutableTreeNode node = new DefaultMutableTreeNode(combination);
-		parent.add(node);
-		DefaultMutableTreeNode matrixNode = new DefaultMutableTreeNode(
-				new MatrixProvider() {
-					@Override
-					public Matrix getMatrix() {
-						List<QSort> list = data.restrictList(combination
-								.getStage(), combination.getFilter());
-						DataComponents d = data.buildMatrix(list, null);
-						return d.correlations;
-					}
+    private static void addDataSelectionNode(final Data data,
+            DefaultMutableTreeNode parent, final DataSelection combination) {
+        DefaultMutableTreeNode node = new DefaultMutableTreeNode(combination);
+        parent.add(node);
+        DefaultMutableTreeNode matrixNode = new DefaultMutableTreeNode(
+                new MatrixProvider() {
+                    @Override
+                    public Matrix getMatrix() {
+                        List<QSort> list = data.restrictList(combination
+                                .getStage(), combination.getFilter());
+                        DataComponents d = data.buildMatrix(list, null);
+                        return d.correlations;
+                    }
 
-					@Override
-					public String toString() {
-						return "Intersubjective Correlation";
-					}
-				});
-		node.add(matrixNode);
-	}
+                    @Override
+                    public String toString() {
+                        return "Intersubjective Correlation";
+                    }
+                });
+        node.add(matrixNode);
+    }
 
-	private static TreeNode getRoot(Data data) {
-		Collection<String> stageTypes = data.getStageTypes();
-		Collection<String> participantTypes = data.getParticipantTypes();
-		DefaultMutableTreeNode root = new DefaultMutableTreeNode();
-		Configuration configuration = ApplicationInjector.getInjector()
-				.getInstance(Configuration.class);
-		if (configuration.provideDataSelectionForEveryVariable())
-			for (String participantType : participantTypes) {
-				for (String stage : stageTypes) {
-					DataSelection combination = new DataSelection(data
-							.getParticipantIds(participantType), stage);
-					addDataSelectionNode(data, root, combination);
-				}
-				if (stageTypes.size() > 1) {
-					DataSelection combination = new DataSelection(data
-							.getParticipantIds(participantType), "all");
-					addDataSelectionNode(data, root, combination);
-				}
-			}
-		if (participantTypes.size() > 1) {
-			for (String stage : data.getStageTypes()) {
-				DataSelection combination = new DataSelection(data
-						.getParticipantIds(), stage);
-				addDataSelectionNode(data, root, combination);
-			}
-		}
-		if (participantTypes.size() > 1 && stageTypes.size() > 1) {
-			DataSelection combination = new DataSelection(data
-					.getParticipantIds(), "all");
-			addDataSelectionNode(data, root, combination);
-		}
-		return root;
-	}
+    private static TreeNode getRoot(Data data) {
+        Collection<String> stageTypes = data.getStageTypes();
+        Collection<String> participantTypes = data.getParticipantTypes();
+        DefaultMutableTreeNode root = new DefaultMutableTreeNode();
+        Configuration configuration = ApplicationInjector.getInjector()
+                .getInstance(Configuration.class);
+        if (configuration.provideDataSelectionForEveryVariable())
+            for (String participantType : participantTypes) {
+                for (String stage : stageTypes) {
+                    DataSelection combination = new DataSelection(data
+                            .getParticipantIds(participantType), stage);
+                    addDataSelectionNode(data, root, combination);
+                }
+                if (stageTypes.size() > 1) {
+                    DataSelection combination = new DataSelection(data
+                            .getParticipantIds(participantType), "all");
+                    addDataSelectionNode(data, root, combination);
+                }
+            }
+        if (participantTypes.size() >= 1) {
+            for (String stage : data.getStageTypes()) {
+                DataSelection combination = new DataSelection(data
+                        .getParticipantIds(), stage);
+                addDataSelectionNode(data, root, combination);
+            }
+        }
+        if (participantTypes.size() >= 1 && stageTypes.size() > 1) {
+            DataSelection combination = new DataSelection(data
+                    .getParticipantIds(), "all");
+            addDataSelectionNode(data, root, combination);
+        }
+        return root;
+    }
 }
