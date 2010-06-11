@@ -76,13 +76,11 @@ public class MainPanel extends JPanel {
 
     private final JTextPane text;
     private final Controller controller;
-    private SelectionMode selectionMode = SelectionMode.SENTENCE;
+
     private final Study study;
     private Document document;
 
-    private final HashMap<Integer, Boolean> visible = new HashMap<Integer, Boolean>();
     private HashMap<Integer, Tag> tags = new HashMap<Integer, Tag>();
-    private final HashMap<Integer, Integer> colors = new HashMap<Integer, Integer>();
 
     private final CurrentStudy current;
 
@@ -91,20 +89,25 @@ public class MainPanel extends JPanel {
     private static final int borderWidth = 80;
     private static final int borderMarginLeft = 5;
     private static final int borderMarginRight = 5;
+    private static final int textLeftMargin = 5;
+
+    private final Presentation presentation;
 
     private boolean isVisible(int tagId) {
-        Boolean result = visible.get(tagId);
+        Boolean result = presentation.visible.get(tagId);
         return (result != null) && result;
     }
 
     @Inject
-    public MainPanel(final Controller controller, CurrentStudy current) {
+    public MainPanel(final Controller controller, CurrentStudy current,
+            Presentation presentation) {
         this.controller = controller;
         this.current = current;
+        this.presentation = presentation;
         this.study = current.get();
         // initialize to the first document in the list
 
-        loadTagMap(study.getTag());
+        loadTagMapAndColors(study.getTag());
 
         setLayout(new GridLayout(1, 1));
         text = createTextPane();
@@ -167,6 +170,8 @@ public class MainPanel extends JPanel {
                         RenderingHints.VALUE_ANTIALIAS_ON);
                 controller.event(new StartingToPaintTags());
                 paintLabels(g);
+                g.setColor(Color.LIGHT_GRAY);
+                g.drawLine(borderWidth, 0, borderWidth, text.getHeight());
                 g.dispose();
             }
 
@@ -222,7 +227,8 @@ public class MainPanel extends JPanel {
                     Rectangle rStart = modelToView(documentTag.getStart());
                     Rectangle rEnd = modelToView(documentTag.getStart()
                             + documentTag.getLength());
-                    g.setColor(new Color(colors.get(documentTag.getId())));
+                    g.setColor(new Color(presentation.colors.get(documentTag
+                            .getId())));
 
                     Integer index = indexes.get(documentTag);
                     int x = borderMarginLeft + index * stripeWidth;
@@ -337,16 +343,25 @@ public class MainPanel extends JPanel {
                 return sorted;
             }
 
-            @Override
-            public Insets getBorderInsets(Component c) {
-                Insets insets = new Insets(2, borderWidth, 2, 2);
+            private Insets createInsets() {
+                return new Insets(0, 0, 0, 0);
+            }
+
+            private Insets updateInsets(Insets insets) {
+                insets.right = insets.top = insets.bottom = 2;
+                insets.left = borderWidth + textLeftMargin;
                 return insets;
             }
 
             @Override
+            public Insets getBorderInsets(Component c) {
+                Insets insets = createInsets();
+                return updateInsets(insets);
+            }
+
+            @Override
             public Insets getBorderInsets(Component c, Insets insets) {
-                insets.left = insets.top = insets.bottom = 2;
-                insets.right = borderWidth;
+                updateInsets(insets);
                 return insets;
             }
 
@@ -397,8 +412,8 @@ public class MainPanel extends JPanel {
                                 int stepHeight = step;
                                 if (index == count - 1)
                                     stepHeight = r.height - (count - 1) * step;
-                                g.setColor(new Color(colors.get(documentTag
-                                        .getId())));
+                                g.setColor(new Color(presentation.colors
+                                        .get(documentTag.getId())));
                                 g.fillRect(r.x, r.y + index * step, r2.x - r.x,
                                         stepHeight);
                             }
@@ -506,7 +521,7 @@ public class MainPanel extends JPanel {
         };
     }
 
-    private void loadTagMap(List<Tag> list) {
+    private void loadTagMapAndColors(List<Tag> list) {
 
         tags = new HashMap<Integer, Tag>();
         int index = 0;
@@ -514,14 +529,14 @@ public class MainPanel extends JPanel {
             log.info(tag.getName());
             tags.put(tag.getId(), tag);
             if (tag.getColor() != null)
-                colors.put(tag.getId(), tag.getColor());
+                presentation.colors.put(tag.getId(), tag.getColor());
             else {
                 float b = 1.0f;
-                float s = 0.25f;
+                float s = 0.20f;
                 float h = (float) index / (float) list.size();
                 log.info(h + "," + s + "," + b);
                 Color color = Color.getHSBColor(h, s, b);
-                colors.put(tag.getId(), color.getRGB());
+                presentation.colors.put(tag.getId(), color.getRGB());
             }
             index++;
         }
@@ -531,7 +546,7 @@ public class MainPanel extends JPanel {
         return new ControllerListener<SelectionModeChanged>() {
             @Override
             public void event(SelectionModeChanged event) {
-                selectionMode = event.getSelectionMode();
+                presentation.selectionMode = event.getSelectionMode();
             }
         };
     }
@@ -541,9 +556,9 @@ public class MainPanel extends JPanel {
 
             @Override
             public void event(TagSelectionChanged event) {
-                visible.clear();
+                presentation.visible.clear();
                 for (Tag tag : event.getList())
-                    visible.put(tag.getId(), true);
+                    presentation.visible.put(tag.getId(), true);
                 refresh();
             }
         };
@@ -551,7 +566,7 @@ public class MainPanel extends JPanel {
 
     private void refresh() {
         log.info("refreshing");
-        log.info("visible=" + visible);
+        log.info("visible=" + presentation.visible);
         StyledDocument doc = text.getStyledDocument();
         doc.setCharacterAttributes(0, doc.getLength(),
                 SimpleAttributeSet.EMPTY, true);
@@ -614,14 +629,16 @@ public class MainPanel extends JPanel {
 
                     synchronized (document) {
                         // synchronize so we don't clash with a delete action
-                        if (selectionMode.equals(SelectionMode.PARAGRAPH))
+                        if (presentation.selectionMode
+                                .equals(SelectionMode.PARAGRAPH))
                             document.getDocumentTag().add(
                                     createDocumentTag(tag, element
                                             .getStartOffset(), element2
                                             .getEndOffset()
                                             - element.getStartOffset() + 1,
                                             value));
-                        else if (selectionMode.equals(SelectionMode.SENTENCE)) {
+                        else if (presentation.selectionMode
+                                .equals(SelectionMode.SENTENCE)) {
                             selectDelimitedBy(doc, ".", start, finish, tag
                                     .getName());
                         } else {

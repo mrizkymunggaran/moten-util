@@ -1,10 +1,14 @@
 package moten.david.markup;
 
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.GridLayout;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.logging.Logger;
 
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
@@ -29,10 +33,14 @@ public class TagsPanel extends JPanel {
     private static final long serialVersionUID = 6719110697421637597L;
     private final Controller controller;
     private CheckTreeManager checkTreeManager;
+    private static Logger log = Logger.getLogger(TagsPanel.class.getName());
+    private final Presentation presentation;
 
     @Inject
-    public TagsPanel(final Controller controller, CurrentStudy study) {
+    public TagsPanel(final Controller controller, CurrentStudy study,
+            Presentation presentation) {
         this.controller = controller;
+        this.presentation = presentation;
         setTags(study.get().getTag());
     }
 
@@ -42,7 +50,7 @@ public class TagsPanel extends JPanel {
         createNodes(top, tags);
         JTree tree = new JTree(top);
         tree.setRootVisible(true);
-        DefaultTreeCellRenderer renderer = new DefaultTreeCellRenderer();
+        DefaultTreeCellRenderer renderer = createTreeCellRenderer();
         renderer.setLeafIcon(null);
         tree.setCellRenderer(renderer);
         JScrollPane treeView = new JScrollPane(tree);
@@ -55,6 +63,34 @@ public class TagsPanel extends JPanel {
         checkTreeManager = new CheckTreeManager(tree);
         checkTreeManager.getSelectionModel().addTreeSelectionListener(
                 createTreeSelectionListener(tree));
+    }
+
+    private DefaultTreeCellRenderer createTreeCellRenderer() {
+
+        return new DefaultTreeCellRenderer() {
+
+            @Override
+            public Component getTreeCellRendererComponent(JTree tree,
+                    Object value, boolean sel, boolean expanded, boolean leaf,
+                    int row, boolean hasFocus) {
+                Component component = super.getTreeCellRendererComponent(tree,
+                        value, sel, expanded, leaf, row, hasFocus);
+                if (value instanceof DefaultMutableTreeNode) {
+                    DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
+                    if (node.getUserObject() instanceof TagWrapper) {
+                        Tag tag = ((TagWrapper) node.getUserObject()).getTag();
+                        Color color = new Color(presentation.colors.get(tag
+                                .getId()));
+                        component.setBackground(color);
+                        ((JLabel) component).setOpaque(true);
+                    } else {
+                        component.setBackground(TagsPanel.this.getBackground());
+                        ((JLabel) component).setOpaque(false);
+                    }
+                }
+                return component;
+            }
+        };
     }
 
     private TreeSelectionListener createTreeSelectionListener(final JTree tree) {
