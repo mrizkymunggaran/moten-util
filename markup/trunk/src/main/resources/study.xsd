@@ -108,7 +108,5 @@
 	</complexType>
 
 
-	<element name="simple-tag" type="tns:simple-tag"></element>
 
-	<element name="logical-tag" type="tns:logical-tag"></element>
 </schema>
