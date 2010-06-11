@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<study xmlns="http://david.moten/markup/xml/study.xsd" name="Pro Cycling Interview">
-    <tag type="boolean" name="Team spirit" id="1"/>
-    <tag type="boolean" name="Encouragement" id="2"/>
-    <tag type="boolean" name="Pride" id="3"/>
-    <tag type="boolean" name="Ambition" id="4"/>
-    <tag type="boolean" name="Fear" id="5">
+<study xmlns="http://david.moten/markup/xml/study.xsd" name="Pro Cycling Interview" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <tag type="boolean" name="Team spirit" id="1" xsi:type="simple-tag"/>
+    <tag type="boolean" name="Encouragement" id="2" xsi:type="simple-tag"/>
+    <tag type="boolean" name="Pride" id="3" xsi:type="simple-tag"/>
+    <tag type="boolean" name="Ambition" id="4" xsi:type="simple-tag"/>
+    <tag type="boolean" name="Fear" id="5" xsi:type="simple-tag">
         <memberOf>7</memberOf>
     </tag>
-    <tag type="boolean" name="Suffering" id="6">
+    <tag type="boolean" name="Suffering" id="6"  xsi:type="simple-tag">
         <memberOf>7</memberOf>
     </tag>
-    <tag type="boolean" name="Emotion" id="7"/>
+    <tag type="boolean" name="Emotion" id="7" xsi:type="simple-tag"/>
     <document name="andy-schleck.txt">
         <property type="text" name="name">
             <text>Andy Schleck</text>

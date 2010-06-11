@@ -63,11 +63,13 @@
 		</choice>
 	</complexType>
 
-	<complexType name="tag">
+	<complexType name="simple-tag">
 		<complexContent>
-			<extension base="tns:tag-base">
+			<extension base="tns:tag">
 				<sequence>
-					<element name="memberOf" type="int" minOccurs="0" maxOccurs="unbounded"></element>
+					<element name="memberOf" type="int" minOccurs="0"
+						maxOccurs="unbounded">
+					</element>
 				</sequence>
 				<attribute name="type" type="tns:basicType"
 					use="required">
@@ -78,7 +80,7 @@
 
 	<element name="study" type="tns:study"></element>
 
-	<complexType name="tag-base">
+	<complexType name="tag" abstract="true">
 		<attribute name="id" type="int"></attribute>
 		<attribute name="name" type="string"></attribute>
 		<attribute name="color" type="int"></attribute>
@@ -86,7 +88,7 @@
 
 	<complexType name="logical-tag">
 		<complexContent>
-			<extension base="tns:tag-base">
+			<extension base="tns:tag">
 				<choice>
 					<element name="or" type="tns:binary-expression"></element>
 					<element name="and" type="tns:binary-expression"></element>
@@ -106,5 +108,7 @@
 	</complexType>
 
 
+	<element name="simple-tag" type="tns:simple-tag"></element>
 
+	<element name="logical-tag" type="tns:logical-tag"></element>
 </schema>
