@@ -8,6 +8,7 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.logging.Logger;
 
+import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -84,10 +85,14 @@ public class TagsPanel extends JPanel {
                         Color color = new Color(presentation.colors.get(tag
                                 .getId()));
                         component.setBackground(color);
+                        component.setBorder(BorderFactory
+                                .createRaisedBevelBorder());
                         ((JLabel) component).setOpaque(true);
                     } else {
                         component.setBackground(TagsPanel.this.getBackground());
                         ((JLabel) component).setOpaque(false);
+                        component.setBorder(BorderFactory.createEmptyBorder(0,
+                                0, 0, 0));
                     }
 
                 }
