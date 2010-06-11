@@ -1,6 +1,8 @@
 package moten.david.markup;
 
 import java.awt.GridLayout;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,6 +36,41 @@ public class DocumentsPanel extends JPanel {
         add(list);
         list.setSelectedIndex(0);
         list.addListSelectionListener(createListSelectionListener(list));
+        list.addMouseListener(createMouseListener());
+    }
+
+    private MouseListener createMouseListener() {
+        return new MouseListener() {
+
+            @Override
+            public void mouseClicked(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                // TODO Auto-generated method stub
+
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                // TODO Auto-generated method stub
+
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                // TODO Auto-generated method stub
+
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                // TODO Auto-generated method stub
+
+            }
+        };
     }
 
     private ListSelectionListener createListSelectionListener(final JList list) {

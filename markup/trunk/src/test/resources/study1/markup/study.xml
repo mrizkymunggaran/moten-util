@@ -75,4 +75,15 @@
             <boolean>true</boolean>
         </documentTag>
     </document>
+    <document name="lance-armstrong.txt">
+        <documentTag length="227" start="428" id="6">
+            <boolean>true</boolean>
+        </documentTag>
+        <documentTag length="419" start="9213" id="1">
+            <boolean>true</boolean>
+        </documentTag>
+        <documentTag length="20" start="10169" id="1">
+            <boolean>true</boolean>
+        </documentTag>
+    </document>
 </study>
