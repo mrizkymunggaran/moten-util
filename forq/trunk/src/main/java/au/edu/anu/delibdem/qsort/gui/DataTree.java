@@ -82,6 +82,7 @@ public class DataTree extends JTree {
         DefaultMutableTreeNode root = new DefaultMutableTreeNode();
         Configuration configuration = ApplicationInjector.getInjector()
                 .getInstance(Configuration.class);
+        // nodes by stage and participant type
         if (configuration.provideDataSelectionForEveryVariable())
             for (String participantType : participantTypes) {
                 for (String stage : stageTypes) {
@@ -95,14 +96,19 @@ public class DataTree extends JTree {
                     addDataSelectionNode(data, root, combination);
                 }
             }
-        if (participantTypes.size() >= 1) {
-            for (String stage : data.getStageTypes()) {
+        // nodes by stage
+        if (!configuration.provideDataSelectionForEveryVariable()
+                || participantTypes.size() == 0 || participantTypes.size() > 1) {
+            for (String stage : stageTypes) {
                 DataSelection combination = new DataSelection(data
                         .getParticipantIds(), stage);
                 addDataSelectionNode(data, root, combination);
             }
         }
-        if (participantTypes.size() >= 1 && stageTypes.size() > 1) {
+        // nodes across all
+        if ((!configuration.provideDataSelectionForEveryVariable() || participantTypes
+                .size() > 1)
+                && stageTypes.size() > 1) {
             DataSelection combination = new DataSelection(data
                     .getParticipantIds(), "all");
             addDataSelectionNode(data, root, combination);
