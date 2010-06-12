@@ -82,31 +82,68 @@
 
 	<complexType name="tag" abstract="true">
 		<attribute name="id" type="int"></attribute>
+
 		<attribute name="name" type="string"></attribute>
+
 		<attribute name="color" type="int"></attribute>
 	</complexType>
 
 	<complexType name="logical-tag">
 		<complexContent>
 			<extension base="tns:tag">
-				<choice>
-					<element name="or" type="tns:binary-expression"></element>
-					<element name="and" type="tns:binary-expression"></element>
-					<element name="near" type="tns:binary-expression"></element>
-					<element name="not" type="tns:logical-tag"></element>
-					<element name="tag" type="int"></element>
-				</choice>
+				<sequence>
+					<element name="expression" type="tns:expression"></element>
+				</sequence>
 			</extension>
 		</complexContent>
 	</complexType>
 
-	<complexType name="binary-expression">
-		<sequence>
-			<element name="e1" type="tns:logical-tag"></element>
-			<element name="e2" type="tns:logical-tag"></element>
-		</sequence>
+	<complexType name="binary-expression" abstract="true">
+		<complexContent>
+			<extension base="tns:expression"></extension>
+		</complexContent>
 	</complexType>
 
 
+
+
+	<complexType name="expression" abstract="true"></complexType>
+
+	<complexType name="tagReference">
+		<complexContent>
+			<extension base="tns:expression">
+				<attribute name="id" type="int"></attribute>
+
+			</extension>
+		</complexContent>
+	</complexType>
+
+	<complexType name="or">
+		<complexContent>
+			<extension base="tns:binary-expression"></extension>
+		</complexContent>
+	</complexType>
+	
+    <complexType name="and">
+    	<complexContent>
+    		<extension base="tns:binary-expression"></extension>
+    	</complexContent>
+    </complexType>
+    
+    <complexType name="near">
+    	<complexContent>
+    		<extension base="tns:binary-expression"></extension>
+    	</complexContent>
+    </complexType>
+    
+    <complexType name="not">
+    	<complexContent>
+    		<extension base="tns:expression">
+    			<sequence>
+    				<element name="expression" type="tns:expression"></element>
+    			</sequence>
+    		</extension>
+    	</complexContent>
+    </complexType>
 
 </schema>
