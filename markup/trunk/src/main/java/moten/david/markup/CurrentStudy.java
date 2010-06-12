@@ -15,14 +15,14 @@ import com.google.inject.Provider;
 
 public class CurrentStudy implements Provider<Study> {
 
-    private static final String STUDY_PATH = "src/test/resources/study1";
+    private static final String STUDY_PATH = "src/test/resources/study1/study1.study";
     private final Study study;
-    private final StudyFolder studyFolder;
+    private final StudyLoader studyFolder;
 
     @Inject
-    public CurrentStudy(StudyFolder studyFolder) {
-        this.studyFolder = studyFolder;
-        study = studyFolder.getStudy(STUDY_PATH);
+    public CurrentStudy(StudyLoader studyLoader) {
+        this.studyFolder = studyLoader;
+        study = studyLoader.getStudy(STUDY_PATH);
     }
 
     @Override
@@ -35,7 +35,7 @@ public class CurrentStudy implements Provider<Study> {
     }
 
     public String getText(String filename) {
-        File parent = new File(STUDY_PATH);
+        File parent = new File(STUDY_PATH).getParentFile();
         for (Document document : study.getDocument())
             if (document.getName().equals(filename)) {
                 File file = new File(parent, filename);
