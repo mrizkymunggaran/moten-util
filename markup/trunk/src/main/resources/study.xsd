@@ -98,7 +98,12 @@
 
 	<complexType name="binary-expression" abstract="true">
 		<complexContent>
-			<extension base="tns:expression"></extension>
+			<extension base="tns:expression">
+				<sequence>
+					<element name="expression1" type="tns:expression"></element>
+					<element name="expression2" type="tns:expression"></element>
+				</sequence>
+			</extension>
 		</complexContent>
 	</complexType>
 
@@ -107,7 +112,7 @@
 
 	<complexType name="expression" abstract="true"></complexType>
 
-	<complexType name="tagReference">
+	<complexType name="tag-reference">
 		<complexContent>
 			<extension base="tns:expression">
 				<attribute name="id" type="int"></attribute>

@@ -1,16 +1,22 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<study xmlns="http://david.moten/markup/xml/study.xsd" name="Pro Cycling Interview" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <tag type="boolean" name="Team spirit" id="1" xsi:type="simple-tag"/>
-    <tag type="boolean" name="Encouragement" id="2" xsi:type="simple-tag"/>
-    <tag type="boolean" name="Pride" id="3" xsi:type="simple-tag"/>
-    <tag type="boolean" name="Ambition" id="4" xsi:type="simple-tag"/>
-    <tag type="boolean" name="Fear" id="5" xsi:type="simple-tag">
+<study xmlns="http://david.moten/markup/xml/study.xsd" name="Pro Cycling Interview">
+    <tag xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="simple-tag" type="boolean" name="Team spirit" id="1"/>
+    <tag xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="simple-tag" type="boolean" name="Encouragement" id="2"/>
+    <tag xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="simple-tag" type="boolean" name="Pride" id="3"/>
+    <tag xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="simple-tag" type="boolean" name="Ambition" id="4"/>
+    <tag xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="simple-tag" type="boolean" name="Fear" id="5">
         <memberOf>7</memberOf>
     </tag>
-    <tag type="boolean" name="Suffering" id="6"  xsi:type="simple-tag">
+    <tag xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="simple-tag" type="boolean" name="Suffering" id="6">
         <memberOf>7</memberOf>
     </tag>
-    <tag type="boolean" name="Emotion" id="7" xsi:type="simple-tag"/>
+    <tag xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="simple-tag" type="boolean" name="Emotion" id="7"/>
+    <tag xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="logical-tag" name="Emotion &amp; Suffering" id="8">
+        <expression xsi:type="and">
+            <expression1 xsi:type="tag-reference" id="6"/>
+            <expression2 xsi:type="tag-reference" id="7"/>
+        </expression>
+    </tag>
     <document name="andy-schleck.txt">
         <property type="text" name="name">
             <text>Andy Schleck</text>
@@ -22,9 +28,6 @@
             <number>23</number>
         </property>
         <documentTag length="177" start="657" id="3">
-            <boolean>true</boolean>
-        </documentTag>
-        <documentTag length="225" start="194" id="6">
             <boolean>true</boolean>
         </documentTag>
         <documentTag length="74" start="1047" id="3">
@@ -60,13 +63,16 @@
         <documentTag length="53" start="141" id="7">
             <boolean>true</boolean>
         </documentTag>
-        <documentTag length="219" start="194" id="7">
-            <boolean>true</boolean>
-        </documentTag>
         <documentTag length="210" start="836" id="1">
             <boolean>true</boolean>
         </documentTag>
         <documentTag length="61" start="1123" id="2">
+            <boolean>true</boolean>
+        </documentTag>
+        <documentTag length="89" start="194" id="6">
+            <boolean>true</boolean>
+        </documentTag>
+        <documentTag length="221" start="194" id="7">
             <boolean>true</boolean>
         </documentTag>
     </document>

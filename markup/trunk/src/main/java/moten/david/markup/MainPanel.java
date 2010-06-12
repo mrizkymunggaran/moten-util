@@ -21,6 +21,7 @@ import java.awt.font.TextLayout;
 import java.awt.geom.AffineTransform;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
@@ -161,6 +162,8 @@ public class MainPanel extends JPanel {
     private Border createBorder() {
         Border border = new AbstractBorder() {
 
+            private static final long serialVersionUID = -4060072656452834570L;
+
             @Override
             public synchronized void paintBorder(Component c,
                     Graphics graphics, int x, int y, int width, int height) {
@@ -177,7 +180,6 @@ public class MainPanel extends JPanel {
             }
 
             private int[] getExtentY(Graphics2D g, DocumentTag dt) {
-                Font font = getRotationFont(g);
                 String name = tags.get(dt.getId()).getName();
                 int stringWidth = g.getFontMetrics().stringWidth(name);
                 Rectangle rStart = modelToView(dt.getStart());
@@ -373,6 +375,8 @@ public class MainPanel extends JPanel {
     private JTextPane createTextPane() {
         return new JTextPane() {
 
+            private static final long serialVersionUID = 8717199004213750328L;
+
             @Override
             protected void paintComponent(Graphics graphics) {
                 Graphics2D g = (Graphics2D) graphics.create();
@@ -391,7 +395,10 @@ public class MainPanel extends JPanel {
             }
 
             private void paintBoxes(Graphics2D g) {
-                for (DocumentTag documentTag : document.getDocumentTag()) {
+                List<DocumentTag> documentTags = new ArrayList<DocumentTag>(
+                        document.getDocumentTag());
+                documentTags.addAll(getLogicalDocumentTags(document));
+                for (DocumentTag documentTag : documentTags) {
                     if (MainPanel.this.isVisible(documentTag.getId())) {
                         for (int i = 0; i <= documentTag.getLength() - 1; i++) {
                             int characterStart = documentTag.getStart() + i;
@@ -408,39 +415,35 @@ public class MainPanel extends JPanel {
                                         count++;
                                     }
                             }
+
                             // draw the slice of tag at characterStart
-                            Rectangle r = MainPanel.this
-                                    .modelToView(characterStart);
-                            Rectangle r2 = MainPanel.this
-                                    .modelToView(characterStart + 1);
-                            if (r2.x > r.x && r2.y == r.y) {
-                                // g.setXORMode(getInvertedColor(documentTag
-                                // .getId()));
-                                int step = r.height / count;
-                                int stepHeight = step;
-                                if (index == count - 1)
-                                    stepHeight = r.height - (count - 1) * step;
-                                g.setColor(new Color(presentation.colors
-                                        .get(documentTag.getId())));
-                                g.fillRect(r.x, r.y + index * step, r2.x - r.x,
-                                        stepHeight);
-                            }
+                            drawSlicePortionAtPosition(g, documentTag.getId(),
+                                    characterStart, index, count);
                         }
                     }
                 }
             }
 
-        };
-    }
+            private Collection<? extends DocumentTag> getLogicalDocumentTags(
+                    Document document) {
+                List<DocumentTag> list = new ArrayList<DocumentTag>();
+                return list;
+            }
 
-    private int getTagIndex(int id) {
-        int count = 0;
-        for (Tag tag : study.getTag()) {
-            if (tag.getId() == id)
-                return count;
-            count++;
-        }
-        return -1;
+            private void drawSlicePortionAtPosition(Graphics2D g, int tagId,
+                    int characterStart, int index, int count) {
+                Rectangle r = MainPanel.this.modelToView(characterStart);
+                Rectangle r2 = MainPanel.this.modelToView(characterStart + 1);
+                if (r2.x > r.x && r2.y == r.y) {
+                    int step = r.height / count;
+                    int stepHeight = step;
+                    if (index == count - 1)
+                        stepHeight = r.height - (count - 1) * step;
+                    g.setColor(new Color(presentation.colors.get(tagId)));
+                    g.fillRect(r.x, r.y + index * step, r2.x - r.x, stepHeight);
+                }
+            }
+        };
     }
 
     private ControllerListener<DocumentSelectionChanged> createDocumentSelectionChangedListener() {
@@ -614,81 +617,88 @@ public class MainPanel extends JPanel {
 
     private MouseListener createTextMouseListener(List<Tag> tags) {
         final JPopupMenu popup = new JPopupMenu();
-        for (final Tag t : tags) {
-            final SimpleTag tag = (SimpleTag) t;
-            JMenuItem code = new JMenuItem(tag.getName()
-                    + (!tag.getType().equals(BasicType.BOOLEAN) ? "..." : ""));
-            popup.add(code);
-            code.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    Object value = true;
-                    // if tag type is boolean then it is a theme that refers to
-                    // the selection.
-                    if (!tag.getType().equals(BasicType.BOOLEAN)) {
-                        value = JOptionPane.showInputDialog(MainPanel.this, tag
-                                .getName(), "Tag value for " + tag.getName(),
-                                JOptionPane.PLAIN_MESSAGE, null, null, "");
-                    }
-                    int start = text.getSelectionStart();
-                    int finish = text.getSelectionEnd();
-                    StyledDocument doc = text.getStyledDocument();
-                    Element element = doc.getParagraphElement(start);
-                    Element element2 = doc.getParagraphElement(finish);
+        for (final Tag t : tags)
+            if (t instanceof SimpleTag) {
+                final SimpleTag tag = (SimpleTag) t;
+                JMenuItem code = new JMenuItem(tag.getName()
+                        + (!tag.getType().equals(BasicType.BOOLEAN) ? "..."
+                                : ""));
+                popup.add(code);
+                code.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        Object value = true;
+                        // if tag type is boolean then it is a theme that refers
+                        // to
+                        // the selection.
+                        if (!tag.getType().equals(BasicType.BOOLEAN)) {
+                            value = JOptionPane.showInputDialog(MainPanel.this,
+                                    tag.getName(), "Tag value for "
+                                            + tag.getName(),
+                                    JOptionPane.PLAIN_MESSAGE, null, null, "");
+                        }
+                        int start = text.getSelectionStart();
+                        int finish = text.getSelectionEnd();
+                        StyledDocument doc = text.getStyledDocument();
+                        Element element = doc.getParagraphElement(start);
+                        Element element2 = doc.getParagraphElement(finish);
 
-                    synchronized (document) {
-                        // synchronize so we don't clash with a delete action
-                        if (presentation.selectionMode
-                                .equals(SelectionMode.PARAGRAPH))
+                        synchronized (document) {
+                            // synchronize so we don't clash with a delete
+                            // action
+                            if (presentation.selectionMode
+                                    .equals(SelectionMode.PARAGRAPH))
+                                document.getDocumentTag().add(
+                                        createDocumentTag(tag, element
+                                                .getStartOffset(), element2
+                                                .getEndOffset()
+                                                - element.getStartOffset() + 1,
+                                                value));
+                            else if (presentation.selectionMode
+                                    .equals(SelectionMode.SENTENCE)) {
+                                selectDelimitedBy(doc, ".", start, finish, tag
+                                        .getName());
+                            } else {
+                                // exact
+                                document.getDocumentTag().add(
+                                        createDocumentTag(tag, start, finish
+                                                - start + 1, value));
+                            }
+                        }
+                        controller.event(new TextTagged(tag));
+                        refresh();
+                        save();
+                    }
+
+                    private void selectDelimitedBy(StyledDocument doc,
+                            String delimiter, int start, int finish,
+                            String style) {
+                        Element element = doc.getParagraphElement(start);
+                        Element element2 = doc.getParagraphElement(finish);
+                        int i = start;
+                        try {
+                            while (i > element.getStartOffset()
+                                    && !delimiter.equals(doc.getText(i, 1)))
+                                i--;
+                            while (delimiter.equals(doc.getText(i, 1))
+                                    || Character.isWhitespace(doc.getText(i, 1)
+                                            .charAt(0)))
+                                i++;
+                            int j = finish;
+                            while (j < element2.getEndOffset()
+                                    && !delimiter.equals(doc.getText(j, 1)))
+                                j++;
+                            if (Character.isWhitespace(doc.getText(j, 1)
+                                    .charAt(0)))
+                                j--;
                             document.getDocumentTag().add(
-                                    createDocumentTag(tag, element
-                                            .getStartOffset(), element2
-                                            .getEndOffset()
-                                            - element.getStartOffset() + 1,
-                                            value));
-                        else if (presentation.selectionMode
-                                .equals(SelectionMode.SENTENCE)) {
-                            selectDelimitedBy(doc, ".", start, finish, tag
-                                    .getName());
-                        } else {
-                            // exact
-                            document.getDocumentTag().add(
-                                    createDocumentTag(tag, start, finish
-                                            - start + 1, value));
+                                    createDocumentTag(tag, i, j - i + 1, true));
+                        } catch (BadLocationException e1) {
+                            throw new RuntimeException(e1);
                         }
                     }
-                    controller.event(new TextTagged(tag));
-                    refresh();
-                    save();
-                }
-
-                private void selectDelimitedBy(StyledDocument doc,
-                        String delimiter, int start, int finish, String style) {
-                    Element element = doc.getParagraphElement(start);
-                    Element element2 = doc.getParagraphElement(finish);
-                    int i = start;
-                    try {
-                        while (i > element.getStartOffset()
-                                && !delimiter.equals(doc.getText(i, 1)))
-                            i--;
-                        while (delimiter.equals(doc.getText(i, 1))
-                                || Character.isWhitespace(doc.getText(i, 1)
-                                        .charAt(0)))
-                            i++;
-                        int j = finish;
-                        while (j < element2.getEndOffset()
-                                && !delimiter.equals(doc.getText(j, 1)))
-                            j++;
-                        if (Character.isWhitespace(doc.getText(j, 1).charAt(0)))
-                            j--;
-                        document.getDocumentTag().add(
-                                createDocumentTag(tag, i, j - i + 1, true));
-                    } catch (BadLocationException e1) {
-                        throw new RuntimeException(e1);
-                    }
-                }
-            });
-        }
+                });
+            }
 
         popup.addSeparator();
         {
@@ -734,11 +744,6 @@ public class MainPanel extends JPanel {
                         Object attribute = names.nextElement();
                         System.out.println(attribute.getClass().getName() + ":"
                                 + attribute);
-                    }
-                    try {
-                        Rectangle modelToView = text.modelToView(i);
-                    } catch (BadLocationException e1) {
-                        throw new RuntimeException(e1);
                     }
                 }
                 maybeShowPopup(e);
