@@ -15,7 +15,7 @@ import com.google.inject.Provider;
 
 public class CurrentStudy implements Provider<Study> {
 
-    private static final String STUDY_PATH = "src/test/resources/study1/markup";
+    private static final String STUDY_PATH = "src/test/resources/study1";
     private final Study study;
     private final StudyFolder studyFolder;
 
@@ -35,7 +35,7 @@ public class CurrentStudy implements Provider<Study> {
     }
 
     public String getText(String filename) {
-        File parent = new File(STUDY_PATH).getParentFile();
+        File parent = new File(STUDY_PATH);
         for (Document document : study.getDocument())
             if (document.getName().equals(filename)) {
                 File file = new File(parent, filename);
