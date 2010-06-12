@@ -26,8 +26,10 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import javax.swing.JMenuItem;
@@ -430,6 +432,15 @@ public class MainPanel extends JPanel {
                 return list;
             }
 
+            private Set<Interval> getApplies(Tag tag, Document document) {
+                Set<Interval> set = new HashSet<Interval>();
+                Interval last = null;
+                for (int i = 0; i < text.getText().length(); i++) {
+
+                }
+                return set;
+            }
+
             private void drawSlicePortionAtPosition(Graphics2D g, int tagId,
                     int characterStart, int index, int count) {
                 Rectangle r = MainPanel.this.modelToView(characterStart);
@@ -444,6 +455,17 @@ public class MainPanel extends JPanel {
                 }
             }
         };
+    }
+
+    private static class Interval {
+        int start;
+        int length;
+
+        public Interval(int start, int length) {
+            super();
+            this.start = start;
+            this.length = length;
+        }
     }
 
     private ControllerListener<DocumentSelectionChanged> createDocumentSelectionChangedListener() {
