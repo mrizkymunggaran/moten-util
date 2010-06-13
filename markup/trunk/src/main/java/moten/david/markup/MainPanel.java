@@ -26,10 +26,11 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.logging.Logger;
 
 import javax.swing.JMenuItem;
@@ -56,15 +57,21 @@ import moten.david.markup.events.SelectionModeChanged;
 import moten.david.markup.events.StartingToPaintTags;
 import moten.david.markup.events.TagSelectionChanged;
 import moten.david.markup.events.TextTagged;
+import moten.david.markup.xml.study.And;
 import moten.david.markup.xml.study.BasicType;
 import moten.david.markup.xml.study.Document;
 import moten.david.markup.xml.study.DocumentTag;
+import moten.david.markup.xml.study.Expression;
+import moten.david.markup.xml.study.LogicalTag;
 import moten.david.markup.xml.study.SimpleTag;
 import moten.david.markup.xml.study.Study;
 import moten.david.markup.xml.study.Tag;
+import moten.david.markup.xml.study.TagReference;
 import moten.david.util.controller.Controller;
 import moten.david.util.controller.ControllerListener;
 
+import com.google.common.collect.Sets;
+import com.google.common.collect.Sets.SetView;
 import com.google.inject.Inject;
 
 /**
@@ -432,13 +439,59 @@ public class MainPanel extends JPanel {
                 return list;
             }
 
-            private Set<Interval> getApplies(Tag tag, Document document) {
-                Set<Interval> set = new HashSet<Interval>();
-                Interval last = null;
-                for (int i = 0; i < text.getText().length(); i++) {
+            private List<DocumentTag> filterDocumentTags(Document document,
+                    int tagId) {
+                List<DocumentTag> list = new ArrayList<DocumentTag>();
+                for (DocumentTag dt : document.getDocumentTag())
+                    if (dt.getId() == tagId)
+                        list.add(dt);
+                return list;
+            }
 
-                }
+            private SortedSet<Interval> getMatches(Document document, Tag tag) {
+                TreeSet<Interval> set = new TreeSet<Interval>();
+                if (tag instanceof SimpleTag) {
+                    for (DocumentTag dt : filterDocumentTags(document, tag
+                            .getId())) {
+                        set.add(new Interval(dt.getStart(), dt.getLength()));
+                    }
+                } else if (tag instanceof LogicalTag) {
+                    LogicalTag t = (LogicalTag) tag;
+                    Expression e = t.getExpression();
+                    set.addAll(getMatches(document, e));
+                } else
+                    throw new RuntimeException("not implemented");
                 return set;
+            }
+
+            private SortedSet<Interval> getMatches(Document document,
+                    Expression e) {
+                if (e instanceof TagReference)
+                    return getMatches(document, tags.get(((TagReference) e)
+                            .getId()));
+                else if (e instanceof And) {
+                    SortedSet<Interval> a = getMatches(document, ((And) e)
+                            .getExpression1());
+                    SortedSet<Interval> b = getMatches(document, ((And) e)
+                            .getExpression2());
+                    return and(a, b);
+                } else
+                    throw new RuntimeException("not implemented");
+            }
+
+            private SortedSet<Interval> and(SortedSet<Interval> s1,
+                    SortedSet<Interval> s2) {
+                if (s1.isEmpty() || s2.isEmpty())
+                    return Sets.newTreeSet();
+                Iterator<Interval> it1 = s1.iterator();
+                Iterator<Interval> it2 = s2.iterator();
+                Interval a = it1.next();
+                Interval b = it2.next();
+                if (a.start + a.length < b.start) {
+                    SetView<Interval> s = Sets.difference(s1, Sets
+                            .newHashSet(a));
+                    return and(Sets.newTreeSet(s));
+                }
             }
 
             private void drawSlicePortionAtPosition(Graphics2D g, int tagId,
@@ -457,7 +510,7 @@ public class MainPanel extends JPanel {
         };
     }
 
-    private static class Interval {
+    private static class Interval implements Comparable<Interval> {
         int start;
         int length;
 
@@ -465,6 +518,14 @@ public class MainPanel extends JPanel {
             super();
             this.start = start;
             this.length = length;
+        }
+
+        @Override
+        public int compareTo(Interval x) {
+            if (x.start == start)
+                return ((Integer) length).compareTo(x.length);
+            else
+                return ((Integer) start).compareTo(x.start);
         }
     }
 
