@@ -398,7 +398,9 @@ public class MainPanel extends JPanel {
 		List<DocumentTag> documentTags = new ArrayList<DocumentTag>(document
 				.getDocumentTag());
 		documentTags.addAll(document.getDocumentTag());
-		documentTags.addAll(getLogicalDocumentTags(document));
+		for (DocumentTag dt : getLogicalDocumentTags(document))
+			if (!contains(documentTags, dt))
+				documentTags.add(dt);
 		return documentTags;
 	}
 
@@ -515,8 +517,9 @@ public class MainPanel extends JPanel {
 							}
 
 							// draw the slice of tag at characterStart
-							drawSlicePortionAtPosition(g, documentTag.getId(),
-									characterStart, index, count);
+							if (count > 0)
+								drawSlicePortionAtPosition(g, documentTag
+										.getId(), characterStart, index, count);
 						}
 					}
 				}
