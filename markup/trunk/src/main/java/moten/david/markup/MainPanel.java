@@ -315,7 +315,7 @@ public class MainPanel extends JPanel {
 							boolean intersects = false;
 							// look for an intersect on stripe i
 							for (DocumentTag documentTag : list) {
-								Integer tagIndex = find(indexes, documentTag);
+								Integer tagIndex = indexes.get(documentTag);
 								if (tagIndex != null && tagIndex == i)
 									if (intersect(g, dt, documentTag,
 											INTERSECT_TOLERANCE_PIXELS))
@@ -558,11 +558,17 @@ public class MainPanel extends JPanel {
 		} else // must intersect
 		{
 			Interval interval = new Interval(Math.max(a.start, b.start), Math
-					.min(a.start + a.length, b.start + b.length));
-			SortedSet<Interval> set = and(Sets.newTreeSet(Sets.difference(s1,
-					Sets.newHashSet(a))), Sets.newTreeSet(Sets.difference(s2,
-					Sets.newHashSet(b))));
-			return Sets.newTreeSet(Sets.union(set, Sets.newHashSet(interval)));
+					.min(a.start + a.length, b.start + b.length)
+					- Math.max(a.start, b.start));
+			if (interval.length == 0)
+				return Sets.newTreeSet();
+			else {
+				SortedSet<Interval> set = and(Sets.newTreeSet(Sets.difference(
+						s1, Sets.newHashSet(a))), Sets.newTreeSet(Sets
+						.difference(s2, Sets.newHashSet(b))));
+				return Sets.newTreeSet(Sets.union(set, Sets
+						.newHashSet(interval)));
+			}
 		}
 	}
 
@@ -582,6 +588,11 @@ public class MainPanel extends JPanel {
 				return ((Integer) length).compareTo(x.length);
 			else
 				return ((Integer) start).compareTo(x.start);
+		}
+
+		@Override
+		public String toString() {
+			return "[" + start + ", " + length + "]";
 		}
 	}
 
