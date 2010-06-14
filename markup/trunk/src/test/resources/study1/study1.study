@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<study xmlns="http://david.moten/markup/xml/study.xsd" name="Pro Cycling Interview">
+<study xmlns="http://david.moten/markup/xml/study.xsd" name="Pro Cycling Interview" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <tag xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="simple-tag" type="boolean" name="Team spirit" id="1"/>
     <tag xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="simple-tag" type="boolean" name="Encouragement" id="2"/>
     <tag xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="simple-tag" type="boolean" name="Pride" id="3"/>
@@ -7,7 +7,7 @@
     <tag xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="simple-tag" type="boolean" name="Fear" id="5">
         <memberOf>7</memberOf>
     </tag>
-    <tag xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="simple-tag" type="boolean" name="Suffering" id="6">
+    <tag  xsi:type="simple-tag" type="boolean" name="Suffering" id="6">
         <memberOf>7</memberOf>
     </tag>
     <tag xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="simple-tag" type="boolean" name="Emotion" id="7"/>
@@ -27,69 +27,29 @@
         <property type="number" name="age">
             <number>23</number>
         </property>
-        <documentTag length="177" start="657" id="3">
-            <boolean>true</boolean>
-        </documentTag>
-        <documentTag length="74" start="1047" id="3">
-            <boolean>true</boolean>
-        </documentTag>
-        <documentTag length="113" start="1907" id="2">
-            <boolean>true</boolean>
-        </documentTag>
-        <documentTag length="63" start="2022" id="1">
-            <boolean>true</boolean>
-        </documentTag>
-        <documentTag length="61" start="2772" id="6">
-            <boolean>true</boolean>
-        </documentTag>
-        <documentTag length="50" start="2835" id="6">
-            <boolean>true</boolean>
-        </documentTag>
-        <documentTag length="178" start="2886" id="2">
-            <boolean>true</boolean>
-        </documentTag>
-        <documentTag length="188" start="3337" id="2">
-            <boolean>true</boolean>
-        </documentTag>
-        <documentTag length="83" start="3253" id="3">
-            <boolean>true</boolean>
-        </documentTag>
-        <documentTag length="177" start="657" id="1">
-            <boolean>true</boolean>
-        </documentTag>
-        <documentTag length="96" start="2213" id="4">
-            <boolean>true</boolean>
-        </documentTag>
-        <documentTag length="53" start="141" id="7">
-            <boolean>true</boolean>
-        </documentTag>
-        <documentTag length="210" start="836" id="1">
-            <boolean>true</boolean>
-        </documentTag>
-        <documentTag length="61" start="1123" id="2">
-            <boolean>true</boolean>
-        </documentTag>
-        <documentTag length="89" start="194" id="6">
-            <boolean>true</boolean>
-        </documentTag>
-        <documentTag length="221" start="194" id="7">
-            <boolean>true</boolean>
-        </documentTag>
+        <documentTag length="177" start="657" id="3" xsi:type="boolean" value="true"/>
+        <documentTag length="74" start="1047" id="3" xsi:type="boolean" value="true"/>
+        <documentTag length="113" start="1907" id="2" xsi:type="boolean" value="true"/>
+        <documentTag length="63" start="2022" id="1" xsi:type="boolean" value="true"/>
+        <documentTag length="61" start="2772" id="6" xsi:type="boolean" value="true"/>
+        <documentTag length="50" start="2835" id="6" xsi:type="boolean" value="true"/>
+        <documentTag length="178" start="2886" id="2" xsi:type="boolean" value="true"/>
+        <documentTag length="188" start="3337" id="2" xsi:type="boolean" value="true"/>
+        <documentTag length="83" start="3253" id="3" xsi:type="boolean" value="true"/>
+        <documentTag length="177" start="657" id="1" xsi:type="boolean" value="true"/>
+        <documentTag length="96" start="2213" id="4" xsi:type="boolean" value="true"/>
+        <documentTag length="53" start="141" id="7" xsi:type="boolean" value="true"/>
+        <documentTag length="210" start="836" id="1" xsi:type="boolean" value="true"/>
+        <documentTag length="61" start="1123" id="2" xsi:type="boolean" value="true"/>
+        <documentTag length="89" start="194" id="6" xsi:type="boolean" value="true"/>
+        <documentTag length="221" start="194" id="7" xsi:type="boolean" value="true"/>
     </document>
     <document name="taylor-phinney.txt">
-        <documentTag length="73" start="1734" id="6">
-            <boolean>true</boolean>
-        </documentTag>
+        <documentTag length="73" start="1734" id="6" xsi:type="boolean" value="true"/>
     </document>
     <document name="lance-armstrong.txt">
-        <documentTag length="227" start="428" id="6">
-            <boolean>true</boolean>
-        </documentTag>
-        <documentTag length="419" start="9213" id="1">
-            <boolean>true</boolean>
-        </documentTag>
-        <documentTag length="20" start="10169" id="1">
-            <boolean>true</boolean>
-        </documentTag>
+        <documentTag length="227" start="428" id="6" xsi:type="boolean" value="true"/>
+        <documentTag length="419" start="9213" id="1" xsi:type="boolean" value="true"/>
+        <documentTag length="20" start="10169" id="1" xsi:type="boolean" value="true"/>
     </document>
 </study>

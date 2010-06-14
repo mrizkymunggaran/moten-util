@@ -63,6 +63,7 @@ import moten.david.markup.xml.study.Document;
 import moten.david.markup.xml.study.DocumentTag;
 import moten.david.markup.xml.study.Expression;
 import moten.david.markup.xml.study.LogicalTag;
+import moten.david.markup.xml.study.ObjectFactory;
 import moten.david.markup.xml.study.SimpleTag;
 import moten.david.markup.xml.study.Study;
 import moten.david.markup.xml.study.Tag;
@@ -441,10 +442,8 @@ public class MainPanel extends JPanel {
 						SortedSet<Interval> intervals = getMatches(document,
 								tag);
 						for (Interval interval : intervals) {
-							DocumentTag dt = new DocumentTag();
-							dt.setStart(interval.start);
-							dt.setLength(interval.length);
-							dt.setId(tag.getId());
+							DocumentTag dt = createDocumentTag(tag,
+									interval.start, interval.length, true);
 							list.add(dt);
 						}
 					}
@@ -705,19 +704,26 @@ public class MainPanel extends JPanel {
 
 	private static DocumentTag createDocumentTag(Tag tag, int start,
 			int length, Object value) {
-		DocumentTag d = new DocumentTag();
+		ObjectFactory factory = new ObjectFactory();
+		DocumentTag d;
+		if (value instanceof Boolean) {
+			moten.david.markup.xml.study.Boolean v = factory.createBoolean();
+			v.setValue((Boolean) value);
+			d = v;
+		} else if (value instanceof String) {
+			moten.david.markup.xml.study.Text v = factory.createText();
+			v.setValue((String) value);
+			d = v;
+		} else if (value instanceof BigDecimal) {
+			moten.david.markup.xml.study.Number v = factory.createNumber();
+			v.setValue((BigDecimal) value);
+			d = v;
+		} else
+			throw new RuntimeException("unknown tag value type:"
+					+ (value != null ? value.getClass() : "") + "=" + value);
 		d.setId(tag.getId());
 		d.setStart(start);
 		d.setLength(length);
-		if (value instanceof Boolean)
-			d.setBoolean((Boolean) value);
-		else if (value instanceof String)
-			d.setText((String) value);
-		else if (value instanceof BigDecimal)
-			d.setNumber((BigDecimal) value);
-		else
-			throw new RuntimeException("unknown tag value type:"
-					+ (value != null ? value.getClass() : "") + "=" + value);
 		return d;
 	}
 

@@ -14,16 +14,6 @@
 		<attribute name="name" type="string"></attribute>
 	</complexType>
 
-	<complexType name="documentTag">
-		<complexContent>
-			<extension base="tns:basicValue">
-				<attribute name="id" type="int" use="required"></attribute>
-				<attribute name="start" type="int" use="required"></attribute>
-				<attribute name="length" type="int" use="required"></attribute>
-			</extension>
-		</complexContent>
-	</complexType>
-
 	<complexType name="document">
 		<sequence>
 			<element name="property" type="tns:property" maxOccurs="unbounded"
@@ -67,10 +57,10 @@
 		<complexContent>
 			<extension base="tns:tag">
 				<sequence>
-					<element name="memberOf" type="int" minOccurs="0" maxOccurs="unbounded"></element>
+					<element name="memberOf" type="int" minOccurs="0"
+						maxOccurs="unbounded"></element>
 				</sequence>
-				<attribute name="type" type="tns:basicType"
-					use="required">
+				<attribute name="type" type="tns:basicType" use="required">
 				</attribute>
 			</extension>
 		</complexContent>
@@ -126,30 +116,56 @@
 			<extension base="tns:binary-expression"></extension>
 		</complexContent>
 	</complexType>
-	
-    <complexType name="and">
-    	<complexContent>
-    		<extension base="tns:binary-expression"></extension>
-    	</complexContent>
-    </complexType>
-    
-    <complexType name="near">
-    	<complexContent>
-    		<extension base="tns:binary-expression"></extension>
-    	</complexContent>
-    </complexType>
-    
-    <complexType name="not">
-    	<complexContent>
-    		<extension base="tns:expression">
-    			<sequence>
-    				<element name="expression" type="tns:expression"></element>
-    			</sequence>
-    		</extension>
-    	</complexContent>
-    </complexType>
 
+	<complexType name="and">
+		<complexContent>
+			<extension base="tns:binary-expression"></extension>
+		</complexContent>
+	</complexType>
 
+	<complexType name="near">
+		<complexContent>
+			<extension base="tns:binary-expression"></extension>
+		</complexContent>
+	</complexType>
 
+	<complexType name="not">
+		<complexContent>
+			<extension base="tns:expression">
+				<sequence>
+					<element name="expression" type="tns:expression"></element>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
 
+	<complexType name="documentTag" abstract="true">
+		<attribute name="id" type="int" use="required"></attribute>
+		<attribute name="start" type="int" use="required"></attribute>
+		<attribute name="length" type="int" use="required"></attribute>
+	</complexType>
+
+	<complexType name="boolean">
+		<complexContent>
+			<extension base="tns:documentTag">
+				<attribute name="value" type="boolean"></attribute>
+			</extension>
+		</complexContent>
+	</complexType>
+
+	<complexType name="text">
+		<complexContent>
+			<extension base="tns:documentTag">
+				<attribute name="value" type="string"></attribute>
+			</extension>
+		</complexContent>
+	</complexType>
+
+	<complexType name="number">
+		<complexContent>
+			<extension base="tns:documentTag">
+				<attribute name="value" type="decimal"></attribute>
+			</extension>
+		</complexContent>
+	</complexType>
 </schema>
