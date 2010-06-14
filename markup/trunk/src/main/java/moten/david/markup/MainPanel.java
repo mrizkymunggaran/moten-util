@@ -314,10 +314,10 @@ public class MainPanel extends JPanel {
 						for (int i = 0; i <= maxIndex; i++) {
 							boolean intersects = false;
 							// look for an intersect on stripe i
-							for (DocumentTag tag : list) {
-								Integer tagIndex = find(indexes, tag);
+							for (DocumentTag documentTag : list) {
+								Integer tagIndex = find(indexes, documentTag);
 								if (tagIndex != null && tagIndex == i)
-									if (intersect(g, dt, tag,
+									if (intersect(g, dt, documentTag,
 											INTERSECT_TOLERANCE_PIXELS))
 										intersects = true;
 							}
@@ -411,11 +411,21 @@ public class MainPanel extends JPanel {
 				for (Interval interval : intervals) {
 					DocumentTag dt = createDocumentTag(tag, interval.start,
 							interval.length, true);
-					list.add(dt);
+					if (!contains(list, dt))
+						list.add(dt);
 				}
 			}
 		}
 		return list;
+	}
+
+	private boolean contains(List<DocumentTag> list, DocumentTag dt) {
+		for (DocumentTag documentTag : list)
+			if (dt.getId() == documentTag.getId()
+					&& dt.getStart() == documentTag.getStart()
+					&& dt.getLength() == documentTag.getLength())
+				return true;
+		return false;
 	}
 
 	private List<DocumentTag> filterDocumentTags(Document document, int tagId) {
