@@ -236,14 +236,18 @@ public class MainPanel extends JPanel {
 				int stripeWidth = (borderWidth - borderMarginLeft - borderMarginRight)
 						/ numStripes;
 				g.setFont(g.getFont().deriveFont(9f));
-				for (DocumentTag documentTag : document.getDocumentTag()) {
+				for (DocumentTag documentTag : getVirtualDocumentTags(document)) {
 					Rectangle rStart = modelToView(documentTag.getStart());
 					Rectangle rEnd = modelToView(documentTag.getStart()
 							+ documentTag.getLength());
 					g.setColor(new Color(presentation.colors.get(documentTag
 							.getId())));
 
-					Integer index = indexes.get(documentTag);
+					Integer index = find(indexes, documentTag);
+					if (index == null)
+						throw new RuntimeException(
+								"index not found for docTag "
+										+ documentTag.getId());
 					int x = borderMarginLeft + index * stripeWidth;
 					int y = (rEnd.y + rEnd.height + rStart.y) / 2;
 					String name = tags.get(documentTag.getId()).getName();
@@ -286,10 +290,18 @@ public class MainPanel extends JPanel {
 				}
 			}
 
+			private Integer find(Map<DocumentTag, Integer> indexes,
+					DocumentTag documentTag) {
+				for (DocumentTag dt : indexes.keySet())
+					if (dt.getId() == documentTag.getId())
+						return indexes.get(dt);
+				return null;
+			}
+
 			private Map<DocumentTag, Integer> getIndexes(Graphics2D g) {
 				Map<DocumentTag, Integer> indexes = new HashMap<DocumentTag, Integer>();
-				List<DocumentTag> list = sortByStart(g, document
-						.getDocumentTag());
+				List<DocumentTag> list = sortByStart(g,
+						getVirtualDocumentTags(document));
 				// find an index for each document tag
 				for (DocumentTag dt : list) {
 					Integer newIndex = null;
@@ -303,7 +315,7 @@ public class MainPanel extends JPanel {
 							boolean intersects = false;
 							// look for an intersect on stripe i
 							for (DocumentTag tag : list) {
-								Integer tagIndex = indexes.get(tag);
+								Integer tagIndex = find(indexes, tag);
 								if (tagIndex != null && tagIndex == i)
 									if (intersect(g, dt, tag,
 											INTERSECT_TOLERANCE_PIXELS))
@@ -382,6 +394,66 @@ public class MainPanel extends JPanel {
 		return border;
 	}
 
+	private List<DocumentTag> getVirtualDocumentTags(Document document) {
+		List<DocumentTag> documentTags = new ArrayList<DocumentTag>(document
+				.getDocumentTag());
+		documentTags.addAll(document.getDocumentTag());
+		documentTags.addAll(getLogicalDocumentTags(document));
+		return documentTags;
+	}
+
+	private Collection<? extends DocumentTag> getLogicalDocumentTags(
+			Document document) {
+		List<DocumentTag> list = new ArrayList<DocumentTag>();
+		for (Tag tag : study.getTag()) {
+			if (tag instanceof LogicalTag) {
+				SortedSet<Interval> intervals = getMatches(document, tag);
+				for (Interval interval : intervals) {
+					DocumentTag dt = createDocumentTag(tag, interval.start,
+							interval.length, true);
+					list.add(dt);
+				}
+			}
+		}
+		return list;
+	}
+
+	private List<DocumentTag> filterDocumentTags(Document document, int tagId) {
+		List<DocumentTag> list = new ArrayList<DocumentTag>();
+		for (DocumentTag dt : document.getDocumentTag())
+			if (dt.getId() == tagId)
+				list.add(dt);
+		return list;
+	}
+
+	private SortedSet<Interval> getMatches(Document document, Tag tag) {
+		TreeSet<Interval> set = new TreeSet<Interval>();
+		if (tag instanceof SimpleTag) {
+			for (DocumentTag dt : filterDocumentTags(document, tag.getId())) {
+				set.add(new Interval(dt.getStart(), dt.getLength()));
+			}
+		} else if (tag instanceof LogicalTag) {
+			LogicalTag t = (LogicalTag) tag;
+			Expression e = t.getExpression();
+			set.addAll(getMatches(document, e));
+		} else
+			throw new RuntimeException("not implemented");
+		return set;
+	}
+
+	private SortedSet<Interval> getMatches(Document document, Expression e) {
+		if (e instanceof TagReference)
+			return getMatches(document, tags.get(((TagReference) e).getId()));
+		else if (e instanceof And) {
+			SortedSet<Interval> a = getMatches(document, ((And) e)
+					.getExpression1());
+			SortedSet<Interval> b = getMatches(document, ((And) e)
+					.getExpression2());
+			return and(a, b);
+		} else
+			throw new RuntimeException("not implemented");
+	}
+
 	private JTextPane createTextPane() {
 		return new JTextPane() {
 
@@ -399,15 +471,21 @@ public class MainPanel extends JPanel {
 				if (tags.get(dt.getId()) instanceof SimpleTag)
 					return position >= dt.getStart()
 							&& position < dt.getStart() + dt.getLength();
-				else
+				else if (tags.get(dt.getId()) instanceof LogicalTag) {
+					SortedSet<Interval> intervals = getMatches(document, tags
+							.get(dt.getId()));
+					for (Interval interval : intervals)
+						if (interval.start >= position
+								&& interval.start + interval.length <= position)
+							return true;
+					return false;
+				} else
 					throw new RuntimeException("unknown tag type: "
 							+ tags.get(dt.getId()).getClass());
 			}
 
 			private void paintBoxes(Graphics2D g) {
-				List<DocumentTag> documentTags = new ArrayList<DocumentTag>(
-						document.getDocumentTag());
-				documentTags.addAll(getLogicalDocumentTags(document));
+				List<DocumentTag> documentTags = getVirtualDocumentTags(document);
 				for (DocumentTag documentTag : documentTags) {
 					if (MainPanel.this.isVisible(documentTag.getId())) {
 						for (int i = 0; i <= documentTag.getLength() - 1; i++) {
@@ -417,7 +495,7 @@ public class MainPanel extends JPanel {
 							// characterStart
 							int index = 0;
 							int count = 0;
-							for (DocumentTag dt : document.getDocumentTag()) {
+							for (DocumentTag dt : documentTags) {
 								if (MainPanel.this.isVisible(dt.getId()))
 									if (tagIsAt(dt, characterStart)) {
 										if (dt == documentTag)
@@ -432,63 +510,6 @@ public class MainPanel extends JPanel {
 						}
 					}
 				}
-			}
-
-			private Collection<? extends DocumentTag> getLogicalDocumentTags(
-					Document document) {
-				List<DocumentTag> list = new ArrayList<DocumentTag>();
-				for (Tag tag : study.getTag()) {
-					if (tag instanceof LogicalTag) {
-						SortedSet<Interval> intervals = getMatches(document,
-								tag);
-						for (Interval interval : intervals) {
-							DocumentTag dt = createDocumentTag(tag,
-									interval.start, interval.length, true);
-							list.add(dt);
-						}
-					}
-				}
-				return list;
-			}
-
-			private List<DocumentTag> filterDocumentTags(Document document,
-					int tagId) {
-				List<DocumentTag> list = new ArrayList<DocumentTag>();
-				for (DocumentTag dt : document.getDocumentTag())
-					if (dt.getId() == tagId)
-						list.add(dt);
-				return list;
-			}
-
-			private SortedSet<Interval> getMatches(Document document, Tag tag) {
-				TreeSet<Interval> set = new TreeSet<Interval>();
-				if (tag instanceof SimpleTag) {
-					for (DocumentTag dt : filterDocumentTags(document, tag
-							.getId())) {
-						set.add(new Interval(dt.getStart(), dt.getLength()));
-					}
-				} else if (tag instanceof LogicalTag) {
-					LogicalTag t = (LogicalTag) tag;
-					Expression e = t.getExpression();
-					set.addAll(getMatches(document, e));
-				} else
-					throw new RuntimeException("not implemented");
-				return set;
-			}
-
-			private SortedSet<Interval> getMatches(Document document,
-					Expression e) {
-				if (e instanceof TagReference)
-					return getMatches(document, tags.get(((TagReference) e)
-							.getId()));
-				else if (e instanceof And) {
-					SortedSet<Interval> a = getMatches(document, ((And) e)
-							.getExpression1());
-					SortedSet<Interval> b = getMatches(document, ((And) e)
-							.getExpression2());
-					return and(a, b);
-				} else
-					throw new RuntimeException("not implemented");
 			}
 
 			private void drawSlicePortionAtPosition(Graphics2D g, int tagId,
