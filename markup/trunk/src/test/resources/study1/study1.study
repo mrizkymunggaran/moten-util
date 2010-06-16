@@ -12,13 +12,12 @@
     </tag>
     <tag xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="simple-tag" type="boolean" name="Emotion" id="7"/>
     
-    <!-- <tag xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="logical-tag" name="Emotion &amp; Suffering" id="8">
+     <tag xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="logical-tag" name="Emotion &amp; Suffering" id="8">
         <expression xsi:type="and">
             <expression1 xsi:type="tag-reference" id="6"/>
             <expression2 xsi:type="tag-reference" id="7"/>
         </expression>
     </tag>
-    -->
     <document name="andy-schleck.txt">
         <property type="text" name="name">
             <text>Andy Schleck</text>

@@ -202,9 +202,6 @@ public class MainPanel extends JPanel {
 						.max(rEnd.y + rEnd.height,
 								(rStart.y + rEnd.y + rEnd.height) / 2
 										+ stringWidth / 2);
-				// Color c = g.getColor();
-				// g.setColor(Color.black);
-				// g.drawLine(0, minY, 50, maxY);
 				return new int[] { minY, maxY };
 			}
 
@@ -243,7 +240,7 @@ public class MainPanel extends JPanel {
 					g.setColor(new Color(presentation.colors.get(documentTag
 							.getId())));
 
-					Integer index = find(indexes, documentTag);
+					Integer index = find(indexes, documentTag) - 1;
 					if (index == null)
 						throw new RuntimeException(
 								"index not found for docTag "
@@ -293,9 +290,15 @@ public class MainPanel extends JPanel {
 			private Integer find(Map<DocumentTag, Integer> indexes,
 					DocumentTag documentTag) {
 				for (DocumentTag dt : indexes.keySet())
-					if (dt.getId() == documentTag.getId())
+					if (equals(dt, documentTag))
 						return indexes.get(dt);
 				return null;
+			}
+
+			private boolean equals(DocumentTag a, DocumentTag b) {
+				return a.getStart() == b.getStart()
+						&& a.getLength() == b.getLength()
+						&& a.getId() == b.getId();
 			}
 
 			private Map<DocumentTag, Integer> getIndexes(Graphics2D g) {
