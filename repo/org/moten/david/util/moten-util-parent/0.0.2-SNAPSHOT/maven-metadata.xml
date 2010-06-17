@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>org.moten.david.util</groupId>
+  <artifactId>moten-util-parent</artifactId>
+  <version>0.0.2-SNAPSHOT</version>
+  <versioning>
+    <snapshot>
+      <buildNumber>1</buildNumber>
+    </snapshot>
+    <lastUpdated>20100617005538</lastUpdated>
+  </versioning>
+</metadata>
