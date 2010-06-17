@@ -8,7 +8,7 @@
 	</parent>
 	<groupId>moten.david.util.monitoring</groupId>
 	<artifactId>monitor-model</artifactId>
-	<name>Monitor Model</name>
+	<name>monitor-model</name>
 	<description>Monitor data model definition using xuml-compiler</description>
 	<dependencies>
 		<dependency>
@@ -20,17 +20,6 @@
 	</dependencies>
 	<build>
 		<plugins>
-			<plugin>
-				<inherited>true</inherited>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<verbose>true</verbose>
-					<fork>false</fork>
-					<source>1.6</source>
-					<target>1.6</target>
-				</configuration>
-			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
@@ -47,11 +36,4 @@
 			</plugin>
 		</plugins>
 	</build>
-	<repositories>
-		<repository>
-			<id>xuml-compiler-repo</id>
-			<name>xuml-compiler</name>
-			<url>http://xuml-compiler.googlecode.com/svn/repo/</url>
-		</repository>
-	</repositories>
 </project>

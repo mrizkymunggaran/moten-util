@@ -8,7 +8,7 @@
 	</parent>
 	<groupId>moten.david.util.monitoring</groupId>
 	<artifactId>monitor-model-generated</artifactId>
-	<name>Monitor Model Generated</name>
+	<name>monitor-model-generated</name>
 	<properties>
 		<generated>${project.build.directory}/generated-source</generated>
 		<generated.resources>${project.build.directory}/generated-resources</generated.resources>
@@ -107,17 +107,6 @@
 				</executions>
 			</plugin>
 			<plugin>
-				<inherited>true</inherited>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<verbose>true</verbose>
-					<fork>false</fork>
-					<source>1.5</source>
-					<target>1.5</target>
-				</configuration>
-			</plugin>
-			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
 				<version>2.1.1</version>
@@ -133,11 +122,4 @@
 			</plugin>
 		</plugins>
 	</build>
-	<repositories>
-		<repository>
-			<id>xuml-compiler-repo</id>
-			<name>xuml-compiler</name>
-			<url>http://xuml-compiler.googlecode.com/svn/repo/</url>
-		</repository>
-	</repositories>
 </project>
