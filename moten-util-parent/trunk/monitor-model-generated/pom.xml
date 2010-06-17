@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>org.moten.david.util</groupId>
 		<artifactId>moten-util-parent</artifactId>
-		<version>0.0.2</version>
+		<version>0.0.3-SNAPSHOT</version>
 	</parent>
 	<groupId>moten.david.util.monitoring</groupId>
 	<artifactId>monitor-model-generated</artifactId>
