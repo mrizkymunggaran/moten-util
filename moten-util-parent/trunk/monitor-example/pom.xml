@@ -5,7 +5,7 @@
 		<artifactId>moten-util-parent</artifactId>
 		<version>0.0.3-SNAPSHOT</version>
 	</parent>
-	<groupId>moten.david.util.monitoring</groupId>
+	<groupId>org.moten.david.util.monitoring</groupId>
 	<artifactId>monitor-example</artifactId>
 	<packaging>war</packaging>
 	<name>monitor-example</name>
