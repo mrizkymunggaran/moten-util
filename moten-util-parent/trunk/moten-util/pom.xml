@@ -5,7 +5,7 @@
 		<artifactId>moten-util-parent</artifactId>
 		<version>0.0.4-SNAPSHOT</version>
 	</parent>
-	<groupId>org.moten.david</groupId>
+	<groupId>org.moten.david.util</groupId>
 	<artifactId>moten-util</artifactId>
 	<name>MotenUtil</name>
 	<description>Utility classes across a range of topics</description>
