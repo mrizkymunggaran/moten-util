@@ -34,7 +34,7 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>moten.david.util.monitoring</groupId>
+			<groupId>org.moten.david.util.monitoring</groupId>
 			<artifactId>monitor-model</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
