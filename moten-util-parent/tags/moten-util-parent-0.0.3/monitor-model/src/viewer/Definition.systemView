@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="ASCII"?>
+<view:View xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:view="http://davidmoten.homeip.net/uml/executable/view" file="Definition.systemDefinition">
+  <frame width="829" height="686" x="175" y="25"/>
+  <viewport width="1000" height="1000"/>
+  <element x="267" y="210" name="class.Lookup"/>
+  <element x="340" y="355" name="label.Class Lookup Association R1 Multiplicity" fixedTo="//@element[name='class.Lookup']"/>
+  <element x="249" y="200" name="label.Class Lookup Association R3 Multiplicity" fixedTo="//@element[name='class.Lookup']"/>
+  <element x="351" y="193" name="label.Class Lookup Association R2 Multiplicity" fixedTo="//@element[name='class.Lookup']"/>
+  <element x="259" y="355" name="label.Class Lookup Association R1 Verb Clause" fixedTo="//@element[name='class.Lookup']"/>
+  <element x="236" y="185" name="label.Class Lookup Association R3 Verb Clause" fixedTo="//@element[name='class.Lookup']"/>
+  <element x="345" y="178" name="label.Class Lookup Association R2 Verb Clause" fixedTo="//@element[name='class.Lookup']"/>
+  <element x="276" y="53" name="class.LookupName"/>
+  <element x="262" y="118" name="label.Class LookupName Association R3 Multiplicity" fixedTo="//@element[name='class.LookupName']"/>
+  <element x="348" y="117" name="label.Class LookupName Association R2 Multiplicity" fixedTo="//@element[name='class.LookupName']"/>
+  <element x="245" y="102" name="label.Class LookupName Association R3 Verb Clause" fixedTo="//@element[name='class.LookupName']"/>
+  <element x="340" y="105" name="label.Class LookupName Association R2 Verb Clause" fixedTo="//@element[name='class.LookupName']"/>
+  <element x="277" y="463" name="class.Property"/>
+  <element x="298" y="443" name="label.Class Property Association R1 Verb Clause" fixedTo="//@element[name='class.Property']"/>
+  <element x="346" y="442" name="label.Class Property Association R1 Multiplicity" fixedTo="//@element[name='class.Property']"/>
+  <element x="119" y="65" name="class.Lookup.state.InitialState"/>
+  <element x="410" y="344" name="class.Lookup.state.FinalState"/>
+  <element x="187" y="288" name="class.Lookup.state.NotAvailable"/>
+  <element x="381" y="172" name="class.Lookup.state.Available"/>
+</view:View>
