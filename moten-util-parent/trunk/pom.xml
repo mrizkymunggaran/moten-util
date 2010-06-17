@@ -60,6 +60,11 @@
 					<goals>install</goals>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-release-plugin</artifactId>
+				<version>2.0</version>
+			</plugin>
 		</plugins>
 		<!--
 			Wagon Subversion Extension to allow deployment of Maven artifacts.
@@ -156,4 +161,14 @@
 			<url>svn:https://moten-util.googlecode.com/svn/repo</url>
 		</repository>
 	</distributionManagement>
+	<!--  
+	Build:
+	  mvn clean install
+	Dry run of release:
+	  mvn release:prepare -DdryRun=true -DautoVersionSubmodules=true
+	  mvn release:clean
+	Do release:
+	  mvn release:prepare -DautoVersionSubmodules=true
+	  mvn release:perform
+	 -->
 </project>
