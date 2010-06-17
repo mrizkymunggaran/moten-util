@@ -4,7 +4,7 @@
 	<artifactId>moten-util-parent</artifactId>
 	<packaging>pom</packaging>
 	<name>moten-util-parent</name>
-	<version>0.0.4</version>
+	<version>0.0.5-SNAPSHOT</version>
 	<developers>
 		<developer>
 			<name>Dave Moten</name>
@@ -27,9 +27,9 @@
 		</license>
 	</licenses>
 	<scm>
-		<connection>scm:svn:http://moten-util.googlecode.com/svn/moten-util-parent/tags/moten-util-parent-0.0.4</connection>
-		<developerConnection>scm:svn:https://moten-util.googlecode.com/svn/moten-util-parent/tags/moten-util-parent-0.0.4</developerConnection>
-		<url>http://code.google.com/p/moten-util/source/browse/#svn/moten-util-parent/tags/moten-util-parent-0.0.4</url>
+		<connection>scm:svn:http://moten-util.googlecode.com/svn/moten-util-parent/trunk</connection>
+		<developerConnection>scm:svn:https://moten-util.googlecode.com/svn/moten-util-parent/trunk</developerConnection>
+		<url>http://code.google.com/p/moten-util/source/browse/#svn/moten-util-parent/trunk</url>
 	</scm>
 	<modules>
 		<module>moten-util</module>
