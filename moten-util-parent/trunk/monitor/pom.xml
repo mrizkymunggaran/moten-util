@@ -68,7 +68,7 @@
 			</dependency>
 		-->
 		<dependency>
-			<groupId>org.moten.david</groupId>
+			<groupId>org.moten.david.util</groupId>
 			<artifactId>moten-util</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
