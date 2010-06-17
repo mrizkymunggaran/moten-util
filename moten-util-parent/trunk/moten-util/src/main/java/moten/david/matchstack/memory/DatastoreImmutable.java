@@ -29,7 +29,6 @@ import com.google.inject.assistedinject.Assisted;
  * adding more identifier sets.
  * 
  * @author dave
- * 
  */
 public class DatastoreImmutable {
 
@@ -83,6 +82,14 @@ public class DatastoreImmutable {
         return z;
     }
 
+    /**
+     * Returs true if and only if <code>x</code> contains an identifier used in
+     * <code>y</code>
+     * 
+     * @param x
+     * @param y
+     * @return
+     */
     private boolean containsAnyTimed(Set<Identifier> x, Set<TimedIdentifier> y) {
         for (TimedIdentifier i : y)
             if (x.contains(i.getIdentifier()))
