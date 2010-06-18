@@ -16,12 +16,6 @@ import java.util.logging.Logger;
 
 import moten.david.matchstack.Identifier;
 import moten.david.matchstack.TimedIdentifier;
-import moten.david.matchstack.memory.DatastoreImmutable;
-import moten.david.matchstack.memory.DatastoreImmutableFactory;
-import moten.david.matchstack.memory.MyIdentifier;
-import moten.david.matchstack.memory.MyIdentifierType;
-import moten.david.matchstack.memory.MyTimedIdentifier;
-import moten.david.matchstack.memory.Util;
 import moten.david.util.text.StringUtil;
 import moten.david.util.xml.TaggedOutputStream;
 
