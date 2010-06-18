@@ -156,7 +156,7 @@
 	<distributionManagement>
 		<repository>
 			<uniqueVersion>false</uniqueVersion>
-			<id>googlecode</id>
+			<id>moten-util-repo</id>
 			<url>svn:https://moten-util.googlecode.com/svn/repo</url>
 		</repository>
 	</distributionManagement>
