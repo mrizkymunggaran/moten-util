@@ -56,17 +56,21 @@ public class Merger {
      * @param x
      * @return
      */
-    public Set<TimedIdentifier> pm(Set<Set<TimedIdentifier>> z,
+    public Set<TimedIdentifier> pm(Set<Set<TimedIdentifier>> sets,
             final Set<TimedIdentifier> x) {
         final Set<Identifier> idsX = ids(x);
         log("pm filtering");
-        Set<Set<TimedIdentifier>> intersecting = Functional.filter(z,
+        // TODO might rejig the function definitions because sets is already the
+        // intersection of z and a in all calls to this function
+        // knocking this bit out would give a 1 to 2% speed improvement overall.
+        Set<Set<TimedIdentifier>> intersecting = Functional.filter(sets,
                 new Predicate<Set<TimedIdentifier>>() {
                     @Override
                     public boolean apply(Set<TimedIdentifier> i) {
                         return containsAnyTimed(idsX, i);
                     }
                 });
+
         log("pm finished filtering");
         log("calculating size");
         int size = intersecting.size();
