@@ -1,16 +1,12 @@
-package moten.david.matchstack.memory;
+package moten.david.matchstack;
 
-import static moten.david.matchstack.memory.Util.ids;
-import static moten.david.matchstack.memory.Util.types;
+import static moten.david.matchstack.Util.ids;
+import static moten.david.matchstack.Util.types;
 
 import java.util.Collections;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import moten.david.matchstack.Identifier;
-import moten.david.matchstack.IdentifierSetStrictComparator;
-import moten.david.matchstack.IdentifierType;
-import moten.david.matchstack.TimedIdentifier;
 import moten.david.util.functional.Fold;
 import moten.david.util.functional.Function;
 import moten.david.util.functional.Functional;
@@ -266,6 +262,8 @@ public class Merger {
     public Set<Set<TimedIdentifier>> merge(final Set<TimedIdentifier> a,
             Set<Set<TimedIdentifier>> intersecting) {
         Set<TimedIdentifier> pmza = pm(intersecting, a);
+        if (pmza.isEmpty())
+            return ImmutableSet.of(a);
         log("calculating fold");
         final Set<TimedIdentifier> fold = calculateFold(pmza, a, intersecting);
         log("calculating fold complement");
