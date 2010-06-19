@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Set;
 
+import moten.david.util.functional.Function;
 import moten.david.util.functional.Functional;
 
 import com.google.inject.Inject;
@@ -31,11 +32,18 @@ public class IdentifierSetStrictComparator implements
             return 1;
         else {
             IdentifierType t1 = Collections.max(Functional.apply(o1,
-                    Constants.identifierTypeExtractor), strictComparator);
+                    identifierTypeExtractor), strictComparator);
             IdentifierType t2 = Collections.max(Functional.apply(o2,
-                    Constants.identifierTypeExtractor), strictComparator);
+                    identifierTypeExtractor), strictComparator);
             return strictComparator.compare(t1, t2);
         }
     }
+
+    public static Function<TimedIdentifier, IdentifierType> identifierTypeExtractor = new Function<TimedIdentifier, IdentifierType>() {
+        @Override
+        public IdentifierType apply(TimedIdentifier s) {
+            return s.getIdentifier().getIdentifierType();
+        }
+    };
 
 }

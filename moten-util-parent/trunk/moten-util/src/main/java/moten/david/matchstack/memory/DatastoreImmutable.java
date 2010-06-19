@@ -8,8 +8,6 @@ import java.util.logging.Logger;
 import moten.david.matchstack.Identifier;
 import moten.david.matchstack.TimedIdentifier;
 import moten.david.util.collections.CollectionsUtil;
-import moten.david.util.functional.Fold;
-import moten.david.util.functional.Function;
 import moten.david.util.functional.Functional;
 
 import com.google.common.base.Preconditions;
@@ -68,6 +66,11 @@ public class DatastoreImmutable {
         log("constructor - finished copying sets");
     }
 
+    /**
+     * Logs the message to the class logger.
+     * 
+     * @param s
+     */
     private void log(String s) {
         log.fine(s);
     }
@@ -82,58 +85,6 @@ public class DatastoreImmutable {
     }
 
     /**
-     * Merges the set of timed identifiers <code>a</code> with the entities that
-     * have an intersecting identifier.
-     * 
-     * @param a
-     *            the timed identifier set to be added.
-     * @param pmza
-     *            the primary match against the intersecting identifiers.
-     * @param intersecting
-     *            the timed identifier sets whose identifiers intersect with a.
-     * @return
-     */
-    public Set<Set<TimedIdentifier>> merge(final Set<TimedIdentifier> a,
-            Set<Set<TimedIdentifier>> intersecting) {
-        Set<TimedIdentifier> pmza = merger.pm(intersecting, a);
-        log("calculating fold");
-        final Set<TimedIdentifier> fold = Functional.fold(intersecting,
-                new Fold<Set<TimedIdentifier>, Set<TimedIdentifier>>() {
-                    @Override
-                    public Set<TimedIdentifier> fold(
-                            Set<TimedIdentifier> previous,
-                            Set<TimedIdentifier> current) {
-                        Set<TimedIdentifier> result = merger.product(previous,
-                                current, a);
-                        return result;
-                    }
-                }, merger.product(pmza, a, a));
-        log("calculating fold ids");
-        final Set<Identifier> foldIds = ids(fold);
-
-        log("calculating fold complement");
-        Set<Set<TimedIdentifier>> foldComplement = Functional.apply(
-                intersecting,
-                new Function<Set<TimedIdentifier>, Set<TimedIdentifier>>() {
-                    @Override
-                    public Set<TimedIdentifier> apply(Set<TimedIdentifier> s) {
-                        return Functional.filter(s,
-                                new Predicate<TimedIdentifier>() {
-                                    @Override
-                                    public boolean apply(TimedIdentifier i) {
-                                        return !foldIds.contains(i
-                                                .getIdentifier());
-                                    }
-                                });
-                    }
-                });
-        // remove the empty set if present
-        return Sets.difference(Sets
-                .union(foldComplement, ImmutableSet.of(fold)), ImmutableSet
-                .of(ImmutableSet.of()));
-    }
-
-    /**
      * Returns the result of merging a new set of timed identifiers with the
      * current z.
      * 
@@ -142,6 +93,7 @@ public class DatastoreImmutable {
      */
     public DatastoreImmutable add(final Set<TimedIdentifier> a) {
         final Set<Identifier> idsA = ids(a);
+        log("calculating intersecting");
         Set<Set<TimedIdentifier>> intersecting = Functional.filter(z,
                 new Predicate<Set<TimedIdentifier>>() {
                     @Override
@@ -153,13 +105,14 @@ public class DatastoreImmutable {
         if (pmza.isEmpty())
             return factory.create(Sets.union(z, ImmutableSet.of(a)));
         else {
-            log("calculating intersecting");
 
             final Set<Set<TimedIdentifier>> nonIntersecting = Sets.difference(
                     z, intersecting);
 
-            final Set<Set<TimedIdentifier>> foldWithIntersection = merge(a,
-                    intersecting);
+            // TODO pmza is already calculated. consider making another merge
+            // method with a pmza parameter.
+            final Set<Set<TimedIdentifier>> foldWithIntersection = merger
+                    .merge(a, intersecting);
 
             log("calculating union");
             SetView<Set<TimedIdentifier>> newZ = Sets.union(nonIntersecting,
