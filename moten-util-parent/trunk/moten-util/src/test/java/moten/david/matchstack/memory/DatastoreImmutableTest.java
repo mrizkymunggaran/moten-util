@@ -230,7 +230,7 @@ public class DatastoreImmutableTest {
 		{
 			log.info("measuring performance");
 			long t = System.currentTimeMillis();
-			long n = 100;
+			long n = 10000;
 			for (int i = 0; i < n; i++) {
 				String id = createRandomIdentifier();
 				String id2 = createRandomIdentifier();
@@ -358,10 +358,10 @@ public class DatastoreImmutableTest {
 
 	private DatastoreImmutable add(final DatastoreImmutable ds,
 			final Set<TimedIdentifier> ids) {
-		log.info("adding " + ids);
+		log.fine("adding " + ids);
 		DatastoreImmutable ds2 = ds.add(ids);
 		tests.add(new TestInfo(ds, ids, ds2));
-		log.info("\n" + ds2.toString());
+		log.fine("\n" + ds2.toString());
 		return ds2;
 	}
 

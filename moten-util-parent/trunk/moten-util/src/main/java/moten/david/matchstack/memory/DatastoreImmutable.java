@@ -12,6 +12,7 @@ import moten.david.matchstack.Identifier;
 import moten.david.matchstack.IdentifierSetStrictComparator;
 import moten.david.matchstack.IdentifierType;
 import moten.david.matchstack.TimedIdentifier;
+import moten.david.util.collections.CollectionsUtil;
 import moten.david.util.functional.Fold;
 import moten.david.util.functional.Function;
 import moten.david.util.functional.Functional;
@@ -43,7 +44,7 @@ public class DatastoreImmutable {
 	/**
 	 * z contains the current set of timed identifier sets.
 	 */
-	private final ImmutableSet<Set<TimedIdentifier>> z;
+	private final Set<Set<TimedIdentifier>> z;
 	/**
 	 * Strictly compares sets of identifiers.
 	 */
@@ -68,9 +69,13 @@ public class DatastoreImmutable {
 		this.factory = factory;
 		this.strictSetComparator = strictSetComparator;
 		Preconditions.checkNotNull(sets);
-		log.info("constructor - copying sets");
+		log("constructor - copying sets");
 		this.z = ImmutableSet.copyOf(sets);
-		log.info("constructor - finished copying sets");
+		log("constructor - finished copying sets");
+	}
+
+	private void log(String s) {
+		log.fine(s);
 	}
 
 	/**
@@ -105,7 +110,7 @@ public class DatastoreImmutable {
 	 */
 	protected Set<TimedIdentifier> pm(final Set<TimedIdentifier> x) {
 		final Set<Identifier> idsX = ids(x);
-		log.info("pm filtering");
+		log("pm filtering");
 		Set<Set<TimedIdentifier>> intersecting = Functional.filter(z,
 				new Predicate<Set<TimedIdentifier>>() {
 					@Override
@@ -113,17 +118,17 @@ public class DatastoreImmutable {
 						return containsAnyTimed(idsX, i);
 					}
 				});
-		log.info("pm finished filtering");
-		log.info("calculating size");
+		log("pm finished filtering");
+		log("calculating size");
 		int size = intersecting.size();
-		log.info("size = " + size);
+		log("size = " + size);
 		if (size == 0)
 			return ImmutableSet.of();
 		else {
-			log.info("pm calculating max");
+			log("pm calculating max");
 			Set<TimedIdentifier> result = Collections.max(intersecting,
 					strictSetComparator);
-			log.info("pm calculated result");
+			log("pm calculated result");
 			return result;
 		}
 	}
@@ -206,9 +211,9 @@ public class DatastoreImmutable {
 		});
 	}
 
-	protected Set<Set<TimedIdentifier>> add(final Set<TimedIdentifier> a,
+	public Set<Set<TimedIdentifier>> add(final Set<TimedIdentifier> a,
 			Set<TimedIdentifier> pmza, Set<Set<TimedIdentifier>> intersecting) {
-		log.info("calculating fold");
+		log("calculating fold");
 		final Set<TimedIdentifier> fold = Functional.fold(intersecting,
 				new Fold<Set<TimedIdentifier>, Set<TimedIdentifier>>() {
 					@Override
@@ -220,10 +225,10 @@ public class DatastoreImmutable {
 						return result;
 					}
 				}, product(pmza, a, a));
-		log.info("calculating fold ids");
+		log("calculating fold ids");
 		final Set<Identifier> foldIds = ids(fold);
 
-		log.info("calculating fold complement");
+		log("calculating fold complement");
 		Set<Set<TimedIdentifier>> foldComplement = Functional.apply(
 				intersecting,
 				new Function<Set<TimedIdentifier>, Set<TimedIdentifier>>() {
@@ -257,18 +262,14 @@ public class DatastoreImmutable {
 		if (pmza.isEmpty())
 			return factory.create(Sets.union(z, ImmutableSet.of(a)));
 		else {
-			log.info("calculating intersecting");
+			log("calculating intersecting");
 			final Set<Identifier> idsA = ids(a);
 
 			Set<Set<TimedIdentifier>> intersecting = Functional.filter(z,
 					new Predicate<Set<TimedIdentifier>>() {
 						@Override
 						public boolean apply(Set<TimedIdentifier> y) {
-							Set<Identifier> idsY = ids(y);
-							for (Identifier idY : idsY)
-								if (idsA.contains(idY))
-									return true;
-							return false;
+							return CollectionsUtil.intersect(ids(y), idsA);
 						}
 					}, executorService, PARTITION_SIZE);
 
@@ -278,7 +279,7 @@ public class DatastoreImmutable {
 			final Set<Set<TimedIdentifier>> foldWithIntersection = add(a, pmza,
 					intersecting);
 
-			log.info("calculating union");
+			log("calculating union");
 			SetView<Set<TimedIdentifier>> newZ = Sets.union(nonIntersecting,
 					foldWithIntersection);
 
