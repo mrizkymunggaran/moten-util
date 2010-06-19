@@ -207,10 +207,7 @@ public class DatastoreImmutable {
 	}
 
 	protected Set<Set<TimedIdentifier>> add(final Set<TimedIdentifier> a,
-			IntersectionProvider intersectionProvider) {
-		Set<TimedIdentifier> pmza = intersectionProvider.getPrimaryMatch(a);
-		Set<Set<TimedIdentifier>> intersecting = intersectionProvider
-				.getIntersection(a);
+			Set<TimedIdentifier> pmza, Set<Set<TimedIdentifier>> intersecting) {
 		log.info("calculating fold");
 		final Set<TimedIdentifier> fold = Functional.fold(intersecting,
 				new Fold<Set<TimedIdentifier>, Set<TimedIdentifier>>() {
@@ -261,55 +258,32 @@ public class DatastoreImmutable {
 			return factory.create(Sets.union(z, ImmutableSet.of(a)));
 		else {
 			log.info("calculating intersecting");
-			IntersectionProvider intersectionProvider = createIntersectionProvider(a);
+			final Set<Identifier> idsA = ids(a);
 
-			final Set<Set<TimedIdentifier>> foldWithIntersection = add(a,
-					intersectionProvider);
+			Set<Set<TimedIdentifier>> intersecting = Functional.filter(z,
+					new Predicate<Set<TimedIdentifier>>() {
+						@Override
+						public boolean apply(Set<TimedIdentifier> y) {
+							Set<Identifier> idsY = ids(y);
+							for (Identifier idY : idsY)
+								if (idsA.contains(idY))
+									return true;
+							return false;
+						}
+					}, executorService, PARTITION_SIZE);
+
+			final Set<Set<TimedIdentifier>> nonIntersecting = Sets.difference(
+					z, intersecting);
+
+			final Set<Set<TimedIdentifier>> foldWithIntersection = add(a, pmza,
+					intersecting);
 
 			log.info("calculating union");
-			SetView<Set<TimedIdentifier>> newZ = Sets.union(
-					intersectionProvider.getNonIntersection(a),
+			SetView<Set<TimedIdentifier>> newZ = Sets.union(nonIntersecting,
 					foldWithIntersection);
 
 			return factory.create(newZ);
 		}
-	}
-
-	private IntersectionProvider createIntersectionProvider(
-			final Set<TimedIdentifier> a) {
-		return new IntersectionProvider() {
-
-			private final Set<Identifier> idsA = ids(a);
-
-			private final Set<Set<TimedIdentifier>> intersecting = Functional
-					.filter(z, new Predicate<Set<TimedIdentifier>>() {
-						@Override
-						public boolean apply(Set<TimedIdentifier> y) {
-							return Sets.intersection(ids(y), idsA).size() > 0;
-						}
-					}, executorService, PARTITION_SIZE);
-
-			private final Set<Set<TimedIdentifier>> nonIntersecting = Sets
-					.difference(z, intersecting);
-
-			@Override
-			public Set<Set<TimedIdentifier>> getIntersection(
-					final Set<TimedIdentifier> a) {
-
-				return intersecting;
-			}
-
-			@Override
-			public Set<TimedIdentifier> getPrimaryMatch(Set<TimedIdentifier> a) {
-				return pm(a);
-			}
-
-			@Override
-			public Set<Set<TimedIdentifier>> getNonIntersection(
-					Set<TimedIdentifier> a) {
-				return nonIntersecting;
-			}
-		};
 	}
 
 	@Override
