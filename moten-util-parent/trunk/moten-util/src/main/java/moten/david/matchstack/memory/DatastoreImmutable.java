@@ -243,7 +243,7 @@ public class DatastoreImmutable {
 									}
 								});
 					}
-				}, executorService, PARTITION_SIZE);
+				});
 		// remove the empty set if present
 		return Sets.difference(Sets
 				.union(foldComplement, ImmutableSet.of(fold)), ImmutableSet
@@ -271,7 +271,7 @@ public class DatastoreImmutable {
 						public boolean apply(Set<TimedIdentifier> y) {
 							return CollectionsUtil.intersect(ids(y), idsA);
 						}
-					}, executorService, PARTITION_SIZE);
+					});
 
 			final Set<Set<TimedIdentifier>> nonIntersecting = Sets.difference(
 					z, intersecting);
