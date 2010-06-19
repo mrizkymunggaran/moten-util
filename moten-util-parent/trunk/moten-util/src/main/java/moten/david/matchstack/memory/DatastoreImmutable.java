@@ -26,112 +26,116 @@ import com.google.inject.assistedinject.Assisted;
  */
 public class DatastoreImmutable {
 
-    public static int PARTITION_SIZE = 10;
+	public static int PARTITION_SIZE = 10;
 
-    /**
-     * Logger.
-     */
-    private static Logger log = Logger.getLogger(DatastoreImmutable.class
-            .getName());
+	/**
+	 * Logger.
+	 */
+	private static Logger log = Logger.getLogger(DatastoreImmutable.class
+			.getName());
 
-    /**
-     * z contains the current set of timed identifier sets.
-     */
-    private final Set<Set<TimedIdentifier>> z;
+	/**
+	 * z contains the current set of timed identifier sets.
+	 */
+	private final Set<Set<TimedIdentifier>> z;
 
-    /**
-     * creates DatastoreImmutable instances.
-     */
-    private final DatastoreImmutableFactory factory;
+	/**
+	 * creates DatastoreImmutable instances.
+	 */
+	private final DatastoreImmutableFactory factory;
 
-    /**
-     * The merger functions.
-     */
-    private final Merger merger;
+	/**
+	 * The merger functions.
+	 */
+	private final Merger merger;
 
-    /**
-     * Constructor.
-     * 
-     * @param strictSetComparator
-     * @param sets
-     */
-    @Inject
-    public DatastoreImmutable(DatastoreImmutableFactory factory, Merger merger,
-            @Assisted Set<Set<TimedIdentifier>> sets) {
-        this.factory = factory;
-        this.merger = merger;
-        Preconditions.checkNotNull(sets);
-        log("constructor - copying sets");
-        this.z = ImmutableSet.copyOf(sets);
-        log("constructor - finished copying sets");
-    }
+	/**
+	 * Constructor.
+	 * 
+	 * @param strictSetComparator
+	 * @param sets
+	 */
+	@Inject
+	public DatastoreImmutable(DatastoreImmutableFactory factory, Merger merger,
+			@Assisted Set<Set<TimedIdentifier>> sets) {
+		this.factory = factory;
+		this.merger = merger;
+		Preconditions.checkNotNull(sets);
+		log("constructor - copying sets");
+		this.z = ImmutableSet.copyOf(sets);
+		log("constructor - finished copying sets");
+	}
 
-    /**
-     * Logs the message to the class logger.
-     * 
-     * @param s
-     */
-    private void log(String s) {
-        log.fine(s);
-    }
+	/**
+	 * Logs the message to the class logger.
+	 * 
+	 * @param s
+	 */
+	private void log(String s) {
+		log.fine(s);
+	}
 
-    /**
-     * Returns z.
-     * 
-     * @return
-     */
-    public Set<Set<TimedIdentifier>> sets() {
-        return z;
-    }
+	/**
+	 * Returns z.
+	 * 
+	 * @return
+	 */
+	public Set<Set<TimedIdentifier>> sets() {
+		return z;
+	}
 
-    /**
-     * Returns the result of merging a new set of timed identifiers with the
-     * current z.
-     * 
-     * @param a
-     * @return
-     */
-    public DatastoreImmutable add(final Set<TimedIdentifier> a) {
-        final Set<Identifier> idsA = ids(a);
-        log("calculating intersecting");
-        Set<Set<TimedIdentifier>> intersecting = Functional.filter(z,
-                new Predicate<Set<TimedIdentifier>>() {
-                    @Override
-                    public boolean apply(Set<TimedIdentifier> y) {
-                        return CollectionsUtil.intersect(ids(y), idsA);
-                    }
-                });
-        final Set<TimedIdentifier> pmza = merger.pm(intersecting, a);
-        if (pmza.isEmpty())
-            return factory.create(Sets.union(z, ImmutableSet.of(a)));
-        else {
+	/**
+	 * Returns the result of merging a new set of timed identifiers with the
+	 * current z.
+	 * 
+	 * @param a
+	 * @return
+	 */
+	public DatastoreImmutable add(final Set<TimedIdentifier> a) {
 
-            final Set<Set<TimedIdentifier>> nonIntersecting = Sets.difference(
-                    z, intersecting);
+		Set<Set<TimedIdentifier>> intersecting = calculateIntersection(z, a);
+		final Set<TimedIdentifier> pmza = merger.pm(intersecting, a);
+		if (pmza.isEmpty())
+			return factory.create(Sets.union(z, ImmutableSet.of(a)));
+		else {
+			// TODO pmza is already calculated. consider making another merge
+			// method with a pmza parameter.
+			final Set<Set<TimedIdentifier>> foldWithIntersection = merger
+					.merge(a, intersecting);
 
-            // TODO pmza is already calculated. consider making another merge
-            // method with a pmza parameter.
-            final Set<Set<TimedIdentifier>> foldWithIntersection = merger
-                    .merge(a, intersecting);
+			final Set<Set<TimedIdentifier>> nonIntersecting = Sets.difference(
+					z, intersecting);
 
-            log("calculating union");
-            SetView<Set<TimedIdentifier>> newZ = Sets.union(nonIntersecting,
-                    foldWithIntersection);
+			log("calculating union");
+			SetView<Set<TimedIdentifier>> newZ = Sets.union(nonIntersecting,
+					foldWithIntersection);
 
-            return factory.create(newZ);
-        }
-    }
+			return factory.create(newZ);
+		}
+	}
 
-    @Override
-    public String toString() {
-        if (z.size() == 0)
-            return "empty";
-        StringBuffer s = new StringBuffer();
-        for (Set<TimedIdentifier> set : z) {
-            if (s.length() > 0)
-                s.append("\n");
-            s.append(set.toString());
-        }
-        return s.toString();
-    }
+	private Set<Set<TimedIdentifier>> calculateIntersection(
+			Set<Set<TimedIdentifier>> z, Set<TimedIdentifier> a) {
+		log("calculating intersecting");
+		final Set<Identifier> idsA = ids(a);
+		return Functional.filter(z, new Predicate<Set<TimedIdentifier>>() {
+			@Override
+			public boolean apply(Set<TimedIdentifier> y) {
+				return CollectionsUtil.intersect(ids(y), idsA);
+			}
+		});
+	}
+
+	@Override
+	public String toString() {
+		if (z.size() == 0)
+			return "empty";
+		StringBuffer s = new StringBuffer();
+		for (Set<TimedIdentifier> set : z) {
+			if (s.length() > 0)
+				s.append("\n");
+			s.append(set.toString());
+		}
+		return s.toString();
+	}
 }
