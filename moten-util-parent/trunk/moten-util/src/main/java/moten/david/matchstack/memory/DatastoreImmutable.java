@@ -3,7 +3,6 @@ package moten.david.matchstack.memory;
 import static moten.david.matchstack.memory.Util.ids;
 
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
 import java.util.logging.Logger;
 
 import moten.david.matchstack.Identifier;
@@ -42,10 +41,14 @@ public class DatastoreImmutable {
      */
     private final Set<Set<TimedIdentifier>> z;
 
-    private final ExecutorService executorService;
-
+    /**
+     * creates DatastoreImmutable instances.
+     */
     private final DatastoreImmutableFactory factory;
 
+    /**
+     * The merger functions.
+     */
     private final Merger merger;
 
     /**
@@ -55,10 +58,8 @@ public class DatastoreImmutable {
      * @param sets
      */
     @Inject
-    public DatastoreImmutable(ExecutorService executorService,
-            DatastoreImmutableFactory factory, Merger merger,
+    public DatastoreImmutable(DatastoreImmutableFactory factory, Merger merger,
             @Assisted Set<Set<TimedIdentifier>> sets) {
-        this.executorService = executorService;
         this.factory = factory;
         this.merger = merger;
         Preconditions.checkNotNull(sets);
@@ -80,8 +81,21 @@ public class DatastoreImmutable {
         return z;
     }
 
-    public Set<Set<TimedIdentifier>> add(final Set<TimedIdentifier> a,
-            Set<TimedIdentifier> pmza, Set<Set<TimedIdentifier>> intersecting) {
+    /**
+     * Merges the set of timed identifiers <code>a</code> with the entities that
+     * have an intersecting identifier.
+     * 
+     * @param a
+     *            the timed identifier set to be added.
+     * @param pmza
+     *            the primary match against the intersecting identifiers.
+     * @param intersecting
+     *            the timed identifier sets whose identifiers intersect with a.
+     * @return
+     */
+    public Set<Set<TimedIdentifier>> merge(final Set<TimedIdentifier> a,
+            Set<Set<TimedIdentifier>> intersecting) {
+        Set<TimedIdentifier> pmza = merger.pm(intersecting, a);
         log("calculating fold");
         final Set<TimedIdentifier> fold = Functional.fold(intersecting,
                 new Fold<Set<TimedIdentifier>, Set<TimedIdentifier>>() {
@@ -127,25 +141,24 @@ public class DatastoreImmutable {
      * @return
      */
     public DatastoreImmutable add(final Set<TimedIdentifier> a) {
-        final Set<TimedIdentifier> pmza = merger.pm(z, a);
+        final Set<Identifier> idsA = ids(a);
+        Set<Set<TimedIdentifier>> intersecting = Functional.filter(z,
+                new Predicate<Set<TimedIdentifier>>() {
+                    @Override
+                    public boolean apply(Set<TimedIdentifier> y) {
+                        return CollectionsUtil.intersect(ids(y), idsA);
+                    }
+                });
+        final Set<TimedIdentifier> pmza = merger.pm(intersecting, a);
         if (pmza.isEmpty())
             return factory.create(Sets.union(z, ImmutableSet.of(a)));
         else {
             log("calculating intersecting");
-            final Set<Identifier> idsA = ids(a);
-
-            Set<Set<TimedIdentifier>> intersecting = Functional.filter(z,
-                    new Predicate<Set<TimedIdentifier>>() {
-                        @Override
-                        public boolean apply(Set<TimedIdentifier> y) {
-                            return CollectionsUtil.intersect(ids(y), idsA);
-                        }
-                    });
 
             final Set<Set<TimedIdentifier>> nonIntersecting = Sets.difference(
                     z, intersecting);
 
-            final Set<Set<TimedIdentifier>> foldWithIntersection = add(a, pmza,
+            final Set<Set<TimedIdentifier>> foldWithIntersection = merge(a,
                     intersecting);
 
             log("calculating union");
