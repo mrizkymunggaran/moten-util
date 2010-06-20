@@ -16,8 +16,6 @@ import java.util.logging.Logger;
 
 import moten.david.matchstack.Merger;
 import moten.david.matchstack.Util;
-import moten.david.matchstack.datastore.DatastoreImmutable;
-import moten.david.matchstack.datastore.DatastoreImmutableFactory;
 import moten.david.matchstack.types.Identifier;
 import moten.david.matchstack.types.TimedIdentifier;
 import moten.david.matchstack.types.impl.MyIdentifier;
@@ -240,7 +238,7 @@ public class DatastoreImmutableTest {
         {
             log.info("measuring performance");
             long t = System.currentTimeMillis();
-            long n = 10000;
+            long n = 100;
             for (int i = 0; i < n; i++) {
                 String id = createRandomIdentifier();
                 String id2 = createRandomIdentifier();
