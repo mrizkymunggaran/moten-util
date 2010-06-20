@@ -1,4 +1,4 @@
-package moten.david.matchstack.memory;
+package moten.david.matchstack.datastore;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;

@@ -1,4 +1,4 @@
-package moten.david.matchstack.memory;
+package moten.david.matchstack.datastore;
 
 import java.util.HashMap;
 import java.util.Map;
