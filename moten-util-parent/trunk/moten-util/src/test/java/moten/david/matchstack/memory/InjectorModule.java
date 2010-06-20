@@ -3,8 +3,8 @@ package moten.david.matchstack.memory;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import moten.david.matchstack.memory.DatastoreImmutable;
-import moten.david.matchstack.memory.DatastoreImmutableFactory;
+import moten.david.matchstack.datastore.DatastoreImmutable;
+import moten.david.matchstack.datastore.DatastoreImmutableFactory;
 import moten.david.matchstack.types.IdentifierTypeStrengthComparator;
 import moten.david.matchstack.types.IdentifierTypeStrictComparator;
 import moten.david.matchstack.types.impl.MyIdentifierTypeStrengthComparator;
