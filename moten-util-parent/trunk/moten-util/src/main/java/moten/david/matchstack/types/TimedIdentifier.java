@@ -1,4 +1,4 @@
-package moten.david.matchstack;
+package moten.david.matchstack.types;
 
 /**
  * An {@link Identifier} with an associated time of relevance.

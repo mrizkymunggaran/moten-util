@@ -1,4 +1,4 @@
-package moten.david.matchstack;
+package moten.david.matchstack.types;
 
 import java.util.Comparator;
 

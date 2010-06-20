@@ -1,8 +1,8 @@
 package moten.david.matchstack.memory;
 
-import moten.david.matchstack.IdentifierType;
-import moten.david.matchstack.IdentifierTypeStrengthComparator;
-import moten.david.matchstack.IdentifierTypeStrictComparator;
+import moten.david.matchstack.types.IdentifierType;
+import moten.david.matchstack.types.IdentifierTypeStrengthComparator;
+import moten.david.matchstack.types.IdentifierTypeStrictComparator;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;

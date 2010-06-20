@@ -1,6 +1,6 @@
 package moten.david.matchstack.memory;
 
-import moten.david.matchstack.IdentifierType;
+import moten.david.matchstack.types.IdentifierType;
 
 /**
  * Pojo implementation of {@link IdentifierType}.

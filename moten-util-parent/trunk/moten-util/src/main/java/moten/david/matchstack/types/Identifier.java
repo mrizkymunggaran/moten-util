@@ -1,4 +1,4 @@
-package moten.david.matchstack;
+package moten.david.matchstack.types;
 
 /**
  * A generic identifier which has a type.

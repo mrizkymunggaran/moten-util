@@ -1,6 +1,6 @@
 package moten.david.matchstack.memory;
 
-import moten.david.matchstack.TimedIdentifier;
+import moten.david.matchstack.types.TimedIdentifier;
 
 /**
  * Pojo implementation of a {@link TimedIdentifier}.

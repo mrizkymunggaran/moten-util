@@ -7,6 +7,10 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import moten.david.matchstack.types.Identifier;
+import moten.david.matchstack.types.IdentifierSetStrictComparator;
+import moten.david.matchstack.types.IdentifierType;
+import moten.david.matchstack.types.TimedIdentifier;
 import moten.david.util.functional.Fold;
 import moten.david.util.functional.Function;
 import moten.david.util.functional.Functional;

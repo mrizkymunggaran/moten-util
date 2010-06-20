@@ -2,7 +2,7 @@ package moten.david.matchstack.memory;
 
 import java.util.Set;
 
-import moten.david.matchstack.TimedIdentifier;
+import moten.david.matchstack.types.TimedIdentifier;
 
 /**
  * Factory for creating instances of {@link DatastoreImmutable}.

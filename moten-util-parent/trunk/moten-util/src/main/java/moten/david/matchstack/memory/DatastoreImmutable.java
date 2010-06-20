@@ -3,10 +3,10 @@ package moten.david.matchstack.memory;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import moten.david.matchstack.Identifier;
 import moten.david.matchstack.Merger;
-import moten.david.matchstack.TimedIdentifier;
 import moten.david.matchstack.Util;
+import moten.david.matchstack.types.Identifier;
+import moten.david.matchstack.types.TimedIdentifier;
 import moten.david.util.collections.CollectionsUtil;
 import moten.david.util.functional.Functional;
 
