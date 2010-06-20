@@ -1,4 +1,4 @@
-package moten.david.matchstack.memory;
+package moten.david.matchstack.types.impl;
 
 import moten.david.matchstack.types.Identifier;
 import moten.david.matchstack.types.IdentifierType;

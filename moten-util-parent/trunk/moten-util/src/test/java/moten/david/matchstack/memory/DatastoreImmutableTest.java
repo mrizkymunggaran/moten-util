@@ -18,6 +18,9 @@ import moten.david.matchstack.Merger;
 import moten.david.matchstack.Util;
 import moten.david.matchstack.types.Identifier;
 import moten.david.matchstack.types.TimedIdentifier;
+import moten.david.matchstack.types.impl.MyIdentifier;
+import moten.david.matchstack.types.impl.MyIdentifierType;
+import moten.david.matchstack.types.impl.MyTimedIdentifier;
 import moten.david.util.text.StringUtil;
 import moten.david.util.xml.TaggedOutputStream;
 
