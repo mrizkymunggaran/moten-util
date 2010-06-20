@@ -240,7 +240,7 @@ public class DatastoreImmutableTest {
         {
             log.info("measuring performance");
             long t = System.currentTimeMillis();
-            long n = 10000;
+            long n = 100;
             for (int i = 0; i < n; i++) {
                 String id = createRandomIdentifier();
                 String id2 = createRandomIdentifier();

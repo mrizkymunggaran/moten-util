@@ -268,7 +268,7 @@ public class Merger {
             Set<Set<TimedIdentifier>> intersecting) {
         Set<TimedIdentifier> pmza = pm(intersecting, a);
         if (pmza.isEmpty())
-            return new MergeResult(ImmutableSet.of(a), null);
+            return new MergeResult(ImmutableSet.of(a), pmza);
         log("calculating fold");
         final Set<TimedIdentifier> fold = calculateFold(pmza, a, intersecting);
         log("calculating fold complement");
