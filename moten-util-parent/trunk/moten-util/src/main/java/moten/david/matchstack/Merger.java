@@ -18,6 +18,7 @@ import moten.david.util.functional.Functional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import com.google.common.collect.Sets.SetView;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -263,20 +264,41 @@ public class Merger {
      *            the timed identifier sets whose identifiers intersect with a.
      * @return
      */
-    public Set<Set<TimedIdentifier>> merge(final Set<TimedIdentifier> a,
+    public MergeResult merge(final Set<TimedIdentifier> a,
             Set<Set<TimedIdentifier>> intersecting) {
         Set<TimedIdentifier> pmza = pm(intersecting, a);
         if (pmza.isEmpty())
-            return ImmutableSet.of(a);
+            return new MergeResult(ImmutableSet.of(a), null);
         log("calculating fold");
         final Set<TimedIdentifier> fold = calculateFold(pmza, a, intersecting);
         log("calculating fold complement");
         Set<Set<TimedIdentifier>> foldComplement = calculateFoldComplement(
                 intersecting, fold);
         // remove the empty set if present
-        return Sets.difference(Sets
-                .union(foldComplement, ImmutableSet.of(fold)), ImmutableSet
+        SetView<Set<TimedIdentifier>> result = Sets.difference(Sets.union(
+                foldComplement, ImmutableSet.of(fold)), ImmutableSet
                 .of(ImmutableSet.of()));
+        return new MergeResult(result, pmza);
+    }
+
+    public static class MergeResult {
+        private final Set<Set<TimedIdentifier>> merged;
+        private final Set<TimedIdentifier> pmza;
+
+        public Set<Set<TimedIdentifier>> getMerged() {
+            return merged;
+        }
+
+        public Set<TimedIdentifier> getPmza() {
+            return pmza;
+        }
+
+        public MergeResult(Set<Set<TimedIdentifier>> merged,
+                Set<TimedIdentifier> pmza) {
+            super();
+            this.merged = merged;
+            this.pmza = pmza;
+        }
     }
 
 }

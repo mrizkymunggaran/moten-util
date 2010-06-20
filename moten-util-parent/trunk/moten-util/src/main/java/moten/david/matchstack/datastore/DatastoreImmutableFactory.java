@@ -1,7 +1,9 @@
 package moten.david.matchstack.datastore;
 
+import java.util.Map;
 import java.util.Set;
 
+import moten.david.matchstack.types.Identifier;
 import moten.david.matchstack.types.TimedIdentifier;
 
 /**
@@ -17,5 +19,6 @@ public interface DatastoreImmutableFactory {
      * @param sets
      * @return
      */
-    DatastoreImmutable create(Set<Set<TimedIdentifier>> sets);
+    DatastoreImmutable create(Set<Set<TimedIdentifier>> sets,
+            Map<Identifier, Object> ancillaryData);
 }

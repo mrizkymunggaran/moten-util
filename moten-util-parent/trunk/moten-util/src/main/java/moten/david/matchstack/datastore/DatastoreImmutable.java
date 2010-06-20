@@ -1,10 +1,12 @@
 package moten.david.matchstack.datastore;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
 import moten.david.matchstack.Merger;
 import moten.david.matchstack.Util;
+import moten.david.matchstack.Merger.MergeResult;
 import moten.david.matchstack.types.Identifier;
 import moten.david.matchstack.types.TimedIdentifier;
 import moten.david.util.collections.CollectionsUtil;
@@ -49,6 +51,8 @@ public class DatastoreImmutable {
      */
     private final Merger merger;
 
+    private final Map<Identifier, Object> ancillaryData;
+
     /**
      * Constructor.
      * 
@@ -57,9 +61,11 @@ public class DatastoreImmutable {
      */
     @Inject
     public DatastoreImmutable(DatastoreImmutableFactory factory, Merger merger,
-            @Assisted Set<Set<TimedIdentifier>> sets) {
+            @Assisted Set<Set<TimedIdentifier>> sets,
+            @Assisted Map<Identifier, Object> ancillaryData) {
         this.factory = factory;
         this.merger = merger;
+        this.ancillaryData = ancillaryData;
         Preconditions.checkNotNull(sets);
         log("constructor - copying sets");
         this.z = ImmutableSet.copyOf(sets);
@@ -91,7 +97,8 @@ public class DatastoreImmutable {
      * @param a
      * @return
      */
-    public DatastoreImmutable add(final Set<TimedIdentifier> a) {
+    public DatastoreImmutable add(final Set<TimedIdentifier> a,
+            Object ancillaryObject) {
 
         log("calculating intersecting");
         Set<Set<TimedIdentifier>> intersecting = calculateIntersecting(z, a);
@@ -101,15 +108,19 @@ public class DatastoreImmutable {
                 intersecting);
 
         log("find result of merging A with intersecting");
-        final Set<Set<TimedIdentifier>> foldWithIntersection = merger.merge(a,
-                intersecting);
+        MergeResult merged = merger.merge(a, intersecting);
+        final Set<Set<TimedIdentifier>> foldWithIntersection = merged
+                .getMerged();
+
+        for (Identifier id : Util.ids(merged.getPmza()))
+            ancillaryData.put(id, ancillaryObject);
 
         log("calculating union");
         SetView<Set<TimedIdentifier>> newZ = Sets.union(nonIntersecting,
                 foldWithIntersection);
 
         // return a new datastore based on newZ
-        return factory.create(newZ);
+        return factory.create(newZ, ancillaryData);
     }
 
     /**

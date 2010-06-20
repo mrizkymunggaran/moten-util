@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import moten.david.matchstack.types.Identifier;
 import moten.david.matchstack.types.TimedIdentifier;
 import moten.david.matchstack.types.impl.MyIdentifier;
 import moten.david.matchstack.types.impl.MyIdentifierType;
@@ -27,93 +28,94 @@ import com.google.inject.Injector;
 
 public class Cts {
 
-	private static DateFormat df = new SimpleDateFormat(
-			"dd/MM/yyyy h:mm:ss.SSSSSS a");
-	@Inject
-	private DatastoreImmutableFactory factory;
+    private static DateFormat df = new SimpleDateFormat(
+            "dd/MM/yyyy h:mm:ss.SSSSSS a");
+    @Inject
+    private DatastoreImmutableFactory factory;
 
-	public void init() {
-		Injector injector = Guice.createInjector(new InjectorModule());
-		injector.injectMembers(this);
-	}
+    public void init() {
+        Injector injector = Guice.createInjector(new InjectorModule());
+        injector.injectMembers(this);
+    }
 
-	private DatastoreImmutable createDatastore() {
-		ImmutableSet<Set<TimedIdentifier>> a = ImmutableSet.of();
-		DatastoreImmutable d = factory.create(a);
-		return d;
-	}
+    private DatastoreImmutable createDatastore() {
+        ImmutableSet<Set<TimedIdentifier>> a = ImmutableSet.of();
+        DatastoreImmutable d = factory.create(a,
+                new HashMap<Identifier, Object>());
+        return d;
+    }
 
-	public void load(InputStream is) {
-		BufferedReader br = new BufferedReader(new InputStreamReader(is));
-		String line;
+    public void load(InputStream is) {
+        BufferedReader br = new BufferedReader(new InputStreamReader(is));
+        String line;
 
-		init();
-		DatastoreImmutable ds = createDatastore();
-		Map<String, Double> strengths = new HashMap<String, Double>() {
-			{
-				put("MMSI", 2.0);
-				put("IMO Number", 3.0);
-				put("Callsign", 1.0);
-				put("Inmarsat C Mobile Number", 1.5);
-				put("Terminal ID", 1.5);
-			}
-		};
-		Map<String, MyIdentifierType> types = new HashMap<String, MyIdentifierType>();
-		for (String name : strengths.keySet())
-			types.put(name, new MyIdentifierType(name, strengths.get(name)));
+        init();
+        DatastoreImmutable ds = createDatastore();
+        Map<String, Double> strengths = new HashMap<String, Double>() {
+            {
+                put("MMSI", 2.0);
+                put("IMO Number", 3.0);
+                put("Callsign", 1.0);
+                put("Inmarsat C Mobile Number", 1.5);
+                put("Terminal ID", 1.5);
+            }
+        };
+        Map<String, MyIdentifierType> types = new HashMap<String, MyIdentifierType>();
+        for (String name : strengths.keySet())
+            types.put(name, new MyIdentifierType(name, strengths.get(name)));
 
-		try {
-			// skip header line
-			br.readLine();
-			String lastFixId = null;
-			Builder<TimedIdentifier> builder = ImmutableSet.builder();
-			long count = 0;
-			long start = System.currentTimeMillis();
-			System.out.println(new Date());
-			while ((line = br.readLine()) != null) {
-				String[] items = line.split("\t");
-				String fixId = items[0];
-				String name = items[1];
-				String value = items[2];
-				long time = df.parse(items[3]).getTime();
-				if (name.equals("IMO Number") && value.length() == 7) {
-					// System.out.println(fixId + "," + name + "," + value + ","
-					// + new Date(time));
-					MyIdentifierType type = types.get(name);
-					MyIdentifier id = new MyIdentifier(type, value);
-					MyTimedIdentifier ti = new MyTimedIdentifier(id, time);
-					count++;
-					if (lastFixId != null && !fixId.equals(lastFixId)) {
-						ImmutableSet<TimedIdentifier> set = builder.build();
-						ds = ds.add(set);
-						builder = ImmutableSet.builder();
-					}
-					builder.add(ti);
-					lastFixId = fixId;
-					if (count % 5000 == 0) {
-						// System.out.println(ds.toString());
-						System.out.println("sets =" + ds.sets().size());
-						System.out.println(count);
-					}
-				}
-			}
-			ds.add(builder.build());
-			// System.out.println(ds.toString());
-			System.out.println("sets =" + ds.sets().size());
-			System.out.println(count);
-			long durationMs = System.currentTimeMillis() - start;
-			System.out.println(durationMs);
-			System.out.println(count / 1.0 / durationMs * 1000);
+        try {
+            // skip header line
+            br.readLine();
+            String lastFixId = null;
+            Builder<TimedIdentifier> builder = ImmutableSet.builder();
+            long count = 0;
+            long start = System.currentTimeMillis();
+            System.out.println(new Date());
+            while ((line = br.readLine()) != null) {
+                String[] items = line.split("\t");
+                String fixId = items[0];
+                String name = items[1];
+                String value = items[2];
+                long time = df.parse(items[3]).getTime();
+                if (name.equals("IMO Number") && value.length() == 7) {
+                    // System.out.println(fixId + "," + name + "," + value + ","
+                    // + new Date(time));
+                    MyIdentifierType type = types.get(name);
+                    MyIdentifier id = new MyIdentifier(type, value);
+                    MyTimedIdentifier ti = new MyTimedIdentifier(id, time);
+                    count++;
+                    if (lastFixId != null && !fixId.equals(lastFixId)) {
+                        ImmutableSet<TimedIdentifier> set = builder.build();
+                        ds = ds.add(set, null);
+                        builder = ImmutableSet.builder();
+                    }
+                    builder.add(ti);
+                    lastFixId = fixId;
+                    if (count % 5000 == 0) {
+                        // System.out.println(ds.toString());
+                        System.out.println("sets =" + ds.sets().size());
+                        System.out.println(count);
+                    }
+                }
+            }
+            ds.add(builder.build(), null);
+            // System.out.println(ds.toString());
+            System.out.println("sets =" + ds.sets().size());
+            System.out.println(count);
+            long durationMs = System.currentTimeMillis() - start;
+            System.out.println(durationMs);
+            System.out.println(count / 1.0 / durationMs * 1000);
 
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		} catch (ParseException e) {
-			throw new RuntimeException(e);
-		}
-	}
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-	public static void main(String[] args) throws FileNotFoundException {
-		new Cts().load(new FileInputStream("/home/dave/Desktop/fixes.txt"));
-	}
+    public static void main(String[] args) throws FileNotFoundException {
+        new Cts().load(new FileInputStream("/home/dave/Desktop/fixes.txt"));
+    }
 
 }
