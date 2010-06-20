@@ -7,5 +7,10 @@ package moten.david.matchstack.types;
  * 
  */
 public interface TimedIdentifier extends Timed {
+    /**
+     * Returns the identifier.
+     * 
+     * @return
+     */
     Identifier getIdentifier();
 }

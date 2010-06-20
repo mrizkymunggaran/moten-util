@@ -10,6 +10,12 @@ import moten.david.util.functional.Functional;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
+/**
+ * Strict comparator for identifier sets.
+ * 
+ * @author dave
+ * 
+ */
 @Singleton
 public class IdentifierSetStrictComparator implements
         Comparator<Set<TimedIdentifier>> {
@@ -39,7 +45,7 @@ public class IdentifierSetStrictComparator implements
         }
     }
 
-    public static Function<TimedIdentifier, IdentifierType> identifierTypeExtractor = new Function<TimedIdentifier, IdentifierType>() {
+    private static Function<TimedIdentifier, IdentifierType> identifierTypeExtractor = new Function<TimedIdentifier, IdentifierType>() {
         @Override
         public IdentifierType apply(TimedIdentifier s) {
             return s.getIdentifier().getIdentifierType();

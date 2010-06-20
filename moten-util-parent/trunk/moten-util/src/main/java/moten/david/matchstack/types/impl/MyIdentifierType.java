@@ -3,7 +3,7 @@ package moten.david.matchstack.types.impl;
 import moten.david.matchstack.types.IdentifierType;
 
 /**
- * Pojo implementation of {@link IdentifierType}.
+ * Implementation of {@link IdentifierType}.
  * 
  * @author dave
  * 

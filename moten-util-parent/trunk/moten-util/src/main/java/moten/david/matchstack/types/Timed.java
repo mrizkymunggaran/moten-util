@@ -7,5 +7,10 @@ package moten.david.matchstack.types;
  * 
  */
 public interface Timed {
+    /**
+     * Returns the time as number of millis since 00:00 1 Jan 1970 UTC.
+     * 
+     * @return
+     */
     long getTime();
 }

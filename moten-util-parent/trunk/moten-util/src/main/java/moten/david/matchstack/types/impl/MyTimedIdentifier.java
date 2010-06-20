@@ -3,7 +3,7 @@ package moten.david.matchstack.types.impl;
 import moten.david.matchstack.types.TimedIdentifier;
 
 /**
- * Pojo implementation of a {@link TimedIdentifier}.
+ * Implementation of a {@link TimedIdentifier}.
  * 
  * @author dave
  * 
