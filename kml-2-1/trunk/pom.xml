@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>moten.david.kml</groupId>
 	<artifactId>kml-2-1</artifactId>
-	<version>1.0.0-SNAPSHOT</version>
+	<version>1.0.0</version>
 	<name>kml</name>
 	<description>Kml generated jaxb classes from 2.1 schema</description>
 	<developers>
