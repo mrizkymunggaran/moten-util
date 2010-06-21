@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>moten.david.kml</groupId>
 	<artifactId>kml-2-1</artifactId>
-	<version>1.0.2-SNAPSHOT</version>
+	<version>1.0.0-SNAPSHOT</version>
 	<name>kml</name>
 	<description>Kml generated jaxb classes from 2.1 schema</description>
 	<developers>
@@ -27,9 +27,9 @@
 		</license>
 	</licenses>
 	<scm>
-		<connection>scm:svn:http://moten-util.googlecode.com/svn/kml-2-1/tags/kml-2-1-1.0.1</connection>
-		<developerConnection>scm:svn:https://moten-util.googlecode.com/svn/kml-2-1/tags/kml-2-1-1.0.1</developerConnection>
-		<url>http://code.google.com/p/moten-util/source/browse/#svn/kml-2-1/tags/kml-2-1-1.0.1</url>
+		<connection>scm:svn:http://moten-util.googlecode.com/svn/kml-2-1/trunk</connection>
+		<developerConnection>scm:svn:https://moten-util.googlecode.com/svn/kml-2-1/trunk</developerConnection>
+		<url>http://code.google.com/p/moten-util/source/browse/#svn/kml-2-1/trunk</url>
 	</scm>
 	<build>
 		<plugins>
@@ -108,12 +108,6 @@
 			</plugin>
 		</plugins>
 	</reporting>
-	<repositories>
-		<repository>
-			<id>googlecode-moten-util</id>
-			<url>http://moten-util.googlecode.com/svn/repo</url>
-		</repository>
-	</repositories>
 	<distributionManagement>
 		<repository>
 			<uniqueVersion>false</uniqueVersion>
