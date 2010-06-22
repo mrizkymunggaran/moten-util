@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.moten.david.util</groupId>
@@ -62,6 +63,11 @@
 			<version>2.7.7</version>
 			<optional>true</optional>
 		</dependency>
+		<dependency>
+			<groupId>org.moten.david.util.kml</groupId>
+			<artifactId>kml-2-2</artifactId>
+			<version>1.0.0</version>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>
@@ -81,4 +87,12 @@
 			</plugin>
 		</plugins>
 	</build>
+	<repositories>
+		<repository>
+			<id>moten-util-repo</id>
+			<name>moten-util-repo</name>
+			<url>http://moten-util.googlecode.com/svn/repo/</url>
+			<releases><enabled>true</enabled></releases>
+		</repository>
+	</repositories>
 </project>

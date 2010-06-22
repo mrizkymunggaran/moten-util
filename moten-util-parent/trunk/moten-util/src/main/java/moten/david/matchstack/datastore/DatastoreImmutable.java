@@ -28,129 +28,133 @@ import com.google.inject.assistedinject.Assisted;
  */
 public class DatastoreImmutable {
 
-    public static int PARTITION_SIZE = 10;
+	public static int PARTITION_SIZE = 10;
 
-    /**
-     * Logger.
-     */
-    private static Logger log = Logger.getLogger(DatastoreImmutable.class
-            .getName());
+	/**
+	 * Logger.
+	 */
+	private static Logger log = Logger.getLogger(DatastoreImmutable.class
+			.getName());
 
-    /**
-     * z contains the current set of timed identifier sets.
-     */
-    private final Set<Set<TimedIdentifier>> z;
+	/**
+	 * z contains the current set of timed identifier sets.
+	 */
+	private final Set<Set<TimedIdentifier>> z;
 
-    /**
-     * creates DatastoreImmutable instances.
-     */
-    private final DatastoreImmutableFactory factory;
+	/**
+	 * creates DatastoreImmutable instances.
+	 */
+	private final DatastoreImmutableFactory factory;
 
-    /**
-     * The merger functions.
-     */
-    private final Merger merger;
+	/**
+	 * The merger functions.
+	 */
+	private final Merger merger;
 
-    private final Map<Identifier, Object> ancillaryData;
+	private final Map<Identifier, Object> ancillary;
 
-    /**
-     * Constructor.
-     * 
-     * @param strictSetComparator
-     * @param sets
-     */
-    @Inject
-    public DatastoreImmutable(DatastoreImmutableFactory factory, Merger merger,
-            @Assisted Set<Set<TimedIdentifier>> sets,
-            @Assisted Map<Identifier, Object> ancillaryData) {
-        this.factory = factory;
-        this.merger = merger;
-        this.ancillaryData = ancillaryData;
-        Preconditions.checkNotNull(sets);
-        log("constructor - copying sets");
-        this.z = ImmutableSet.copyOf(sets);
-        log("constructor - finished copying sets");
-    }
+	/**
+	 * Constructor.
+	 * 
+	 * @param strictSetComparator
+	 * @param sets
+	 */
+	@Inject
+	public DatastoreImmutable(DatastoreImmutableFactory factory, Merger merger,
+			@Assisted Set<Set<TimedIdentifier>> sets,
+			@Assisted Map<Identifier, Object> ancillaryData) {
+		this.factory = factory;
+		this.merger = merger;
+		this.ancillary = ancillaryData;
+		Preconditions.checkNotNull(sets);
+		log("constructor - copying sets");
+		this.z = ImmutableSet.copyOf(sets);
+		log("constructor - finished copying sets");
+	}
 
-    /**
-     * Logs the message to the class logger.
-     * 
-     * @param s
-     */
-    private void log(String s) {
-        log.fine(s);
-    }
+	/**
+	 * Logs the message to the class logger.
+	 * 
+	 * @param s
+	 */
+	private void log(String s) {
+		log.fine(s);
+	}
 
-    /**
-     * Returns z.
-     * 
-     * @return
-     */
-    public Set<Set<TimedIdentifier>> sets() {
-        return z;
-    }
+	/**
+	 * Returns z.
+	 * 
+	 * @return
+	 */
+	public Set<Set<TimedIdentifier>> sets() {
+		return z;
+	}
 
-    /**
-     * Returns the result of merging a new set of timed identifiers with the
-     * current z.
-     * 
-     * @param a
-     * @return
-     */
-    public DatastoreImmutable add(final Set<TimedIdentifier> a,
-            Object ancillaryObject) {
+	/**
+	 * Returns the result of merging a new set of timed identifiers with the
+	 * current z.
+	 * 
+	 * @param a
+	 * @return
+	 */
+	public DatastoreImmutable add(final Set<TimedIdentifier> a,
+			Object ancillaryObject) {
 
-        log("calculating intersecting");
-        Set<Set<TimedIdentifier>> intersecting = calculateIntersecting(z, a);
+		log("calculating intersecting");
+		Set<Set<TimedIdentifier>> intersecting = calculateIntersecting(z, a);
 
-        log("calculating non-intersecting");
-        final Set<Set<TimedIdentifier>> nonIntersecting = Sets.difference(z,
-                intersecting);
+		log("calculating non-intersecting");
+		final Set<Set<TimedIdentifier>> nonIntersecting = Sets.difference(z,
+				intersecting);
 
-        log("find result of merging A with intersecting");
-        MergeResult merged = merger.merge(a, intersecting);
-        final Set<Set<TimedIdentifier>> foldWithIntersection = merged
-                .getMerged();
+		log("find result of merging A with intersecting");
+		MergeResult merged = merger.merge(a, intersecting);
+		final Set<Set<TimedIdentifier>> foldWithIntersection = merged
+				.getMerged();
 
-        for (Identifier id : Util.ids(merged.getPmza()))
-            ancillaryData.put(id, ancillaryObject);
+		for (Identifier id : Util.ids(merged.getPmza()))
+			ancillary.put(id, ancillaryObject);
 
-        log("calculating union");
-        SetView<Set<TimedIdentifier>> newZ = Sets.union(nonIntersecting,
-                foldWithIntersection);
+		log("calculating union");
+		SetView<Set<TimedIdentifier>> newZ = Sets.union(nonIntersecting,
+				foldWithIntersection);
 
-        // return a new datastore based on newZ
-        return factory.create(newZ, ancillaryData);
-    }
+		// return a new datastore based on newZ
+		return factory.create(newZ, ancillary);
+	}
 
-    /**
-     * Returns those members of <code>z</
-     * 
-     * @param z
-     * @param a
-     * @return
-     */
-    private Set<Set<TimedIdentifier>> calculateIntersecting(
-            Set<Set<TimedIdentifier>> z, Set<TimedIdentifier> a) {
-        final Set<Identifier> idsA = Util.ids(a);
-        return Functional.filter(z, new Predicate<Set<TimedIdentifier>>() {
-            @Override
-            public boolean apply(Set<TimedIdentifier> y) {
-                return CollectionsUtil.intersect(Util.ids(y), idsA);
-            }
-        });
-    }
+	/**
+	 * Returns those members of <code>z</
+	 * 
+	 * @param z
+	 * @param a
+	 * @return
+	 */
+	private Set<Set<TimedIdentifier>> calculateIntersecting(
+			Set<Set<TimedIdentifier>> z, Set<TimedIdentifier> a) {
+		final Set<Identifier> idsA = Util.ids(a);
+		return Functional.filter(z, new Predicate<Set<TimedIdentifier>>() {
+			@Override
+			public boolean apply(Set<TimedIdentifier> y) {
+				return CollectionsUtil.intersect(Util.ids(y), idsA);
+			}
+		});
+	}
 
-    @Override
-    public String toString() {
-        if (z.size() == 0)
-            return "empty";
-        StringBuffer s = new StringBuffer();
-        for (Set<TimedIdentifier> set : z) {
-            if (s.length() > 0)
-                s.append("\n");
-            s.append(set.toString());
-        }
-        return s.toString();
-    }
+	@Override
+	public String toString() {
+		if (z.size() == 0)
+			return "empty";
+		StringBuffer s = new StringBuffer();
+		for (Set<TimedIdentifier> set : z) {
+			if (s.length() > 0)
+				s.append("\n");
+			s.append(set.toString());
+		}
+		return s.toString();
+	}
+
+	public Map<Identifier, Object> getAncillary() {
+		return ancillary;
+	}
 }
