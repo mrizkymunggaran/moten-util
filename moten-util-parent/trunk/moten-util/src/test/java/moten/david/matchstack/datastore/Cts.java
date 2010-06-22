@@ -131,8 +131,8 @@ public class Cts {
 				StringBuffer s = new StringBuffer();
 				for (Identifier ident : multi.get(inf)) {
 					s
-							.append(((MyIdentifierType) id.getIdentifierType())
-									.getName()
+							.append(((MyIdentifierType) ident
+									.getIdentifierType()).getName()
 									+ "="
 									+ ((MyIdentifier) ident).getValue()
 									+ "<br/>");
