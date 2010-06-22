@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.moten.david.kml</groupId>
 	<artifactId>kml-2-2</artifactId>
-	<version>1.0.0-SNAPSHOT</version>
+	<version>1.0.0</version>
 	<name>kml-2-2</name>
 	<description>Kml version 2.2</description>
 	<developers>
@@ -28,9 +28,9 @@
 		</license>
 	</licenses>
 	<scm>
-		<connection>scm:svn:http://moten-util.googlecode.com/svn/kml-2-1/trunk</connection>
-		<developerConnection>scm:svn:https://moten-util.googlecode.com/svn/kml-2-1/trunk</developerConnection>
-		<url>http://code.google.com/p/moten-util/source/browse/#svn/kml-2-1/trunk</url>
+		<connection>scm:svn:http://moten-util.googlecode.com/svn/kml-2-2/trunk</connection>
+		<developerConnection>scm:svn:https://moten-util.googlecode.com/svn/kml-2-2/trunk</developerConnection>
+		<url>http://code.google.com/p/moten-util/source/browse/#svn/kml-2-2/trunk</url>
 	</scm>
 	<build>
 		<plugins>
