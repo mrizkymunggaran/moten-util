@@ -85,10 +85,6 @@ public class Cts {
                 String fixId = items[0];
                 String name = items[1];
                 String value = items[2];
-                info = new Info();
-                info.time = df.parse(items[3]).getTime();
-                info.lat = new BigDecimal(items[4]);
-                info.lon = new BigDecimal(items[5]);
                 if (!name.equals("IMO Number")
                         || (name.equals("IMO Number") && value.length() == 7)) {
                     // System.out.println(fixId + "," + name + "," + value + ","
@@ -106,6 +102,10 @@ public class Cts {
                     }
                     builder.add(ti);
                     lastFixId = fixId;
+                    info = new Info();
+                    info.time = df.parse(items[3]).getTime();
+                    info.lat = new BigDecimal(items[4]);
+                    info.lon = new BigDecimal(items[5]);
                     if (count % 5000 == 0) {
                         System.out.println("sets =" + ds.sets().size());
                         System.out.println(count);
