@@ -111,8 +111,9 @@ public class Cts {
                     }
                 }
             }
-            ds.add(builder.build(), new Info(lastFix.time, lastFix.lat,
+            ds = ds.add(builder.build(), new Info(lastFix.time, lastFix.lat,
                     lastFix.lon));
+            System.out.println(ds);
             System.out.println("sets =" + ds.sets().size());
             System.out.println(count);
             long durationMs = System.currentTimeMillis() - start;
@@ -195,7 +196,7 @@ public class Cts {
     }
 
     public static void main(String[] args) throws FileNotFoundException {
-        new Cts().load(new FileInputStream("../small.txt"));
+        new Cts().load(new FileInputStream("../fixes.txt"));
     }
 
 }

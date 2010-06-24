@@ -92,7 +92,14 @@
 			<id>moten-util-repo</id>
 			<name>moten-util-repo</name>
 			<url>http://moten-util.googlecode.com/svn/repo/</url>
-			<releases><enabled>true</enabled></releases>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+		</repository>
+		<repository>
+			<id>scala-tools.org</id>
+			<name>Scala-Tools Maven2 Repository</name>
+			<url>http://scala-tools.org/repo-releases</url>
 		</repository>
 	</repositories>
 </project>
