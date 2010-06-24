@@ -65,6 +65,7 @@ public class Cts {
                 put("Inmarsat C Mobile Number", 1.5);
                 put("Terminal ID", 1.5);
                 put("Serial Number", 1.5);
+                put("Registration", 1.5);
             }
         };
         Map<String, MyIdentifierType> types = new HashMap<String, MyIdentifierType>();
