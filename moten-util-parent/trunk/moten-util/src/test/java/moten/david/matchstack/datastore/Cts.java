@@ -74,45 +74,45 @@ public class Cts {
         try {
             // skip header line
             br.readLine();
-            String lastFixId = null;
             Builder<TimedIdentifier> builder = ImmutableSet.builder();
             long count = 0;
             long start = System.currentTimeMillis();
             System.out.println(new Date());
-            Info info = null;
+            Fix lastFix = null;
             while ((line = br.readLine()) != null) {
                 String[] items = line.split("\t");
-                String fixId = items[0];
-                String name = items[1];
-                String value = items[2];
-                if (!name.equals("IMO Number")
-                        || (name.equals("IMO Number") && value.length() == 7)) {
-                    // System.out.println(fixId + "," + name + "," + value + ","
-                    // + new Date(time));
-                    MyIdentifierType type = types.get(name);
-                    Preconditions.checkNotNull(type, name + " not in list");
-                    MyIdentifier id = new MyIdentifier(type, value);
-                    MyTimedIdentifier ti = new MyTimedIdentifier(id, info.time);
+                Fix fix = new Fix();
+                fix.fixId = Long.parseLong(items[0]);
+                fix.name = items[1];
+                fix.value = items[2];
+                fix.time = df.parse(items[3]).getTime();
+                fix.lat = new BigDecimal(items[4]);
+                fix.lon = new BigDecimal(items[5]);
+                if (isValid(fix)) {
+                    MyIdentifierType type = types.get(fix.name);
+                    Preconditions.checkNotNull(type, fix.name + " not in list");
+                    MyIdentifier id = new MyIdentifier(type, fix.value);
+                    MyTimedIdentifier ti = new MyTimedIdentifier(id, fix.time);
                     count++;
-                    if (lastFixId != null && !fixId.equals(lastFixId)) {
+                    if (lastFix != null && fix.fixId != lastFix.fixId) {
                         ImmutableSet<TimedIdentifier> set = builder.build();
                         if (set.size() > 0)
-                            ds = ds.add(set, Preconditions.checkNotNull(info));
+                            ds = ds.add(set, Preconditions
+                                    .checkNotNull(new Info(lastFix.time,
+                                            lastFix.lat, lastFix.lon)));
                         builder = ImmutableSet.builder();
                     }
                     builder.add(ti);
-                    lastFixId = fixId;
-                    info = new Info();
-                    info.time = df.parse(items[3]).getTime();
-                    info.lat = new BigDecimal(items[4]);
-                    info.lon = new BigDecimal(items[5]);
+                    lastFix = fix;
+
                     if (count % 5000 == 0) {
                         System.out.println("sets =" + ds.sets().size());
                         System.out.println(count);
                     }
                 }
             }
-            ds.add(builder.build(), info);
+            ds.add(builder.build(), new Info(lastFix.time, lastFix.lat,
+                    lastFix.lon));
             System.out.println("sets =" + ds.sets().size());
             System.out.println(count);
             long durationMs = System.currentTimeMillis() - start;
@@ -159,10 +159,22 @@ public class Cts {
         }
     }
 
+    private boolean isValid(Fix fix) {
+        return !fix.name.equals("IMO Number")
+                || (fix.name.equals("IMO Number") && fix.value.length() == 7);
+    }
+
     private static class Info {
         long time;
         BigDecimal lat;
         BigDecimal lon;
+
+        public Info(long time, BigDecimal lat, BigDecimal lon) {
+            super();
+            this.time = time;
+            this.lat = lat;
+            this.lon = lon;
+        }
 
         @Override
         public String toString() {
@@ -171,8 +183,19 @@ public class Cts {
         }
     }
 
+    private static class Fix {
+
+        public BigDecimal lon;
+        public BigDecimal lat;
+        long fixId;
+        String name;
+        String value;
+        long time;
+
+    }
+
     public static void main(String[] args) throws FileNotFoundException {
-        new Cts().load(new FileInputStream("target/fixes.txt"));
+        new Cts().load(new FileInputStream("../small.txt"));
     }
 
 }
