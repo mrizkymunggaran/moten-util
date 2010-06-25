@@ -34,7 +34,7 @@ associated time.</p>
 <p>Algorith overview:</p>
 <ol>
 <li>Find the primary match of the fix against existing entities (use <i>Principle 2</i>).</li>
-<li>Find all entities that have identifiers in common with the fix</li>
+<li>Find all entities that have identifiers in common with the fix.</li>
 <li><i>Fold</i> the intersecting entity identifier sets with each other starting with the primary match identifier set.
 <li>The result of the fold will be the new identifier set of the primary match.
 <li>From the rest of the intersecting entities remove any identifiers now contained in the new primary match identifier set. 
@@ -48,7 +48,7 @@ associated time.</p>
 <p>When a function f is defined e.g. f : P &rarr; Q assume an
 additional implicit definition f: &weierp;(P) &rarr; &weierp;(Q) given
 by f(X) = {f(x): x &isin; X}</p>
-<h3>Identifier Matching Function</h3>
+<h3>Entity Matching Algorithm</h3>
 <p>Define</p>
 <p class="indent1">I = set of identifiers</p>
 <p class="indent1">T = set of identifier types</p>
