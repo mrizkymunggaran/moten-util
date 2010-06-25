@@ -6,22 +6,39 @@
 <body>
 <div class="math">
 
-<h2>Identifier Matching Function</h2>
+<h2>Entity Matching Algorithm</h2>
 <div id="watermark">Draft</div>
 
-<p>Mathematical description of a an identifier matching function
-based on identifiers with types that are comparable.</p>
+<p>Mathematical description of a an entity matching algorithm
+based on identifiers with a strict ordering.</p>
 
-<p>This document is best viewed with Firefox or another SGML compliant browser. IE has problems with the mathematical characters up to version 7.</p>
+<p class="footnote">This document is best viewed with Firefox or another SGML compliant browser. IE has problems with the mathematical characters up to version 7.</p>
 <h3>Abstract</h3>
+<p>The analysis phase of the development of a Craft Tracking System for 
+the Australia Maritime Safety Authority revealed a complex entity 
+matching problem. The requirement was to accept position reports (<i>fixes</i>) with one or more associated 
+identifiers and associate those reports with entities. Reports 
+arrive from multiple sources. Identifiers uniquely identify 
+an entity at the time of the position report but some identifiers may change over time.  
+Identifiers that change with time are called <i>volatile identifiers</i>.   
+As fixes arrive in entities may be merged, or have identifiers removed 
+from them according to the following general principles:</p>
+
+<p class="indent1"><b>Principle 1</b>: Latest fix <i>wins</i></p>
+<p class="indent1"><b>Principle 2</b>: Least volatile identifier <i>wins</i></p>
+
 <p>A set of entities with non-conflicting identifiers is represented
 by a set of disjoint identifier sets. Each identifier has an
-associated time. The problem is to define a function that takes a new
-set of identifiers representing an update on one entity with it's
-associated time and merges it with the existing entity set.</p>
+associated time.</p>
 
-<p>The merge may create a new entity or replace or remove identifiers
- from existing entities according to the functional definition that follows.</p>
+<p>Algorith overview:</p>
+<ol>
+<li>Find the primary match of the fix against existing entities (use <i>Principle 2</i>).</li>
+<li>Find all entities that have identifiers in common with the fix</li>
+<li><i>Fold</i> the intersecting entity identifier sets with each other starting with the primary match identifier set.
+<li>The result of the fold will be the new identifier set of the primary match.
+<li>From the rest of the intersecting entities remove any identifiers now contained in the new primary match identifier set. 
+</ol>
 
 <h3>Conventions</h3>
 <p>Capital variable names are used for sets.</p>
@@ -105,47 +122,57 @@ X<sub>id</sub> &forall; R  &isin; Z, R &ne; Y &nbsp;&nbsp;&nbsp;&nbsp;, otherwis
 <p>&alpha;(Z,A) is thus the entity set obtained by merging timed identifier set A into entity set Z.</p>
 
 <h3>Notes</h3>
-<p>&gt;&gt; is an arbitrary comparator whose only purpose is to ensure deterministic behaviour of &alpha;.</p>
+<p>&gt;&gt; is an arbitrary strict comparator whose only purpose is to ensure deterministic behaviour of &alpha;.</p>
 
 
 <h3>Properties</h3>
 <p>The functions above have the following properties:</p>
 <p class="indent1">&gamma;(&gamma;(X,Y),X)=X</p>
-	<p class="indent2">Proof: ...</p>
-	
+	<p class="indent2">Proof:</p>
+		<p class="indent3">Clearly t(&gamma;(x,y)) &cap; t(X) = &empty;</p>
+		<p class="indent3">&there4; &gamma;(&gamma;(X,Y),X) = { x &isin X : t(x) &notin; t(&gamma;(X,Y))} = {x &isin; X} = X</p>
+	<hr class="indent1"/>
+
 <p class="indent1">&gamma;(A &cup; B, C) = &gamma;(A,C) &cap; &gamma;(B,C)</p>
 	<p class="indent2">Proof: ...</p>
+	<hr class="indent1"/>
 	
 <p class="indent1">&gamma;(A, B &cup; C) = &gamma;(A,C) &cup; &gamma;(B,C)</p>
 	<p class="indent2">Proof: ...</p>
+	<hr class="indent1"/>
 
 <p class="indent1">&gamma;(A,C) &cap; &gamma;(B,C) &sub; &gamma;(A &cap; B,C)</p>
 	<p class="indent2">Proof: ...</p>
+	<hr class="indent1"/>
 	
 <p class="indent1">&mu;(A, B &cup; C) = &mu;(A,B) &cup; &mu;(A,C) if A,B &isin; V</p>
 	<p class="indent2">Proof: ...</p>
+	<hr class="indent1"/>
 
 <p class="indent1">&mu;(A &cup;, B, C) = &mu;(A,B) &cup; &mu;(B,C) </p>
 	<p class="indent2">Proof: ...</p>
+	<hr class="indent1"/>
 
 <p class="indent1">t(X) &sub; t(X &otimes;<sub>R</sub> Y)</p>
 <p class="indent2">Proof: ...</p>
+	<hr class="indent1"/>
 
 <p class="indent1">(X &otimes;<sub>R</sub> Y) &otimes;<sub>R</sub> Y = X &otimes;<sub>R</sub> Y</p>
 	<p class="indent2">Proof: ...</p>
+	<hr class="indent1"/>
 
 <p class="indent1">(X &otimes;<sub>R</sub> Y) &otimes;<sub>R</sub> Z = (X &otimes;<sub>R</sub> Z) &otimes;<sub>R</sub> Y  
 	if X<sub>id</sub>,Y<sub>id</sub>,Z<sub>id</sub> not disjoint with R<sub>id</sub> (partial commutativity)</p>
 	<p class="indent2">This property is a prerequisite for using the fold function.</p>
 	<p class="indent2">Proof: ...</p>
-
+	<hr class="indent1"/>
 <p class="indent1">&alpha;(&alpha;(Z,A),B) = &alpha;(&alpha;(Z,B),A) (commutative composition)
 	<p class="indent2">If this property is true then time order of addition of sets is irrelevant.</p>
 	<p class="indent2">Proof: ...</p>
-	
+	<hr class="indent1"/>
 <p class="indent1">pm is one-to-one</p>
 	<p class="indent2">Proof: ...</p>
-
+	<hr class="indent1"/>
 </div>
 	
 <h3>Tests</h3>

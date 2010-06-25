@@ -29,6 +29,9 @@ td {
 	border-left:solid thin black;
 }
 
+.footnote {
+	font-size:smaller;
+}
 #watermark {
   color: #d0d0d0;
   font-size: 200pt;
