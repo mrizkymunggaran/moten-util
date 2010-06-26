@@ -14,24 +14,28 @@ based on identifiers with a strict ordering.</p>
 
 <p class="footnote">This document is best viewed with Firefox or another SGML compliant browser. IE has problems with the mathematical characters up to version 7.</p>
 <h3>Abstract</h3>
-<p>The analysis phase of the development of a Craft Tracking System for 
+<p>The analysis phase of the development of a craft tracking system for 
 the Australia Maritime Safety Authority revealed a complex entity 
 matching problem. The requirement was to accept position reports (<i>fixes</i>) with one or more associated 
-identifiers and associate those reports with entities. Reports 
-arrive from multiple sources. Identifiers uniquely identify 
-an entity at the time of the position report but some identifiers may change over time.  
-Identifiers that change with time are called <i>volatile identifiers</i>.   
+identifiers and associate those reports with entities. Fixes 
+arrive from multiple sources. <i>Identifiers</i> uniquely identify 
+an entity at the time of the fix but some identifiers may change over time (<i>volatile identifiers</i>).
 As fixes arrive entities may be merged, or have identifiers removed 
-from them according to the following general principles:</p>
+from them.</p>
+
+<p>Where is the complexity? Consider the case of a fix arriving with 5 identifiers. 
+Those identifiers may match say 3 till then different existing entities and it has to be decided
+ how and if those entities are going to be merged and what is to occur to the other identifiers 
+ on those entities. Defining a consistent, deterministic approach across the 
+ large number of scenarios involved is tricky. In fact, defining all scenarios involved is also challenging.</p> 
+
+<p>Two general principles are applied by the algorithm:</p>
 
 <p class="indent1"><b>Principle 1</b>: Latest fix <i>wins</i></p>
 <p class="indent1"><b>Principle 2</b>: Least volatile identifier <i>wins</i></p>
 
-<p>A set of entities with non-conflicting identifiers is represented
-by a set of disjoint identifier sets. Each identifier has an
-associated time.</p>
-
-<p>Algorith overview:</p>
+<p></p>The algorithm is:</p>
+ 
 <ol>
 <li>Find the primary match of the fix against existing entities (use <i>Principle 2</i>).</li>
 <li>Find all entities that have identifiers in common with the fix.</li>
