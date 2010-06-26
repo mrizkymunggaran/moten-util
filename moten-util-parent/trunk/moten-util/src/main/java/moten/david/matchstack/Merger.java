@@ -115,7 +115,7 @@ public class Merger {
      */
     public Set<TimedIdentifier> g(final Set<TimedIdentifier> x,
             final Set<TimedIdentifier> y) {
-        return Sets.union(gamma(x, y), mu(x, y));
+        return Sets.union(gamma(x, y), complementT(x, y));
     }
 
     /**
@@ -187,7 +187,7 @@ public class Merger {
      * @param y
      * @return
      */
-    public Set<TimedIdentifier> mu(final Set<TimedIdentifier> x,
+    public Set<TimedIdentifier> complementT(final Set<TimedIdentifier> x,
             Set<TimedIdentifier> y) {
         return Functional.filter(y, new Predicate<TimedIdentifier>() {
             @Override
