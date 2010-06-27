@@ -35,14 +35,14 @@ Those identifiers may match say 3 till then different existing entities and it h
 <p class="indent1"><b>Principle 1</b>: Latest fix <i>wins</i></p>
 <p class="indent1"><b>Principle 2</b>: Least volatile identifier <i>wins</i></p>
 
-<p></p>The algorithm is:</p>
+<p>The algorithm is:</p>
  
 <ol>
 <li>Find the primary match of the fix against existing entities (use <i>Principle 2</i>).</li>
 <li>Find all entities that have identifiers in common with the fix.</li>
-<li><i>Fold</i> the intersecting entity identifier sets with each other starting with the primary match identifier set.
-<li>The result of the fold will be the new identifier set of the primary match.
-<li>From the rest of the intersecting entities remove any identifiers now contained in the new primary match identifier set. 
+<li><i>Fold</i> the intersecting entity identifier sets with each other starting with the primary match identifier set.</li>
+<li>The result of the fold will be the new identifier set of the primary match.</li>
+<li>From the rest of the intersecting entities remove any identifiers now contained in the new primary match identifier set.</li> 
 </ol>
 
 <h3>Conventions</h3>
@@ -136,7 +136,7 @@ X<sub>id</sub> &forall; R  &isin; Z, R &ne; Y &nbsp;&nbsp;&nbsp;&nbsp;, otherwis
 
 <p class="indent1">&mu; : S &#x2a2f; S &rarr; S by</p>
 	<p class="indent2">&mu;(X,Y) =</p>
-		<p class="indent3">{y &isin; Y : &exist; x &isin; X s.t. t(y) = t(x) and y<sub>time</sub> > x<sub>time</sub> }</p>
+		<p class="indent3">{y &isin; Y : &exist; x &isin; X s.t. t(y) = t(x) and y<sub>time</sub> &gt; x<sub>time</sub> }</p>
 
 <p class="indent1">G : S &#x2a2f; S &#x2a2f; &rarr; S by</p>
 	<p class="indent2">G(X,Y) = </p>
@@ -161,7 +161,7 @@ X<sub>id</sub> &forall; R  &isin; Z, R &ne; Y &nbsp;&nbsp;&nbsp;&nbsp;, otherwis
 <p class="indent1">&alpha;(Z,A) =</p>
 <p class="indent2">Z &cup; {A} &nbsp;&nbsp;&nbsp;&nbsp;, pm(Z,A) = &empty;</p>
 <p class="indent2">({{i &isin; X : i<sub>id</sub> &notin; f(Z,A)<sub>id</sub>} : X &isin; Z } 
- &cup; {f(Z,A)})\{&empty}; &nbsp;&nbsp;&nbsp;&nbsp;, otherwise</p>
+ &cup; {f(Z,A)})\{&empty;}; &nbsp;&nbsp;&nbsp;&nbsp;, otherwise</p>
 
 <p>&alpha;(Z,A) is thus the entity set obtained by merging timed identifier set A into entity set Z.</p>
 
@@ -174,14 +174,14 @@ X<sub>id</sub> &forall; R  &isin; Z, R &ne; Y &nbsp;&nbsp;&nbsp;&nbsp;, otherwis
 <p class="indent1">X \<sub>f</sub> (Y \<sub>f</sub> X) = X</p>
 	<p class="indent2">Proof:</p>
 		<p class="indent3">By definition f(Y \<sub>f</sub> X) &cap; f(X) = &empty; for all functions f:A &rarr; B</p>
-		<p class="indent3">&there4; X \<sub>f</sub> (Y \<sub>f</sub> X)  = { x &isin X : f(x) &notin; f(Y \<sub>f</sub> X )} = {x &isin; X} = X</p>
+		<p class="indent3">&there4; X \<sub>f</sub> (Y \<sub>f</sub> X)  = { x &isin; X : f(x) &notin; f(Y \<sub>f</sub> X )} = {x &isin; X} = X</p>
 	<hr class="indent1"/>
 
 <p class="indent1">C \<sub>t</sub> (A &cup; B) =  (C \<sub>f</sub> A) &cap; (C \<sub>f</sub> B)</p>
 	<p class="indent2">Proof:</p>
 	<p class="indent3">C \<sub>t</sub> (A &cup; B) = { c &isin; C : f(c) &notin; f(A &cup; B) }</p>
-	<p class="indent4">= { c &isin C : f(c) &notin; f(A) and f(c) &notin; f(B) }</p>
-	<p class="indent4">= { c &isin C : f(c) &notin; f(A)} &cap;{ c &isin; C : f(c) &notin; f(B) }</p>
+	<p class="indent4">= { c &isin; C : f(c) &notin; f(A) and f(c) &notin; f(B) }</p>
+	<p class="indent4">= { c &isin; C : f(c) &notin; f(A)} &cap;{ c &isin; C : f(c) &notin; f(B) }</p>
 	<p class="indent4">= C \<sub>f</sub> A &cap; C \<sub>f</sub> B</p>
 	<hr class="indent1"/>
 	
@@ -192,7 +192,7 @@ X<sub>id</sub> &forall; R  &isin; Z, R &ne; Y &nbsp;&nbsp;&nbsp;&nbsp;, otherwis
 	<p class="indent3"> = (C \<sub>f</sub> A) &cup; (C \<sub>f</sub> B)</p>
 	<hr class="indent1"/>
 
-<p class="indent1">(C </sub> \<sub>t</sub> A) &cap; (C \<sub>t</sub> B) &sub; C \<sub>t</sub> (A &cap; B) where A,B,C &isin; V</p>
+<p class="indent1">(C \<sub>t</sub> A) &cap; (C \<sub>t</sub> B) &sub; C \<sub>t</sub> (A &cap; B) where A,B,C &isin; V</p>
 	<p class="indent2">Proof:</p>
 	<p class="indent3">C \<sub>t</sub> (A &cap; B) = { y &isin; C: t(y) &notin; t(A &cap; B) }</p>
 	<p class="indent3">Now t(A &cap; B) &sub; t(A) &cap; t(B)</p>
@@ -223,7 +223,7 @@ X<sub>id</sub> &forall; R  &isin; Z, R &ne; Y &nbsp;&nbsp;&nbsp;&nbsp;, otherwis
 	<p class="indent2">This property is a prerequisite for using the fold function.</p>
 	<p class="indent2">Proof: ...</p>
 	<hr class="indent1"/>
-<p class="indent1">&alpha;(&alpha;(Z,A),B) = &alpha;(&alpha;(Z,B),A) (commutative composition)
+<p class="indent1">&alpha;(&alpha;(Z,A),B) = &alpha;(&alpha;(Z,B),A) (commutative composition)</p>
 	<p class="indent2">If this property is true then time order of addition of sets is irrelevant.</p>
 	<p class="indent2">Proof: ...</p>
 	<hr class="indent1"/>
