@@ -131,7 +131,7 @@ by</p>
 <p class="indent3">Y &isin; Z where Y<sub>id</sub> &cap; X<sub>id</sub> &gt;&gt; R<sub>id</sub> &cap;
 X<sub>id</sub> &forall; R  &isin; Z, R &ne; Y &nbsp;&nbsp;&nbsp;&nbsp;, otherwise</p>
 
-<p class="indent1">\<sub>f</sub> : &weierp;(A) &#x2a2f; &weierp;(A) &rarr; &weierp;(A) for function f : A &rarr;B</p>
+<p class="indent1">\<sub>f</sub> : &weierp;(A) &#x2a2f; &weierp;(A) &rarr; &weierp;(A) for function f : A &rarr;B by</p>
 	<p class="indent2">X \<sub>f</sub> Y = { x &isin; X : f(x) &notin; f(Y) }</p>
 
 <p class="indent1">&mu; : S &#x2a2f; S &rarr; S by</p>
@@ -140,7 +140,7 @@ X<sub>id</sub> &forall; R  &isin; Z, R &ne; Y &nbsp;&nbsp;&nbsp;&nbsp;, otherwis
 
 <p class="indent1">G : S &#x2a2f; S &#x2a2f; &rarr; S by</p>
 	<p class="indent2">G(X,Y) = </p>
-		<p class="indent3"> Y \<sub>t</sub> X &cup; &mu;(X,Y)</p>
+		<p class="indent3"> (Y \<sub>t</sub> X) &cup; &mu;(X,Y)</p>
 	<p class="indent2">G(X,Y) is thus the subset of Y that has no type in X or those that match type with X but have a more recent time.</p>
 
 <!--  product -->
@@ -148,8 +148,8 @@ X<sub>id</sub> &forall; R  &isin; Z, R &ne; Y &nbsp;&nbsp;&nbsp;&nbsp;, otherwis
 	<p class="indent2">X &otimes;<sub>R</sub> Y =</p>
 		<p class="indent3">X &nbsp;&nbsp;&nbsp;&nbsp;, Y<sub>id</sub> &cap; R<sub>id</sub> = &empty;</p>
 		<p class="indent3">Y \<sub>id</sub> X &nbsp;&nbsp;&nbsp;&nbsp;, t<sub>max</sub>(Y) &gt; t<sub>max</sub>(R) </p>
-		<p class="indent3">X \<sub>t</sub> G(X,Y) &cup;
-		G(X,Y) = X \<sub>t</sub> &mu;(X,Y) &cup; G(X,Y) &nbsp;&nbsp;&nbsp;&nbsp;, otherwise</p>
+		<p class="indent3">(X \<sub>t</sub> G(X,Y)) &cup;
+		G(X,Y) = (X \<sub>t</sub> &mu;(X,Y)) &cup; G(X,Y) &nbsp;&nbsp;&nbsp;&nbsp;, otherwise</p>
 
 <p class="indent1">f: Z' &#x2a2f; S &rarr; Z' by</p>
 <p class="indent2">f(Z,A) =</p>
@@ -173,8 +173,8 @@ X<sub>id</sub> &forall; R  &isin; Z, R &ne; Y &nbsp;&nbsp;&nbsp;&nbsp;, otherwis
 <p>The functions above have the following properties:</p>
 <p class="indent1">X \<sub>f</sub> (Y \<sub>f</sub> X) = X</p>
 	<p class="indent2">Proof:</p>
-		<p class="indent3">Clearly f(Y \<sub>f</sub> X) &cap; f(X) = &empty; &forall; functions f:A &rarr; B</p>
-		<p class="indent3">&there4; X \<sub>f</sub> (Y \<sub>f</sub> X)  = { x &isin X : f(x) &notin; f(&gamma;(X,Y))} = {x &isin; X} = X</p>
+		<p class="indent3">By definition f(Y \<sub>f</sub> X) &cap; f(X) = &empty; for all functions f:A &rarr; B</p>
+		<p class="indent3">&there4; X \<sub>f</sub> (Y \<sub>f</sub> X)  = { x &isin X : f(x) &notin; f(Y \<sub>f</sub> X )} = {x &isin; X} = X</p>
 	<hr class="indent1"/>
 
 <p class="indent1">C \<sub>t</sub> (A &cup; B) =  (C \<sub>f</sub> A) &cap; (C \<sub>f</sub> B)</p>
@@ -192,7 +192,7 @@ X<sub>id</sub> &forall; R  &isin; Z, R &ne; Y &nbsp;&nbsp;&nbsp;&nbsp;, otherwis
 	<p class="indent3"> = (C \<sub>f</sub> A) &cup; (C \<sub>f</sub> B)</p>
 	<hr class="indent1"/>
 
-<p class="indent1">(C </sub> \<sub>t</sub> A)<sub>id</sub> &cap; (C \<sub>t</sub> B)<sub>id</sub> &sub; C<sub>id</sub> \<sub>t</sub> (A<sub>id</sub> &cap; B<sub>id</sub>)</p>
+<p class="indent1">(C </sub> \<sub>t</sub> A) &cap; (C \<sub>t</sub> B) &sub; C \<sub>t</sub> (A &cap; B) where A,B,C &isin; V</p>
 	<p class="indent2">Proof:</p>
 	<p class="indent3">C \<sub>t</sub> (A &cap; B) = { y &isin; C: t(y) &notin; t(A &cap; B) }</p>
 	<p class="indent3">Now t(A &cap; B) &sub; t(A) &cap; t(B)</p>
