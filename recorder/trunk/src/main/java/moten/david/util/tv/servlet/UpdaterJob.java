@@ -15,6 +15,7 @@ public class UpdaterJob implements Job {
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 		Set<String> channels = new HashSet<String>();
 		channels.add("ABC2");
+		channels.add("ABC3");
 		channels.add("ABC-Can");
 		channels.add("Prime-Can");
 		channels.add("SBS-Can");
