@@ -281,24 +281,51 @@ public class Merger {
         return new MergeResult(result, pmza);
     }
 
+    /**
+     * Holds the result of the merge, comprising the primary match (before
+     * merging) and the result of merging the new set of timed identifiers with
+     * the intersecting current sets.
+     * 
+     * @author dave
+     * 
+     */
     public static class MergeResult {
+
         private final Set<Set<TimedIdentifier>> merged;
         private final Set<TimedIdentifier> pmza;
 
-        public Set<Set<TimedIdentifier>> getMerged() {
-            return merged;
-        }
-
-        public Set<TimedIdentifier> getPmza() {
-            return pmza;
-        }
-
+        /**
+         * Constructor.
+         * 
+         * @param merged
+         * @param pmza
+         */
         public MergeResult(Set<Set<TimedIdentifier>> merged,
                 Set<TimedIdentifier> pmza) {
             super();
             this.merged = merged;
             this.pmza = pmza;
         }
-    }
 
+        /**
+         * Returns the result of merging the new set of timed identifiers with
+         * the intersecting sets.
+         * 
+         * @return
+         */
+        public Set<Set<TimedIdentifier>> getMerged() {
+            return merged;
+        }
+
+        /**
+         * Returns the set identified as the primary match. This is the set as
+         * supplied in the parameters to merge, rather than the result of the
+         * merge.
+         * 
+         * @return
+         */
+        public Set<TimedIdentifier> getPmza() {
+            return pmza;
+        }
+    }
 }
