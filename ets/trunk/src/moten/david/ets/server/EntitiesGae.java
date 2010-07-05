@@ -46,6 +46,13 @@ public class EntitiesGae implements Entities {
     }
 
     @Override
+    public void clearAll() {
+        datastore.deleteAll(Identity.class);
+        datastore.deleteAll(MyEntity.class);
+        datastore.deleteAll(MyParent.class);
+    }
+
+    @Override
     public void add(MyFix fix) {
         try {
             checkParent();
@@ -74,12 +81,10 @@ public class EntitiesGae implements Entities {
 
             // if none of the identifiers in the fix matched an existing entity
             // then create a new one
-            if (merge.getPmza().size() == 0) {
-                log("storing new entity");
+            if (merge.getPmza().size() == 0)
                 storeNewEntity(fix, fixIds);
-            } else {
+            else
                 mergeWithDatastore(fix, merge, identifierEntityIds);
-            }
 
             // commit the transaction
             datastore.getTransaction().commit();
@@ -174,6 +179,7 @@ public class EntitiesGae implements Entities {
     }
 
     private void storeNewEntity(MyFix fix, Set<TimedIdentifier> fixIds) {
+        log("storing new identity");
         MyEntity entity = new MyEntity();
         entity.setId(System.currentTimeMillis());
         entity.setLatestFix(fix.getFix());
@@ -218,13 +224,6 @@ public class EntitiesGae implements Entities {
             Set<TimedIdentifier> ids) {
         Builder<Set<Identity>> builder = ImmutableSet.builder();
         Set<Long> entityIdsUsed = Sets.newHashSet();
-        // {
-        // QueryResultIterator<Identity> it = datastore.find(Identity.class);
-        // for (Identity ident : ImmutableList.copyOf(it)) {
-        // log(ident.getName() + ":" + ident.getValue() + ",id="
-        // + ident.getId() + ",entityId=" + ident.getEntityId());
-        // }
-        // }
         for (TimedIdentifier ti : ids) {
             String id = getIdentityId(ti);
             log("searching for Identity " + id);

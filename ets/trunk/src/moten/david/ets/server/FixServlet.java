@@ -35,12 +35,6 @@ public class FixServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request,
             HttpServletResponse response) throws ServletException, IOException {
-        QueryResultIterator<MyEntity> e = datastore.find(MyEntity.class);
-        int count = 0;
-        while (e.hasNext()) {
-            e.next();
-            count++;
-        }
         String ids = Preconditions
                 .checkNotNull(
                         request.getParameter("ids"),
@@ -74,7 +68,12 @@ public class FixServlet extends HttpServlet {
         } catch (NumberFormatException ex) {
             throw new RuntimeException("a parameter is not a valid number", ex);
         }
-
+        QueryResultIterator<MyEntity> e = datastore.find(MyEntity.class);
+        int count = 0;
+        while (e.hasNext()) {
+            e.next();
+            count++;
+        }
         response.getOutputStream().println(
                 "there are " + count + " entities eh");
     }
