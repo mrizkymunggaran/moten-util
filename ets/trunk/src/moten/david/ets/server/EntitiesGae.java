@@ -50,84 +50,109 @@ public class EntitiesGae implements Entities {
         try {
             checkParent();
 
+            // start the transaction
             datastore.beginTransaction();
+
+            // create timed identifiers from the fix identifiers
             log("creating set of TimedIdentifier from fix");
             Set<TimedIdentifier> fixIds = createTimedIdentifierSet(fix);
+
+            // find intersections of fix with existing identifiers
             log("finding intersections");
-            Set<Set<Identity>> intersectingIdentities = findIntersecting(fixIds);
+            Set<Set<Identity>> intersectingIdentities = findIntersectingIdentities(fixIds);
+            // record entity ids against identifiers
+            Map<Identifier, Long> identifierEntityIds = recordEntityIdsByIdentifier(intersectingIdentities);
+            // convert to TimedIdentifiers
             Set<Set<TimedIdentifier>> intersecting = ImmutableSet
                     .copyOf(Collections2.transform(intersectingIdentities,
                             identitySetToTimedIdentifierSet));
             log("intersecting=" + intersecting);
 
-            // record entity ids against identifiers
-            Map<Identifier, Long> map = new HashMap<Identifier, Long>();
-            for (Set<Identity> set : intersectingIdentities) {
-                for (Identity identity : set) {
-                    TimedIdentifier ti = identityToTimedIdentifier
-                            .apply(identity);
-                    map.put(ti.getIdentifier(), identity.getEntityId());
-                }
-            }
-
+            // calculate the merges of the fix with all intersecting entities
             log("merging");
             MergeResult merge = merger.merge(fixIds, intersecting);
+
+            // if none of the identifiers in the fix matched an existing entity
+            // then create a new one
             if (merge.getPmza().size() == 0) {
                 log("storing new entity");
                 storeNewEntity(fix, fixIds);
             } else {
-                log("intersection not empty");
-                // the merge result set that intersects identifier wise with
-                // pmza
-                // will get the entity id of pmza.
-                // all other merge result sets will be given the entity of the
-                // set
-                // in intersections that intersects with it.
-
-                //
-                log("merge.pmza=" + merge.getPmza());
-                log("merge.merged=" + merge.getMerged());
-                Set<TimedIdentifier> pmzaNew = null;
-                Set<Identifier> pmzaIds = Util.ids(merge.getPmza());
-                for (Set<TimedIdentifier> set : merge.getMerged()) {
-                    if (CollectionsUtil.intersect(Util.ids(set), pmzaIds)) {
-                        pmzaNew = set;
-                    }
-                }
-                Preconditions.checkNotNull(pmzaNew);
-
-                // for all merged sets create and store identity objects
-                for (Set<TimedIdentifier> set : merge.getMerged()) {
-                    for (TimedIdentifier ti : set) {
-                        Identity identity = createIdentity(ti);
-                        identity.setEntityId(map.get(ti.getIdentifier()));
-                        datastore.storeOrUpdate(identity, parent);
-                    }
-                }
-
-                // override the primary match merged set with the entity
-                // corresponding to the non-merged primary match
-                Long pmzaEntityId = map.get(merge.getPmza().iterator().next()
-                        .getIdentifier());
-                log("pmza entity id=" + pmzaEntityId);
-                for (TimedIdentifier ti : pmzaNew) {
-                    Identity identity = createIdentity(ti);
-                    identity.setEntityId(pmzaEntityId);
-                    datastore.storeOrUpdate(identity, parent);
-                }
-
-                MyEntity entity = datastore.load(MyEntity.class, pmzaEntityId,
-                        parent);
-                entity.setLatestFix(fix.getFix());
-                datastore.update(entity);
+                mergeWithDatastore(fix, merge, identifierEntityIds);
             }
-            log("fix added");
+
+            // commit the transaction
             datastore.getTransaction().commit();
+            log("fix added");
         } catch (RuntimeException e) {
+            log(e.getMessage());
             e.printStackTrace();
             datastore.getTransaction().rollback();
             throw e;
         }
+    }
+
+    private Map<Identifier, Long> recordEntityIdsByIdentifier(
+            Set<Set<Identity>> intersectingIdentities) {
+        HashMap<Identifier, Long> map = new HashMap<Identifier, Long>();
+        for (Set<Identity> set : intersectingIdentities) {
+            for (Identity identity : set) {
+                // convert Identity to TimedIdentifier
+                TimedIdentifier ti = identityToTimedIdentifier.apply(identity);
+                // record the identifier entity ids
+                map.put(ti.getIdentifier(), identity.getEntityId());
+            }
+        }
+        return map;
+    }
+
+    private void mergeWithDatastore(MyFix fix, MergeResult merge,
+            Map<Identifier, Long> identifierEntityIds) {
+        log("intersection not empty");
+        // the merge result set that intersects identifier wise with
+        // pmza will get the entity id of pmza. all other merge result
+        // sets will be given the entity of the set in intersections
+        // that intersects with it.
+
+        log("merge.pmza=" + merge.getPmza());
+        log("merge.merged=" + merge.getMerged());
+
+        // find the result of the merge on pmza (assign it to pmzaNew)
+        Set<TimedIdentifier> pmzaNew = null;
+        Set<Identifier> pmzaIds = Util.ids(merge.getPmza());
+        for (Set<TimedIdentifier> set : merge.getMerged()) {
+            if (CollectionsUtil.intersect(Util.ids(set), pmzaIds)) {
+                pmzaNew = set;
+            }
+        }
+        Preconditions.checkNotNull(pmzaNew, "pmzaNew should not be null");
+
+        // for all merged sets create and store identity objects
+        for (Set<TimedIdentifier> set : merge.getMerged()) {
+            for (TimedIdentifier ti : set) {
+                Identity identity = createIdentity(ti);
+                identity.setEntityId(identifierEntityIds
+                        .get(ti.getIdentifier()));
+                datastore.storeOrUpdate(identity, parent);
+            }
+        }
+
+        // override the primary match merged set with the entity
+        // corresponding to the non-merged primary match
+        Long pmzaEntityId = identifierEntityIds.get(merge.getPmza().iterator()
+                .next().getIdentifier());
+        log("pmza entity id=" + pmzaEntityId);
+        for (TimedIdentifier ti : pmzaNew) {
+            Identity identity = createIdentity(ti);
+            identity.setEntityId(pmzaEntityId);
+            datastore.storeOrUpdate(identity, parent);
+        }
+
+        // load the pmza entity so that we can update the latest fix
+        // info
+        MyEntity entity = datastore.load(MyEntity.class, pmzaEntityId, parent);
+        entity.setLatestFix(fix.getFix());
+        datastore.update(entity);
     }
 
     private synchronized void checkParent() {
@@ -189,7 +214,8 @@ public class EntitiesGae implements Entities {
         System.out.println(string);
     }
 
-    private Set<Set<Identity>> findIntersecting(Set<TimedIdentifier> ids) {
+    private Set<Set<Identity>> findIntersectingIdentities(
+            Set<TimedIdentifier> ids) {
         Builder<Set<Identity>> builder = ImmutableSet.builder();
         Set<Long> entityIdsUsed = Sets.newHashSet();
         // {
