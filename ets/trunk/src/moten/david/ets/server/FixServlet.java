@@ -39,6 +39,7 @@ public class FixServlet extends HttpServlet {
                 .checkNotNull(
                         request.getParameter("ids"),
                         "ids parameter cannot be null and should contain name value pairs with colon ':' delimiting name and value and the pairs delimited by semicolon ';'");
+        System.out.println("ids=" + ids);
         String[] items = ids.split(";");
         Builder<String, String> builder = ImmutableMap.builder();
         for (String item : items) {
