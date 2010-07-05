@@ -37,7 +37,6 @@ public class EntitiesGae implements Entities {
 
     private final ObjectDatastore datastore;
     private final Merger merger;
-    private MyParent parent;
 
     @Inject
     public EntitiesGae(ObjectDatastore datastore, Merger merger) {
@@ -55,10 +54,12 @@ public class EntitiesGae implements Entities {
     @Override
     public void add(MyFix fix) {
         try {
-            checkParent();
 
             // start the transaction
             datastore.beginTransaction();
+
+            // ensure parent is stored and the field initialized
+            MyParent parent = getParent();
 
             // create timed identifiers from the fix identifiers
             log("creating set of TimedIdentifier from fix");
@@ -66,7 +67,8 @@ public class EntitiesGae implements Entities {
 
             // find intersections of fix with existing identifiers
             log("finding intersections");
-            Set<Set<Identity>> intersectingIdentities = findIntersectingIdentities(fixIds);
+            Set<Set<Identity>> intersectingIdentities = findIntersectingIdentities(
+                    parent, fixIds);
             // record entity ids against identifiers
             Map<Identifier, Long> identifierEntityIds = recordEntityIdsByIdentifier(intersectingIdentities);
             // convert to TimedIdentifiers
@@ -82,9 +84,9 @@ public class EntitiesGae implements Entities {
             // if none of the identifiers in the fix matched an existing entity
             // then create a new one
             if (merge.getPmza().size() == 0)
-                storeNewEntity(fix, fixIds);
+                storeNewEntity(parent, fix, fixIds);
             else
-                mergeWithDatastore(fix, merge, identifierEntityIds);
+                mergeWithDatastore(parent, fix, merge, identifierEntityIds);
 
             // commit the transaction
             datastore.getTransaction().commit();
@@ -111,8 +113,8 @@ public class EntitiesGae implements Entities {
         return map;
     }
 
-    private void mergeWithDatastore(MyFix fix, MergeResult merge,
-            Map<Identifier, Long> identifierEntityIds) {
+    private void mergeWithDatastore(MyParent parent, MyFix fix,
+            MergeResult merge, Map<Identifier, Long> identifierEntityIds) {
         log("intersection not empty");
         // the merge result set that intersects identifier wise with
         // pmza will get the entity id of pmza. all other merge result
@@ -160,11 +162,6 @@ public class EntitiesGae implements Entities {
         datastore.update(entity);
     }
 
-    private synchronized void checkParent() {
-        if (parent == null)
-            parent = getParent();
-    }
-
     private MyParent getParent() {
         log("loading parent");
         MyParent parent = datastore.load(MyParent.class, "main");
@@ -178,7 +175,8 @@ public class EntitiesGae implements Entities {
         return parent;
     }
 
-    private void storeNewEntity(MyFix fix, Set<TimedIdentifier> fixIds) {
+    private void storeNewEntity(MyParent parent, MyFix fix,
+            Set<TimedIdentifier> fixIds) {
         log("storing new identity");
         MyEntity entity = new MyEntity();
         entity.setId(System.currentTimeMillis());
@@ -220,7 +218,7 @@ public class EntitiesGae implements Entities {
         System.out.println(string);
     }
 
-    private Set<Set<Identity>> findIntersectingIdentities(
+    private Set<Set<Identity>> findIntersectingIdentities(MyParent parent,
             Set<TimedIdentifier> ids) {
         Builder<Set<Identity>> builder = ImmutableSet.builder();
         Set<Long> entityIdsUsed = Sets.newHashSet();

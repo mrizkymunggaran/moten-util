@@ -13,10 +13,13 @@ import moten.david.ets.client.model.MyParent;
 
 import com.google.appengine.repackaged.com.google.common.base.Preconditions;
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import com.vercer.engine.persist.ObjectDatastore;
 
+@Singleton
 public class DatastoreServlet extends HttpServlet {
 
+    private static final long serialVersionUID = -2953298192796896179L;
     private final ObjectDatastore datastore;
 
     @Inject
