@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" output="test-classes" path="test"/>
+	<classpathentry kind="con" path="com.google.appengine.eclipse.core.GAE_CONTAINER"/>
+	<classpathentry kind="con" path="com.google.gwt.eclipse.core.GWT_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/google-collect-1.0.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/aopalliance.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/guice-2.0.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/guice-assistedinject-2.0.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/guice-servlet-2.0.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/moten-util-0.0.5-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/log4j-1.2.15.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/twig-persist-1.0.3.jar" sourcepath="/home/dave/Downloads"/>
+	<classpathentry kind="output" path="war/WEB-INF/classes"/>
+</classpath>
