@@ -2,7 +2,7 @@ package moten.david.ets.server;
 
 public interface Entities {
 
-    void add(MyFix fix);
+    void add(Iterable<MyFix> fix);
 
     void clearAll();
 

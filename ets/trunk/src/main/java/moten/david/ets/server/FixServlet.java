@@ -13,6 +13,7 @@ import moten.david.ets.client.model.MyEntity;
 
 import com.google.appengine.api.datastore.QueryResultIterator;
 import com.google.appengine.repackaged.com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 import com.google.inject.Inject;
@@ -65,7 +66,7 @@ public class FixServlet extends HttpServlet {
             fix.setLon(lon);
             fix.setTime(new Date(time));
             MyFix f = new MyFix(fix, builder.build());
-            entities.add(f);
+            entities.add(ImmutableList.of(f));
         } catch (NumberFormatException ex) {
             throw new RuntimeException("a parameter is not a valid number", ex);
         }

@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import moten.david.ets.client.model.Identity;
@@ -20,6 +21,7 @@ import moten.david.matchstack.types.TimedIdentifier;
 import moten.david.matchstack.types.impl.MyIdentifier;
 import moten.david.matchstack.types.impl.MyIdentifierType;
 import moten.david.matchstack.types.impl.MyTimedIdentifier;
+import moten.david.util.appengine.MemcacheMutex;
 import moten.david.util.collections.CollectionsUtil;
 
 import com.google.appengine.api.datastore.Query;
@@ -34,13 +36,31 @@ import com.google.common.collect.ImmutableSet.Builder;
 import com.google.inject.Inject;
 import com.vercer.engine.persist.ObjectDatastore;
 
+/**
+ * Stores fixes in a google app engine datastore using the Matchstack merge
+ * engine from moten-util.
+ * 
+ * @author dxm
+ */
 public class EntitiesGae implements Entities {
 
     private static final Logger log = Logger.getLogger(EntitiesGae.class
             .getName());
+    /**
+     * Twig datastore.
+     */
     private final ObjectDatastore datastore;
+    /**
+     * The merging engine.
+     */
     private final Merger merger;
 
+    /**
+     * Constructor.
+     * 
+     * @param datastore
+     * @param merger
+     */
     @Inject
     public EntitiesGae(ObjectDatastore datastore, Merger merger) {
         this.datastore = datastore;
@@ -56,53 +76,98 @@ public class EntitiesGae implements Entities {
     }
 
     @Override
-    public void add(MyFix fix) {
-        try {
+    public void add(Iterable<MyFix> fixes) {
+        // use memcache as a lock manager to ensure synchronization on this
+        // method. Mutex = mutual exclusion object.
 
+        // get a lock from the appengine memcache
+        MemcacheMutex mutex = new MemcacheMutex("addFix", 30000);
+
+        // check lock was obtained
+        if (!mutex.tryLock())
+            throw new CouldNotObtainLockException(
+                    "addFix could not obtain lock");
+
+        try {
             // start the transaction
             datastore.beginTransaction();
 
-            // ensure parent is stored and the field initialized
-            MyParent parent = getParent();
-
-            // create timed identifiers from the fix identifiers
-            log("creating set of TimedIdentifier from fix");
-            Set<TimedIdentifier> fixIds = createTimedIdentifierSet(fix);
-
-            // find intersections of fix with existing identifiers
-            log("finding intersections");
-            Set<Set<Identity>> intersectingIdentities = findIntersectingIdentities(
-                    parent, fixIds);
-            // record entity ids against identifiers
-            Map<Identifier, Long> identifierEntityIds = recordEntityIdsByIdentifier(intersectingIdentities);
-            // convert to TimedIdentifiers
-            Set<Set<TimedIdentifier>> intersecting = ImmutableSet
-                    .copyOf(Collections2.transform(intersectingIdentities,
-                            identitySetToTimedIdentifierSet));
-            log("intersecting=" + intersecting);
-
-            // calculate the merges of the fix with all intersecting entities
-            log("merging");
-            MergeResult merge = merger.merge(fixIds, intersecting);
-
-            // if none of the identifiers in the fix matched an existing entity
-            // then create a new one
-            if (merge.getPmza().size() == 0)
-                storeNewEntity(parent, fix, fixIds);
-            else
-                mergeWithDatastore(parent, fix, merge, identifierEntityIds);
+            // add all the fixes
+            for (MyFix fix : fixes)
+                add(fix);
 
             // commit the transaction
             datastore.getTransaction().commit();
-            log("fix added");
         } catch (RuntimeException e) {
-            log(e.getMessage());
-            e.printStackTrace();
-            datastore.getTransaction().rollback();
+            // if an error occurs log the exception and rollback the transaction
+            logExceptionAndRollback(e);
             throw e;
+        } finally {
+            // unlock the mutex
+            mutex.unlock();
         }
     }
 
+    /**
+     * Logs an exception and rolllback the current transaction if it is active.
+     * 
+     * @param e
+     */
+    private void logExceptionAndRollback(RuntimeException e) {
+        log.log(Level.SEVERE, e.getMessage(), e);
+        log.info("rolling back");
+        if (datastore.getTransaction().isActive())
+            datastore.getTransaction().rollback();
+        log.info("rolled back");
+    }
+
+    /**
+     * Adds a single fix to the datastore.
+     * 
+     * @param fix
+     */
+    public synchronized void add(MyFix fix) {
+
+        // ensure parent is stored and the field initialized
+        MyParent parent = getParent();
+
+        // create timed identifiers from the fix identifiers
+        log("creating set of TimedIdentifier from fix");
+        Set<TimedIdentifier> fixIds = createTimedIdentifierSet(fix);
+
+        // find intersections of fix with existing identifiers
+        log("finding intersections");
+        Set<Set<Identity>> intersectingIdentities = findIntersectingIdentities(
+                parent, fixIds);
+        // record entity ids against identifiers
+        Map<Identifier, Long> identifierEntityIds = recordEntityIdsByIdentifier(intersectingIdentities);
+        // convert to TimedIdentifiers
+        Set<Set<TimedIdentifier>> intersecting = ImmutableSet
+                .copyOf(Collections2.transform(intersectingIdentities,
+                        identitySetToTimedIdentifierSet));
+        log("intersecting=" + intersecting);
+
+        // calculate the merges of the fix with all intersecting entities
+        log("merging");
+        MergeResult merge = merger.merge(fixIds, intersecting);
+
+        // if none of the identifiers in the fix matched an existing entity
+        // then create a new one
+        if (merge.getPmza().size() == 0)
+            storeNewEntity(parent, fix, fixIds);
+        else
+            mergeWithDatastore(parent, fix, merge, identifierEntityIds);
+
+        log("fix added");
+
+    }
+
+    /**
+     * Returns a map of the entity ids by {@link Identifier}
+     * 
+     * @param intersectingIdentities
+     * @return
+     */
     private Map<Identifier, Long> recordEntityIdsByIdentifier(
             Set<Set<Identity>> intersectingIdentities) {
         HashMap<Identifier, Long> map = new HashMap<Identifier, Long>();
@@ -117,6 +182,14 @@ public class EntitiesGae implements Entities {
         return map;
     }
 
+    /**
+     * Merges a fix with the datastore attached to the given parent.
+     * 
+     * @param parent
+     * @param fix
+     * @param merge
+     * @param identifierEntityIds
+     */
     private void mergeWithDatastore(MyParent parent, MyFix fix,
             MergeResult merge, Map<Identifier, Long> identifierEntityIds) {
         log("intersection not empty");
@@ -166,6 +239,12 @@ public class EntitiesGae implements Entities {
         datastore.update(entity);
     }
 
+    /**
+     * Returns the common Parent object (all objects involved in a datastore
+     * transaction must be children of the same parent.
+     * 
+     * @return
+     */
     private MyParent getParent() {
         log("loading parent");
         MyParent parent = datastore.load(MyParent.class, "main");
@@ -179,6 +258,13 @@ public class EntitiesGae implements Entities {
         return parent;
     }
 
+    /**
+     * Stores a new entity given by a fix.
+     * 
+     * @param parent
+     * @param fix
+     * @param fixIds
+     */
     private void storeNewEntity(MyParent parent, MyFix fix,
             Set<TimedIdentifier> fixIds) {
         log("storing new identity");
@@ -195,16 +281,36 @@ public class EntitiesGae implements Entities {
         }
     }
 
+    /**
+     * Returns the type name of a {@link TimedIdentifier} (assumes it is an
+     * instance of {@link MyTimedIdentifier}.
+     * 
+     * @param ti
+     * @return
+     */
     private String getTypeName(TimedIdentifier ti) {
         MyIdentifierType type = (MyIdentifierType) ((MyTimedIdentifier) ti)
                 .getIdentifier().getIdentifierType();
         return type.getName();
     }
 
+    /**
+     * Returns the value field of a {@link TimedIdentifier} (assumes it is an
+     * instance of {@link MyTimedIdentifier}.
+     * 
+     * @param ti
+     * @return
+     */
     private String getTypeValue(TimedIdentifier ti) {
         return ((MyTimedIdentifier) ti).getIdentifier().getValue();
     }
 
+    /**
+     * Creates an {@link Identity} from a {@link TimedIdentifier}.
+     * 
+     * @param ti
+     * @return
+     */
     private Identity createIdentity(TimedIdentifier ti) {
         Identity identity = new Identity();
         identity.setId(getIdentityId(ti));
@@ -214,6 +320,13 @@ public class EntitiesGae implements Entities {
         return identity;
     }
 
+    /**
+     * Returns a string representation of the identifier part of a timed
+     * identifier.
+     * 
+     * @param ti
+     * @return
+     */
     private String getIdentityId(TimedIdentifier ti) {
         return getTypeName(ti) + ":" + getTypeValue(ti);
     }
@@ -222,6 +335,14 @@ public class EntitiesGae implements Entities {
         log.info(string);
     }
 
+    /**
+     * Returns all intersecting identities in terms of the identifier type and
+     * value from a set of {@link TimedIdentifer}.
+     * 
+     * @param parent
+     * @param ids
+     * @return
+     */
     private Set<Set<Identity>> findIntersectingIdentities(MyParent parent,
             Set<TimedIdentifier> ids) {
         Builder<Set<Identity>> builder = ImmutableSet.builder();
@@ -263,6 +384,15 @@ public class EntitiesGae implements Entities {
         return builder.build();
     }
 
+    /**
+     * Returns null if the iterator has no values. If the iterator has only one
+     * value then returns that value otherwise a {@link RuntimeException} is
+     * thrown.
+     * 
+     * @param <T>
+     * @param it
+     * @return
+     */
     private <T> T getSingleResult(Iterator<T> it) {
         Preconditions.checkNotNull(it, "iterator cannot be null");
         if (it.hasNext()) {
