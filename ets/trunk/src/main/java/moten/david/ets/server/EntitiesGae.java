@@ -3,6 +3,7 @@ package moten.david.ets.server;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -32,6 +33,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterators;
+import com.google.common.collect.Lists;
 import com.google.common.collect.ImmutableSet.Builder;
 import com.google.inject.Inject;
 import com.vercer.engine.persist.ObjectDatastore;
@@ -347,6 +349,8 @@ public class EntitiesGae implements Entities {
             Set<TimedIdentifier> ids) {
         Builder<Set<Identity>> builder = ImmutableSet.builder();
         Set<Long> entityIdsUsed = Sets.newHashSet();
+        List<Future<QueryResultIterator<Identity>>> futures = Lists
+                .newArrayList();
         for (TimedIdentifier ti : ids) {
             String id = getIdentityId(ti);
             log("searching for Identity " + id);
@@ -384,18 +388,22 @@ public class EntitiesGae implements Entities {
                                     Query.FilterOperator.EQUAL,
                                     identity.getEntityId())
                             .withAncestor(parent).returnResultsLater();
-                    try {
-                        QueryResultIterator<Identity> it = future.get();
-                        Set<Identity> set = ImmutableSet.copyOf(it);
-                        builder.add(set);
-                    } catch (InterruptedException e) {
-                        // if interrupted exit by throwing an exception
-                        throw new RuntimeException(e);
-                    } catch (ExecutionException e) {
-                        throw new RuntimeException(e);
-                    }
+                    futures.add(future);
                 }
                 entityIdsUsed.add(identity.getEntityId());
+            }
+        }
+        // get the results of the async queries
+        for (Future<QueryResultIterator<Identity>> future : futures) {
+            try {
+                QueryResultIterator<Identity> it = future.get();
+                Set<Identity> set = ImmutableSet.copyOf(it);
+                builder.add(set);
+            } catch (InterruptedException e) {
+                // if interrupted exit by throwing an exception
+                throw new RuntimeException(e);
+            } catch (ExecutionException e) {
+                throw new RuntimeException(e);
             }
         }
         return builder.build();
