@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.logging.Logger;
 
 import moten.david.ets.client.model.Identity;
 import moten.david.ets.client.model.MyEntity;
@@ -35,6 +36,8 @@ import com.vercer.engine.persist.ObjectDatastore;
 
 public class EntitiesGae implements Entities {
 
+    private static final Logger log = Logger.getLogger(EntitiesGae.class
+            .getName());
     private final ObjectDatastore datastore;
     private final Merger merger;
 
@@ -49,6 +52,7 @@ public class EntitiesGae implements Entities {
         datastore.deleteAll(Identity.class);
         datastore.deleteAll(MyEntity.class);
         datastore.deleteAll(MyParent.class);
+        log("deleted all entities");
     }
 
     @Override
@@ -215,7 +219,7 @@ public class EntitiesGae implements Entities {
     }
 
     private void log(String string) {
-        System.out.println(string);
+        log.info(string);
     }
 
     private Set<Set<Identity>> findIntersectingIdentities(MyParent parent,
