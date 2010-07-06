@@ -2,6 +2,7 @@ package moten.david.ets.server;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -23,6 +24,7 @@ import com.vercer.engine.persist.ObjectDatastore;
 @Singleton
 public class FixServlet extends HttpServlet {
 
+    private static Logger log = Logger.getLogger(FixServlet.class.getName());
     private static final long serialVersionUID = 3256289411943263970L;
     private final ObjectDatastore datastore;
     private final Entities entities;
@@ -41,7 +43,7 @@ public class FixServlet extends HttpServlet {
                     .checkNotNull(
                             request.getParameter("ids"),
                             "ids parameter cannot be null and should contain name value pairs with colon ':' delimiting name and value and the pairs delimited by semicolon ';'");
-            System.out.println("ids=" + ids);
+            log.info("ids=" + ids);
             String[] items = ids.split(";");
             Builder<String, String> builder = ImmutableMap.builder();
             for (String item : items) {
@@ -83,6 +85,7 @@ public class FixServlet extends HttpServlet {
             response.getOutputStream().println(
                     "there are " + count + " entities eh");
         } catch (RuntimeException e) {
+            log.info(e.getMessage());
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             response.getOutputStream().println(e.getMessage());
         }
