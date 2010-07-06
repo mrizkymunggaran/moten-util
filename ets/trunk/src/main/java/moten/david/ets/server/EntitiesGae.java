@@ -32,6 +32,7 @@ import com.google.appengine.repackaged.com.google.common.collect.Sets;
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterators;
 import com.google.common.collect.ImmutableSet.Builder;
 import com.google.inject.Inject;
 import com.vercer.engine.persist.ObjectDatastore;
@@ -350,11 +351,14 @@ public class EntitiesGae implements Entities {
         for (TimedIdentifier ti : ids) {
             String id = getIdentityId(ti);
             log("searching for Identity " + id);
-            Identity identity = getSingleResult(datastore.find().type(
-                    Identity.class).addFilter("value",
-                    Query.FilterOperator.EQUAL, getTypeValue(ti)).withAncestor(
-                    parent).addFilter("name", FilterOperator.EQUAL,
-                    getTypeName(ti)).returnResultsNow());
+            // search for the identity
+            Iterator<Identity> iterator = datastore.find().type(Identity.class)
+                    .addFilter("value", Query.FilterOperator.EQUAL,
+                            getTypeValue(ti)).withAncestor(parent).addFilter(
+                            "name", FilterOperator.EQUAL, getTypeName(ti))
+                    .returnResultsNow();
+            // ensure only one item returned (null means not found)
+            Identity identity = Iterators.getOnlyElement(iterator, null);
 
             if (identity == null)
                 log(id + " not found");
@@ -382,28 +386,6 @@ public class EntitiesGae implements Entities {
             }
         }
         return builder.build();
-    }
-
-    /**
-     * Returns null if the iterator has no values. If the iterator has only one
-     * value then returns that value otherwise a {@link RuntimeException} is
-     * thrown.
-     * 
-     * @param <T>
-     * @param it
-     * @return
-     */
-    private <T> T getSingleResult(Iterator<T> it) {
-        Preconditions.checkNotNull(it, "iterator cannot be null");
-        if (it.hasNext()) {
-            T result = it.next();
-            if (it.hasNext())
-                throw new RuntimeException(
-                        "expected only one result and query returned at least two");
-            else
-                return result;
-        } else
-            return null;
     }
 
     private static Function<? super Identity, TimedIdentifier> identityToTimedIdentifier = new Function<Identity, TimedIdentifier>() {
