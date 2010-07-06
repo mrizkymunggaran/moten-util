@@ -123,15 +123,11 @@
 			<scope>provided</scope>
 		</dependency>
 
-<!-- 
-		<dependency>
-			<groupId>com.google.gwt</groupId>
-			<artifactId>gwt-dev</artifactId>
-			<version>${gwt.version}</version>
-			<classifier>linux</classifier>
-			<scope>provided</scope>
-		</dependency>
-		 -->
+		<!--
+			<dependency> <groupId>com.google.gwt</groupId>
+			<artifactId>gwt-dev</artifactId> <version>${gwt.version}</version>
+			<classifier>linux</classifier> <scope>provided</scope> </dependency>
+		-->
 		<!--
 			J2EE Servlet API. We need it to compile IndexServlet class. You can
 			probably remove it, if you don't explicitly use Servlets
@@ -211,7 +207,7 @@
 
 		<!--  twig gae persistence -->
 		<dependency>
-			<groupId>com.googlecode.twig-persist</groupId>
+			<groupId>com.vercer.engine.persist</groupId>
 			<artifactId>twig-persist</artifactId>
 			<version>1.0.3</version>
 		</dependency>
@@ -483,6 +479,13 @@
 			<name>maven-gae-plugin repository</name>
 			<url>
                 http://maven-gae-plugin.googlecode.com/svn/repository
+            </url>
+		</repository>
+		<repository>
+			<id>twig-persist-repo</id>
+			<name>twig-persist repository</name>
+			<url>
+        http://mvn.twig-persist.googlecode.com/hg
             </url>
 		</repository>
 	</repositories>
