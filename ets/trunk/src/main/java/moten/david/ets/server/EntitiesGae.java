@@ -26,7 +26,6 @@ import moten.david.util.collections.CollectionsUtil;
 
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.QueryResultIterator;
-import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.repackaged.com.google.common.base.Preconditions;
 import com.google.appengine.repackaged.com.google.common.collect.Sets;
 import com.google.common.base.Function;
@@ -351,12 +350,26 @@ public class EntitiesGae implements Entities {
         for (TimedIdentifier ti : ids) {
             String id = getIdentityId(ti);
             log("searching for Identity " + id);
-            // search for the identity
+
+            // search for the identity using the value field
             Iterator<Identity> iterator = datastore.find().type(Identity.class)
                     .addFilter("value", Query.FilterOperator.EQUAL,
-                            getTypeValue(ti)).withAncestor(parent).addFilter(
-                            "name", FilterOperator.EQUAL, getTypeName(ti))
+                            getTypeValue(ti)).withAncestor(parent)
                     .returnResultsNow();
+
+            // get the name of the timed identifier for filtering
+            final String typeName = getTypeName(ti);
+
+            // refine the search using the identifier type name
+            iterator = Iterators.filter(iterator,
+                    new com.google.common.base.Predicate<Identity>() {
+
+                        @Override
+                        public boolean apply(Identity identity) {
+                            return typeName.equals(identity.getName());
+                        }
+                    });
+
             // ensure only one item returned (null means not found)
             Identity identity = Iterators.getOnlyElement(iterator, null);
 
