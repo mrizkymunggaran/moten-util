@@ -383,6 +383,7 @@ public class EntitiesGae implements Entities {
                 Preconditions.checkNotNull(identity.getEntityId(),
                         "identity entity should not be null");
                 if (!entityIdsUsed.contains(identity.getEntityId())) {
+                    // find the entity asynchronously
                     Future<QueryResultIterator<Identity>> future = datastore
                             .find().type(Identity.class).addFilter("entityId",
                                     Query.FilterOperator.EQUAL,
