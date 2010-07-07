@@ -88,7 +88,7 @@ public class ProcessFixServlet extends HttpServlet {
         } catch (RuntimeException e) {
             e.printStackTrace();
             log.info(e.getMessage());
-            // response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             response.getOutputStream().println(e.getMessage());
         }
     }
