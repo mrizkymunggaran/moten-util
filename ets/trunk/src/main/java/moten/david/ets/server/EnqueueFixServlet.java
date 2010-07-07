@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.google.appengine.api.labs.taskqueue.Queue;
 import com.google.appengine.api.labs.taskqueue.QueueFactory;
 import com.google.appengine.api.labs.taskqueue.TaskOptions;
+import com.google.appengine.api.labs.taskqueue.TaskOptions.Method;
 import com.google.inject.Singleton;
 
 @Singleton
@@ -26,7 +27,7 @@ public class EnqueueFixServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request,
             HttpServletResponse response) throws ServletException, IOException {
         Queue queue = QueueFactory.getDefaultQueue();
-        TaskOptions options = url("/processFix");
+        TaskOptions options = url("/processFix").method(Method.GET);
         for (String param : new String[] { "ids", "time", "lat", "lon" }) {
             options = options.param(param, request.getParameter(param));
         }
