@@ -16,6 +16,12 @@ import com.google.appengine.api.labs.taskqueue.TaskOptions;
 import com.google.appengine.api.labs.taskqueue.TaskOptions.Method;
 import com.google.inject.Singleton;
 
+/**
+ * Enqueues a fix via HTTP Get or a number of fixes via HTTP Post for processing
+ * on the default queue.
+ * 
+ * @author dxm
+ */
 @Singleton
 public class EnqueueFixServlet extends HttpServlet {
 

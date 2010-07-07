@@ -23,6 +23,11 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.vercer.engine.persist.ObjectDatastore;
 
+/**
+ * Processes a single fix via Http GET or a number of fixes via Http POST.
+ * 
+ * @author dxm
+ */
 @Singleton
 public class ProcessFixServlet extends HttpServlet {
 

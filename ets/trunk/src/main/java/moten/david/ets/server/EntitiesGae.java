@@ -56,6 +56,9 @@ public class EntitiesGae implements Entities {
      * The merging engine.
      */
     private final Merger merger;
+    /**
+     * Lock manager
+     */
     private final LockManager lockManager;
 
     /**

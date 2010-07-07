@@ -16,23 +16,38 @@ public class MemcacheMutex {
     private final int maxTimeoutMs;
     private boolean locked;
 
+    /**
+     * Constructor.
+     * 
+     * @param key
+     * @param maxTimeoutMs
+     */
     public MemcacheMutex(String key, int maxTimeoutMs) {
         this.key = "mcmutex." + key;
         this.maxTimeoutMs = maxTimeoutMs;
     }
 
+    /**
+     * Tries to get a lock.
+     * 
+     * @return
+     */
     public boolean tryLock() {
         if (locked)
             return true;
 
         MemcacheService mc = MemcacheServiceFactory.getMemcacheService();
 
-        locked = mc.put(key, "not used", Expiration.byDeltaMillis(maxTimeoutMs),
+        locked = mc.put(key, "not used",
+                Expiration.byDeltaMillis(maxTimeoutMs),
                 MemcacheService.SetPolicy.ADD_ONLY_IF_NOT_PRESENT);
 
         return locked;
     }
 
+    /**
+     * Releases the lock.
+     */
     public void unlock() {
         if (locked)
             MemcacheServiceFactory.getMemcacheService().delete(key);

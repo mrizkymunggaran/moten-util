@@ -10,6 +10,11 @@ import com.google.inject.Scopes;
 import com.vercer.engine.persist.ObjectDatastore;
 import com.vercer.engine.persist.annotation.AnnotationObjectDatastore;
 
+/**
+ * Guice Injector module.
+ * 
+ * @author dxm
+ */
 public class InjectorModule extends AbstractModule {
 
     @Override
