@@ -1,5 +1,6 @@
 package moten.david.ets.server;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Date;
 import java.util.logging.Level;
@@ -30,11 +31,14 @@ public class ProcessFixServlet extends HttpServlet {
     private static final long serialVersionUID = 3256289411943263970L;
     private final ObjectDatastore datastore;
     private final Entities entities;
+    private final FixesMarshaller marshaller;
 
     @Inject
-    public ProcessFixServlet(ObjectDatastore datastore, Entities entities) {
+    public ProcessFixServlet(ObjectDatastore datastore, Entities entities,
+            FixesMarshaller marshaller) {
         this.datastore = datastore;
         this.entities = entities;
+        this.marshaller = marshaller;
     }
 
     @Override
@@ -93,4 +97,18 @@ public class ProcessFixServlet extends HttpServlet {
         }
     }
 
+    @Override
+    protected void doPost(HttpServletRequest request,
+            HttpServletResponse response) throws ServletException, IOException {
+        try {
+            String xml = request.getParameter("fixes");
+            Iterable<MyFix> fixes = marshaller
+                    .unmarshal(new ByteArrayInputStream(xml.getBytes()));
+            entities.add(fixes);
+        } catch (RuntimeException e) {
+            log.log(Level.WARNING, e.getMessage(), e);
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getOutputStream().println(e.getMessage());
+        }
+    }
 }

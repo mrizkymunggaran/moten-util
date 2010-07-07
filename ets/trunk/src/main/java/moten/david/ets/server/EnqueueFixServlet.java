@@ -34,4 +34,15 @@ public class EnqueueFixServlet extends HttpServlet {
         queue.add(options);
         log.info("enqueued fix " + request.getParameter("ids"));
     }
+
+    @Override
+    protected void doPost(HttpServletRequest request,
+            HttpServletResponse response) throws ServletException, IOException {
+
+        Queue queue = QueueFactory.getDefaultQueue();
+        TaskOptions options = url("/processFix").method(Method.POST);
+        options = options.param("fixes", request.getParameter("fixes"));
+        queue.add(options);
+        log.info("enqueued fixes via POST\n" + request.getParameter("fixes"));
+    }
 }
