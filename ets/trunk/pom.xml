@@ -381,7 +381,7 @@
 			<plugin>
 				<groupId>net.kindleit</groupId>
 				<artifactId>maven-gae-plugin</artifactId>
-				<version>0.5.2</version>
+				<version>0.5.9</version>
 				<configuration>
 					<unpackVersion>${gae.version}</unpackVersion>
 					<address>localhost</address>
