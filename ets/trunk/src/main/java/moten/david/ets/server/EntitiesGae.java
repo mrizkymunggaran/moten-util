@@ -3,7 +3,6 @@ package moten.david.ets.server;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -31,9 +30,9 @@ import com.google.appengine.repackaged.com.google.common.base.Preconditions;
 import com.google.appengine.repackaged.com.google.common.collect.Sets;
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterators;
-import com.google.common.collect.Lists;
 import com.google.common.collect.ImmutableSet.Builder;
 import com.google.inject.Inject;
 import com.vercer.engine.persist.ObjectDatastore;
@@ -343,10 +342,10 @@ public class EntitiesGae implements Entities {
      */
     private Set<Set<Identity>> findIntersectingIdentities(MyParent parent,
             Set<TimedIdentifier> ids) {
-        Builder<Set<Identity>> builder = ImmutableSet.builder();
+
         Set<Long> entityIdsUsed = Sets.newHashSet();
-        List<Future<QueryResultIterator<Identity>>> futures = Lists
-                .newArrayList();
+        com.google.common.collect.ImmutableList.Builder<Future<QueryResultIterator<Identity>>> futures = ImmutableList
+                .builder();
         for (TimedIdentifier ti : ids) {
             String id = getIdentityId(ti);
             log.info("searching for Identity " + id);
@@ -361,37 +360,58 @@ public class EntitiesGae implements Entities {
             final String typeName = getTypeName(ti);
 
             // refine the search using the identifier type name
-            iterator = Iterators.filter(iterator,
-                    new com.google.common.base.Predicate<Identity>() {
-
-                        @Override
-                        public boolean apply(Identity identity) {
-                            return typeName.equals(identity.getName());
-                        }
-                    });
+            iterator = filterByTypeName(iterator, typeName);
 
             // ensure only one item returned (null means not found)
             Identity identity = Iterators.getOnlyElement(iterator, null);
 
             if (identity == null)
+                // not intersecting
                 log.info(id + " not found");
             else {
                 Preconditions.checkNotNull(identity.getEntityId(),
                         "identity entity should not be null");
                 if (!entityIdsUsed.contains(identity.getEntityId())) {
-                    // find the entity asynchronously
-                    Future<QueryResultIterator<Identity>> future = datastore
-                            .find().type(Identity.class).addFilter("entityId",
-                                    Query.FilterOperator.EQUAL,
-                                    identity.getEntityId())
-                            .withAncestor(parent).returnResultsLater();
-                    futures.add(future);
+                    futures.add(startEntityIdentitiesQuery(parent, identity
+                            .getEntityId()));
                 }
                 entityIdsUsed.add(identity.getEntityId());
             }
         }
         // get the results of the async queries
-        for (Future<QueryResultIterator<Identity>> future : futures) {
+        return getIdentities(futures);
+
+    }
+
+    /**
+     * Returns the {@link Future} for a query that returns all the identities
+     * used by an entity.
+     * 
+     * @param parent
+     * @param entityId
+     * @return
+     */
+    private Future<QueryResultIterator<Identity>> startEntityIdentitiesQuery(
+            MyParent parent, Long entityId) {
+        // find all identities of the intersecting asynchronously
+        Future<QueryResultIterator<Identity>> future = datastore.find().type(
+                Identity.class).addFilter("entityId",
+                Query.FilterOperator.EQUAL, entityId).withAncestor(parent)
+                .returnResultsLater();
+        return future;
+    }
+
+    /**
+     * Returns identities from the futures of the already initiated async
+     * queries.
+     * 
+     * @param futures
+     * @return
+     */
+    private Set<Set<Identity>> getIdentities(
+            com.google.common.collect.ImmutableList.Builder<Future<QueryResultIterator<Identity>>> futures) {
+        Builder<Set<Identity>> builder = ImmutableSet.builder();
+        for (Future<QueryResultIterator<Identity>> future : futures.build()) {
             try {
                 QueryResultIterator<Identity> it = future.get();
                 Set<Identity> set = ImmutableSet.copyOf(it);
@@ -404,6 +424,26 @@ public class EntitiesGae implements Entities {
             }
         }
         return builder.build();
+    }
+
+    /**
+     * Returns an iterator which is filtered for type Name equals
+     * <code>typeName</code>.
+     * 
+     * @param iterator
+     * @param typeName
+     * @return
+     */
+    private Iterator<Identity> filterByTypeName(Iterator<Identity> iterator,
+            final String typeName) {
+        return Iterators.filter(iterator,
+                new com.google.common.base.Predicate<Identity>() {
+
+                    @Override
+                    public boolean apply(Identity identity) {
+                        return typeName.equals(identity.getName());
+                    }
+                });
     }
 
     /**
