@@ -32,5 +32,6 @@ public class EnqueueFixServlet extends HttpServlet {
             options = options.param(param, request.getParameter(param));
         }
         queue.add(options);
+        log.info("enqueued fix " + request.getParameter("ids"));
     }
 }
