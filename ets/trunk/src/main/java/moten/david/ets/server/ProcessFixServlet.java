@@ -22,15 +22,16 @@ import com.google.inject.Singleton;
 import com.vercer.engine.persist.ObjectDatastore;
 
 @Singleton
-public class FixServlet extends HttpServlet {
+public class ProcessFixServlet extends HttpServlet {
 
-    private static Logger log = Logger.getLogger(FixServlet.class.getName());
+    private static Logger log = Logger.getLogger(EnqueueFixServlet.class
+            .getName());
     private static final long serialVersionUID = 3256289411943263970L;
     private final ObjectDatastore datastore;
     private final Entities entities;
 
     @Inject
-    public FixServlet(ObjectDatastore datastore, Entities entities) {
+    public ProcessFixServlet(ObjectDatastore datastore, Entities entities) {
         this.datastore = datastore;
         this.entities = entities;
     }
@@ -85,9 +86,11 @@ public class FixServlet extends HttpServlet {
             response.getOutputStream().println(
                     "there are " + count + " entities eh");
         } catch (RuntimeException e) {
+            e.printStackTrace();
             log.info(e.getMessage());
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            // response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             response.getOutputStream().println(e.getMessage());
         }
     }
+
 }

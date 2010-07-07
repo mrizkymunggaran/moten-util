@@ -179,14 +179,14 @@
 			<groupId>com.google.appengine</groupId>
 			<artifactId>appengine-api-labs</artifactId>
 			<version>${gae.version}</version>
-			<scope>test</scope>
+			<scope>compile</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>com.google.appengine</groupId>
 			<artifactId>appengine-api-stubs</artifactId>
 			<version>${gae.version}</version>
-			<scope>test</scope>
+			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
@@ -359,12 +359,15 @@
 						<phase>generate-sources</phase> <goals> <goal>generateAsync</goal>
 						</goals> </execution>
 					-->
+					<!-- don't compile till we need a GWT client -->
+					<!-- 
 					<execution>
 						<phase>compile</phase>
 						<goals>
 							<goal>compile</goal>
 						</goals>
 					</execution>
+					 -->
 				</executions>
 			</plugin>
 
@@ -378,6 +381,7 @@
 				<version>0.5.2</version>
 				<configuration>
 					<unpackVersion>${gae.version}</unpackVersion>
+					<address>localhost</address>
 				</configuration>
 			</plugin>
 

@@ -52,7 +52,7 @@ public class ServerRequester {
         addFix("nickname:davo;licence-no:1", time++, 127.0, 147.0);
         addFix("licence-no:1", time++, 128.0, 148.0);
         addFix("licence-no:2", time++, 129.0, 149.0);
-        for (int i = 0; i < 1000; i++)
+        for (int i = 0; i < 1; i++)
             addFix("name:dave" + new Random().nextInt(100), time++,
                     120 + time / 1000.0, 140 + time / 1000.0);
     }
