@@ -22,7 +22,7 @@ import moten.david.matchstack.types.TimedIdentifier;
 import moten.david.matchstack.types.impl.MyIdentifier;
 import moten.david.matchstack.types.impl.MyIdentifierType;
 import moten.david.matchstack.types.impl.MyTimedIdentifier;
-import moten.david.util.appengine.MemcacheMutex;
+import moten.david.util.appengine.LockManager;
 import moten.david.util.collections.CollectionsUtil;
 
 import com.google.appengine.api.datastore.Query;
@@ -46,6 +46,7 @@ import com.vercer.engine.persist.ObjectDatastore;
  */
 public class EntitiesGae implements Entities {
 
+    private static final int LOCK_TIMEOUT = 30000;
     private static final Logger log = Logger.getLogger(EntitiesGae.class
             .getName());
     /**
@@ -56,6 +57,7 @@ public class EntitiesGae implements Entities {
      * The merging engine.
      */
     private final Merger merger;
+    private final LockManager lockManager;
 
     /**
      * Constructor.
@@ -64,9 +66,11 @@ public class EntitiesGae implements Entities {
      * @param merger
      */
     @Inject
-    public EntitiesGae(ObjectDatastore datastore, Merger merger) {
+    public EntitiesGae(ObjectDatastore datastore, Merger merger,
+            LockManager lockManager) {
         this.datastore = datastore;
         this.merger = merger;
+        this.lockManager = lockManager;
     }
 
     @Override
@@ -78,36 +82,32 @@ public class EntitiesGae implements Entities {
     }
 
     @Override
-    public void add(Iterable<MyFix> fixes) {
-        // use memcache as a lock manager to ensure synchronization on this
-        // method. Mutex = mutual exclusion object.
+    public void add(final Iterable<MyFix> fixes) {
 
-        // get a lock from the appengine memcache
-        MemcacheMutex mutex = new MemcacheMutex("addFix", 30000);
+        Runnable runnable = new Runnable() {
 
-        // check lock was obtained
-        if (!mutex.tryLock())
-            throw new CouldNotObtainLockException(
-                    "addFix could not obtain lock");
+            @Override
+            public void run() {
 
-        try {
-            // start the transaction
-            datastore.beginTransaction();
+                try {
+                    // start the transaction
+                    datastore.beginTransaction();
 
-            // add all the fixes
-            for (MyFix fix : fixes)
-                add(fix);
+                    // add all the fixes
+                    for (MyFix fix : fixes)
+                        add(fix);
 
-            // commit the transaction
-            datastore.getTransaction().commit();
-        } catch (RuntimeException e) {
-            // if an error occurs log the exception and rollback the transaction
-            logExceptionAndRollback(e);
-            throw e;
-        } finally {
-            // unlock the mutex
-            mutex.unlock();
-        }
+                    // commit the transaction
+                    datastore.getTransaction().commit();
+                } catch (RuntimeException e) {
+                    // if an error occurs log the exception and rollback the
+                    // transaction
+                    logExceptionAndRollback(e);
+                    throw e;
+                }
+            }
+        };
+        lockManager.performWithLock("addFix", runnable, LOCK_TIMEOUT);
     }
 
     /**

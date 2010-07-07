@@ -1,4 +1,4 @@
-package moten.david.ets.server;
+package moten.david.util.appengine;
 
 public class CouldNotObtainLockException extends RuntimeException {
 
