@@ -6,5 +6,6 @@ class MyServletModule extends com.google.inject.servlet.ServletModule {
         serve("/fix").with(EnqueueFixServlet.class);
         serve("/datastore").with(DatastoreServlet.class);
         serve("/processFix").with(ProcessFixServlet.class);
+        serve("/latest").with(CurrentPositionsServlet.class);
     }
 }

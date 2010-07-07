@@ -133,7 +133,7 @@ public class EntitiesGae implements Entities {
     public synchronized void add(MyFix fix) {
 
         // ensure parent is stored and the field initialized
-        MyParent parent = getParent();
+        MyParent parent = getParent(datastore, "main");
 
         // create timed identifiers from the fix identifiers
         log.info("creating set of TimedIdentifier from fix");
@@ -249,9 +249,9 @@ public class EntitiesGae implements Entities {
      * 
      * @return
      */
-    private MyParent getParent() {
+    public static MyParent getParent(ObjectDatastore datastore, String name) {
         log.info("loading parent");
-        MyParent parent = datastore.load(MyParent.class, "main");
+        MyParent parent = datastore.load(MyParent.class, name);
         if (parent == null) {
             log.info("storing parent");
             parent = new MyParent();

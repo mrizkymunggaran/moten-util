@@ -204,6 +204,13 @@
 			<artifactId>moten-util</artifactId>
 			<version>0.0.5-SNAPSHOT</version>
 		</dependency>
+		
+		<!--  kml -->
+		<dependency>
+			<groupId>org.moten.david.util.kml</groupId>
+			<artifactId>kml-2-2</artifactId>
+			<version>1.0.1</version>
+		</dependency>
 
 		<!--  twig gae persistence -->
 		<dependency>
@@ -228,12 +235,12 @@
 			<artifactId>aopalliance</artifactId>
 			<version>1.0</version>
 		</dependency>
-
 		<dependency>
 			<groupId>com.google.inject.extensions</groupId>
 			<artifactId>guice-servlet</artifactId>
 			<version>2.0</version>
 		</dependency>
+		
 	</dependencies>
 
 	<build>
@@ -360,14 +367,10 @@
 						</goals> </execution>
 					-->
 					<!-- don't compile till we need a GWT client -->
-					<!-- 
-					<execution>
-						<phase>compile</phase>
-						<goals>
-							<goal>compile</goal>
-						</goals>
-					</execution>
-					 -->
+					<!--
+						<execution> <phase>compile</phase> <goals> <goal>compile</goal>
+						</goals> </execution>
+					-->
 				</executions>
 			</plugin>
 
@@ -491,6 +494,10 @@
 			<url>
         http://mvn.twig-persist.googlecode.com/hg
             </url>
+		</repository>
+		<repository>
+			<id>googlecode-moten-util</id>
+			<url>http://moten-util.googlecode.com/svn/repo</url>
 		</repository>
 	</repositories>
 
