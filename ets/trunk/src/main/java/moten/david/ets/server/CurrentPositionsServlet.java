@@ -40,6 +40,7 @@ public class CurrentPositionsServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request,
             HttpServletResponse response) throws ServletException, IOException {
         try {
+            log.info("getting latest positions as kml");
             // start the transaction
             datastore.beginTransaction();
 
@@ -62,13 +63,14 @@ public class CurrentPositionsServlet extends HttpServlet {
             // marshall kml
             String kml = marshaller
                     .getKmlAsString(positions.getKmlType(), true);
+            log.fine(kml);
 
             // set the response headers for kml
             response.setContentType("application/vnd.google-earth.kml+xml");
 
             // write the output
             response.getOutputStream().print(kml);
-
+            log.info("returned kml");
         } catch (RuntimeException e) {
             log.log(Level.WARNING, e.getMessage(), e);
         } finally {
