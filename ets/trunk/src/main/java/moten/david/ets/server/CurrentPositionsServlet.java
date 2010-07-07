@@ -3,6 +3,8 @@ package moten.david.ets.server;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Iterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -21,6 +23,8 @@ import com.vercer.engine.persist.ObjectDatastore;
 @Singleton
 public class CurrentPositionsServlet extends HttpServlet {
 
+    private static Logger log = Logger.getLogger(CurrentPositionsServlet.class
+            .getName());
     private static final long serialVersionUID = -6649836825608807371L;
     private final KmlMarshaller marshaller;
     private final ObjectDatastore datastore;
@@ -65,6 +69,8 @@ public class CurrentPositionsServlet extends HttpServlet {
             // write the output
             response.getOutputStream().print(kml);
 
+        } catch (RuntimeException e) {
+            log.log(Level.WARNING, e.getMessage(), e);
         } finally {
             // no changes made so rollback
             if (datastore.getTransaction().isActive())
