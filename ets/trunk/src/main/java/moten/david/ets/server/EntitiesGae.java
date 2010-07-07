@@ -78,7 +78,7 @@ public class EntitiesGae implements Entities {
         datastore.deleteAll(Identity.class);
         datastore.deleteAll(MyEntity.class);
         datastore.deleteAll(MyParent.class);
-        log("deleted all entities");
+        log.info("deleted all entities");
     }
 
     @Override
@@ -134,11 +134,11 @@ public class EntitiesGae implements Entities {
         MyParent parent = getParent();
 
         // create timed identifiers from the fix identifiers
-        log("creating set of TimedIdentifier from fix");
+        log.info("creating set of TimedIdentifier from fix");
         Set<TimedIdentifier> fixIds = createTimedIdentifierSet(fix);
 
         // find intersections of fix with existing identifiers
-        log("finding intersections");
+        log.info("finding intersections");
         Set<Set<Identity>> intersectingIdentities = findIntersectingIdentities(
                 parent, fixIds);
         // record entity ids against identifiers
@@ -147,10 +147,10 @@ public class EntitiesGae implements Entities {
         Set<Set<TimedIdentifier>> intersecting = ImmutableSet
                 .copyOf(Collections2.transform(intersectingIdentities,
                         identitySetToTimedIdentifierSet));
-        log("intersecting=" + intersecting);
+        log.info("intersecting=" + intersecting);
 
         // calculate the merges of the fix with all intersecting entities
-        log("merging");
+        log.info("merging");
         MergeResult merge = merger.merge(fixIds, intersecting);
 
         // if none of the identifiers in the fix matched an existing entity
@@ -160,7 +160,7 @@ public class EntitiesGae implements Entities {
         else
             mergeWithDatastore(parent, fix, merge, identifierEntityIds);
 
-        log("fix added");
+        log.info("fix added");
 
     }
 
@@ -194,14 +194,14 @@ public class EntitiesGae implements Entities {
      */
     private void mergeWithDatastore(MyParent parent, MyFix fix,
             MergeResult merge, Map<Identifier, Long> identifierEntityIds) {
-        log("intersection not empty");
+        log.info("intersection not empty");
         // the merge result set that intersects identifier wise with
         // pmza will get the entity id of pmza. all other merge result
         // sets will be given the entity of the set in intersections
         // that intersects with it.
 
-        log("merge.pmza=" + merge.getPmza());
-        log("merge.merged=" + merge.getMerged());
+        log.info("merge.pmza=" + merge.getPmza());
+        log.info("merge.merged=" + merge.getMerged());
 
         // find the result of the merge on pmza (assign it to pmzaNew)
         Set<TimedIdentifier> pmzaNew = null;
@@ -227,7 +227,7 @@ public class EntitiesGae implements Entities {
         // corresponding to the non-merged primary match
         Long pmzaEntityId = identifierEntityIds.get(merge.getPmza().iterator()
                 .next().getIdentifier());
-        log("pmza entity id=" + pmzaEntityId);
+        log.info("pmza entity id=" + pmzaEntityId);
         for (TimedIdentifier ti : pmzaNew) {
             Identity identity = createIdentity(ti);
             identity.setEntityId(pmzaEntityId);
@@ -248,14 +248,14 @@ public class EntitiesGae implements Entities {
      * @return
      */
     private MyParent getParent() {
-        log("loading parent");
+        log.info("loading parent");
         MyParent parent = datastore.load(MyParent.class, "main");
         if (parent == null) {
-            log("storing parent");
+            log.info("storing parent");
             parent = new MyParent();
             parent.setName("main");
             datastore.store(parent);
-            log("stored parent");
+            log.info("stored parent");
         }
         return parent;
     }
@@ -269,13 +269,13 @@ public class EntitiesGae implements Entities {
      */
     private void storeNewEntity(MyParent parent, MyFix fix,
             Set<TimedIdentifier> fixIds) {
-        log("storing new identity");
+        log.info("storing new identity");
         MyEntity entity = new MyEntity();
         entity.setId(System.currentTimeMillis());
         entity.setLatestFix(fix.getFix());
         entity.setType("vessel");
         datastore.store(entity, parent);
-        log("stored new entity");
+        log.info("stored new entity");
         for (TimedIdentifier ti : fixIds) {
             Identity identity = createIdentity(ti);
             identity.setEntityId(entity.getId());
@@ -333,10 +333,6 @@ public class EntitiesGae implements Entities {
         return getTypeName(ti) + ":" + getTypeValue(ti);
     }
 
-    private void log(String string) {
-        log.info(string);
-    }
-
     /**
      * Returns all intersecting identities in terms of the identifier type and
      * value from a set of {@link TimedIdentifer}.
@@ -353,7 +349,7 @@ public class EntitiesGae implements Entities {
                 .newArrayList();
         for (TimedIdentifier ti : ids) {
             String id = getIdentityId(ti);
-            log("searching for Identity " + id);
+            log.info("searching for Identity " + id);
 
             // search for the identity using the value field
             Iterator<Identity> iterator = datastore.find().type(Identity.class)
@@ -378,7 +374,7 @@ public class EntitiesGae implements Entities {
             Identity identity = Iterators.getOnlyElement(iterator, null);
 
             if (identity == null)
-                log(id + " not found");
+                log.info(id + " not found");
             else {
                 Preconditions.checkNotNull(identity.getEntityId(),
                         "identity entity should not be null");
@@ -410,6 +406,9 @@ public class EntitiesGae implements Entities {
         return builder.build();
     }
 
+    /**
+     * Converts an {@link Identity} to a {@link TimedIdentifier}
+     */
     private static Function<? super Identity, TimedIdentifier> identityToTimedIdentifier = new Function<Identity, TimedIdentifier>() {
         @Override
         public TimedIdentifier apply(Identity i) {
@@ -421,6 +420,9 @@ public class EntitiesGae implements Entities {
         }
     };
 
+    /**
+     * Converts a set of {@link Identity} to a set of {@link TimedIdentifier}
+     */
     private static Function<Set<Identity>, Set<TimedIdentifier>> identitySetToTimedIdentifierSet = new Function<Set<Identity>, Set<TimedIdentifier>>() {
 
         @Override
@@ -431,6 +433,13 @@ public class EntitiesGae implements Entities {
 
     };
 
+    /**
+     * Creates a set of {@link TimedIdentifier} corresponding to the identifiers
+     * of <code>fix</code> with the time of <code>fix</code>.
+     * 
+     * @param fix
+     * @return
+     */
     private Set<TimedIdentifier> createTimedIdentifierSet(MyFix fix) {
         Builder<TimedIdentifier> builder = ImmutableSet.builder();
         for (String name : fix.getIds().keySet()) {
