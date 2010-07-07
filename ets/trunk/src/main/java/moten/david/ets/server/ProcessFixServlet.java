@@ -2,6 +2,7 @@ package moten.david.ets.server;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
@@ -86,8 +87,7 @@ public class ProcessFixServlet extends HttpServlet {
             response.getOutputStream().println(
                     "there are " + count + " entities eh");
         } catch (RuntimeException e) {
-            e.printStackTrace();
-            log.info(e.getMessage());
+            log.log(Level.WARNING, e.getMessage(), e);
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             response.getOutputStream().println(e.getMessage());
         }
