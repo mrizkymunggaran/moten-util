@@ -204,7 +204,7 @@
 			<artifactId>moten-util</artifactId>
 			<version>0.0.5-SNAPSHOT</version>
 		</dependency>
-		
+
 		<!--  kml -->
 		<dependency>
 			<groupId>org.moten.david.util.kml</groupId>
@@ -240,7 +240,7 @@
 			<artifactId>guice-servlet</artifactId>
 			<version>2.0</version>
 		</dependency>
-		
+
 	</dependencies>
 
 	<build>
@@ -367,10 +367,12 @@
 						</goals> </execution>
 					-->
 					<!-- don't compile till we need a GWT client -->
-					<!--
-						<execution> <phase>compile</phase> <goals> <goal>compile</goal>
-						</goals> </execution>
-					-->
+					<execution>
+						<phase>compile</phase>
+						<goals>
+							<goal>compile</goal>
+						</goals>
+					</execution>
 				</executions>
 			</plugin>
 
