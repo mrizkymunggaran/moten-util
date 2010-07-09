@@ -3,13 +3,19 @@ package moten.david.ets.client.model;
 import java.util.Date;
 
 public class Fix {
-    long id;
+    String id;
     double lat;
     double lon;
     Date time;
 
-    public long getId() {
+    public String getId() {
         return id;
+    }
+
+    @Override
+    public String toString() {
+        return "Fix [id=" + id + ", lat=" + lat + ", lon=" + lon + ", time="
+                + time + "]";
     }
 
     public double getLat() {
@@ -24,7 +30,7 @@ public class Fix {
         return time;
     }
 
-    public void setId(long id) {
+    public void setId(String id) {
         this.id = id;
     }
 

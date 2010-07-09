@@ -3,6 +3,7 @@ package moten.david.ets.server;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Date;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -77,7 +78,7 @@ public class ProcessFixServlet extends HttpServlet {
                         request.getParameter("lon"),
                         "parameter cannot be null: lon"));
                 Fix fix = new Fix();
-                fix.setId(System.currentTimeMillis());
+                fix.setId(UUID.randomUUID().toString());
                 fix.setLat(lat);
                 fix.setLon(lon);
                 fix.setTime(new Date(time));
@@ -106,9 +107,11 @@ public class ProcessFixServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request,
             HttpServletResponse response) throws ServletException, IOException {
         try {
-            String xml = request.getParameter("fixes");
+            String s = Preconditions.checkNotNull(
+                    request.getParameter("fixes"),
+                    "fixes parameter cannot be null");
             Iterable<MyFix> fixes = marshaller
-                    .unmarshal(new ByteArrayInputStream(xml.getBytes()));
+                    .unmarshal(new ByteArrayInputStream(s.getBytes()));
             entities.add(fixes);
         } catch (RuntimeException e) {
             log.log(Level.WARNING, e.getMessage(), e);

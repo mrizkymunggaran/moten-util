@@ -49,6 +49,6 @@ public class EnqueueFixServlet extends HttpServlet {
         TaskOptions options = url("/processFix").method(Method.POST);
         options = options.param("fixes", request.getParameter("fixes"));
         queue.add(options);
-        log.info("enqueued fixes via POST\n" + request.getParameter("fixes"));
+        log.fine("enqueued fixes via POST\n" + request.getParameter("fixes"));
     }
 }

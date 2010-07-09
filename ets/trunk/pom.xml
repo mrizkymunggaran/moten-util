@@ -241,6 +241,19 @@
 			<version>2.0</version>
 		</dependency>
 
+		<!--  easymock -->
+		<dependency>
+			<groupId>org.easymock</groupId>
+			<artifactId>easymock</artifactId>
+			<version>3.0</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>1.4</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -367,14 +380,10 @@
 						</goals> </execution>
 					-->
 					<!-- don't compile till we need a GWT client -->
-					<!-- 
-					<execution>
-						<phase>compile</phase>
-						<goals>
-							<goal>compile</goal>
-						</goals>
-					</execution>
-					 -->
+					<!--
+						<execution> <phase>compile</phase> <goals> <goal>compile</goal>
+						</goals> </execution>
+					-->
 				</executions>
 			</plugin>
 

@@ -6,6 +6,12 @@ import moten.david.ets.client.model.Fix;
 
 public class MyFix {
     private final Fix fix;
+
+    @Override
+    public String toString() {
+        return "MyFix [fix=" + fix + ", ids=" + ids + "]";
+    }
+
     private final Map<String, String> ids;
 
     public Map<String, String> getIds() {

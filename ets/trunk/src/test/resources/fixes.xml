@@ -1,0 +1,6 @@
+<fixes>
+	<fix id="1" time="2002-05-30T09:30:10.5" lat="-12.5" lon="142.7">
+		<identifier name="mmsi" value="123456789"/>
+		<identifier name="imo"  value="1234567"/>
+	</fix>
+</fixes>
