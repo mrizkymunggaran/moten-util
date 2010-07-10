@@ -14,6 +14,7 @@ import com.google.appengine.api.labs.taskqueue.Queue;
 import com.google.appengine.api.labs.taskqueue.QueueFactory;
 import com.google.appengine.api.labs.taskqueue.TaskOptions;
 import com.google.appengine.api.labs.taskqueue.TaskOptions.Method;
+import com.google.common.base.Preconditions;
 import com.google.inject.Singleton;
 
 /**
@@ -28,6 +29,11 @@ public class EnqueueFixServlet extends HttpServlet {
     private static final long serialVersionUID = 355060481242131732L;
     private static Logger log = Logger.getLogger(EnqueueFixServlet.class
             .getName());
+    private final EnqueueFixHandler handler;
+
+    public EnqueueFixServlet(EnqueueFixHandler handler) {
+        this.handler = handler;
+    }
 
     @Override
     protected void doGet(HttpServletRequest request,
@@ -44,11 +50,7 @@ public class EnqueueFixServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request,
             HttpServletResponse response) throws ServletException, IOException {
-
-        Queue queue = QueueFactory.getDefaultQueue();
-        TaskOptions options = url("/processFix").method(Method.POST);
-        options = options.param("fixes", request.getParameter("fixes"));
-        queue.add(options);
-        log.fine("enqueued fixes via POST\n" + request.getParameter("fixes"));
+        handler.doPost(Preconditions
+                .checkNotNull(request.getParameter("fixes")));
     }
 }

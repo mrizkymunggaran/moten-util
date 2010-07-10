@@ -20,6 +20,7 @@ import com.google.appengine.api.datastore.QueryResultIterator;
 import com.google.appengine.repackaged.com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.ImmutableMap.Builder;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -39,13 +40,15 @@ public class ProcessFixServlet extends HttpServlet {
     private final ObjectDatastore datastore;
     private final Entities entities;
     private final FixesMarshaller marshaller;
+    private final EnqueueFixHandler enqueueFixHandler;
 
     @Inject
     public ProcessFixServlet(ObjectDatastore datastore, Entities entities,
-            FixesMarshaller marshaller) {
+            FixesMarshaller marshaller, EnqueueFixHandler enqueueFixHandler) {
         this.datastore = datastore;
         this.entities = entities;
         this.marshaller = marshaller;
+        this.enqueueFixHandler = enqueueFixHandler;
     }
 
     @Override
@@ -113,7 +116,18 @@ public class ProcessFixServlet extends HttpServlet {
                     "fixes parameter cannot be null");
             List<MyFix> fixes = marshaller.unmarshal(new ByteArrayInputStream(s
                     .getBytes()));
-            entities.add(fixes);
+            int size = fixes.size();
+            final int MAX_QUEUEINGS = 10;
+            final int MAX_SIZE = 10;
+            if (size <= MAX_SIZE)
+                entities.add(fixes);
+            else {
+                List<List<MyFix>> lists = Lists.partition(fixes, size
+                        / MAX_QUEUEINGS);
+                for (List<MyFix> list : lists) {
+                    enqueueFixHandler.doPost(marshaller.marshall(list));
+                }
+            }
         } catch (RuntimeException e) {
             log.log(Level.WARNING, e.getMessage(), e);
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
