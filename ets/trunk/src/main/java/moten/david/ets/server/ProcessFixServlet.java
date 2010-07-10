@@ -3,6 +3,7 @@ package moten.david.ets.server;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -110,8 +111,8 @@ public class ProcessFixServlet extends HttpServlet {
             String s = Preconditions.checkNotNull(
                     request.getParameter("fixes"),
                     "fixes parameter cannot be null");
-            Iterable<MyFix> fixes = marshaller
-                    .unmarshal(new ByteArrayInputStream(s.getBytes()));
+            List<MyFix> fixes = marshaller.unmarshal(new ByteArrayInputStream(s
+                    .getBytes()));
             entities.add(fixes);
         } catch (RuntimeException e) {
             log.log(Level.WARNING, e.getMessage(), e);

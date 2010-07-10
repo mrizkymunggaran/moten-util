@@ -30,7 +30,7 @@ public class FixesMarshallerTest {
         Assert.assertEquals(142.7, fixes.get(0).getFix().getLon(), 0.0001);
         System.out.println(fixes);
         Assert.assertEquals(2, fixes.get(0).getIds().size());
-
+        System.out.println(m.marshall(fixes));
     }
 
     @Test

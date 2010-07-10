@@ -1,7 +1,9 @@
 package moten.david.ets.server;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 import javax.xml.datatype.DatatypeConfigurationException;
@@ -12,6 +14,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import moten.david.ets.client.model.Fix;
+import moten.david.util.xml.TaggedOutputStream;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -26,6 +29,7 @@ import com.google.inject.Singleton;
 @Singleton
 public class FixesMarshaller {
 
+    @SuppressWarnings("restriction")
     private final DatatypeFactory datatypeFactory;
 
     @SuppressWarnings("restriction")
@@ -35,6 +39,34 @@ public class FixesMarshaller {
         } catch (DatatypeConfigurationException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @SuppressWarnings("restriction")
+    public String marshall(Iterable<MyFix> fixes) {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        TaggedOutputStream t = new TaggedOutputStream(bytes, true);
+        t.startTag("fixes");
+        for (MyFix fix : fixes) {
+            t.startTag("fix");
+            t.addAttribute("lat", fix.getFix().getLat());
+            t.addAttribute("lon", fix.getFix().getLon());
+            GregorianCalendar cal = new GregorianCalendar();
+            cal.setTime(fix.getFix().getTime());
+            t.addAttribute("time", datatypeFactory.newXMLGregorianCalendar(cal)
+                    .toString());
+            if (fix.getFix().getId() != null)
+                t.addAttribute("id", fix.getFix().getId());
+            for (String identifier : fix.getIds().keySet()) {
+                t.startTag("identifier");
+                t.addAttribute("name", identifier);
+                t.addAttribute("value", fix.getIds().get(identifier));
+                t.closeTag();
+            }
+            t.closeTag();
+        }
+        t.closeTag();
+        t.close();
+        return bytes.toString();
     }
 
     @SuppressWarnings("restriction")
