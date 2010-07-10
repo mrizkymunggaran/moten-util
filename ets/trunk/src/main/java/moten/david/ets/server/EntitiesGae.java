@@ -92,15 +92,17 @@ public class EntitiesGae implements Entities {
             public void run() {
 
                 try {
-                    // start the transaction
-                    datastore.beginTransaction();
 
                     // add all the fixes
-                    for (MyFix fix : fixes)
+                    for (MyFix fix : fixes) {
+                        // start the transaction
+                        datastore.beginTransaction();
+                        // add the fix
                         add(fix);
+                        // commit the transaction
+                        datastore.getTransaction().commit();
+                    }
 
-                    // commit the transaction
-                    datastore.getTransaction().commit();
                 } catch (RuntimeException e) {
                     // if an error occurs log the exception and rollback the
                     // transaction
@@ -109,7 +111,9 @@ public class EntitiesGae implements Entities {
                 }
             }
         };
-        lockManager.performWithLock("addFix", runnable, LOCK_TIMEOUT);
+        // lockManager.performWithLock("addFix", runnable, LOCK_TIMEOUT);
+        runnable.run();
+
     }
 
     /**
@@ -119,9 +123,10 @@ public class EntitiesGae implements Entities {
      */
     private void logExceptionAndRollback(RuntimeException e) {
         log.log(Level.SEVERE, e.getMessage(), e);
-        log.info("rolling back");
-        if (datastore.getTransaction().isActive())
+        if (datastore.getTransaction().isActive()) {
+            log.info("rolling back");
             datastore.getTransaction().rollback();
+        }
         log.info("rolled back");
     }
 

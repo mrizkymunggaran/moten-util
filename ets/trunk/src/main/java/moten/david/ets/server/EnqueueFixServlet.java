@@ -15,6 +15,7 @@ import com.google.appengine.api.labs.taskqueue.QueueFactory;
 import com.google.appengine.api.labs.taskqueue.TaskOptions;
 import com.google.appengine.api.labs.taskqueue.TaskOptions.Method;
 import com.google.common.base.Preconditions;
+import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 /**
@@ -31,6 +32,7 @@ public class EnqueueFixServlet extends HttpServlet {
             .getName());
     private final EnqueueFixHandler handler;
 
+    @Inject
     public EnqueueFixServlet(EnqueueFixHandler handler) {
         this.handler = handler;
     }
