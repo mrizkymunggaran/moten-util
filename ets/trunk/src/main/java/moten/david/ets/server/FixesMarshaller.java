@@ -26,13 +26,12 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableList.Builder;
 import com.google.inject.Singleton;
 
+@SuppressWarnings("restriction")
 @Singleton
 public class FixesMarshaller {
 
-    @SuppressWarnings("restriction")
     private final DatatypeFactory datatypeFactory;
 
-    @SuppressWarnings("restriction")
     public FixesMarshaller() {
         try {
             datatypeFactory = DatatypeFactory.newInstance();
@@ -41,7 +40,6 @@ public class FixesMarshaller {
         }
     }
 
-    @SuppressWarnings("restriction")
     public String marshall(Iterable<MyFix> fixes) {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         TaggedOutputStream t = new TaggedOutputStream(bytes, true);
@@ -69,7 +67,6 @@ public class FixesMarshaller {
         return bytes.toString();
     }
 
-    @SuppressWarnings("restriction")
     public List<MyFix> unmarshal(InputStream is) {
 
         try {
