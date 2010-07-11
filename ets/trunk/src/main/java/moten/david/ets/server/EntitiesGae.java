@@ -36,6 +36,7 @@ import com.google.common.collect.Iterators;
 import com.google.common.collect.ImmutableSet.Builder;
 import com.google.inject.Inject;
 import com.vercer.engine.persist.ObjectDatastore;
+import com.vercer.engine.persist.standard.StrategyObjectDatastore;
 
 /**
  * Stores fixes in a google app engine datastore using the Matchstack merge
@@ -101,6 +102,8 @@ public class EntitiesGae implements Entities {
                         add(fix);
                         // commit the transaction
                         datastore.getTransaction().commit();
+                        ((StrategyObjectDatastore) datastore)
+                                .removeTransaction();
                     }
 
                 } catch (RuntimeException e) {
