@@ -4,6 +4,11 @@ import java.util.Date;
 
 import com.vercer.engine.persist.annotation.Key;
 
+/**
+ * Identifying key value pair for a {@link MyEntity}.
+ * 
+ * @author dxm
+ */
 public class Identity {
 
     @Key

@@ -3,6 +3,11 @@ package moten.david.ets.client.model;
 import com.vercer.engine.persist.annotation.Embed;
 import com.vercer.engine.persist.annotation.Key;
 
+/**
+ * An entity which includes a type, geoHash and latest position (fix).
+ * 
+ * @author dxm
+ */
 public class MyEntity {
     @Key
     long id;

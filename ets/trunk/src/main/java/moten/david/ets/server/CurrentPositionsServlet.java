@@ -20,6 +20,11 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.vercer.engine.persist.ObjectDatastore;
 
+/**
+ * Returns kml of the current entities and their positions and identifiers.
+ * 
+ * @author dxm
+ */
 @Singleton
 public class CurrentPositionsServlet extends HttpServlet {
 

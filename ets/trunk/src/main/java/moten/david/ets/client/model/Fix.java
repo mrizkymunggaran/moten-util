@@ -2,6 +2,11 @@ package moten.david.ets.client.model;
 
 import java.util.Date;
 
+/**
+ * A position report.
+ * 
+ * @author dxm
+ */
 public class Fix {
     String id;
     double lat;
