@@ -121,12 +121,15 @@ public class ProcessFixServlet extends HttpServlet {
             int size = fixes.size();
             final int MAX_QUEUEINGS = 10;
             final int MAX_SIZE = 1;
-            if (size <= MAX_SIZE)
+            if (size <= MAX_SIZE) {
+                log.info("adding fix");
                 entities.add(fixes);
-            else {
+                log.info("added fix");
+            } else {
                 List<List<MyFix>> lists = Lists.partition(fixes, Math.max(1,
                         size / MAX_QUEUEINGS));
                 for (List<MyFix> list : lists) {
+                    log.info("enqueuing " + list.size() + " fixes");
                     enqueueFixHandler.doPost(marshaller.marshall(list));
                 }
             }
