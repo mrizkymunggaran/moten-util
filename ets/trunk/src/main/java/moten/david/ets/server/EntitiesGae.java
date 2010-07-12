@@ -164,7 +164,7 @@ public class EntitiesGae implements Entities {
 
         // if none of the identifiers in the fix matched an existing entity
         // then create a new one
-        if (merge.getPmza().size() == 0)
+        if (merge.getPmza().isEmpty())
             storeNewEntity(parent, fix, fixIds);
         else
             mergeWithDatastore(parent, fix, merge, identifierEntityIds);
