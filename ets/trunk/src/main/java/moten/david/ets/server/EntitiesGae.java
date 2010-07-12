@@ -114,9 +114,8 @@ public class EntitiesGae implements Entities {
                 }
             }
         };
-        // lockManager.performWithLock("addFix", runnable, LOCK_TIMEOUT);
-        runnable.run();
-
+        lockManager.performWithLock("addFix", runnable, LOCK_TIMEOUT);
+        // runnable.run();
     }
 
     /**
@@ -127,7 +126,7 @@ public class EntitiesGae implements Entities {
     private void logExceptionAndRollback(RuntimeException e) {
         log.log(Level.SEVERE, e.getMessage(), e);
         if (datastore.getTransaction().isActive()) {
-            log.info("rolling back");
+            log.fine("rolling back");
             datastore.getTransaction().rollback();
         }
         log.info("rolled back");
@@ -148,7 +147,7 @@ public class EntitiesGae implements Entities {
         Set<TimedIdentifier> fixIds = createTimedIdentifierSet(fix);
 
         // find intersections of fix with existing identifiers
-        log.info("finding intersections");
+        log.fine("finding intersections");
         Set<Set<Identity>> intersectingIdentities = findIntersectingIdentities(
                 parent, fixIds);
         // record entity ids against identifiers
@@ -157,10 +156,10 @@ public class EntitiesGae implements Entities {
         Set<Set<TimedIdentifier>> intersecting = ImmutableSet
                 .copyOf(Collections2.transform(intersectingIdentities,
                         identitySetToTimedIdentifierSet));
-        log.info("intersecting=" + intersecting);
+        log.fine("intersecting=" + intersecting);
 
         // calculate the merges of the fix with all intersecting entities
-        log.info("merging");
+        log.fine("merging");
         MergeResult merge = merger.merge(fixIds, intersecting);
 
         // if none of the identifiers in the fix matched an existing entity
@@ -170,7 +169,7 @@ public class EntitiesGae implements Entities {
         else
             mergeWithDatastore(parent, fix, merge, identifierEntityIds);
 
-        log.info("fix added");
+        log.fine("fix added");
 
     }
 
@@ -204,14 +203,14 @@ public class EntitiesGae implements Entities {
      */
     private void mergeWithDatastore(MyParent parent, MyFix fix,
             MergeResult merge, Map<Identifier, Long> identifierEntityIds) {
-        log.info("intersection not empty");
+        log.fine("intersection not empty");
         // the merge result set that intersects identifier wise with
         // pmza will get the entity id of pmza. all other merge result
         // sets will be given the entity of the set in intersections
         // that intersects with it.
 
-        log.info("merge.pmza=" + merge.getPmza());
-        log.info("merge.merged=" + merge.getMerged());
+        log.fine("merge.pmza=" + merge.getPmza());
+        log.fine("merge.merged=" + merge.getMerged());
 
         // find the result of the merge on pmza (assign it to pmzaNew)
         Set<TimedIdentifier> pmzaNew = null;
@@ -237,7 +236,7 @@ public class EntitiesGae implements Entities {
         // corresponding to the non-merged primary match
         Long pmzaEntityId = identifierEntityIds.get(merge.getPmza().iterator()
                 .next().getIdentifier());
-        log.info("pmza entity id=" + pmzaEntityId);
+        log.fine("pmza entity id=" + pmzaEntityId);
         for (TimedIdentifier ti : pmzaNew) {
             Identity identity = createIdentity(ti);
             identity.setEntityId(pmzaEntityId);
@@ -258,14 +257,14 @@ public class EntitiesGae implements Entities {
      * @return
      */
     public static MyParent getParent(ObjectDatastore datastore, String name) {
-        log.info("loading parent");
+        log.fine("loading parent");
         MyParent parent = datastore.load(MyParent.class, name);
         if (parent == null) {
-            log.info("storing parent");
+            log.fine("storing parent");
             parent = new MyParent();
             parent.setName("main");
             datastore.store(parent);
-            log.info("stored parent");
+            log.fine("stored parent");
         }
         return parent;
     }
@@ -279,13 +278,13 @@ public class EntitiesGae implements Entities {
      */
     private void storeNewEntity(MyParent parent, MyFix fix,
             Set<TimedIdentifier> fixIds) {
-        log.info("storing new identity");
+        log.fine("storing new identity");
         MyEntity entity = new MyEntity();
         entity.setId(System.currentTimeMillis());
         entity.setLatestFix(fix.getFix());
         entity.setType("vessel");
         datastore.store(entity, parent);
-        log.info("stored new entity");
+        log.fine("stored new entity");
         for (TimedIdentifier ti : fixIds) {
             Identity identity = createIdentity(ti);
             identity.setEntityId(entity.getId());
@@ -359,7 +358,7 @@ public class EntitiesGae implements Entities {
                 .builder();
         for (TimedIdentifier ti : ids) {
             String id = getIdentityId(ti);
-            log.info("searching for Identity " + id);
+            log.fine("searching for Identity " + id);
 
             // search for the identity using the value field
             Iterator<Identity> iterator = datastore.find().type(Identity.class)
@@ -378,7 +377,7 @@ public class EntitiesGae implements Entities {
 
             if (identity == null)
                 // not intersecting
-                log.info(id + " not found");
+                log.fine(id + " not found");
             else {
                 Preconditions.checkNotNull(identity.getEntityId(),
                         "identity entity should not be null");
