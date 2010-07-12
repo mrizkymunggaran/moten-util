@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import moten.david.ets.client.model.Fix;
 import moten.david.ets.client.model.MyEntity;
+import moten.david.util.appengine.CouldNotObtainLockException;
 
 import com.google.appengine.api.datastore.QueryResultIterator;
 import com.google.appengine.repackaged.com.google.common.base.Preconditions;
@@ -129,6 +130,8 @@ public class ProcessFixServlet extends HttpServlet {
                     enqueueFixHandler.doPost(marshaller.marshall(list));
                 }
             }
+        } catch (CouldNotObtainLockException e) {
+            log.log(Level.WARNING, e.getMessage());
         } catch (RuntimeException e) {
             log.log(Level.WARNING, e.getMessage(), e);
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
