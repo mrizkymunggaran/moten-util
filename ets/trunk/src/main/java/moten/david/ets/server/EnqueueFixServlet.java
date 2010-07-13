@@ -32,6 +32,11 @@ public class EnqueueFixServlet extends HttpServlet {
             .getName());
     private final EnqueueFixHandler handler;
 
+    /**
+     * Constructor.
+     * 
+     * @param handler
+     */
     @Inject
     public EnqueueFixServlet(EnqueueFixHandler handler) {
         this.handler = handler;

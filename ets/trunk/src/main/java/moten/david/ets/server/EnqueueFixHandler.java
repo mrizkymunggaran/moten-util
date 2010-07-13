@@ -10,12 +10,23 @@ import com.google.appengine.api.labs.taskqueue.TaskOptions;
 import com.google.appengine.api.labs.taskqueue.TaskOptions.Method;
 import com.google.inject.Singleton;
 
+/**
+ * Enqueues fixes to an Appengine Task Queue.
+ * 
+ * @author dave
+ * 
+ */
 @Singleton
 public class EnqueueFixHandler {
 
     private final Logger log = Logger.getLogger(EnqueueFixHandler.class
             .getName());
 
+    /**
+     * Post the xml to the task queue that processes fixes.
+     * 
+     * @param fixesXml
+     */
     public void doPost(String fixesXml) {
         Queue queue = QueueFactory.getDefaultQueue();
         TaskOptions options = url("/processFix").method(Method.POST);

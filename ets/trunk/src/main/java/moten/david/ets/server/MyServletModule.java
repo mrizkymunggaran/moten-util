@@ -1,5 +1,11 @@
 package moten.david.ets.server;
 
+/**
+ * Servlet dependency injection.
+ * 
+ * @author dave
+ * 
+ */
 class MyServletModule extends com.google.inject.servlet.ServletModule {
     @Override
     protected void configureServlets() {

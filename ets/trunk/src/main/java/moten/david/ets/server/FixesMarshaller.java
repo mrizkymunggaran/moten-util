@@ -26,12 +26,21 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableList.Builder;
 import com.google.inject.Singleton;
 
+/**
+ * Marshalls and unmarshalls fixes xml.
+ * 
+ * @author dave
+ * 
+ */
 @SuppressWarnings("restriction")
 @Singleton
 public class FixesMarshaller {
 
     private final DatatypeFactory datatypeFactory;
 
+    /**
+     * Constructor.
+     */
     public FixesMarshaller() {
         try {
             datatypeFactory = DatatypeFactory.newInstance();
@@ -40,6 +49,12 @@ public class FixesMarshaller {
         }
     }
 
+    /**
+     * Marshal <code>fixes</code> into xml.
+     * 
+     * @param fixes
+     * @return
+     */
     public String marshall(Iterable<MyFix> fixes) {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         TaggedOutputStream t = new TaggedOutputStream(bytes, true);
@@ -67,6 +82,13 @@ public class FixesMarshaller {
         return bytes.toString();
     }
 
+    /**
+     * Reads xml from the InputStream <code>is</code> and converts to a list of
+     * fixes.
+     * 
+     * @param is
+     * @return
+     */
     public List<MyFix> unmarshal(InputStream is) {
 
         try {
