@@ -143,7 +143,7 @@ public class EntitiesGae implements Entities {
         MyParent parent = getParent(datastore, "main");
 
         // create timed identifiers from the fix identifiers
-        log.info("creating set of TimedIdentifier from fix");
+        log.fine("creating set of TimedIdentifier from fix");
         Set<TimedIdentifier> fixIds = createTimedIdentifierSet(fix);
 
         // find intersections of fix with existing identifiers

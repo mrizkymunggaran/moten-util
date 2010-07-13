@@ -87,6 +87,7 @@ public class ProcessFixServlet extends HttpServlet {
                 fix.setId(UUID.randomUUID().toString());
                 fix.setLat(lat);
                 fix.setLon(lon);
+                fix.setExtra(request.getParameter("extra"));
                 fix.setTime(new Date(time));
                 MyFix f = new MyFix(fix, builder.build());
                 entities.add(ImmutableList.of(f));
@@ -122,9 +123,9 @@ public class ProcessFixServlet extends HttpServlet {
             final int MAX_QUEUEINGS = 10;
             final int MAX_SIZE = 10;
             if (size <= MAX_SIZE) {
-                log.info("adding fix");
+                log.info("adding fixes");
                 entities.add(fixes);
-                log.info("added fix");
+                log.info("added fixes");
             } else {
                 List<List<MyFix>> lists = Lists.partition(fixes, Math.max(1,
                         size / MAX_QUEUEINGS));

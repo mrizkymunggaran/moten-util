@@ -12,6 +12,7 @@ public class Fix {
     double lat;
     double lon;
     Date time;
+    String extra;
 
     public String getId() {
         return id;
@@ -50,4 +51,13 @@ public class Fix {
     public void setTime(Date time) {
         this.time = time;
     }
+
+    public String getExtra() {
+        return extra;
+    }
+
+    public void setExtra(String extra) {
+        this.extra = extra;
+    }
+
 }
