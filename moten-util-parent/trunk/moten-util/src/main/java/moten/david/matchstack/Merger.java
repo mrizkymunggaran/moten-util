@@ -95,7 +95,7 @@ public class Merger {
         log("calculating size");
         int size = intersecting.size();
         log("size = " + size);
-        if (size == 0)
+        if (intersecting.isEmpty())
             return ImmutableSet.of();
         else {
             log("pm calculating max");
@@ -145,7 +145,7 @@ public class Merger {
      */
     public Set<TimedIdentifier> product(final Set<TimedIdentifier> x,
             final Set<TimedIdentifier> y, final Set<TimedIdentifier> r) {
-        if (y.size() == 0 || r.size() == 0)
+        if (y.isEmpty() || r.isEmpty())
             return x;
         else if (strictSetComparator.compare(r, y) < 0) {
             final Set<Identifier> yIds = ids(y);

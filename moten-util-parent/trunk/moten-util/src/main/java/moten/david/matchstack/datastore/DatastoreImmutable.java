@@ -150,7 +150,7 @@ public class DatastoreImmutable {
 
     @Override
     public String toString() {
-        if (z.size() == 0)
+        if (z.isEmpty())
             return "empty";
         StringBuffer s = new StringBuffer();
         for (Set<TimedIdentifier> set : z) {
