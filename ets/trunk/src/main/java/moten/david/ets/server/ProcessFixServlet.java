@@ -120,7 +120,7 @@ public class ProcessFixServlet extends HttpServlet {
                     .getBytes()));
             int size = fixes.size();
             final int MAX_QUEUEINGS = 10;
-            final int MAX_SIZE = 1;
+            final int MAX_SIZE = 10;
             if (size <= MAX_SIZE) {
                 log.info("adding fix");
                 entities.add(fixes);
