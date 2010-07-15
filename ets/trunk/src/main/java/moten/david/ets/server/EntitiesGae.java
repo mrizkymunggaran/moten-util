@@ -361,19 +361,8 @@ public class EntitiesGae implements Entities {
             log.fine("searching for Identity " + id);
 
             // search for the identity using the value field
-            Iterator<Identity> iterator = datastore.find().type(Identity.class)
-                    .addFilter("value", Query.FilterOperator.EQUAL,
-                            getTypeValue(ti)).withAncestor(parent)
-                    .returnResultsNow();
-
-            // get the name of the timed identifier for filtering
-            final String typeName = getTypeName(ti);
-
-            // refine the search using the identifier type name
-            iterator = filterByTypeName(iterator, typeName);
-
-            // ensure only one item returned (null means not found)
-            Identity identity = Iterators.getOnlyElement(iterator, null);
+            Identity identity = datastore.load(Identity.class,
+                    getIdentityId(ti), parent);
 
             if (identity == null)
                 // not intersecting
