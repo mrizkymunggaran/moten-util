@@ -371,7 +371,7 @@ public class EntitiesGae implements Entities {
                 Preconditions.checkNotNull(identity.getEntityId(),
                         "identity entity should not be null");
                 if (!entityIdsUsed.contains(identity.getEntityId())) {
-                    futures.add(startEntityIdentitiesQuery(parent, identity
+                    futures.add(getEntityIdentities(parent, identity
                             .getEntityId()));
                 }
                 entityIdsUsed.add(identity.getEntityId());
@@ -390,7 +390,7 @@ public class EntitiesGae implements Entities {
      * @param entityId
      * @return
      */
-    private Future<QueryResultIterator<Identity>> startEntityIdentitiesQuery(
+    private Future<QueryResultIterator<Identity>> getEntityIdentities(
             MyParent parent, Long entityId) {
         // find all identities of the intersecting asynchronously
         Future<QueryResultIterator<Identity>> future = datastore.find().type(
