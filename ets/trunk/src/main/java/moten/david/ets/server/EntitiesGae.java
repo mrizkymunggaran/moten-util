@@ -2,7 +2,6 @@ package moten.david.ets.server;
 
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -32,7 +31,6 @@ import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterators;
 import com.google.common.collect.ImmutableSet.Builder;
 import com.google.inject.Inject;
 import com.vercer.engine.persist.ObjectDatastore;
@@ -46,7 +44,7 @@ import com.vercer.engine.persist.standard.StrategyObjectDatastore;
  */
 public class EntitiesGae implements Entities {
 
-    private static final int LOCK_TIMEOUT = 30000;
+    private static final int LOCK_TIMEOUT_MS = 30000;
     private static final Logger log = Logger.getLogger(EntitiesGae.class
             .getName());
     /**
@@ -114,7 +112,7 @@ public class EntitiesGae implements Entities {
                 }
             }
         };
-        lockManager.performWithLock("addFix", runnable, LOCK_TIMEOUT);
+        lockManager.performWithLock("addFix", runnable, LOCK_TIMEOUT_MS);
         // runnable.run();
     }
 
@@ -423,26 +421,6 @@ public class EntitiesGae implements Entities {
             }
         }
         return builder.build();
-    }
-
-    /**
-     * Returns an iterator which is filtered for type Name equals
-     * <code>typeName</code>.
-     * 
-     * @param iterator
-     * @param typeName
-     * @return
-     */
-    private Iterator<Identity> filterByTypeName(Iterator<Identity> iterator,
-            final String typeName) {
-        return Iterators.filter(iterator,
-                new com.google.common.base.Predicate<Identity>() {
-
-                    @Override
-                    public boolean apply(Identity identity) {
-                        return typeName.equals(identity.getName());
-                    }
-                });
     }
 
     /**
