@@ -5,6 +5,17 @@
 	<artifactId>matchstack-scala</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>matchstack-java</name>
+	<properties>
+		<scalaVersion>2.8.0</scalaVersion>
+	</properties>
+	<dependencies>
+		<dependency>
+			<groupId>org.scala-lang</groupId>
+			<artifactId>scala-library</artifactId>
+			<version>${scalaVersion}</version>
+			<optional>true</optional>
+		</dependency>
+	</dependencies>
 	<build>
 		<sourceDirectory>src/main/scala</sourceDirectory>
 		<testSourceDirectory>src/test/scala</testSourceDirectory>
@@ -12,7 +23,18 @@
 			<plugin>
 				<groupId>org.scala-tools</groupId>
 				<artifactId>maven-scala-plugin</artifactId>
-				<version>2.12</version>
+				<!-- 
+				<executions>
+					<execution>
+						<phase>compile</phase>
+						<goals>
+							<goal>add-source</goal>
+							<goal>compile</goal>
+							<goal>testCompile</goal>
+						</goals>
+					</execution>
+				</executions>
+				 -->
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
