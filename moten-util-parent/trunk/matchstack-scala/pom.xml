@@ -63,11 +63,4 @@
 			<url>http://scala-tools.org/repo-releases</url>
 		</pluginRepository>
 	</pluginRepositories>
-	<dependencies>
-		<dependency>
-			<groupId>org.moten.david.util</groupId>
-			<artifactId>moten-util</artifactId>
-			<version>0.0.5-SNAPSHOT</version>
-		</dependency>
-	</dependencies>
 </project>
