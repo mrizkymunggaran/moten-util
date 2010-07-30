@@ -37,8 +37,8 @@ import com.vercer.engine.persist.ObjectDatastore;
 import com.vercer.engine.persist.standard.StrategyObjectDatastore;
 
 /**
- * Stores fixes in a google app engine datastore using the Matchstack merge
- * engine from moten-util.
+ * Stores fixes in a google app engine datastore using Twig persistence and the
+ * Matchstack merge engine from moten-util.
  * 
  * @author dxm
  */
