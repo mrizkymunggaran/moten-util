@@ -51,8 +51,7 @@ class DataStore {
          if ( !z.exists(a => !x.exists( id(a) contains _.identifier))) 
            z
          else { 
-           val zid = z.map(id(_).intersect(id(x)))
-           
+           //val zid = z.map(id(_).intersect(id(x)))
              
            z
          }
