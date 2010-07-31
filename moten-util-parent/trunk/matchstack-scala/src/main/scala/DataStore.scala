@@ -4,7 +4,7 @@ class DataStore {
       
      trait IdentifierType {
          def strength: Double
-         def rank: Double
+         def rank: Double 
      }
      
      trait Identifier {
@@ -43,6 +43,10 @@ class DataStore {
      //in scala 2.8 this one can be done using .max on a collection
      def max(c:Collection[TimedIdentifier]):TimedIdentifier = 
                c.foldLeft(null.asInstanceOf[TimedIdentifier])((a,b) => greater(a,b))
+               
+     object IdentifierTypeStrength extends Ordering[IdentifierType] { 
+         def compare(a: IdentifierType, b: IdentifierType) 
+             = a.strength compare b.strength}
      
      def pm(z: Set[Set[TimedIdentifier]], x:Set[TimedIdentifier]) = {
        if (z.isEmpty) 
@@ -52,7 +56,7 @@ class DataStore {
            z
          else { 
            //val zid = z.map(id(_).intersect(id(x)))
-             
+           
            
          }
        }
