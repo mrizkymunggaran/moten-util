@@ -134,12 +134,10 @@
 	</pluginRepositories>
 	<reporting>
 		<plugins>
-		<!-- 
-			<plugin>
-				<groupId>org.jvnet.sorcerer</groupId>
-				<artifactId>maven-sorcerer-plugin</artifactId>
-			</plugin>
-			 -->
+			<!--
+				<plugin> <groupId>org.jvnet.sorcerer</groupId>
+				<artifactId>maven-sorcerer-plugin</artifactId> </plugin>
+			-->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-checkstyle-plugin</artifactId>
@@ -172,6 +170,10 @@
 			<id>moten-util-repo</id>
 			<url>svn:https://moten-util.googlecode.com/svn/repo</url>
 		</repository>
+		<site>
+			<id>moten-util</id>
+			<url>scp://moten-util.googlecode.com/</url>
+		</site>
 	</distributionManagement>
 	<!--
 		Build: mvn clean install Dry run of release: mvn release:prepare
