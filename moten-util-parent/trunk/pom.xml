@@ -177,11 +177,13 @@
 				<artifactId>dashboard-maven-plugin</artifactId>
 				<version>1.0.0-beta-1</version>
 			</plugin>
+<!--
 			<plugin>
 				<groupId>org.jvnet.sorcerer</groupId>
 				<artifactId>maven-sorcerer-plugin</artifactId>
 				<version>0.8</version>
 			</plugin>
+-->
 		</plugins>
 	</reporting>
 	<distributionManagement>
