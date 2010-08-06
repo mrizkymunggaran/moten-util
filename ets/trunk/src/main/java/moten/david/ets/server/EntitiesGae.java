@@ -1,5 +1,12 @@
 package moten.david.ets.server;
 
+import static moten.david.ets.server.Util.createTimedIdentifierSet;
+import static moten.david.ets.server.Util.getIdentityId;
+import static moten.david.ets.server.Util.getTypeName;
+import static moten.david.ets.server.Util.getTypeValue;
+import static moten.david.ets.server.Util.identitySetToTimedIdentifierSet;
+import static moten.david.ets.server.Util.identityToTimedIdentifier;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,9 +24,6 @@ import moten.david.matchstack.Util;
 import moten.david.matchstack.Merger.MergeResult;
 import moten.david.matchstack.types.Identifier;
 import moten.david.matchstack.types.TimedIdentifier;
-import moten.david.matchstack.types.impl.MyIdentifier;
-import moten.david.matchstack.types.impl.MyIdentifierType;
-import moten.david.matchstack.types.impl.MyTimedIdentifier;
 import moten.david.util.appengine.LockManager;
 import moten.david.util.collections.CollectionsUtil;
 
@@ -27,7 +31,6 @@ import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.QueryResultIterator;
 import com.google.appengine.repackaged.com.google.common.base.Preconditions;
 import com.google.appengine.repackaged.com.google.common.collect.Sets;
-import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -177,7 +180,7 @@ public class EntitiesGae implements Entities {
      * @param intersectingIdentities
      * @return
      */
-    private Map<Identifier, Long> recordEntityIdsByIdentifier(
+    private static Map<Identifier, Long> recordEntityIdsByIdentifier(
             Set<Set<Identity>> intersectingIdentities) {
         HashMap<Identifier, Long> map = new HashMap<Identifier, Long>();
         for (Set<Identity> set : intersectingIdentities) {
@@ -211,24 +214,10 @@ public class EntitiesGae implements Entities {
         log.fine("merge.merged=" + merge.getMerged());
 
         // find the result of the merge on pmza (assign it to pmzaNew)
-        Set<TimedIdentifier> pmzaNew = null;
-        Set<Identifier> pmzaIds = Util.ids(merge.getPmza());
-        for (Set<TimedIdentifier> set : merge.getMerged()) {
-            if (CollectionsUtil.intersect(Util.ids(set), pmzaIds)) {
-                pmzaNew = set;
-            }
-        }
-        Preconditions.checkNotNull(pmzaNew, "pmzaNew should not be null");
+        Set<TimedIdentifier> pmzaNew = getPmzaNew(merge);
 
         // for all merged sets create and store identity objects
-        for (Set<TimedIdentifier> set : merge.getMerged()) {
-            for (TimedIdentifier ti : set) {
-                Identity identity = createIdentity(ti);
-                identity.setEntityId(identifierEntityIds
-                        .get(ti.getIdentifier()));
-                datastore.storeOrUpdate(identity, parent);
-            }
-        }
+        storeIdentities(datastore, merge, identifierEntityIds, parent);
 
         // override the primary match merged set with the entity
         // corresponding to the non-merged primary match
@@ -246,6 +235,44 @@ public class EntitiesGae implements Entities {
         MyEntity entity = datastore.load(MyEntity.class, pmzaEntityId, parent);
         entity.setLatestFix(fix.getFix());
         datastore.update(entity);
+    }
+
+    /**
+     * Store identities in the datastore.
+     * 
+     * @param datastore2
+     * @param merge
+     * @param identifierEntityIds
+     * @param parent
+     */
+    private void storeIdentities(ObjectDatastore datastore2, MergeResult merge,
+            Map<Identifier, Long> identifierEntityIds, MyParent parent) {
+        for (Set<TimedIdentifier> set : merge.getMerged()) {
+            for (TimedIdentifier ti : set) {
+                Identity identity = createIdentity(ti);
+                identity.setEntityId(identifierEntityIds
+                        .get(ti.getIdentifier()));
+                datastore.storeOrUpdate(identity, parent);
+            }
+        }
+    }
+
+    /**
+     * Get the new pmza.
+     * 
+     * @param merge
+     * @return
+     */
+    private Set<TimedIdentifier> getPmzaNew(MergeResult merge) {
+        Set<TimedIdentifier> pmzaNew = null;
+        Set<Identifier> pmzaIds = Util.ids(merge.getPmza());
+        for (Set<TimedIdentifier> set : merge.getMerged()) {
+            if (CollectionsUtil.intersect(Util.ids(set), pmzaIds)) {
+                pmzaNew = set;
+            }
+        }
+        Preconditions.checkNotNull(pmzaNew, "pmzaNew should not be null");
+        return pmzaNew;
     }
 
     /**
@@ -291,30 +318,6 @@ public class EntitiesGae implements Entities {
     }
 
     /**
-     * Returns the type name of a {@link TimedIdentifier} (assumes it is an
-     * instance of {@link MyTimedIdentifier}.
-     * 
-     * @param ti
-     * @return
-     */
-    private String getTypeName(TimedIdentifier ti) {
-        MyIdentifierType type = (MyIdentifierType) ((MyTimedIdentifier) ti)
-                .getIdentifier().getIdentifierType();
-        return type.getName();
-    }
-
-    /**
-     * Returns the value field of a {@link TimedIdentifier} (assumes it is an
-     * instance of {@link MyTimedIdentifier}.
-     * 
-     * @param ti
-     * @return
-     */
-    private String getTypeValue(TimedIdentifier ti) {
-        return ((MyTimedIdentifier) ti).getIdentifier().getValue();
-    }
-
-    /**
      * Creates an {@link Identity} from a {@link TimedIdentifier}.
      * 
      * @param ti
@@ -327,17 +330,6 @@ public class EntitiesGae implements Entities {
         identity.setValue(getTypeValue(ti));
         identity.setTime(new Date(ti.getTime()));
         return identity;
-    }
-
-    /**
-     * Returns a string representation of the identifier part of a timed
-     * identifier.
-     * 
-     * @param ti
-     * @return
-     */
-    private String getIdentityId(TimedIdentifier ti) {
-        return getTypeName(ti) + ":" + getTypeValue(ti);
     }
 
     /**
@@ -419,53 +411,6 @@ public class EntitiesGae implements Entities {
             } catch (ExecutionException e) {
                 throw new RuntimeException(e);
             }
-        }
-        return builder.build();
-    }
-
-    /**
-     * Converts an {@link Identity} to a {@link TimedIdentifier}
-     */
-    private static Function<? super Identity, TimedIdentifier> identityToTimedIdentifier = new Function<Identity, TimedIdentifier>() {
-        @Override
-        public TimedIdentifier apply(Identity i) {
-            MyIdentifierType type = new MyIdentifierType(i.getName(), 1.0);
-            MyIdentifier id = new MyIdentifier(type, i.getValue());
-            MyTimedIdentifier ti = new MyTimedIdentifier(id, i.getTime()
-                    .getTime());
-            return ti;
-        }
-    };
-
-    /**
-     * Converts a set of {@link Identity} to a set of {@link TimedIdentifier}
-     */
-    private static Function<Set<Identity>, Set<TimedIdentifier>> identitySetToTimedIdentifierSet = new Function<Set<Identity>, Set<TimedIdentifier>>() {
-
-        @Override
-        public Set<TimedIdentifier> apply(Set<Identity> set) {
-            return ImmutableSet.copyOf(Collections2.transform(set,
-                    identityToTimedIdentifier));
-        }
-
-    };
-
-    /**
-     * Creates a set of {@link TimedIdentifier} corresponding to the identifiers
-     * of <code>fix</code> with the time of <code>fix</code>.
-     * 
-     * @param fix
-     * @return
-     */
-    private Set<TimedIdentifier> createTimedIdentifierSet(MyFix fix) {
-        Builder<TimedIdentifier> builder = ImmutableSet.builder();
-        for (String name : fix.getIds().keySet()) {
-            String value = fix.getIds().get(name);
-            MyIdentifierType type = new MyIdentifierType(name, 1.0);
-            MyIdentifier id = new MyIdentifier(type, value);
-            MyTimedIdentifier ti = new MyTimedIdentifier(id, fix.getFix()
-                    .getTime().getTime());
-            builder.add(ti);
         }
         return builder.build();
     }
