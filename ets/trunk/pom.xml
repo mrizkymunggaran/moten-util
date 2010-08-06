@@ -7,7 +7,7 @@
 	<artifactId>ets</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 
-	<name>ets</name>
+	<name>${project.artifactId}</name>
 	<description>Entity Tracking System</description>
 	<packaging>war</packaging>
 
@@ -257,7 +257,7 @@
 	</dependencies>
 
 	<build>
-		<finalName>ets</finalName>
+		<finalName>${project.artifactId}</finalName>
 		<plugins>
 			<!--
 				This plug-in "enhances" your domain model objects (i.e. makes them
