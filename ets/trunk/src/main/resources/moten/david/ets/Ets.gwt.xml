@@ -18,5 +18,8 @@
   <!-- Specify the paths for translatable code                    -->
   <source path='client'/>
   <source path='shared'/>
+  <!--  only compile for firefox and chrome -->
+  <!--  also use mvn -Dgwt.draftCompiler clean gae:run for a fast compile  -->
+  <!-- <set-property name="user.agent" value="gecko"/> -->
 
 </module>

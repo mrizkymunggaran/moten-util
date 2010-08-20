@@ -34,7 +34,7 @@
 		-->
 		<gae.application.version>0</gae.application.version>
 
-		<!-- port defaults to 8080 -->
+		<!-- jetty http port defaults to  -->
 		<gae.port>8888</gae.port>
 
 		<!--
@@ -380,10 +380,12 @@
 						</goals> </execution>
 					-->
 					<!-- don't compile till we need a GWT client -->
-					<!--
-						<execution> <phase>compile</phase> <goals> <goal>compile</goal>
-						</goals> </execution>
-					-->
+					<execution>
+						<phase>compile</phase>
+						<goals>
+							<goal>compile</goal>
+						</goals>
+					</execution>
 				</executions>
 			</plugin>
 
