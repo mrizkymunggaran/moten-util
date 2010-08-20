@@ -15,13 +15,13 @@ public class Identity {
     String id;
     String name;
     String value;
-    Long entityId;
+    String entityId;
 
-    public Long getEntityId() {
+    public String getEntityId() {
         return entityId;
     }
 
-    public void setEntityId(Long entityId) {
+    public void setEntityId(String entityId) {
         this.entityId = entityId;
     }
 

@@ -10,17 +10,17 @@ import com.vercer.engine.persist.annotation.Key;
  */
 public class MyEntity {
     @Key
-    long id;
+    String id;
     String type;
     String geoHash;
     @Embed
     Fix latestFix;
 
-    public long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(String id) {
         this.id = id;
     }
 

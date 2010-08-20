@@ -11,6 +11,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
@@ -152,7 +153,7 @@ public class EntitiesGae implements Entities {
         Set<Set<Identity>> intersectingIdentities = findIntersectingIdentities(
                 parent, fixIds);
         // record entity ids against identifiers
-        Map<Identifier, Long> identifierEntityIds = recordEntityIdsByIdentifier(intersectingIdentities);
+        Map<Identifier, String> identifierEntityIds = recordEntityIdsByIdentifier(intersectingIdentities);
         // convert to TimedIdentifiers
         Set<Set<TimedIdentifier>> intersecting = ImmutableSet
                 .copyOf(Collections2.transform(intersectingIdentities,
@@ -180,9 +181,9 @@ public class EntitiesGae implements Entities {
      * @param intersectingIdentities
      * @return
      */
-    private static Map<Identifier, Long> recordEntityIdsByIdentifier(
+    private static Map<Identifier, String> recordEntityIdsByIdentifier(
             Set<Set<Identity>> intersectingIdentities) {
-        HashMap<Identifier, Long> map = new HashMap<Identifier, Long>();
+        HashMap<Identifier, String> map = new HashMap<Identifier, String>();
         for (Set<Identity> set : intersectingIdentities) {
             for (Identity identity : set) {
                 // convert Identity to TimedIdentifier
@@ -203,7 +204,7 @@ public class EntitiesGae implements Entities {
      * @param identifierEntityIds
      */
     private void mergeWithDatastore(MyParent parent, MyFix fix,
-            MergeResult merge, Map<Identifier, Long> identifierEntityIds) {
+            MergeResult merge, Map<Identifier, String> identifierEntityIds) {
         log.fine("intersection not empty");
         // the merge result set that intersects identifier wise with
         // pmza will get the entity id of pmza. all other merge result
@@ -221,8 +222,8 @@ public class EntitiesGae implements Entities {
 
         // override the primary match merged set with the entity
         // corresponding to the non-merged primary match
-        Long pmzaEntityId = identifierEntityIds.get(merge.getPmza().iterator()
-                .next().getIdentifier());
+        String pmzaEntityId = identifierEntityIds.get(merge.getPmza()
+                .iterator().next().getIdentifier());
         log.fine("pmza entity id=" + pmzaEntityId);
         for (TimedIdentifier ti : pmzaNew) {
             Identity identity = createIdentity(ti);
@@ -246,7 +247,7 @@ public class EntitiesGae implements Entities {
      * @param parent
      */
     private void storeIdentities(ObjectDatastore datastore2, MergeResult merge,
-            Map<Identifier, Long> identifierEntityIds, MyParent parent) {
+            Map<Identifier, String> identifierEntityIds, MyParent parent) {
         for (Set<TimedIdentifier> set : merge.getMerged()) {
             for (TimedIdentifier ti : set) {
                 Identity identity = createIdentity(ti);
@@ -305,7 +306,7 @@ public class EntitiesGae implements Entities {
             Set<TimedIdentifier> fixIds) {
         log.fine("storing new identity");
         MyEntity entity = new MyEntity();
-        entity.setId(System.currentTimeMillis());
+        entity.setId(UUID.randomUUID().toString());
         entity.setLatestFix(fix.getFix());
         entity.setType("vessel");
         datastore.store(entity, parent);
@@ -343,7 +344,7 @@ public class EntitiesGae implements Entities {
     private Set<Set<Identity>> findIntersectingIdentities(MyParent parent,
             Set<TimedIdentifier> ids) {
 
-        Set<Long> entityIdsUsed = Sets.newHashSet();
+        Set<String> entityIdsUsed = Sets.newHashSet();
         com.google.common.collect.ImmutableList.Builder<Future<QueryResultIterator<Identity>>> futures = ImmutableList
                 .builder();
         for (TimedIdentifier ti : ids) {
@@ -377,15 +378,15 @@ public class EntitiesGae implements Entities {
      * used by an entity.
      * 
      * @param parent
-     * @param entityId
+     * @param string
      * @return
      */
     private Future<QueryResultIterator<Identity>> getEntityIdentities(
-            MyParent parent, Long entityId) {
+            MyParent parent, String string) {
         // find all identities of the intersecting asynchronously
         Future<QueryResultIterator<Identity>> future = datastore.find().type(
                 Identity.class).addFilter("entityId",
-                Query.FilterOperator.EQUAL, entityId).withAncestor(parent)
+                Query.FilterOperator.EQUAL, string).withAncestor(parent)
                 .returnResultsLater();
         return future;
     }
