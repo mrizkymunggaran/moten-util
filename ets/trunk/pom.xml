@@ -380,12 +380,14 @@
 						</goals> </execution>
 					-->
 					<!-- don't compile till we need a GWT client -->
+					<!-- 
 					<execution>
 						<phase>compile</phase>
 						<goals>
 							<goal>compile</goal>
 						</goals>
 					</execution>
+					 -->
 				</executions>
 			</plugin>
 
