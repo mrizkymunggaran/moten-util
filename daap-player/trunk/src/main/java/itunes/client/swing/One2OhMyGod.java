@@ -152,7 +152,7 @@ public class One2OhMyGod implements ServiceListener {
     protected static String iTunesService = "_daap._tcp.local.";
     protected Rendezvous r;
 
-    protected boolean playstop;
+    protected boolean playStopped;
     protected int playingRow;
     protected int playdb;
     protected DownloadWorker worker;
@@ -220,7 +220,7 @@ public class One2OhMyGod implements ServiceListener {
             songPl.setText("Play Selected");
             songPl.validate();
         }
-        playstop = !playstop;
+        playStopped = !playStopped;
         frame.setTitle(programName);
         try {
             LogoutRequest lr = new LogoutRequest(playConnectedHost,
@@ -229,16 +229,8 @@ public class One2OhMyGod implements ServiceListener {
         }
     }
 
-    protected void playSong() {
+    private void playSelectedSong() {
         ItunesHost playHost = null;
-
-        if (!playstop) {
-            stopPlaying();
-            playingRow = -1;
-            playstop = true;
-            return;
-        }
-
         final int selection = songTable.getSelectedRow();
         if (selection > 0) {
             SongData songData = new SongData(null, sorter
@@ -291,7 +283,7 @@ public class One2OhMyGod implements ServiceListener {
 
             debugPrint("trying to playsong\n");
 
-            if (playstop) {
+            if (playStopped) {
                 SongRequest sr = null;
                 try {
                     sr = new SongRequest(songData.server, songData.port,
@@ -318,8 +310,13 @@ public class One2OhMyGod implements ServiceListener {
                         public void finished() {
                             ListSelectionModel model = songTable
                                     .getSelectionModel();
-                                playstop = false;
-                                playSong();
+                            playStopped = true;
+                            if (songPl.getText().contains("Stop")) {
+                                model.setSelectionInterval(model
+                                        .getAnchorSelectionIndex() + 1, model
+                                        .getLeadSelectionIndex() + 1);
+                                playSelectedSong();
+                            }
                         }
                     });
                 } else {
@@ -332,9 +329,21 @@ public class One2OhMyGod implements ServiceListener {
                 songPl.setText("Stop playing");
                 songPl.validate();
                 playingRow = selection;
-                playstop = !playstop;
+                playStopped = !playStopped;
             }
         }
+
+    }
+
+    protected void playSong() {
+
+        if (!playStopped) {
+            stopPlaying();
+            playingRow = -1;
+            playStopped = true;
+            return;
+        }
+        playSelectedSong();
     }
 
     protected void downloadSong() {
@@ -1104,7 +1113,7 @@ public class One2OhMyGod implements ServiceListener {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2) {
-                    downloadSong();
+                    playSong();
                 }
             }
         });
@@ -1116,11 +1125,11 @@ public class One2OhMyGod implements ServiceListener {
                         int[] rows = songTable.getSelectedRows();
                         if (rows == null || rows.length == 0) {
                             songDl.setEnabled(false);
-                            songPl.setEnabled(!playstop);
+                            songPl.setEnabled(!playStopped);
                         } else {
                             songDl.setEnabled(true);
                             songPl
-                                    .setEnabled(!playstop
+                                    .setEnabled(!playStopped
                                             || (rows.length >= 1 && (System
                                                     .getProperty("system.player") != null || sorter
                                                     .getFormatAt(rows[0])
@@ -1169,7 +1178,7 @@ public class One2OhMyGod implements ServiceListener {
 
     public One2OhMyGod() {
         playingRow = -1;
-        playstop = true;
+        playStopped = true;
         songModel = new SongTableModel();
         sorter = null;
         songTable = null;

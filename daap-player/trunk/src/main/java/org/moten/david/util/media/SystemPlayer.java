@@ -1,9 +1,11 @@
 package org.moten.david.util.media;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,13 +45,32 @@ public class SystemPlayer implements Player {
                 fos.close();
                 ProcessBuilder builder = new ProcessBuilder("mplayer", temp
                         .getAbsolutePath());
+                builder.redirectErrorStream(true);
                 process = builder.start();
+                new Thread(createOutputListener(process)).start();
                 new Thread(createProcessListener(process)).start();
                 is.close();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }
+    }
+    
+    public Runnable createOutputListener(final Process process) {
+        return new Runnable() {
+
+            @Override
+            public void run() {
+                BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream()));
+                String line;
+                try {
+                    while ((line=br.readLine())!=null)
+                        System.out.println(line);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                
+            }};
     }
 
     public Runnable createProcessListener(final Process process) {

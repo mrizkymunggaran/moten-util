@@ -77,7 +77,7 @@ public class Player extends Thread {
 		}
 		if (p.isComplete()) {
 		    prog.songPl.setText("Play Selected");
-		    prog.playstop = true;
+		    prog.playStopped = true;
 			//prog.playNext();
 		}
 	}
