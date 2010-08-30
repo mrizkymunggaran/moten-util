@@ -1,0 +1,20 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.moten.david</groupId>
+  <artifactId>daap-player</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <name>daap-player</name>
+  <description>Plays and browses DAAP server provided music, copied from one2ohmygod</description>
+  <dependencies>
+  	<dependency>
+  		<groupId>org.jvnet.hudson</groupId>
+  		<artifactId>jmdns</artifactId>
+  		<version>3.1.6</version>
+  	</dependency>
+  	<dependency>
+  		<groupId>commons-io</groupId>
+  		<artifactId>commons-io</artifactId>
+  		<version>1.4</version>
+  	</dependency>
+  </dependencies>
+</project>
