@@ -37,7 +37,6 @@ public class SearchPatternsSerialized implements SearchPatterns {
 				IOUtils.copy(new AutoCloseInputStream(getClass()
 						.getResourceAsStream("/default-search-patterns.txt")),
 						os);
-				os.close();
 			}
 
 			// read the patterns from the file

@@ -4,3 +4,4 @@
 (?i)^.*CONCHORDS.*$
 (?i)^.*COOKING.*$
 (?i)^.*JAZZ.*$
+(?i)^.*PLAY SCHOOL.*$
