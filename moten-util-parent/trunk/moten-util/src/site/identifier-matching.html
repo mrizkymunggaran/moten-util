@@ -30,7 +30,7 @@ from them.</p>
 Those identifiers may match say 3 till then different existing entities and it has to be decided
  how and if those entities are going to be merged and what is to occur to the other identifiers 
  on those entities. Defining a consistent, deterministic approach across the 
- large number of scenarios involved is tricky. In fact, defining all scenarios involved is also challenging.</p> 
+ large number of scenarios involved is an interesting challenge. </p> 
 
 <p>Two general principles are applied by the algorithm:</p>
 
@@ -46,6 +46,25 @@ Those identifiers may match say 3 till then different existing entities and it h
 <li>The result of the fold will be the new identifier set of the primary match.</li>
 <li>From the rest of the intersecting entities remove any identifiers now contained in the new primary match identifier set.</li> 
 </ol>
+
+<p>Fix identifiers are associated with either</p>
+<ul>
+<li>no entities (a new entity is created using all of the fix identifiers)</li>
+<li>or, a primary entity and zero or more secondary entities</li>
+</ul>
+<p>The effect on the primary entity of the merge of the fix identifiers is:</p>
+<ul>
+<li>new identifiers of new identifier types are added from the fix to the entity</li>
+<li>identifiers are replaced with identifiers of the same identifier type from the fix if the fix identifier timestamp is later than the entity identifier timestamp.</li>
+</ul>
+
+<p>The effect on the secondary entity of the merge of the fix identifiers is:</p>
+<ul>
+<li>one or all identifiers are removed</li>
+</ul>
+
+
+
 
 <h3>Conventions</h3>
 <p>Capital variable names are used for sets.</p>
