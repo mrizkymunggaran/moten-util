@@ -19,9 +19,9 @@ based on identifiers with a strict ordering.</p>
 <h3>Abstract</h3>
 <p>The analysis phase of the development of a craft tracking system for 
 the Australia Maritime Safety Authority revealed a complex entity 
-matching problem. The requirement was to accept position reports (<i>fixes</i>) with one or more associated 
+matching problem. The requirement was to accept timestamped position reports (<i>fixes</i>) with one or more associated 
 identifiers and associate those reports with entities. Fixes 
-arrive from multiple sources. <i>Identifiers</i> uniquely identify 
+arrive from one or more sources. <i>Identifiers</i> uniquely identify 
 an entity at the time of the fix but some identifiers may change over time (<i>volatile identifiers</i>).
 As fixes arrive entities may be merged, or have identifiers removed 
 from them.</p>
@@ -60,7 +60,8 @@ Those identifiers may match say 3 till then different existing entities and it h
 
 <p>The effect on the secondary entity of the merge of the fix identifiers is:</p>
 <ul>
-<li>one or all identifiers are removed</li>
+<li>all of the matching identifiers with earlier timestamps than the fix timestamp are removed from the entity.</li>
+<li>if the primary identifier of the entity is a matching identifier then all identifiers are removed from the entity.</li>
 </ul>
 
 
