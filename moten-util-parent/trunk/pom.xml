@@ -6,6 +6,10 @@
 	<packaging>pom</packaging>
 	<name>moten-util-parent</name>
 	<version>0.0.6-SNAPSHOT</version>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<site.url>file://${user.home}/Development/site</site.url>
+	</properties>
 	<developers>
 		<developer>
 			<name>Dave Moten</name>
@@ -135,13 +139,13 @@
 	<reporting>
 		<plugins>
 			<!--
-				<plugin> <groupId>org.jvnet.sorcerer</groupId>
-				<artifactId>maven-sorcerer-plugin</artifactId> </plugin>
+				watch out javadoc should be before cobertura otherwise get an error
+				on site:stage
 			-->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-checkstyle-plugin</artifactId>
-				<version>2.5</version>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.7</version>
 			</plugin>
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
@@ -149,8 +153,16 @@
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>2.6.1</version>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+				<version>2.5</version>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-pmd-plugin</artifactId>
+				<version>2.5</version>
+				<configuration>
+					<targetJdk>${compiler.source.version}</targetJdk>
+				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
@@ -158,9 +170,41 @@
 				<version>2.3.1</version>
 			</plugin>
 			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>jdepend-maven-plugin</artifactId>
+				<version>2.0-beta-2</version>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>taglist-maven-plugin</artifactId>
+				<version>2.4</version>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>dashboard-maven-plugin</artifactId>
+				<version>1.0.0-beta-1</version>
+			</plugin>
+			<!--
+				<plugin> <groupId>org.jvnet.sorcerer</groupId>
+				<artifactId>maven-sorcerer-plugin</artifactId>
+				<version>0.8</version> </plugin>
+			-->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>javancss-maven-plugin</artifactId>
+				<version>2.0</version>
+			</plugin>
+			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-pmd-plugin</artifactId>
-				<version>2.5</version>
+				<artifactId>maven-project-info-reports-plugin</artifactId>
+				<version>2.1</version>
+				<configuration>
+					<!--
+						disable checking of repository deps makes the site phase much
+						faster
+					-->
+					<dependencyLocationsEnabled>false</dependencyLocationsEnabled>
+				</configuration>
 			</plugin>
 		</plugins>
 	</reporting>
@@ -172,7 +216,7 @@
 		</repository>
 		<site>
 			<id>moten-util</id>
-			<url>scp://moten-util.googlecode.com/</url>
+			<url>${site.url}</url>
 		</site>
 	</distributionManagement>
 	<!--

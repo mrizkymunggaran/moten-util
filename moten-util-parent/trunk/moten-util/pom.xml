@@ -9,7 +9,6 @@
 	<artifactId>moten-util</artifactId>
 	<name>moten-util</name>
 	<description>Utility classes across a range of topics</description>
-	<url>http://code.google.com/p/moten-util</url>
 	<dependencies>
 		<dependency>
 			<groupId>com.google.inject</groupId>

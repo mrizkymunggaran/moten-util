@@ -9,7 +9,6 @@
 	<artifactId>monitor</artifactId>
 	<packaging>war</packaging>
 	<name>monitor</name>
-	<url>http://moten-util.googlecode.com</url>
 	<properties>
 		<gwt.version>2.0.2</gwt.version>
 	</properties>
