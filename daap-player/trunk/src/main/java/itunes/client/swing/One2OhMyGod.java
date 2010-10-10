@@ -172,7 +172,7 @@ public class One2OhMyGod implements ServiceListener {
     private static final int OT_WINDOW_WIDTH = 800;
     private static final int OT_WINDOW_HEIGHT = 450;
 
-    static public boolean debug = false;
+    static public boolean debug =true;
 
     protected boolean setDLDir() {
         File chosen = createDLDirWindow(currDirectory);
@@ -517,6 +517,7 @@ public class One2OhMyGod implements ServiceListener {
         ArrayList songs = sr.getSongs();
 
         hostQueueModel.updateSize(host, songs.size());
+        debugPrint("sorting songs");
         Collections.sort(songs);
 
         // ItunesHost h = null;
@@ -529,6 +530,7 @@ public class One2OhMyGod implements ServiceListener {
         // }
         // }
 
+        debugPrint("adding to songModel");
         int numRowsOld = songModel.getRowCount();
 
         for (int i = 0; i < songs.size(); i++) {
@@ -551,7 +553,7 @@ public class One2OhMyGod implements ServiceListener {
             songTable.addRowSelectionInterval(rows[i], rows[i]);
         }
         System.out.println("");
-
+        debugPrint("validating frame");
         frame.validate();
     }
 

@@ -24,15 +24,21 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 package itunes.client.request;
 
-import itunes.*;
-import itunes.util.Hasher;
+import itunes.FieldPair;
 import itunes.client.swing.One2OhMyGod;
+import itunes.util.Hasher;
 
-import java.net.*;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Date;
 
-import org.cdavies.itunes.*;
+import org.cdavies.itunes.ConnectionStatus;
 
 /**
  * @author jbarnett
@@ -67,6 +73,7 @@ public abstract class Request {
 		mdclIndexes = new ArrayList();
 		requestString = rs;
 		_status = status;
+		
 		Query();
 		Process();
 		
@@ -75,6 +82,7 @@ public abstract class Request {
 	protected void Query() throws NoServerPermissionException {
 		URL url =null;
 		try {
+		    System.out.println(new Date() + " querying: " + requestString);
 			url = new URL("http://"+server+":"+port+"/"+requestString);
 			if (One2OhMyGod.debug)
 				System.out.println("Processing Request: "+ server+":"+port+"/"+requestString);
@@ -110,7 +118,7 @@ public abstract class Request {
 	protected static int readSize(String data, int j) {
 		String elength = "";
 		for (int i = 0; i < j; i++) {
-			elength += ((int)data.charAt(i)>15?"":"0") + Integer.toHexString((int)data.charAt(i));
+			elength += (data.charAt(i)>15?"":"0") + Integer.toHexString(data.charAt(i));
 		}
 		return Integer.valueOf(elength,16).intValue();
 	}
@@ -166,6 +174,7 @@ public abstract class Request {
 	}
 	
 	protected void Process() throws NoServerPermissionException {
+	    System.out.println(new Date() + "processing");
 		if (data.length==0) {
 			return;
 		}
@@ -175,6 +184,7 @@ public abstract class Request {
 		offset += 4;
 		
 		fieldPairs = processDataFields();	
+		System.out.println(new Date() + "processed");
 	}
 	
 	protected ArrayList processDataFields(byte[] data, int offset) {
@@ -222,7 +232,8 @@ public abstract class Request {
 //		return fieldPairs;
 	}
 	
-	public String toString() {
+	@Override
+    public String toString() {
 		String ret = "";
 		for (int i = 0; i < fieldPairs.size();i++) {
 			FieldPair fp = (FieldPair)fieldPairs.get(i);
