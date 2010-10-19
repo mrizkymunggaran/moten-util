@@ -28,8 +28,6 @@ import com.google.inject.assistedinject.Assisted;
  */
 public class DatastoreImmutable {
 
-    public static int PARTITION_SIZE = 10;
-
     /**
      * Logger.
      */
