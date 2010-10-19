@@ -10,7 +10,7 @@ import moten.david.matchstack.types.TimedIdentifier;
  * 
  * @author dave
  */
-public class MyTimedIdentifier implements TimedIdentifier {
+public final class MyTimedIdentifier implements TimedIdentifier {
 
     private final long time;
     private final MyIdentifier identifier;
