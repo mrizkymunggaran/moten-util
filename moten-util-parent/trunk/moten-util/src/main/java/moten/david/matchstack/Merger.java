@@ -30,7 +30,7 @@ import com.google.inject.Singleton;
  * 
  */
 @Singleton
-public class Merger {
+public final class Merger {
 
     private static Logger log = Logger.getLogger(Merger.class.getName());
     private final IdentifierSetStrictComparator strictSetComparator;

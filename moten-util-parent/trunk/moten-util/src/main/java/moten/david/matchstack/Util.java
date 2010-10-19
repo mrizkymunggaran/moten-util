@@ -15,7 +15,14 @@ import moten.david.util.functional.Functional;
  * @author dave
  * 
  */
-public class Util {
+public final class Util {
+    
+    /**
+     * Private constructor to avoid instantiation.
+     */
+    private Util() {
+        //make a private constructor
+    }
 
     /**
      * Returns the Identifier set from a set of {@link TimedIdentifier}.
