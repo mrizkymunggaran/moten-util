@@ -1,0 +1,8 @@
+#summary Entity Tracking algorithm
+
+= Introduction =
+
+<wiki:gadget url="http://mathml-gadget.googlecode.com/svn/trunk/mathml-gadget.xml" border="0" up_content="root3x + x^phi + x_1"/>
+
+
+= Details =
