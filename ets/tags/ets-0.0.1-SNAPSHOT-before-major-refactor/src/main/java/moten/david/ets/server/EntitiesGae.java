@@ -1,0 +1,419 @@
+package moten.david.ets.server;
+
+import static moten.david.ets.server.Util.createTimedIdentifierSet;
+import static moten.david.ets.server.Util.getIdentityId;
+import static moten.david.ets.server.Util.getTypeName;
+import static moten.david.ets.server.Util.getTypeValue;
+import static moten.david.ets.server.Util.identitySetToTimedIdentifierSet;
+import static moten.david.ets.server.Util.identityToTimedIdentifier;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import moten.david.ets.client.model.Identity;
+import moten.david.ets.client.model.MyEntity;
+import moten.david.ets.client.model.MyParent;
+import moten.david.matchstack.Merger;
+import moten.david.matchstack.Util;
+import moten.david.matchstack.Merger.MergeResult;
+import moten.david.matchstack.types.Identifier;
+import moten.david.matchstack.types.TimedIdentifier;
+import moten.david.util.appengine.LockManager;
+import moten.david.util.collections.CollectionsUtil;
+
+import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.QueryResultIterator;
+import com.google.appengine.repackaged.com.google.common.base.Preconditions;
+import com.google.appengine.repackaged.com.google.common.collect.Sets;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableSet.Builder;
+import com.google.inject.Inject;
+import com.vercer.engine.persist.ObjectDatastore;
+import com.vercer.engine.persist.standard.StrategyObjectDatastore;
+
+/**
+ * Stores fixes in a google app engine datastore using Twig persistence and the
+ * Matchstack merge engine from moten-util.
+ * 
+ * @author dxm
+ */
+public class EntitiesGae implements Entities {
+
+    private static final int LOCK_TIMEOUT_MS = 30000;
+    private static final Logger log = Logger.getLogger(EntitiesGae.class
+            .getName());
+    /**
+     * Twig datastore.
+     */
+    private final ObjectDatastore datastore;
+    /**
+     * The merging engine.
+     */
+    private final Merger merger;
+    /**
+     * Lock manager
+     */
+    private final LockManager lockManager;
+
+    /**
+     * Constructor.
+     * 
+     * @param datastore
+     * @param merger
+     */
+    @Inject
+    public EntitiesGae(ObjectDatastore datastore, Merger merger,
+            LockManager lockManager) {
+        this.datastore = datastore;
+        this.merger = merger;
+        this.lockManager = lockManager;
+    }
+
+    @Override
+    public void clearAll() {
+        datastore.deleteAll(Identity.class);
+        datastore.deleteAll(MyEntity.class);
+        datastore.deleteAll(MyParent.class);
+        log.info("deleted all entities");
+    }
+
+    @Override
+    public void add(final Iterable<MyFix> fixes) {
+
+        Runnable runnable = new Runnable() {
+
+            @Override
+            public void run() {
+
+                try {
+
+                    // add all the fixes
+                    for (MyFix fix : fixes) {
+                        // start the transaction
+                        datastore.beginTransaction();
+                        // add the fix
+                        add(fix);
+                        // commit the transaction
+                        datastore.getTransaction().commit();
+                        ((StrategyObjectDatastore) datastore)
+                                .removeTransaction();
+                    }
+
+                } catch (RuntimeException e) {
+                    // if an error occurs log the exception and rollback the
+                    // transaction
+                    logExceptionAndRollback(e);
+                    throw e;
+                }
+            }
+        };
+        lockManager.performWithLock("addFix", runnable, LOCK_TIMEOUT_MS);
+        // runnable.run();
+    }
+
+    /**
+     * Logs an exception and rolllback the current transaction if it is active.
+     * 
+     * @param e
+     */
+    private void logExceptionAndRollback(RuntimeException e) {
+        log.log(Level.SEVERE, e.getMessage(), e);
+        if (datastore.getTransaction().isActive()) {
+            log.fine("rolling back");
+            datastore.getTransaction().rollback();
+        }
+        log.info("rolled back");
+    }
+
+    /**
+     * Adds a single fix to the datastore.
+     * 
+     * @param fix
+     */
+    public synchronized void add(MyFix fix) {
+
+        // ensure parent is stored and the field initialized
+        MyParent parent = getParent(datastore, "main");
+
+        // create timed identifiers from the fix identifiers
+        log.fine("creating set of TimedIdentifier from fix");
+        Set<TimedIdentifier> fixIds = createTimedIdentifierSet(fix);
+
+        // find intersections of fix with existing identifiers
+        log.fine("finding intersections");
+        Set<Set<Identity>> intersectingIdentities = findIntersectingIdentities(
+                parent, fixIds);
+        // record entity ids against identifiers
+        Map<Identifier, String> identifierEntityIds = recordEntityIdsByIdentifier(intersectingIdentities);
+        // convert to TimedIdentifiers
+        Set<Set<TimedIdentifier>> intersecting = ImmutableSet
+                .copyOf(Collections2.transform(intersectingIdentities,
+                        identitySetToTimedIdentifierSet));
+        log.fine("intersecting=" + intersecting);
+
+        // calculate the merges of the fix with all intersecting entities
+        log.fine("merging");
+        MergeResult merge = merger.merge(fixIds, intersecting);
+
+        // if none of the identifiers in the fix matched an existing entity
+        // then create a new one
+        if (merge.getPmza().isEmpty())
+            storeNewEntity(parent, fix, fixIds);
+        else
+            mergeWithDatastore(parent, fix, merge, identifierEntityIds);
+
+        log.fine("fix added");
+
+    }
+
+    /**
+     * Returns a map of the entity ids by {@link Identifier}
+     * 
+     * @param intersectingIdentities
+     * @return
+     */
+    private static Map<Identifier, String> recordEntityIdsByIdentifier(
+            Set<Set<Identity>> intersectingIdentities) {
+        HashMap<Identifier, String> map = new HashMap<Identifier, String>();
+        for (Set<Identity> set : intersectingIdentities) {
+            for (Identity identity : set) {
+                // convert Identity to TimedIdentifier
+                TimedIdentifier ti = identityToTimedIdentifier.apply(identity);
+                // record the identifier entity ids
+                map.put(ti.getIdentifier(), identity.getEntityId());
+            }
+        }
+        return map;
+    }
+
+    /**
+     * Merges a fix with the datastore attached to the given parent.
+     * 
+     * @param parent
+     * @param fix
+     * @param merge
+     * @param identifierEntityIds
+     */
+    private void mergeWithDatastore(MyParent parent, MyFix fix,
+            MergeResult merge, Map<Identifier, String> identifierEntityIds) {
+        log.fine("intersection not empty");
+        // the merge result set that intersects identifier wise with
+        // pmza will get the entity id of pmza. all other merge result
+        // sets will be given the entity of the set in intersections
+        // that intersects with it.
+
+        log.fine("merge.pmza=" + merge.getPmza());
+        log.fine("merge.merged=" + merge.getMerged());
+
+        // find the result of the merge on pmza (assign it to pmzaNew)
+        Set<TimedIdentifier> pmzaNew = getPmzaNew(merge);
+
+        // for all merged sets create and store identity objects
+        storeIdentities(datastore, merge, identifierEntityIds, parent);
+
+        // override the primary match merged set with the entity
+        // corresponding to the non-merged primary match
+        String pmzaEntityId = identifierEntityIds.get(merge.getPmza()
+                .iterator().next().getIdentifier());
+        log.fine("pmza entity id=" + pmzaEntityId);
+        for (TimedIdentifier ti : pmzaNew) {
+            Identity identity = createIdentity(ti);
+            identity.setEntityId(pmzaEntityId);
+            datastore.storeOrUpdate(identity, parent);
+        }
+
+        // load the pmza entity so that we can update the latest fix
+        // info
+        MyEntity entity = datastore.load(MyEntity.class, pmzaEntityId, parent);
+        entity.setLatestFix(fix.getFix());
+        datastore.update(entity);
+    }
+
+    /**
+     * Store identities in the datastore.
+     * 
+     * @param datastore2
+     * @param merge
+     * @param identifierEntityIds
+     * @param parent
+     */
+    private void storeIdentities(ObjectDatastore datastore2, MergeResult merge,
+            Map<Identifier, String> identifierEntityIds, MyParent parent) {
+        for (Set<TimedIdentifier> set : merge.getMerged()) {
+            for (TimedIdentifier ti : set) {
+                Identity identity = createIdentity(ti);
+                identity.setEntityId(identifierEntityIds
+                        .get(ti.getIdentifier()));
+                datastore.storeOrUpdate(identity, parent);
+            }
+        }
+    }
+
+    /**
+     * Get the new pmza.
+     * 
+     * @param merge
+     * @return
+     */
+    private Set<TimedIdentifier> getPmzaNew(MergeResult merge) {
+        Set<TimedIdentifier> pmzaNew = null;
+        Set<Identifier> pmzaIds = Util.ids(merge.getPmza());
+        for (Set<TimedIdentifier> set : merge.getMerged()) {
+            if (CollectionsUtil.intersect(Util.ids(set), pmzaIds)) {
+                pmzaNew = set;
+            }
+        }
+        Preconditions.checkNotNull(pmzaNew, "pmzaNew should not be null");
+        return pmzaNew;
+    }
+
+    /**
+     * Returns the common Parent object (all objects involved in a datastore
+     * transaction must be children of the same parent.
+     * 
+     * @return
+     */
+    public static MyParent getParent(ObjectDatastore datastore, String name) {
+        log.fine("loading parent");
+        MyParent parent = datastore.load(MyParent.class, name);
+        if (parent == null) {
+            log.fine("storing parent");
+            parent = new MyParent();
+            parent.setName("main");
+            datastore.store(parent);
+            log.fine("stored parent");
+        }
+        return parent;
+    }
+
+    /**
+     * Stores a new entity given by a fix.
+     * 
+     * @param parent
+     * @param fix
+     * @param fixIds
+     */
+    private void storeNewEntity(MyParent parent, MyFix fix,
+            Set<TimedIdentifier> fixIds) {
+        log.fine("storing new identity");
+        MyEntity entity = new MyEntity();
+        entity.setId(UUID.randomUUID().toString());
+        entity.setLatestFix(fix.getFix());
+        entity.setType("vessel");
+        datastore.store(entity, parent);
+        log.fine("stored new entity");
+        for (TimedIdentifier ti : fixIds) {
+            Identity identity = createIdentity(ti);
+            identity.setEntityId(entity.getId());
+            datastore.store(identity, parent);
+        }
+    }
+
+    /**
+     * Creates an {@link Identity} from a {@link TimedIdentifier}.
+     * 
+     * @param ti
+     * @return
+     */
+    private Identity createIdentity(TimedIdentifier ti) {
+        Identity identity = new Identity();
+        identity.setId(getIdentityId(ti));
+        identity.setName(getTypeName(ti));
+        identity.setValue(getTypeValue(ti));
+        identity.setTime(new Date(ti.getTime()));
+        return identity;
+    }
+
+    /**
+     * Returns all intersecting identities in terms of the identifier type and
+     * value from a set of {@link TimedIdentifer}.
+     * 
+     * @param parent
+     * @param ids
+     * @return
+     */
+    private Set<Set<Identity>> findIntersectingIdentities(MyParent parent,
+            Set<TimedIdentifier> ids) {
+
+        Set<String> entityIdsUsed = Sets.newHashSet();
+        com.google.common.collect.ImmutableList.Builder<Future<QueryResultIterator<Identity>>> futures = ImmutableList
+                .builder();
+        for (TimedIdentifier ti : ids) {
+            String id = getIdentityId(ti);
+            log.fine("searching for Identity " + id);
+
+            // search for the identity using the value field
+            Identity identity = datastore.load(Identity.class,
+                    getIdentityId(ti), parent);
+
+            if (identity == null)
+                // not intersecting
+                log.fine(id + " not found");
+            else {
+                Preconditions.checkNotNull(identity.getEntityId(),
+                        "identity entity should not be null");
+                if (!entityIdsUsed.contains(identity.getEntityId())) {
+                    futures.add(getEntityIdentities(parent, identity
+                            .getEntityId()));
+                }
+                entityIdsUsed.add(identity.getEntityId());
+            }
+        }
+        // get the results of the async queries
+        return getIdentities(futures);
+
+    }
+
+    /**
+     * Returns the {@link Future} for a query that returns all the identities
+     * used by an entity.
+     * 
+     * @param parent
+     * @param string
+     * @return
+     */
+    private Future<QueryResultIterator<Identity>> getEntityIdentities(
+            MyParent parent, String string) {
+        // find all identities of the intersecting asynchronously
+        Future<QueryResultIterator<Identity>> future = datastore.find().type(
+                Identity.class).addFilter("entityId",
+                Query.FilterOperator.EQUAL, string).withAncestor(parent)
+                .returnResultsLater();
+        return future;
+    }
+
+    /**
+     * Returns identities from the futures of the already initiated async
+     * queries.
+     * 
+     * @param futures
+     * @return
+     */
+    private Set<Set<Identity>> getIdentities(
+            com.google.common.collect.ImmutableList.Builder<Future<QueryResultIterator<Identity>>> futures) {
+        Builder<Set<Identity>> builder = ImmutableSet.builder();
+        for (Future<QueryResultIterator<Identity>> future : futures.build()) {
+            try {
+                QueryResultIterator<Identity> it = future.get();
+                Set<Identity> set = ImmutableSet.copyOf(it);
+                builder.add(set);
+            } catch (InterruptedException e) {
+                // if interrupted exit by throwing an exception
+                throw new RuntimeException(e);
+            } catch (ExecutionException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return builder.build();
+    }
+
+}
