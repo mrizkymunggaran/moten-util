@@ -2,25 +2,25 @@
         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<title>Entity Matching Algorithm</title>
+<title>VIEM</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/> 
 <link href="style.css" rel="stylesheet" type="text/css"/>
 </head>
 <body>
 <div class="math">
 
-<h2>Entity Matching Algorithm</h2>
+<h2>Volatile Identifier Entity Matching (VIEM) Algorithm</h2>
 <div id="watermark">Draft</div>
 
 <p>Mathematical description of a an entity matching algorithm
-based on identifiers with a strict ordering.</p>
+based on possibly volatile identifiers with a strict ordering.</p>
 
 <p class="footnote">This document is best viewed with Firefox or another SGML compliant browser. IE has problems with the mathematical characters up to version 7.</p>
 <h3>Abstract</h3>
 <p>The analysis phase of the development of a craft tracking system for 
 the Australia Maritime Safety Authority revealed a complex entity 
 matching problem. The requirement was to accept timestamped position reports (<i>fixes</i>) with one or more associated 
-identifiers and associate those reports with entities. Fixes 
+identifiers and associate those reports with entities (vessels, aircraft, vehicles, tracking devices). Fixes 
 arrive from one or more sources. <i>Identifiers</i> uniquely identify 
 an entity at the time of the fix but some identifiers may change over time (<i>volatile identifiers</i>).
 As fixes arrive entities may be merged, or have identifiers removed 
