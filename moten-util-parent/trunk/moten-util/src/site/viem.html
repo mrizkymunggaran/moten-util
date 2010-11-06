@@ -150,7 +150,7 @@ are disjoint sets}</p>
 
 <p>Want to facilitate a scalable implementation of this algorithm with high availability, partition tolerance and eventual consistency (see <a href="http://www.julianbrowne.com/article/viewer/brewers-cap-theorem">CAP Theorem).</a></p>
 
-<p>An entity function e: I &rarr; I has these properties:</p>
+<p>An entity function e: S &rarr; S has these properties:</p>
 
 <p class="indent1">e(a) = b and a &ne; b &rArr; b >>a and e(b) = b</p>
 
@@ -165,14 +165,19 @@ are disjoint sets}</p>
 <ol>
 <li>Given 
 <ul>
-	<li>set of timed identifiers S &isin; V with an entity function e: S<sub>id</sub> &rarr; S<sub>id</sub></li>
+	<li>set of timed identifiers Q &isin; V with an entity function e: S &rarr; S s.t. &forall; i &isin; I where i &notin; Q, e(i) = i</li>
 	<li>set of timed identifiers A &isin; V</li>
 </ul></li>
+<li>If A = {a<sub>1</sub>,a<sub>2</sub>,..,a<sub>n</sub>} in descending strict order then 
+the merging of A with (Q,e) should be equivalent to the merging of 
+{a<sub>1</sub>,a<sub>2</sub>}, {a<sub>1</sub>,a<sub>3</sub>},..,{a<sub>1</sub>,a<sub>n</sub>} with S, e 
+in that order.</li>
+<li>Now assume A has either 1 or 2 elements</li>
 <li>Find matching sets: M = { <i>members</i><sub>e</sub>(e(a)) : a &isin; A} (Note M &sube; S &cup; A)</li>
 <li>Let A' = { a &isin; A : a<sub>id</sub> &notin; S<sub>id</sub>}</li>
 <li>Let <i>pm</i> = max(A', >>) if (max(A, >>) &isin; A' else e(max(A, >>)</li>
 <li>Define &alpha; : I &#x2a2f; V &rarr; S by &alpha;(i,A) = a &isin; A where a<sub>id</sub> = i</li>
-<li>Let M' = { { i &isin; <i>members</i><sub>e</sub>(e(a)) : e(i) >> <i>pm</i> and &alpha;(i,A)<sub>time</sub> &le; &alpha;(i,e(i))<sub>time</sub>} : a &isin; A\A'}</i></li>
+<li>Let M' = { { i &isin; <i>members</i><sub>e</sub>(e(a)) : e(i) >> <i>pm</i> : a &isin; A\A'}</i></li>
 <li>Remove identifiers i from matching sets where e(i)>><i>pm</i> and i<sub>time</sub> in A &ge; i<sub>time</sub> in set</li>
 <li>Move all matching sets where e(i)<&le;<i>pm</i> into the pm set</li>
 <li>Filter <i>pm</i> for only those identifiers that have the maximum time for their type within <i>pm</i></li>
