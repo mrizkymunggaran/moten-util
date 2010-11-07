@@ -146,7 +146,7 @@ comparator of the <i>order</i> of identifier types where</p>
 are disjoint sets}</p>
 
 <hr />
-<p>New Approach:</p>
+<h3>New Approach</h3>
 
 <p>Want to facilitate a scalable implementation of this algorithm with high availability, partition tolerance and eventual consistency (see <a href="http://www.julianbrowne.com/article/viewer/brewers-cap-theorem">CAP Theorem).</a></p>
 
@@ -156,32 +156,30 @@ are disjoint sets}</p>
 
 <p>An entity function is a a partition of identifiers into groups such that each identifier in a group is mapped to the strictly strongest identifier in that group. (TODO: Proof)</p>
 
-<p>Aim: To define e' based on adding timed identifier set A to e</p>
-
 <p>Define <i>members</i><sub>e</sub> : I &rarr; &weierp;(I) by <i>members</i><sub>e</sub>(x)= {a &isin; I : e(a) = x }</p>
 
 <p>find primary match, add identifiers to it and remove identifiers from other matched entities. Some identifiers may be dropped from the new identifier set.</p>
 
-<ol>
-<li>Given 
+
+<p>Given</p> 
 <ul>
 	<li>set of timed identifiers Q &isin; V with an entity function e: S &rarr; S s.t. &forall; i &isin; I where i &notin; Q, e(i) = i</li>
 	<li>set of timed identifiers A &isin; V</li>
-</ul></li>
-<li>If A = {a<sub>1</sub>,a<sub>2</sub>,..,a<sub>n</sub>} in descending strict order then 
+</ul>
+</li>
+<p>If A = {a<sub>1</sub>,a<sub>2</sub>,..,a<sub>n</sub>} in descending strict order then 
 the merging of A with (Q,e) should be equivalent to the merging of 
-{a<sub>1</sub>,a<sub>2</sub>}, {a<sub>1</sub>,a<sub>3</sub>},..,{a<sub>1</sub>,a<sub>n</sub>} with S, e 
-in that order.</li>
-<li>Now assume A has either 1 or 2 elements</li>
-<li>Find matching sets: M = { <i>members</i><sub>e</sub>(e(a)) : a &isin; A} (Note M &sube; S &cup; A)</li>
-<li>Let A' = { a &isin; A : a<sub>id</sub> &notin; S<sub>id</sub>}</li>
-<li>Let <i>pm</i> = max(A', >>) if (max(A, >>) &isin; A' else e(max(A, >>)</li>
-<li>Define &alpha; : I &#x2a2f; V &rarr; S by &alpha;(i,A) = a &isin; A where a<sub>id</sub> = i</li>
-<li>Let M' = { { i &isin; <i>members</i><sub>e</sub>(e(a)) : e(i) >> <i>pm</i> : a &isin; A\A'}</i></li>
-<li>Remove identifiers i from matching sets where e(i)>><i>pm</i> and i<sub>time</sub> in A &ge; i<sub>time</sub> in set</li>
-<li>Move all matching sets where e(i)<&le;<i>pm</i> into the pm set</li>
-<li>Filter <i>pm</i> for only those identifiers that have the maximum time for their type within <i>pm</i></li>
-</ol>
+{a<sub>1</sub>}, {a<sub>1</sub>,a<sub>2</sub>}, {a<sub>1</sub>,a<sub>3</sub>},..,{a<sub>1</sub>,a<sub>n</sub>} with (Q, e) 
+in that order.</p>
+<p>Now assume A has either 1 or 2 elements</p>
+<p class="indent1">Define &beta; : S &#x2a2f; I &rarr; S by &beta;(X,i) = { x &isin; X : x<sub>id</sub> = i<sub>id</sub> and x<sub>time</sub> &lt; i<sub>time</sub> }</p>
+<p class="indent1">Define &gamma; : S &#x2a2f; I &rarr; S by &gamma;(X,i) = {x &isin; X : t(x) = t(i) and x<sub>time</sub> &lt; i<sub>time</sub>}</p> 
+<p class="indent1">Let Q' = Q \ &beta;(Q,a<sub>1</sub>) \ &cup;<sub>a &isin; A</sub>&gamma;(<i>members<sub>e</sub></i>(e(a<sub>1</sub>), a), define e' : S &rarr; S given by</p>
+<p class="indent2">e'(i) = </p>	
+<p class="indent3">e(i) , i &isin; Q'</p>
+<p class="indent3">e(a<sub>1</sub>) , i &notin; Q'</p>
+
+
 <hr />
 
 
