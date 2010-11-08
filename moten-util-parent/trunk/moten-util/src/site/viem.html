@@ -150,16 +150,9 @@ are disjoint sets}</p>
 
 <p>Want to facilitate a scalable implementation of this algorithm with high availability, partition tolerance and eventual consistency (see <a href="http://www.julianbrowne.com/article/viewer/brewers-cap-theorem">CAP Theorem).</a></p>
 
-<p>An entity function e: S &rarr; S has these properties:</p>
+<p>An entity function e: S &rarr; &weierp;(S) satisfies</p>
 
-<p class="indent1">e(a) = b and a &ne; b &rArr; b >>a and e(b) = b</p>
-
-<p>An entity function is a a partition of identifiers into groups such that each identifier in a group is mapped to the strictly strongest identifier in that group. (TODO: Proof)</p>
-
-<p>Define <i>members</i><sub>e</sub> : I &rarr; &weierp;(I) by <i>members</i><sub>e</sub>(x)= {a &isin; I : e(a) = x }</p>
-
-<p>find primary match, add identifiers to it and remove identifiers from other matched entities. Some identifiers may be dropped from the new identifier set.</p>
-
+<p class="indent1">&forall; i &isin; S, i &isin; e(i)</p>
 
 <p>Given</p> 
 <ul>
@@ -174,7 +167,7 @@ in that order.</p>
 <p>Now assume A has either 1 or 2 elements</p>
 <p class="indent1">Define &beta; : S &#x2a2f; I &rarr; S by &beta;(X,i) = { x &isin; X : x<sub>id</sub> = i<sub>id</sub> and x<sub>time</sub> &lt; i<sub>time</sub> }</p>
 <p class="indent1">Define &gamma; : S &#x2a2f; I &rarr; S by &gamma;(X,i) = {x &isin; X : t(x) = t(i) and x<sub>time</sub> &lt; i<sub>time</sub>}</p> 
-<p class="indent1">Let Q' = Q \ &beta;(Q,a<sub>1</sub>) \ &cup;<sub>a &isin; A</sub>&gamma;(<i>members<sub>e</sub></i>(e(a<sub>1</sub>), a), define e' : S &rarr; S given by</p>
+<p class="indent1">Let Q' = Q \ &beta;(Q,a<sub>1</sub>) \ &cup;<sub>a &isin; A</sub>&gamma;(e(a<sub>1</sub>), a), define e' : S &rarr; &weierp;(S) given by</p>
 <p class="indent2">e'(i) = </p>	
 <p class="indent3">e(i) , i &isin; Q'</p>
 <p class="indent3">e(a<sub>1</sub>) , i &notin; Q'</p>
