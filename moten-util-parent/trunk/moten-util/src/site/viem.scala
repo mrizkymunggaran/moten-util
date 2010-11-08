@@ -33,8 +33,7 @@ class MyEntityFunction(map:Map[TimedIdentifier,Set[TimedIdentifier]]) extends En
 		case si:Some[Set[TimedIdentifier]]  => si.get
 		case _ => throw new NullPointerException 
 	}
-	def domain : Set[TimedIdentifier]= map.keySet 
-	
+	def domain : Set[TimedIdentifier]= map.keySet.toSet
 }
 
 class System(e:EntityFunction) {
