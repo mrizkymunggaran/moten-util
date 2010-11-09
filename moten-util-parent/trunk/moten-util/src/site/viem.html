@@ -156,7 +156,7 @@ are disjoint sets}</p>
 
 <p>Given</p> 
 <ul>
-	<li>set of timed identifiers Q &isin; V with an entity function e: S &rarr; S s.t. &forall; i &isin; I where i &notin; Q, e(i) = i</li>
+	<li>set of timed identifiers Q &isin; V with an entity function e<sub>Q</sub> : S &rarr; S s.t. &forall; i &isin; I where i &notin; Q, e(i) = {i}</li>
 	<li>set of timed identifiers A &isin; V</li>
 </ul>
 </li>
@@ -167,10 +167,14 @@ in that order.</p>
 <p>Now assume A has either 1 or 2 elements</p>
 <p class="indent1">Define &beta; : S &#x2a2f; I &rarr; S by &beta;(X,i) = { x &isin; X : x<sub>id</sub> = i<sub>id</sub> and x<sub>time</sub> &lt; i<sub>time</sub> }</p>
 <p class="indent1">Define &gamma; : S &#x2a2f; I &rarr; S by &gamma;(X,i) = {x &isin; X : t(x) = t(i) and x<sub>time</sub> &lt; i<sub>time</sub>}</p> 
-<p class="indent1">Let Q' = Q \ &beta;(Q,a<sub>1</sub>) \ &cup;<sub>a &isin; A</sub>&gamma;(e(a<sub>1</sub>), a), define e' : S &rarr; &weierp;(S) given by</p>
+<p class="indent1">Let B = &cup;<sub>a&isin;A</sub>&beta;(Q,a) </p>
+<p class="indent1">Let C = &cup;<sub>a&isin;A</sub>&gamma;(e<sub>Q</sub>(a<sub>1</sub>), a)</p>
+<p class="indent1">Let D = Q \ B \ C, define e' : S &rarr; &weierp;(S) given by</p>
+<p class="indent1">Let Q' = D &cup; {i &isin; A : i<sub>id</sub> &notin; B} &cup; {i &isin; A : t(i) &notin; C}</p>
 <p class="indent2">e'(i) = </p>	
-<p class="indent3">e(i) , i &isin; Q'</p>
-<p class="indent3">e(a<sub>1</sub>) , i &notin; Q'</p>
+<p class="indent3">e(i) , i &isin; D</p>
+<p class="indent3">e(a<sub>1</sub>) , i &notin; D, i &isin; Q'</p>
+<p class="indent3">{i} , otherwise</p>
 
 
 <hr />
