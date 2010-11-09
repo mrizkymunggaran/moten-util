@@ -40,7 +40,7 @@ class System(e:EntityFunction) {
 
 	def add(a:SortedSet[TimedIdentifier]):System = {
 		val a1 = a.max //assuming strongest is max
-		val b = beta(e.domain,a1)				
+		val b = a.map(beta(e.domain,_)).flatten				
 		val c = a.map(gamma(e(a1),_)).flatten
 		val domain2 = e.domain.filter(!b.contains(_)).filter(!c.contains(_))
 		
