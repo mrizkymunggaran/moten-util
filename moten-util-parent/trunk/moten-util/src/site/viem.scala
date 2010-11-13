@@ -22,7 +22,7 @@ case class TimedIdentifier(id:Identifier, time:Date) extends Ordered[TimedIdenti
 			this.id.compare(that.id)
 }
 
-class MetaData
+class MetaData(entityId:long) 
 
 case class MetaSet(set:Set[TimedIdentifier], meta: MetaData) 
 
