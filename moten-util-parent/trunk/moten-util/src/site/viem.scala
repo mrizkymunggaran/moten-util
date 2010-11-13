@@ -22,36 +22,63 @@ case class TimedIdentifier(id:Identifier, time:Date) extends Ordered[TimedIdenti
 			this.id.compare(that.id)
 }
 
-trait Domain[A] {
-	def domain: Set[A]
-}
+class MetaData
 
-trait EntityFunction extends Function[TimedIdentifier,Set[TimedIdentifier]] with Domain[TimedIdentifier]
+case class MetaSet(set:Set[TimedIdentifier], meta: MetaData) 
 
-class MyEntityFunction(map:Map[TimedIdentifier,Set[TimedIdentifier]]) extends EntityFunction {
-	def apply(i:TimedIdentifier) = map.get(i) match {
-		case si:Some[Set[TimedIdentifier]]  => si.get
-		case None => Set(i) 
+case class MergeResult(a:MetaSet, b:MetaSet, c:MetaSet, d:Set[TimedIdentifier])
+
+
+class System {
+
+	implicit def toSet(a:MetaSet):Set[TimedIdentifier] = a.set
+	implicit def toLong(d:java.util.Date):Long = d.getTime()
+
+	def alpha(x:Set[TimedIdentifier], y:TimedIdentifier) = 
+		x.filter(_.id.typ==y.id.typ).union(Set(y))
+
+	def complement[T](x:Set[T], y:Set[T]):Set[T]= 
+		x.filter(!y.contains(_))
+
+	def time(x:Set[TimedIdentifier], y:TimedIdentifier) = {
+		val a = x.find(_.id.typ>y.id.typ)
+		a match {
+			case t:Some[TimedIdentifier] => t.get
+			case None => throw new RuntimeException("not found")
+		}
 	}
-	def domain : Set[TimedIdentifier]= map.keySet.toSet
-}
 
-class System(e:EntityFunction) {
-
-	def add(a:SortedSet[TimedIdentifier]):System = {
-		val a1 = a.max //assuming strongest is max
-		val b = a.map(beta(e.domain,_)).flatten				
-		val c = a.map(gamma(e(a1),_)).flatten
-		val domain2 = e.domain.filter(!b.contains(_)).filter(!c.contains(_))
-		
-		new System(e)
+	def z(x:Set[TimedIdentifier], y:TimedIdentifier):Set[TimedIdentifier] = {
+		val a = alpha(x,y)
+		complement(x,a).union(Set(a.max))
 	}	
-	private def beta(set:Set[TimedIdentifier],i:TimedIdentifier) = {
-		set.filter( _.id == i.id).filter( _.time.compareTo(i.time)<0)
+
+	def z(x:Set[TimedIdentifier], y:Set[TimedIdentifier]):Set[TimedIdentifier] = {
+		if (y.size==1) 
+			z(x,y.head)
+		else 
+			z(z(x,y.head),y.tail)
 	}
-	private def gamma(set:Set[TimedIdentifier],i:TimedIdentifier) = {
-		set.filter( _.id.typ == i.id.typ).filter( _.time.compareTo(i.time)<0)
+	
+	def merge(a:MetaSet,b:MetaSet,c:MetaSet):MergeResult = {
+		if (a.isEmpty) 
+			MergeResult(a,b,c,Set())
+		else if (b.isEmpty && c.isEmpty)
+			MergeResult(a, b, c, Set())
+		else if (c.isEmpty && a.size==1) {
+			val a1=a.max
+			if (a1.time >= time(b,a1).time)
+				MergeResult(MetaSet(z(a,a.head),a.meta),
+							MetaSet(Set(),b.meta),
+							MetaSet(Set(),c.meta),
+							Set())
+			else
+				MergeResult(MetaSet(Set(),a.meta), b, c, Set())
+		}
+		else		
+			MergeResult(a, b, c, Set())
 	}
+
 }
 
 
