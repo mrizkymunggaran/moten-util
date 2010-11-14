@@ -22,7 +22,7 @@ case class TimedIdentifier(id:Identifier, time:Date) extends Ordered[TimedIdenti
 			this.id.compare(that.id)
 }
 
-class MetaData(entityId:long) 
+case class MetaData 
 
 case class MetaSet(set:Set[TimedIdentifier], meta: MetaData) 
 
@@ -34,7 +34,7 @@ class System {
 	implicit def toSet(a:MetaSet):Set[TimedIdentifier] = a.set
 	implicit def toLong(d:java.util.Date):Long = d.getTime()
 
-	def alpha(x:Set[TimedIdentifier], y:TimedIdentifier) = 
+	def alpha(x:Set[TimedIdentifier], y:TimedIdentifier):Set[TimedIdentifier] = 
 		x.filter(_.id.typ==y.id.typ).union(Set(y))
 
 	def complement[T](x:Set[T], y:Set[T]):Set[T]= 
@@ -59,25 +59,62 @@ class System {
 		else 
 			z(z(x,y.head),y.tail)
 	}
-	
-	def merge(a:MetaSet,b:MetaSet,c:MetaSet):MergeResult = {
-		if (a.isEmpty) 
-			MergeResult(a,b,c,Set())
-		else if (b.isEmpty && c.isEmpty)
-			MergeResult(a, b, c, Set())
-		else if (c.isEmpty && a.size==1) {
-			val a1=a.max
-			if (a1.time >= time(b,a1).time)
-				MergeResult(MetaSet(z(a,a.head),a.meta),
-							MetaSet(Set(),b.meta),
-							MetaSet(Set(),c.meta),
-							Set())
-			else
-				MergeResult(MetaSet(Set(),a.meta), b, c, Set())
-		}
-		else		
-			MergeResult(a, b, c, Set())
+
+	def empty = MetaSet(emptySet,MetaData())
+	def emptySet[T] = Set[T]()
+	def >=(x:TimedIdentifier, y:Set[TimedIdentifier]):Boolean = {
+		return x.time.getTime() >= time(y,x).time.getTime()
 	}
+
+	def merge(a1:TimedIdentifier, m:MetaData, b:MetaSet):MergeResult = {
+		if (b.isEmpty)
+			MergeResult(MetaSet(Set(a1),m), b, empty, emptySet)
+		else if (>=(a1,b)) 
+			MergeResult(MetaSet(z(b,a1),m),
+						empty,
+						empty,
+						emptySet)
+		else
+			MergeResult(empty, b, empty, emptySet)
+	}
+
+	def merge(a1:TimedIdentifier, a2:TimedIdentifier, m:MetaData, b:MetaSet):MergeResult = {
+		if (b.isEmpty)
+			MergeResult(MetaSet(Set(a1,a2),m), empty, empty, emptySet)
+		else if (>=(a1,b)) 
+			MergeResult(MetaSet(z(z(b,a1),a2),m), empty, empty, emptySet)
+		else 
+			MergeResult(empty, b, empty, emptySet)	
+	}
+
+	def merge(a1:TimedIdentifier, a2:TimedIdentifier, m:MetaData, b:MetaSet, c:MetaSet):MergeResult = {
+		if (a1.id == a2.id)
+			merge(a1,m,b)
+		else if (c.isEmpty)
+			merge(a1,a2,m,b)
+		else {
+			val a:Set[TimedIdentifier] = Set(a1,a2)
+
+			if (! >=(a1,b) && ! >=(a2,c))
+				MergeResult(empty,b,c,emptySet)
+			else if (>=(a1,b) && ! >=(a2,c))
+				MergeResult(MetaSet(z(b,a1),m),empty,empty,emptySet)
+			else if (a2.id == c.max.id)
+				MergeResult(MetaSet(z(z(b,c),a),m),empty,empty,emptySet)
+			else  {
+					val aId = a.map(_.id)
+					val cIntersection = c.set.filter(x => aId.contains(x.id))
+					val cComplement = c.set.filter(x => !aId.contains(x.id))
+					MergeResult(
+						MetaSet(z(z(b,cIntersection),a),m),
+						empty,
+						MetaSet(cComplement,
+						c.meta),
+						emptySet)
+				}
+			}
+		}
+	}	
 
 }
 
