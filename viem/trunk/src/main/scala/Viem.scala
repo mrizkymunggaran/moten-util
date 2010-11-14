@@ -10,9 +10,10 @@ object `package` {}
 import java.util.Date
 import scala.collection.immutable._
 
-/*
- * The type of an Identifier. For an example for a ship it might
- * be the MMSI number, so we might use IdentifierType("MMSI").
+/**
+ * The type of an [[org.moten.david.viem.Identifier]]. For an example for a ship it might
+ * be the MMSI number, so we might use IdentifierType("MMSI"). 
+ * Has strict ordering, alphabetical at the moment.
  *
  * @param name the identitier type name
  */
@@ -21,6 +22,11 @@ case class IdentifierType(name:String) extends Ordered[IdentifierType] {
         this.name.compareTo(that.name)
 }
 
+/**
+ * Based on an [[org.moten.david.viem.IdentifierType]] and a value.
+ * Has strict ordering based on IdentifierType ordering then value alphabetical
+ * ordering.
+ */
 case class Identifier(typ:IdentifierType, value:String) extends Ordered[Identifier]{
     def compare(that:Identifier):Int = 
         if (this.typ.equals(that.typ))
@@ -29,6 +35,9 @@ case class Identifier(typ:IdentifierType, value:String) extends Ordered[Identifi
             this.typ.compare(that.typ)
 }
 
+/** 
+ * An [[org.moten.david.viem.Identifier]] with a timestamp.
+ */
 case class TimedIdentifier(id:Identifier, time:Date) extends Ordered[TimedIdentifier]{
     def compare(that:TimedIdentifier):Int = 
         if (this.id.equals(that.id))
