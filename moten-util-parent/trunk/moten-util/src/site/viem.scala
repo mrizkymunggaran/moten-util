@@ -22,8 +22,7 @@ case class TimedIdentifier(id:Identifier, time:Date) extends Ordered[TimedIdenti
 			this.id.compare(that.id)
 }
 
-case class MetaData 
-
+case class MetaData(value:String) 
 case class MetaSet(set:Set[TimedIdentifier], meta: MetaData) 
 
 case class MergeResult(a:MetaSet, b:MetaSet, c:MetaSet, d:Set[TimedIdentifier])
@@ -40,11 +39,11 @@ class System {
 	def complement[T](x:Set[T], y:Set[T]):Set[T]= 
 		x.filter(!y.contains(_))
 
-	def time(x:Set[TimedIdentifier], y:TimedIdentifier) = {
-		val a = x.find(_.id.typ>y.id.typ)
+	def typeMatch(x:Set[TimedIdentifier], y:TimedIdentifier):TimedIdentifier = {
+		val a = x.find(_.id.typ == y.id.typ)
 		a match {
 			case t:Some[TimedIdentifier] => t.get
-			case None => throw new RuntimeException("not found")
+			case None => throw new RuntimeException("matching identifier type not found:" +y + " in " + x)
 		}
 	}
 
@@ -60,10 +59,10 @@ class System {
 			z(z(x,y.head),y.tail)
 	}
 
-	def empty = MetaSet(emptySet,MetaData())
+	def empty = MetaSet(emptySet,MetaData("empty"))
 	def emptySet[T] = Set[T]()
 	def >=(x:TimedIdentifier, y:Set[TimedIdentifier]):Boolean = {
-		return x.time.getTime() >= time(y,x).time.getTime()
+		return x.time.getTime() >= typeMatch(y,x).time.getTime()
 	}
 
 	def merge(a1:TimedIdentifier, m:MetaData, b:MetaSet):MergeResult = {
@@ -108,14 +107,32 @@ class System {
 					MergeResult(
 						MetaSet(z(z(b,cIntersection),a),m),
 						empty,
-						MetaSet(cComplement,
-						c.meta),
+						MetaSet(cComplement,c.meta),
 						emptySet)
 				}
 			}
 		}
 	}	
 
+	object System {
+
+		def empty = MetaSet(Set(),MetaData("empty"))
+
+		def create(name:String, value:String, time:Date) =
+			 TimedIdentifier(Identifier(IdentifierType(name),value),time)
+
+		def test() {
+			val date = new Date()
+			val a1 = create("m","1", date)
+			val a2 = create("g","2", date)
+			val b1 = create("m","1", new Date(0))
+			val b2 = create("g","3", new Date(0))
+			println(a1)
+			println(a2)
+			println(new System().merge(a1,a2,MetaData("a"), MetaSet(Set(b1,b2),MetaData("b")), empty))
+			println("finished tests")
+		}
+	}
 }
 
 
