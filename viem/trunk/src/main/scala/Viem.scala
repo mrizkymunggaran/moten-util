@@ -13,13 +13,13 @@ import scala.collection.immutable._
 /**
  * The type of an [[viem.Identifier]]. For an example for a ship it might
  * be the MMSI number, so we might use IdentifierType("MMSI"). 
- * Has strict ordering, alphabetical at the moment.
+ * Has strict ordering, reverse alphabetical at the moment.
  *
  * @param name the identitier type name
  */
 case class IdentifierType(name: String) extends Ordered[IdentifierType] {
   def compare(that: IdentifierType): Int =
-    this.name.compareTo(that.name)
+    that.name.compareTo(this.name)
 }
 
 /**

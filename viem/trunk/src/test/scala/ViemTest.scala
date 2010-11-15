@@ -10,7 +10,6 @@ class ViemTest {
 	def empty = MetaSet(Set(),MetaData("empty"))
     def create(name:String, value:String, time:Date) =
         TimedIdentifier(Identifier(IdentifierType(name),value),time)
-    
         
     @Test
     def testOK() = assertTrue(true)
@@ -24,28 +23,29 @@ class ViemTest {
                 .replace("MetaData", "\n\t\tMetaData") 
     
 	    
-		val date = new Date(100000000000L)
-		val date2 = new Date(0)
+		val date1 = new Date(100000000000L)
+		val date0 = new Date(0)
 		val m = "m"
 		val g = "g"
-		val a1 = create("m","1", date)
-		val a2 = create("g","2", date)
-		val b1 = create("m","1", date2)
-		val b2 = create("g","3", date2)
+		val a1 = create("a1","1", date1)
+		val a2 = create("a2","2", date1)
+		val b1 = create("a1","1", date0)
+		val b2 = create("a2","3", date0)
 		println(a1)
 		println(a2)
 		println(Set(a2,a1).max)
 
-		val m1=TimedIdentifier(Identifier(IdentifierType(m),"1"),date)
 		//check that max works
 		assertEquals(
-				m1                 ,
-				Set(a2,a1).max)
-		
-		val m1old=TimedIdentifier(Identifier(IdentifierType(m),"1"),date) 
+				a1                 ,
+				Set(a1,a2).max)
 		assertEquals(
-				m1old                 ,
-				Set(a1,a2).max)                             
+                a1                 ,
+                Set(a2,a1).max)
+		assertEquals(
+                a2                 ,
+                Set(a1,a2).min)
+                                    
 		val merger = new Merger();
 		
 		println("testing alpha")
@@ -61,14 +61,24 @@ class ViemTest {
 		assertEquals(a2,merger.typeMatch(Set(a1,a2), b2))
 		assertEquals(a2,merger.typeMatch(Set(a1,a2), a2))
 		
-		println("testing merge")
-		val r = merger.merge(
-		            a1,a2,MetaData("a"), 
-		            MetaSet(Set(b1,b2),MetaData("b")), 
-		            empty)
-		            
-		println(r+ "\n" + pp(r))
+		val mda = MetaData("a")
+		val mdb = MetaData("b")
+		val mdc = MetaData("c")
 		
+		println("testing merge")
+		var r = merger.merge(
+		            a1,a2,mda, 
+		            MetaSet(Set(b1,b2),mdb), 
+		            empty)
+		println(pp(r))
+		
+		r = merger.merge(a1,a1,mda,empty,empty)
+		println(pp(r))
+		assertEquals(MergeResult(MetaSet(Set(a1),mda),empty,empty,Set()),r)
+		
+		r = merger.merge(a1,a2,mda,empty,empty)
+        println(pp(r))
+        assertEquals(MergeResult(MetaSet(Set(a1,a2),mda),empty,empty,Set()),r)
 		//assertEquals(MergeResult(MetaSet(Set(TimedIdentifier(a1,date), TimedIdentifier(Identifier(IdentifierType(g),3),date2)),MetaData(a)),MetaSet(Set(),MetaData(empty)),MetaSet(Set(),MetaData(empty)),Set()), r)
 //		assertEquals(MergeResult(MetaSet(Set(a1,a2),MetaData("a")),empty,empty,Set()),sys)
 		
