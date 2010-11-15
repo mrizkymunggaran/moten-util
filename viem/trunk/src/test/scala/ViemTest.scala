@@ -41,18 +41,15 @@ class ViemTest {
 				Set(a1,a2).max)                             
 		val merger = new Merger();
 		
-		//test alpha
 		println("testing alpha")
 		assertEquals(Set(a2,b2), merger.alpha(Set(a1,a2),b2))
 		
-		//test complement
 		println("testing complement")
 		assertEquals(Set(a1),merger.complement(Set(a1,a2),Set(a2)))
 		assertEquals(Set(a2),merger.complement(Set(a1,a2),Set(a1)))
 		assertEquals(Set(a1,a2),merger.complement(Set(a1,a2),Set(b1)))
 		assertEquals(Set(),merger.complement(Set(a1,a2),Set(a1,a2)))
 		
-		//test typeMatch
 		println("testing typeMatch")
 		assertEquals(a2,merger.typeMatch(Set(a1,a2), b2))
 		assertEquals(a2,merger.typeMatch(Set(a1,a2), a2))
