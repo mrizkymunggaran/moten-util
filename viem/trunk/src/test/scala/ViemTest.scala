@@ -10,12 +10,19 @@ class ViemTest {
 	def empty = MetaSet(Set(),MetaData("empty"))
     def create(name:String, value:String, time:Date) =
         TimedIdentifier(Identifier(IdentifierType(name),value),time)
-
+    
+        
     @Test
     def testOK() = assertTrue(true)
 
     @Test
     def testSystem() = {
+
+	    def pp(r:MergeResult):String = r.toString()
+                .replace("MetaSet", "\n\tMetaSet")
+                .replace("TimedIdentifier", "\n\t\t\tTimedIdentifier")
+                .replace("MetaData", "\n\t\tMetaData") 
+    
 	    
 		val date = new Date(100000000000L)
 		val date2 = new Date(0)
@@ -55,8 +62,9 @@ class ViemTest {
 		assertEquals(a2,merger.typeMatch(Set(a1,a2), a2))
 		
 		println("testing merge")
-		val sys =merger.merge(a1,a2,MetaData("a"), MetaSet(Set(b1,b2),MetaData("b")), empty)
-		println(sys)
+		val r = merger.merge(a1,a2,MetaData("a"), MetaSet(Set(b1,b2),MetaData("b")), empty)
+		
+		println(pp(r))
 //		assertEquals(MergeResult(MetaSet(Set(a1,a2),MetaData("a")),empty,empty,Set()),sys)
 		
 		println("******************\nfinished tests")
