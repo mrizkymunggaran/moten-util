@@ -1,6 +1,7 @@
 package org.moten.david.viem
 
 import org.junit._
+import java.util.Date
 import Assert._
 
 @Test
