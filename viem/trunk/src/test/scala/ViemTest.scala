@@ -62,9 +62,14 @@ class ViemTest {
 		assertEquals(a2,merger.typeMatch(Set(a1,a2), a2))
 		
 		println("testing merge")
-		val r = merger.merge(a1,a2,MetaData("a"), MetaSet(Set(b1,b2),MetaData("b")), empty)
+		val r = merger.merge(
+		            a1,a2,MetaData("a"), 
+		            MetaSet(Set(b1,b2),MetaData("b")), 
+		            empty)
+		            
+		println(r+ "\n" + pp(r))
 		
-		println(pp(r))
+		//assertEquals(MergeResult(MetaSet(Set(TimedIdentifier(a1,date), TimedIdentifier(Identifier(IdentifierType(g),3),date2)),MetaData(a)),MetaSet(Set(),MetaData(empty)),MetaSet(Set(),MetaData(empty)),Set()), r)
 //		assertEquals(MergeResult(MetaSet(Set(a1,a2),MetaData("a")),empty,empty,Set()),sys)
 		
 		println("******************\nfinished tests")
