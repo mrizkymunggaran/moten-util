@@ -122,6 +122,7 @@ class ViemTest {
         checkEquals(MergeResult(MetaSet(Set(a1old,a2),mda),empty,empty,emptySet),r)
         
         
+        
 		println("******************\nfinished tests successfully")
 	}
 	
