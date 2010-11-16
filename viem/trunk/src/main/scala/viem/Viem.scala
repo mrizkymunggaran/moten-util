@@ -73,10 +73,7 @@ class Merger {
 
   def alpha(x: Set[TimedIdentifier], y: TimedIdentifier): Set[TimedIdentifier] = {
     val set = x.filter(_.id.typ == y.id.typ)
-    if (set.isEmpty)
-      throw new RuntimeException("no intersection by type with x and y")
-    else 
-        set.union(Set(y))
+    set.union(Set(y))
   }
 
   def complement[T](x: Set[T], y: Set[T]): Set[T] =

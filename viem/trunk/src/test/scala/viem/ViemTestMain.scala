@@ -1,3 +1,5 @@
+package viem
+
 import viem._
 
 object ViemTestMain {

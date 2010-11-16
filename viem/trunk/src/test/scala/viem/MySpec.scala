@@ -1,4 +1,4 @@
-package org.moten.david.viem
+package viem
 
 import org.specs._
 import org.specs.runner.{ConsoleRunner, JUnit4}
