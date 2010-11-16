@@ -32,12 +32,15 @@ class ViemTest {
 	    
 		val date1 = new Date(100000000000L) //1973
 		val date0 = new Date(0) //1970
+		val date = new Date(date0.getTime()-1000)
 		val m = "m"
 		val g = "g"
 		val a1 = create("a1","1", date1)
-		val a2 = create("a2","2", date1)
 		val a1old = create("a1","1", date0)
+		val a1older = create("a1","4",date)
+		val a2 = create("a2","2", date1)
 		val a2oldDiff = create("a2","3", date0)
+		val a2olderDiff = create("a2","4",date)
 		println(a1)
 		println(a2)
 		println(Set(a2,a1).max)
@@ -110,9 +113,14 @@ class ViemTest {
         
         println("add (a1, a2) to a system with newer (a1) and older (a2)")
         r = merger.merge(a1old,a2oldDiff,mda,
-                 MetaSet(Set(a1,TimedIdentifier(Identifier(IdentifierType("a2"),"45"),
-                   new Date(a2oldDiff.time.getTime()-1000))),mdb),empty)
+                 MetaSet(Set(a1,a2olderDiff),mdb),empty)
         checkEquals(MergeResult(empty, MetaSet(Set(a1,a2oldDiff),mdb),empty,emptySet),r)
+        
+        println("add (a1, a2) to a system with older (a1) and newer (a2)")
+        r = merger.merge(a1old,a2oldDiff,mda,
+                 MetaSet(Set(a1older,a2),mdb),empty)
+        checkEquals(MergeResult(MetaSet(Set(a1old,a2),mda),empty,empty,emptySet),r)
+        
         
 		println("******************\nfinished tests successfully")
 	}
