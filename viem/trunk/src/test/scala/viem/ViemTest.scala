@@ -3,6 +3,7 @@ package viem
 import org.junit._
 import java.util.Date
 import Assert._
+import Predef._
 
 @Test
 class ViemTest {
@@ -103,9 +104,15 @@ class ViemTest {
         r = merger.merge(a1old,a1old,mda,MetaSet(Set(a1),mdb),empty)
         checkEquals(MergeResult(empty, MetaSet(Set(a1),mdb),empty,emptySet),r)
         
-//        println("add (a1, a2) to a system with newer (a1)")
-//        r = merger.merge(a1old,a2oldDiff,mda,MetaSet(Set(a1),mdb),empty)
-//        checkEquals(MergeResult(empty, MetaSet(Set(a1,a2),mdb),empty,emptySet),r)
+        println("add (a1, a2) to a system with newer (a1)")
+        r = merger.merge(a1old,a2oldDiff,mda,MetaSet(Set(a1),mdb),empty)
+        checkEquals(MergeResult(empty, MetaSet(Set(a1,a2oldDiff),mdb),empty,emptySet),r)
+        
+        println("add (a1, a2) to a system with newer (a1) and older (a2)")
+        r = merger.merge(a1old,a2oldDiff,mda,
+                 MetaSet(Set(a1,TimedIdentifier(Identifier(IdentifierType("a2"),"45"),
+                   new Date(a2oldDiff.time.getTime()-1000))),mdb),empty)
+        checkEquals(MergeResult(empty, MetaSet(Set(a1,a2oldDiff),mdb),empty,emptySet),r)
         
 		println("******************\nfinished tests successfully")
 	}

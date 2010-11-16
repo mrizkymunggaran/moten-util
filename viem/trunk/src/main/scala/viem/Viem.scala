@@ -40,7 +40,8 @@ case class Identifier(typ: IdentifierType, value: String) extends Ordered[Identi
  */
 case class TimedIdentifier(id: Identifier, time: Date) extends Ordered[TimedIdentifier] {
   def compare(that: TimedIdentifier): Int =
-    if (this.id.equals(that.id))
+    //compare using only type and time (not identifier value)
+    if (this.id.typ.equals(that.id.typ))
       this.time.compareTo(that.time)
     else
       this.id.compare(that.id)
@@ -89,7 +90,9 @@ class Merger {
 
   def z(x: Set[TimedIdentifier], y: TimedIdentifier): Set[TimedIdentifier] = {
     val a = alpha(x, y)
-    complement(x, a).union(Set(a.max))
+    val result = complement(x, a).union(Set(a.max))
+    println("z(\n"+x +"\n"+y + ")=\n"+result)
+    result
   }
 
   def z(x: Set[TimedIdentifier], y: Set[TimedIdentifier]): Set[TimedIdentifier] = {
@@ -111,7 +114,8 @@ class Merger {
     if (b.isEmpty)
       MergeResult(MetaSet(Set(a1), m), b, empty, emptySet)
     else if (>=(a1, b))
-      MergeResult(MetaSet(z(b, a1), m),
+      MergeResult(
+        MetaSet(z(b, a1), m),
         empty,
         empty,
         emptySet)
@@ -125,10 +129,11 @@ class Merger {
     else if (>=(a1, b))
       MergeResult(MetaSet(z(z(b, a1), a2), m), empty, empty, emptySet)
     else
-      MergeResult(empty, b, empty, emptySet)
+      MergeResult(empty, MetaSet(z(b,a2),b.meta), empty, emptySet)
   }
 
   def merge(a1: TimedIdentifier, a2: TimedIdentifier, m: MetaData, b: MetaSet, c: MetaSet): MergeResult = {
+    if (a1.time != a2.time) throw new RuntimeException("a1 and a2 must have the same time")
     if (a1.id == a2.id)
       merge(a1, m, b)
     else if (c.isEmpty)
