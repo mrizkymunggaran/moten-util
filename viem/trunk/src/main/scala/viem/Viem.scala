@@ -65,9 +65,16 @@ case class MetaSet(set: Set[TimedIdentifier], meta: MetaData)
 case class MergeResult(a: MetaSet, b: MetaSet, c: MetaSet, d: Set[TimedIdentifier])
 
 /**
+ * Validates the merging of two entities based on their [[viem.MetaData]].
+ */
+abstract trait MergeValidator {
+    def mergeIsValid(a:MetaData, b:MetaData):Boolean
+}
+
+/**
  * Utility class for performing merges of [[scala.collection.immutable.Set]] of [[viem.TimedIdentifier]].
  */
-class Merger {
+class Merger(mergeValidator:MergeValidator) {
 
   implicit def toSet(a: MetaSet): Set[TimedIdentifier] = a.set
   implicit def toLong(d: java.util.Date): Long = d.getTime()
@@ -142,7 +149,11 @@ class Merger {
       val a: Set[TimedIdentifier] = Set(a1, a2)
 
       if (! >=(a1, b) && ! >=(a2, c))
-        MergeResult(empty, b, c, emptySet)
+        if (mergeValidator.mergeIsValid(b.meta , c.meta))
+            //TODO merge b and c
+            MergeResult(empty, b, c, emptySet)
+        else
+            MergeResult(empty, b, c, emptySet)
       else if (>=(a1, b) && ! >=(a2, c))
         MergeResult(MetaSet(z(b, a1), m), empty, empty, emptySet)
       else if (a2.id == c.max.id)

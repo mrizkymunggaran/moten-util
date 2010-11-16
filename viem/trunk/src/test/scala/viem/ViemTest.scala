@@ -26,6 +26,9 @@ class ViemTest {
 	    println ("****************")
 	}
 
+	class MergeValidatorAlwaysOk extends MergeValidator {
+	    override def mergeIsValid(a:MetaData, b:MetaData):Boolean = true
+	}
 
     @Test
     def testSystem() = {
@@ -60,7 +63,7 @@ class ViemTest {
                 a2                 ,
                 Set(a1,a2).min)
                                     
-		val merger = new Merger();
+		val merger = new Merger(new MergeValidatorAlwaysOk());
 		
 		println("testing alpha")
 		assertEquals(Set(a2,a2old), merger.alpha(Set(a1,a2),a2old))
@@ -130,6 +133,10 @@ class ViemTest {
                  MetaSet(Set(a1old),mdb),MetaSet(Set(a2old),mdc))
         checkEquals(MergeResult(MetaSet(Set(a1,a2),mda),empty,empty,emptySet),r)
         
+        println("add (a1, a2) to a system with (newer a1) (newer a2)")
+        r = merger.merge(a1old,a2old,mda,
+                 MetaSet(Set(a1),mdb),MetaSet(Set(a2),mdc))
+        checkEquals(MergeResult(MetaSet(Set(a1,a2),mdb),empty,empty,emptySet),r)
         
 		println("******************\nfinished tests successfully")
 	}
