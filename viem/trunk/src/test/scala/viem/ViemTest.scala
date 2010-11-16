@@ -39,8 +39,12 @@ class ViemTest {
 		val a1old = create("a1","1", date0)
 		val a1older = create("a1","4",date)
 		val a2 = create("a2","2", date1)
-		val a2oldDiff = create("a2","3", date0)
+		val a2old = create("a2","3", date0)
 		val a2olderDiff = create("a2","4",date)
+		val a3 = create("a3","1", date1)
+		val a3old = create("a3","2", date0)
+		val a3older = create("a3","3", date)
+		
 		println(a1)
 		println(a2)
 		println(Set(a2,a1).max)
@@ -59,7 +63,7 @@ class ViemTest {
 		val merger = new Merger();
 		
 		println("testing alpha")
-		assertEquals(Set(a2,a2oldDiff), merger.alpha(Set(a1,a2),a2oldDiff))
+		assertEquals(Set(a2,a2old), merger.alpha(Set(a1,a2),a2old))
 		assertEquals(Set(a2), merger.alpha(Set(a1),a2))
 		
 		println("testing complement")
@@ -69,7 +73,7 @@ class ViemTest {
 		assertEquals(Set(),merger.complement(Set(a1,a2),Set(a1,a2)))
 		
 		println("testing typeMatch")
-		assertEquals(a2,merger.typeMatch(Set(a1,a2), a2oldDiff))
+		assertEquals(a2,merger.typeMatch(Set(a1,a2), a2old))
 		assertEquals(a2,merger.typeMatch(Set(a1,a2), a2))
 		
 		val mda = MetaData("a")
@@ -79,7 +83,7 @@ class ViemTest {
 		println("testing merge")
 		var r = merger.merge(
 		            a1,a2,mda, 
-		            MetaSet(Set(a1old,a2oldDiff),mdb), 
+		            MetaSet(Set(a1old,a2old),mdb), 
 		            empty)
 		println(pp(r))
 		
@@ -107,20 +111,24 @@ class ViemTest {
         r = merger.merge(a1old,a1old,mda,MetaSet(Set(a1),mdb),empty)
         checkEquals(MergeResult(empty, MetaSet(Set(a1),mdb),empty,emptySet),r)
         
-        println("add (a1, a2) to a system with newer (a1)")
-        r = merger.merge(a1old,a2oldDiff,mda,MetaSet(Set(a1),mdb),empty)
-        checkEquals(MergeResult(empty, MetaSet(Set(a1,a2oldDiff),mdb),empty,emptySet),r)
+        println("add (a1, a2) to a system with (newer a1)")
+        r = merger.merge(a1old,a2old,mda,MetaSet(Set(a1),mdb),empty)
+        checkEquals(MergeResult(empty, MetaSet(Set(a1,a2old),mdb),empty,emptySet),r)
         
-        println("add (a1, a2) to a system with newer (a1) and older (a2)")
-        r = merger.merge(a1old,a2oldDiff,mda,
+        println("add (a1, a2) to a system with (newer a1,older a2)")
+        r = merger.merge(a1old,a2old,mda,
                  MetaSet(Set(a1,a2olderDiff),mdb),empty)
-        checkEquals(MergeResult(empty, MetaSet(Set(a1,a2oldDiff),mdb),empty,emptySet),r)
+        checkEquals(MergeResult(empty, MetaSet(Set(a1,a2old),mdb),empty,emptySet),r)
         
-        println("add (a1, a2) to a system with older (a1) and newer (a2)")
-        r = merger.merge(a1old,a2oldDiff,mda,
+        println("add (a1, a2) to a system with (older a1,newer a2)")
+        r = merger.merge(a1old,a2old,mda,
                  MetaSet(Set(a1older,a2),mdb),empty)
         checkEquals(MergeResult(MetaSet(Set(a1old,a2),mda),empty,empty,emptySet),r)
         
+        println("add (a1, a2) to a system with (older a1) (older a2)")
+        r = merger.merge(a1,a2,mda,
+                 MetaSet(Set(a1old),mdb),MetaSet(Set(a2old),mdc))
+        checkEquals(MergeResult(MetaSet(Set(a1,a2),mda),empty,empty,emptySet),r)
         
         
 		println("******************\nfinished tests successfully")

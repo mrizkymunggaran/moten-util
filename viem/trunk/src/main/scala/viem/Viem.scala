@@ -90,13 +90,13 @@ class Merger {
 
   def z(x: Set[TimedIdentifier], y: TimedIdentifier): Set[TimedIdentifier] = {
     val a = alpha(x, y)
-    val result = complement(x, a).union(Set(a.max))
-    println("z(\n"+x +"\n"+y + ")=\n"+result)
-    result
+    complement(x, a).union(Set(a.max))
   }
 
   def z(x: Set[TimedIdentifier], y: Set[TimedIdentifier]): Set[TimedIdentifier] = {
-    if (y.size == 1)
+    if (y.size==0)
+        x
+    else if (y.size == 1)
       z(x, y.head)
     else
       z(z(x, y.head), y.tail)
@@ -148,13 +148,14 @@ class Merger {
       else if (a2.id == c.max.id)
         MergeResult(MetaSet(z(z(b, c), a), m), empty, empty, emptySet)
       else {
-        val aId = a.map(_.id)
-        val cIntersection = c.set.filter(x => aId.contains(x.id))
-        val cComplement = c.set.filter(x => !aId.contains(x.id))
+        val aTypes = a.map(_.id.typ)
+        val cIntersection = c.set.filter(x => aTypes.contains(x.id.typ))
+        val cComplement = c.set.filter(x => !aTypes.contains(x.id.typ))
+        val c2 = if (cComplement.isEmpty) empty else MetaSet(cComplement,c.meta)
         MergeResult(
           MetaSet(z(z(b, cIntersection), a), m),
           empty,
-          MetaSet(cComplement, c.meta),
+          c2,
           emptySet)
       }
     }
