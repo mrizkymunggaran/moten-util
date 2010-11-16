@@ -4,12 +4,12 @@ import org.junit._
 import java.util.Date
 import Assert._
 import Predef._
+import viem.Merger._
 
 @Test
 class ViemTest {
 
-	def empty = MetaSet(Set(),MetaData("empty"))
-	def emptySet[T] = Set[T]() 
+	
     def create(name:String, value:String, time:Date) =
         TimedIdentifier(Identifier(IdentifierType(name),value),time)
     
@@ -26,9 +26,15 @@ class ViemTest {
 	    println ("****************")
 	}
 
-	class MergeValidatorAlwaysOk extends MergeValidator {
-	    override def mergeIsValid(a:MetaData, b:MetaData):Boolean = true
+	class MergeValidatorIfEqual extends MergeValidator {
+	    override def mergeIsValid(a:MetaData, b:MetaData):Boolean = a==b
 	}
+	
+	class MergeValidatorConstant(valid:Boolean) extends MergeValidator {
+	    override def mergeIsValid(a:MetaData, b:MetaData):Boolean = valid
+	}
+	
+	case class Data(name:String) extends MetaData
 
     @Test
     def testSystem() = {
@@ -40,13 +46,13 @@ class ViemTest {
 		val g = "g"
 		val a1 = create("a1","1", date1)
 		val a1old = create("a1","1", date0)
-		val a1older = create("a1","4",date)
+		val a1older = create("a1","1",date)
 		val a2 = create("a2","2", date1)
-		val a2old = create("a2","3", date0)
+		val a2old = create("a2","2", date0)
 		val a2olderDiff = create("a2","4",date)
 		val a3 = create("a3","1", date1)
-		val a3old = create("a3","2", date0)
-		val a3older = create("a3","3", date)
+		val a3old = create("a3","1", date0)
+		val a3older = create("a3","1", date)
 		
 		println(a1)
 		println(a2)
@@ -63,7 +69,7 @@ class ViemTest {
                 a2                 ,
                 Set(a1,a2).min)
                                     
-		val merger = new Merger(new MergeValidatorAlwaysOk());
+		var merger = new Merger(new MergeValidatorConstant(true));
 		
 		println("testing alpha")
 		assertEquals(Set(a2,a2old), merger.alpha(Set(a1,a2),a2old))
@@ -79,9 +85,11 @@ class ViemTest {
 		assertEquals(a2,merger.typeMatch(Set(a1,a2), a2old))
 		assertEquals(a2,merger.typeMatch(Set(a1,a2), a2))
 		
-		val mda = MetaData("a")
-		val mdb = MetaData("b")
-		val mdc = MetaData("c")
+		
+		
+		val mda = Data("a")
+		val mdb = Data("b")
+		val mdc = Data("c")
 		
 		println("testing merge")
 		var r = merger.merge(
@@ -132,6 +140,8 @@ class ViemTest {
         r = merger.merge(a1,a2,mda,
                  MetaSet(Set(a1old),mdb),MetaSet(Set(a2old),mdc))
         checkEquals(MergeResult(MetaSet(Set(a1,a2),mda),empty,empty,emptySet),r)
+        
+        //TODO do some tests with invalid merges
         
         println("add (a1, a2) to a system with (newer a1) (newer a2)")
         r = merger.merge(a1old,a2old,mda,
