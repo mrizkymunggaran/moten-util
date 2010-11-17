@@ -29,6 +29,7 @@ class ViemTest {
     def checkRejected(f:Unit=>MergeResult) {
         try {
             f
+            throw new RuntimeException("should have thrown MergeRejectedException but did not")
         } catch {
             case e:MergeRejectedException => println("merge rejected")
         }
@@ -168,9 +169,6 @@ class ViemTest {
         println("add (a1) to a system with (a1) and different meta")
         checkRejected(Unit=>merger.merge(a1,a1,mda,MetaSet(Set(a1),mdb),empty))
         
-        println("add (a1, a2) to a system with (newer a1) (newer a2) b, c have different meta")
-        checkRejected(Unit=>merger.merge(a1old,a2old,mda,
-                 MetaSet(Set(a1),mdb),MetaSet(Set(a2),mdc)))
                  
         merger = new Merger(new MergeValidatorRejectOne(mdb,mdc))
 		
