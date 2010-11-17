@@ -142,7 +142,7 @@ class Merger(mergeValidator:MergeValidator) {
   
   def merge(a1: TimedIdentifier, a2: TimedIdentifier, m: MetaData, b: MetaSet, c: MetaSet): MergeResult = {
     
-    
+    //do some precondition checks on the inputs
     assert(a1.time == a2.time,"a1 and a2 must have the same time because they came from the same fix set")
     assert(b.isEmpty || b.map(_.id).contains(a1.id),"a1 id must be in b if b is non-empty")
     assert(c.isEmpty || c.map(_.id).contains(a2.id), "a2 id must be in c if c is non-empty")
@@ -163,8 +163,8 @@ class Merger(mergeValidator:MergeValidator) {
 
       if (! >=(a1, b) && ! >=(a2, c))
         if (mergeValidator.mergeIsValid(b.meta , c.meta)) {
-            //TODO merge b and c only
-            //if b and c have conflicting identifiers that both have later timestamps than a1 (or a2) then don't merge
+            //if b and c have conflicting identifiers that both have later 
+            //timestamps than a1 (or a2) then don't merge
             
             //calculate common identifier types with different identifier values in b
             val b2 = b.filter(t=>c.map(x =>x.id.typ).contains(t.id.typ) && !c.map(x=>x.id).contains(t.id))
@@ -196,6 +196,13 @@ class Merger(mergeValidator:MergeValidator) {
           c2)
       }
     }
+  }
+  
+  def merge(a:MetaSet,b:MetaSet,c:MetaSet):MergeResult= {
+      assert(a.size<=2,"a must have a size of 2 or less")
+      if (a.isEmpty) MergeResult(empty,b,c)
+      else if (a.size==1) merge(a.max,a.max,a.meta,b,c)
+      else merge(a.max,a.min,a.meta,b,c)
   }
 
 }
