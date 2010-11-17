@@ -63,7 +63,7 @@ case class MetaSet(set: Set[TimedIdentifier], meta: MetaData)
  * The result of the merge of [[viem.MetaSet]] with primary and secondary matches (b and c)
  * and the effect of stripping if the new MetaSet was rejected.
  */
-case class MergeResult(a: MetaSet, b: MetaSet, c: MetaSet, d: Set[TimedIdentifier])
+case class MergeResult(a: MetaSet, b: MetaSet, c: MetaSet)
 
 /**
  * Validates the merging of two entities based on their [[viem.MetaData]].
@@ -119,35 +119,41 @@ class Merger(mergeValidator:MergeValidator) {
 
   def merge(a1: TimedIdentifier, m: MetaData, b: MetaSet): MergeResult = {
     if (b.isEmpty)
-      MergeResult(MetaSet(Set(a1), m), b, empty, emptySet)
+      MergeResult(MetaSet(Set(a1), m), b, empty)
     else if (>=(a1, b))
       MergeResult(
         MetaSet(z(b, a1), m),
         empty,
-        empty,
-        emptySet)
+        empty)
     else
-      MergeResult(empty, b, empty, emptySet)
+      MergeResult(empty, b, empty)
   }
 
   def merge(a1: TimedIdentifier, a2: TimedIdentifier, m: MetaData, b: MetaSet): MergeResult = {
     if (b.isEmpty)
-      MergeResult(MetaSet(Set(a1, a2), m), empty, empty, emptySet)
+      MergeResult(MetaSet(Set(a1, a2), m), empty, empty)
     else if (>=(a1, b))
-      MergeResult(MetaSet(z(z(b, a1), a2), m), empty, empty, emptySet)
+      MergeResult(MetaSet(z(z(b, a1), a2), m), empty, empty)
     else
-      MergeResult(empty, MetaSet(z(b,a2),b.meta), empty, emptySet)
+      MergeResult(empty, MetaSet(z(b,a2),b.meta), empty)
   }
 
+  case class MergeRejectedException(metaSet:MetaSet) extends RuntimeException
+  
   def merge(a1: TimedIdentifier, a2: TimedIdentifier, m: MetaData, b: MetaSet, c: MetaSet): MergeResult = {
-    if (a1.time != a2.time) 
-        throw new RuntimeException("a1 and a2 must have the same time")
-    if (!b.isEmpty && !b.map(_.id).contains(a1.id)) 
-        throw new RuntimeException("a1 id must be in b");
-    if (!c.isEmpty && !c.map(_.id).contains(a2.id)) 
-        throw new RuntimeException("a2 id must be in c if c is non-empty");
-    if (c.isEmpty && !b.isEmpty && !b.map(_.id).contains(a1.id)) 
-        throw new RuntimeException("a2 id must be in b if c is empty")
+    
+    
+    assert(a1.time == a2.time,"a1 and a2 must have the same time because they came from the same fix set")
+    assert(b.isEmpty || b.map(_.id).contains(a1.id),"a1 id must be in b if b is non-empty")
+    assert(c.isEmpty || c.map(_.id).contains(a2.id), "a2 id must be in c if c is non-empty")
+    assert(!(c.isEmpty && !b.isEmpty && !b.map(_.id).contains(a1.id)),"a2 id must be in b if c is empty")
+    assert(b.map(_.id.typ).size == b.size,"b must not have more than one identifier of any type")
+    assert(c.map(_.id.typ).size == c.size,"c must not have more than one identifier of any type")
+    assert(b.map(_.id).intersect(c.map(_.id)).size == 0,"b and c cannot have an identifier in common")
+  
+    if (!b.isEmpty && !mergeValidator.mergeIsValid(m, b.meta))
+        throw MergeRejectedException(b)
+    
     if (a1.id == a2.id)
       merge(a1, m, b)
     else if (c.isEmpty)
@@ -156,15 +162,29 @@ class Merger(mergeValidator:MergeValidator) {
       val a: Set[TimedIdentifier] = Set(a1, a2)
 
       if (! >=(a1, b) && ! >=(a2, c))
-        if (mergeValidator.mergeIsValid(b.meta , c.meta))
-            //TODO merge b and c
-            MergeResult(empty, b, c, emptySet)
+        if (mergeValidator.mergeIsValid(b.meta , c.meta)) {
+            //TODO merge b and c only
+            //if b and c have conflicting identifiers that both have later timestamps than a1 (or a2) then don't merge
+            
+            //calculate common identifier types with different identifier values in b
+            val b2 = b.filter(t=>c.map(x =>x.id.typ).contains(t.id.typ) && !c.map(x=>x.id).contains(t.id))
+            //calculate common identifier types with different identifier values in c
+            val c2 = c.filter(t=>b.map(x =>x.id.typ).contains(t.id.typ) && !b.map(x=>x.id).contains(t.id))
+            if (!b2.isEmpty && b2.map(_.time.getTime()).max>a1.time.getTime())
+                //don't merge
+                MergeResult(empty,b,c)
+            else if (!c2.isEmpty && c2.map(_.time.getTime()).max>a1.time.getTime())
+                MergeResult(empty,b,c)
+            else 
+                MergeResult(empty, MetaSet(z(b,c),b.meta),empty)
+        }
         else
-            MergeResult(empty, b, c, emptySet)
+            //if merge is not valid then leave them untouched
+            MergeResult(empty, b, c)
       else if (>=(a1, b) && ! >=(a2, c))
-        MergeResult(MetaSet(z(b, a1), m), empty, empty, emptySet)
+        MergeResult(MetaSet(z(b, a1), m), empty, empty)
       else if (a2.id == c.max.id)
-        MergeResult(MetaSet(z(z(b, c), a), m), empty, empty, emptySet)
+        MergeResult(MetaSet(z(z(b, c), a), m), empty, empty)
       else {
         val aTypes = a.map(_.id.typ)
         val cIntersection = c.set.filter(x => aTypes.contains(x.id.typ))
@@ -173,8 +193,7 @@ class Merger(mergeValidator:MergeValidator) {
         MergeResult(
           MetaSet(z(z(b, cIntersection), a), m),
           empty,
-          c2,
-          Merger.emptySet)
+          c2)
       }
     }
   }
@@ -187,7 +206,6 @@ object Merger {
     
   val emptyMetaData = EmptyMetaData()
 
-  val empty = MetaSet(emptySet, emptyMetaData)
+  val empty = MetaSet(Set(), emptyMetaData)
   
-  def emptySet[T] = Set[T]()
 }
