@@ -60,6 +60,11 @@ trait MetaData
 case class MetaSet(set: Set[TimedIdentifier], meta: MetaData)
 
 /**
+ * Exception thrown when a merge of fix and primary or primary and secondary matches is rejected.
+ */
+case class MergeRejectedException(metaSet:MetaSet) extends RuntimeException
+
+/**
  * The result of the merge of [[viem.MetaSet]] with primary and secondary matches (b and c)
  * and the effect of stripping if the new MetaSet was rejected.
  */
@@ -81,15 +86,35 @@ class Merger(mergeValidator:MergeValidator) {
   implicit def toLong(d: java.util.Date): Long = d.getTime()
 
 
-  def alpha(x: Set[TimedIdentifier], y: TimedIdentifier): Set[TimedIdentifier] = {
+  /**
+   * Returns ''y'' and the member of set ''x'' that matches the [[viem.IdentifierType]] of
+   * ''y'' as a two element set if and only the type matching item in ''x'' was found, or a one element 
+   * set if the item in ''x'' with matching [[viem.IdentifierType]] was not found.
+ * @param x
+ * @param y
+ * @return
+ */
+def alpha(x: Set[TimedIdentifier], y: TimedIdentifier): Set[TimedIdentifier] = {
     val set = x.filter(_.id.typ == y.id.typ)
     set.union(Set(y))
   }
 
-  def complement[T](x: Set[T], y: Set[T]): Set[T] =
+  /**
+   * Returns the complement of two sets. 
+ * @param x
+ * @param y
+ * @return
+ */
+def complement[T](x: Set[T], y: Set[T]): Set[T] =
     x.filter(!y.contains(_))
 
-  def typeMatch(x: Set[TimedIdentifier], y: TimedIdentifier): TimedIdentifier = {
+  /**
+   * Returns the (first) item in x that has the same [[viem.IdentifierType]] as y.
+ * @param x
+ * @param y
+ * @return
+ */
+def typeMatch(x: Set[TimedIdentifier], y: TimedIdentifier): TimedIdentifier = { 
     val a = x.find(_.id.typ == y.id.typ)
     a match {
       case t: Some[TimedIdentifier] => t.get
@@ -97,7 +122,13 @@ class Merger(mergeValidator:MergeValidator) {
     }
   }
 
-  def z(x: Set[TimedIdentifier], y: TimedIdentifier): Set[TimedIdentifier] = {
+  /**
+   * Combines a set of [[viem.TimedIdentifier]] with another TimedIdentifier
+ * @param x
+ * @param y
+ * @return
+ */
+def z(x: Set[TimedIdentifier], y: TimedIdentifier): Set[TimedIdentifier] = {
     val a = alpha(x, y)
     complement(x, a).union(Set(a.max))
   }
@@ -111,7 +142,6 @@ class Merger(mergeValidator:MergeValidator) {
       z(z(x, y.head), y.tail)
   }
   
- 
   
   def >=(x: TimedIdentifier, y: Set[TimedIdentifier]): Boolean = {
     return x.time.getTime() >= typeMatch(y, x).time.getTime()
@@ -138,8 +168,6 @@ class Merger(mergeValidator:MergeValidator) {
       MergeResult(empty, MetaSet(z(b,a2),b.meta), empty)
   }
 
-  case class MergeRejectedException(metaSet:MetaSet) extends RuntimeException
-  
   def merge(a1: TimedIdentifier, a2: TimedIdentifier, m: MetaData, b: MetaSet, c: MetaSet): MergeResult = {
     
     //do some precondition checks on the inputs
