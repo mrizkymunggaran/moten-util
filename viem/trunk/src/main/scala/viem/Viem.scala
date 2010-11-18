@@ -83,7 +83,6 @@ abstract trait MergeValidator {
 class Merger(mergeValidator:MergeValidator) {
 
   implicit def toSet(a: MetaSet): Set[TimedIdentifier] = a.set
-  implicit def toLong(d: java.util.Date): Long = d.getTime()
 
 
   /**

@@ -36,8 +36,8 @@ class ViemTest {
         }
 	}
     
-    def checkRejected(f:Unit=>Result,meta:MetaData) {
-            f() match { 
+    def checkRejected(r:Result,meta:MetaData) {
+            r match { 
                 case InvalidMerge(m) if m!=meta =>  error("incorrect meta on invalid merge")
                 case InvalidMerge(_) => Unit
                 case _ => error("should be InvalidMerge but was not")
@@ -182,7 +182,7 @@ class ViemTest {
         checkEquals(MergeResult(MetaSet(Set(a1),mda),empty,empty),r)
 		
         println("add (a1) to a system with (a1) and different meta")
-        checkRejected(Unit=>merger.merge(a1,a1,mda,MetaSet(Set(a1),mdb),empty),mdb)
+        checkRejected(merger.merge(a1,a1,mda,MetaSet(Set(a1),mdb),empty),mdb)
         
         val validator = new MergeValidatorRejectOne(mdb,mdc)
         merger = new Merger(validator)
@@ -192,17 +192,17 @@ class ViemTest {
         assertTrue(validator.mergeIsValid(mda, mdc))
         assertFalse(validator.mergeIsValid(mdb, mdc))
 		
-		println("check mergeValidatorRejectOne on add (a1) to a system with (a1), valid")
-		
+		println("add (a1) to a system with (a1), valid")
         r = merger.merge(a1,a1,mda,MetaSet(Set(a1),mdb),empty)
         checkEquals(MergeResult(MetaSet(Set(a1),mda),empty,empty),r)
 
-		
+        println("add (a1) to a system with (a1), invalid")
+        checkRejected(merger.merge(a1,a1,mdb,MetaSet(Set(a1),mdc),empty),mdc)
+        
 		println("add (a1, a2) to a system with (newer a1) (newer a2) b, c invalid merge")
-        checkRejected(Unit=>merger.merge(a1old,a2old,mda,
+        checkRejected(merger.merge(a1old,a2old,mda,
                  MetaSet(Set(a1),mdb),MetaSet(Set(a2),mdc)),mdc)
         
-                 
 		println("******************\nfinished tests successfully")
 	}
 	
