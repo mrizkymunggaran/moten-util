@@ -62,7 +62,7 @@ case class MetaSet(set: Set[TimedIdentifier], meta: MetaData)
 
 trait Result
 
-case class InvalidMerge extends Result
+case class InvalidMerge(meta:MetaData) extends Result
 
 /**
  * The result of the merge of [[viem.MetaSet]] with primary and secondary matches (b and c)
@@ -178,11 +178,10 @@ def z(x: Set[TimedIdentifier], y: TimedIdentifier): Set[TimedIdentifier] = {
     assert(b.map(_.id.typ).size == b.size,"b must not have more than one identifier of any type")
     assert(c.map(_.id.typ).size == c.size,"c must not have more than one identifier of any type")
     assert(b.map(_.id).intersect(c.map(_.id)).size == 0,"b and c cannot have an identifier in common")
-  
-    if (!b.isEmpty && !mergeValidator.mergeIsValid(m, b.meta))
-        InvalidMerge
-        
-    if (a1.id == a2.id)
+
+    if (!b.isEmpty && !mergeValidator.mergeIsValid(m, b.meta))  
+      return InvalidMerge(b.meta)
+    else if (a1.id == a2.id)
       merge(a1, m, b)
     else if (c.isEmpty)
       merge(a1, a2, m, b)
@@ -191,7 +190,7 @@ def z(x: Set[TimedIdentifier], y: TimedIdentifier): Set[TimedIdentifier] = {
 
       if (! >=(a1, b) && ! >=(a2, c))
         if (!mergeValidator.mergeIsValid(m, c.meta))
-            InvalidMerge()
+            return InvalidMerge(c.meta)
         else if  (mergeValidator.mergeIsValid(b.meta , c.meta)) {
             //if b and c have conflicting identifiers that both have later 
             //timestamps than a1 (or a2) then don't merge
@@ -202,15 +201,14 @@ def z(x: Set[TimedIdentifier], y: TimedIdentifier): Set[TimedIdentifier] = {
             val c2 = c.filter(t=>b.map(x =>x.id.typ).contains(t.id.typ) && !b.map(x=>x.id).contains(t.id))
             if (!b2.isEmpty && b2.map(_.time.getTime()).max>a1.time.getTime())
                 //don't merge
-                MergeResult(empty,b,c)
+                return MergeResult(empty,b,c)
             else if (!c2.isEmpty && c2.map(_.time.getTime()).max>a1.time.getTime())
-                MergeResult(empty,b,c)
+                return MergeResult(empty,b,c)
             else 
-                MergeResult(empty, MetaSet(z(b,c),b.meta),empty)
+                return MergeResult(empty, MetaSet(z(b,c),b.meta),empty)
         }
         else
-            //if merge is not valid then leave them untouched
-            MergeResult(empty, b, c)
+            return InvalidMerge(c.meta)
       else if (>=(a1, b) && ! >=(a2, c))
         MergeResult(MetaSet(z(b, a1), m), empty, empty)
       else if (a2.id == c.max.id)
