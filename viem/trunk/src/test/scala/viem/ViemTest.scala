@@ -13,26 +13,34 @@ class ViemTest {
     def create(name:String, value:String, time:Date) =
         TimedIdentifier(Identifier(IdentifierType(name),value),time)
     
-    def pp(r:MergeResult):String = r.toString()
+    def pp(r:Result):String = 
+        r match {
+        case InvalidMerge() => "invalid merge"
+        case m:MergeResult =>
+            m.toString()
                 .replace("MetaSet", "\n\tMetaSet")
                 .replace("TimedIdentifier", "\n\t\t\tTimedIdentifier")
-                .replace("MetaData", "\n\t\tMetaData") 
+                .replace("MetaData", "\n\t\tMetaData")
+    }
                 
-    def checkEquals(expected:MergeResult, value:MergeResult)  {
-	    println(pp (value))
-	    if (!expected.equals(value))
-	        println("expected:\n"+pp(expected))
-	    assertEquals(expected, value)
-	    println ("****************")
+    def checkEquals(expected:MergeResult, value:Result)  {
+        value match {
+            case InvalidMerge() => error("invalid merge") 
+            case _ => {
+                println(pp (value))
+                if (!expected.equals(value))
+                    println("expected:\n"+pp(expected))
+                assertEquals(expected, value)
+                println ("****************")
+            }
+        }
 	}
     
-    def checkRejected(f:Unit=>MergeResult) {
-        try {
-            f
-            throw new RuntimeException("should have thrown MergeRejectedException but did not")
-        } catch {
-            case e:MergeRejectedException => println("merge rejected")
-        }
+    def checkRejected(f:Unit=>Result) {
+            f.apply() match { 
+                case InvalidMerge() => Unit
+                case _ => error("should have thrown MergeRejectedException but did not")
+            }
     }
 
 	class MergeValidatorIfEqual extends MergeValidator {
@@ -83,6 +91,10 @@ class ViemTest {
                 Set(a1,a2).min)
                                     
 		var merger = new Merger(new MergeValidatorConstant(true));
+		
+		println("testing that adding two timed identifiers to a set with identical identifiers still has size 2 (this is a test of the TimedIdentifier comparator which is not a strict ordering")
+		assertEquals(2, Set(a1, a1old).size)
+		
 		
 		println("testing alpha")
 		assertEquals(Set(a2,a2old), merger.alpha(Set(a1,a2),a2old))

@@ -59,16 +59,16 @@ trait MetaData
  */
 case class MetaSet(set: Set[TimedIdentifier], meta: MetaData)
 
-/**
- * Exception thrown when a merge of fix and primary or primary and secondary matches is rejected.
- */
-case class MergeRejectedException(metaSet:MetaSet) extends RuntimeException
+
+trait Result
+
+case class InvalidMerge extends Result
 
 /**
  * The result of the merge of [[viem.MetaSet]] with primary and secondary matches (b and c)
  * and the effect of stripping if the new MetaSet was rejected.
  */
-case class MergeResult(a: MetaSet, b: MetaSet, c: MetaSet)
+case class MergeResult(a: MetaSet, b: MetaSet, c: MetaSet) extends Result
 
 /**
  * Validates the merging of two entities based on their [[viem.MetaData]].
@@ -168,7 +168,7 @@ def z(x: Set[TimedIdentifier], y: TimedIdentifier): Set[TimedIdentifier] = {
       MergeResult(empty, MetaSet(z(b,a2),b.meta), empty)
   }
 
-  def merge(a1: TimedIdentifier, a2: TimedIdentifier, m: MetaData, b: MetaSet, c: MetaSet): MergeResult = {
+  def merge(a1: TimedIdentifier, a2: TimedIdentifier, m: MetaData, b: MetaSet, c: MetaSet): Result = {
     
     //do some precondition checks on the inputs
     assert(a1.time == a2.time,"a1 and a2 must have the same time because they came from the same fix set")
@@ -180,8 +180,8 @@ def z(x: Set[TimedIdentifier], y: TimedIdentifier): Set[TimedIdentifier] = {
     assert(b.map(_.id).intersect(c.map(_.id)).size == 0,"b and c cannot have an identifier in common")
   
     if (!b.isEmpty && !mergeValidator.mergeIsValid(m, b.meta))
-        throw MergeRejectedException(b)
-    
+        InvalidMerge
+        
     if (a1.id == a2.id)
       merge(a1, m, b)
     else if (c.isEmpty)
@@ -190,7 +190,9 @@ def z(x: Set[TimedIdentifier], y: TimedIdentifier): Set[TimedIdentifier] = {
       val a: Set[TimedIdentifier] = Set(a1, a2)
 
       if (! >=(a1, b) && ! >=(a2, c))
-        if (mergeValidator.mergeIsValid(b.meta , c.meta)) {
+        if (!mergeValidator.mergeIsValid(m, c.meta))
+            InvalidMerge()
+        else if  (mergeValidator.mergeIsValid(b.meta , c.meta)) {
             //if b and c have conflicting identifiers that both have later 
             //timestamps than a1 (or a2) then don't merge
             
@@ -226,7 +228,7 @@ def z(x: Set[TimedIdentifier], y: TimedIdentifier): Set[TimedIdentifier] = {
     }
   }
   
-  def merge(a:MetaSet,b:MetaSet,c:MetaSet):MergeResult= {
+  def merge(a:MetaSet,b:MetaSet,c:MetaSet):Result= {
       assert(a.size<=2,"a must have a size of 2 or less")
       if (a.isEmpty) MergeResult(empty,b,c)
       else if (a.size==1) merge(a.max,a.max,a.meta,b,c)
