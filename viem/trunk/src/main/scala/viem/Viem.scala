@@ -183,7 +183,7 @@ def z(x: Set[TimedIdentifier], y: TimedIdentifier): Set[TimedIdentifier] = {
       return InvalidMerge(b.meta)
     else if (a1.id == a2.id)
       merge(a1, m, b)
-    else if (c.isEmpty)
+    else if (c isEmpty)
       merge(a1, a2, m, b)
     else {
       val a: Set[TimedIdentifier] = Set(a1, a2)

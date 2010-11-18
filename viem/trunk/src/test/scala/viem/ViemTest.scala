@@ -27,8 +27,8 @@ class ViemTest {
         value match {
             case InvalidMerge(_) => error("invalid merge") 
             case _ => {
-                println(pp (value))
-                if (!expected.equals(value))
+                println(pp(value))
+                if (!(expected equals value))
                     println("expected:\n"+pp(expected))
                 assertEquals(expected, value)
                 println ("****************")
@@ -37,22 +37,22 @@ class ViemTest {
 	}
     
     def checkRejected(f:Unit=>Result,meta:MetaData) {
-            f.apply() match { 
+            f() match { 
                 case InvalidMerge(m) if m!=meta =>  error("incorrect meta on invalid merge")
                 case InvalidMerge(_) => Unit
                 case _ => error("should be InvalidMerge but was not")
             }
     }
 
-	class MergeValidatorIfEqual extends MergeValidator {
+    case class MergeValidatorIfEqual extends MergeValidator {
 	    override def mergeIsValid(a:MetaData, b:MetaData):Boolean = a==b
 	}
 	
-	class MergeValidatorConstant(valid:Boolean) extends MergeValidator {
+	case class MergeValidatorConstant(valid:Boolean) extends MergeValidator {
 	    override def mergeIsValid(a:MetaData, b:MetaData):Boolean = valid
 	}
 	 
-	class MergeValidatorRejectOne(x:MetaData,y:MetaData) extends MergeValidator {
+	case class MergeValidatorRejectOne(x:MetaData,y:MetaData) extends MergeValidator {
         override def mergeIsValid(a:MetaData, b:MetaData):Boolean = !(a==x && b==y || a==y && b==x)
     }
 	
@@ -91,7 +91,7 @@ class ViemTest {
                 a2                 ,
                 Set(a1,a2).min)
                                     
-		var merger = new Merger(new MergeValidatorConstant(true));
+		var merger = new Merger(MergeValidatorConstant(true));
 		
 		println("testing that adding two timed identifiers to a set with identical identifiers still has size 2 (this is a test of the TimedIdentifier comparator which is not a strict ordering")
 		assertEquals(2, Set(a1, a1old).size)
