@@ -193,7 +193,7 @@ def z(x: Set[TimedIdentifier], y: TimedIdentifier): Set[TimedIdentifier] = {
             return InvalidMerge(c.meta)
         else if  (mergeValidator.mergeIsValid(b.meta , c.meta)) {
             //if b and c have conflicting identifiers that both have later 
-            //timestamps than a1 (or a2) then don't merge
+            //timestamps than a1 (or a2) then don't merge (no validity problem though)
             
             //calculate common identifier types with different identifier values in b
             val b2 = b.filter(t=>c.map(x =>x.id.typ).contains(t.id.typ) && !c.map(x=>x.id).contains(t.id))
