@@ -59,8 +59,23 @@ trait MetaData
  */
 case class MetaSet(set: Set[TimedIdentifier], meta: MetaData)
 
-trait Result
+/**
+ * The result of a merge. This trait is sealed so that all its 
+ * implementations must come from this class.
+ * @author dxm
+ *
+ */
+sealed trait Result
 
+/**
+ * Invalid merge result.
+ * 
+ * @param meta is the meta data of the set that provoked the invalid merge. 
+ * For ''a'' against primary match ''b'' it will be ''b.meta''. For ''a'' 
+ * against secondary match ''c'' it will be ''c.meta''. For ''b'' against 
+ * ''c'' it will be the meta of the weaker identifier set, that is c.meta. 
+ *
+ */
 case class InvalidMerge(meta: MetaData) extends Result
 
 /**
@@ -206,14 +221,14 @@ class Merger(mergeValidator: MergeValidator) {
    * Returns the result of the merge of a1 and a2 with associated metadata m,
    * with the sets b and c. a1 must be in b and a2 must be in c (although 
    * possibly with different times).
- * @param a1
- * @param a2
- * @param m
- * @param b
- * @param c
- * @return
- */
-def merge(a1: TimedIdentifier, a2: TimedIdentifier, m: MetaData, b: MetaSet, c: MetaSet): Result = {
+   * @param a1
+   * @param a2
+   * @param m
+   * @param b
+   * @param c
+   * @return
+   */
+  def merge(a1: TimedIdentifier, a2: TimedIdentifier, m: MetaData, b: MetaSet, c: MetaSet): Result = {
 
     //do some precondition checks on the inputs
     assert(a1.time == a2.time, "a1 and a2 must have the same time because they came from the same fix set")
@@ -270,7 +285,14 @@ def merge(a1: TimedIdentifier, a2: TimedIdentifier, m: MetaData, b: MetaSet, c: 
     }
   }
 
-  def merge(a: MetaSet, b: MetaSet, c: MetaSet): Result = {
+  /**
+   *Returns the result of merging the identifiers in a (max 2) with ''b'' and ''c''.
+   * @param a
+   * @param b
+   * @param c
+   * @return
+   */
+  def mergePair(a: MetaSet, b: MetaSet, c: MetaSet): Result = {
     assert(a.size <= 2, "a must have a size of 2 or less")
     if (a.isEmpty) MergeResult(empty, b, c)
     else if (a.size == 1) merge(a.max, a.max, a.meta, b, c)
@@ -279,6 +301,11 @@ def merge(a1: TimedIdentifier, a2: TimedIdentifier, m: MetaData, b: MetaSet, c: 
 
 }
 
+/**
+ * Utility methods for merging.
+ * @author dxm
+ *
+ */
 object Merger {
 
   case class EmptyMetaData() extends MetaData
