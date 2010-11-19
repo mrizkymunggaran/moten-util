@@ -57,7 +57,11 @@ class ViemTest {
     }
 	
 	case class Data(name:String) extends MetaData
+	
 
+	implicit def convert(t:Tuple3[Int,Int,Int]) = create(t._1.toString,t._2.toString,new Date(t._3))
+	implicit def convert(t:TimedIdentifier) = new MetaSet(Set(t), emptyMetaData) 
+	
     @Test
     def testSystem() = {
 	    
@@ -203,8 +207,12 @@ class ViemTest {
         checkRejected(merger.merge(a1old,a2old,mda,
                  MetaSet(Set(a1),mdb),MetaSet(Set(a2),mdc)),mdc)
         
+        println("add (a1,a2) to old (a1), newer (a2,a3)")
+                 
 		println("******************\nfinished tests successfully")
+	
 	}
+	
 	
 }
 
