@@ -13,7 +13,7 @@ import viem.Merger._
 
 /**
  * The type of an [[viem.Identifier]]. For an example for a ship it might
- * be the MMSI number, so we might use IdentifierType("MMSI"). 
+ * be the MMSI number, so we might use [[viem.IdentifierType]]("MMSI"). 
  * Has strict ordering, reverse alphabetical at the moment.
  *
  * @param name the identitier type nameMergeResult(empty,MetaSet(z))
@@ -25,7 +25,7 @@ case class IdentifierType(name: String) extends Ordered[IdentifierType] {
 
 /**
  * Based on an [[viem.IdentifierType]] and a value.
- * Has strict ordering based on IdentifierType ordering then value alphabetical
+ * Has strict ordering based on [[viem.IdentifierType]] ordering then value alphabetical
  * ordering.
  */
 case class Identifier(typ: IdentifierType, value: String) extends Ordered[Identifier] {
@@ -79,8 +79,7 @@ sealed trait Result
 case class InvalidMerge(meta: MetaData) extends Result
 
 /**
- * The result of the merge of [[viem.MetaSet]] with primary and secondary matches (b and c)
- * and the effect of stripping if the new MetaSet was rejected.
+ * The result of the merge of [[viem.MetaSet]] with primary and secondary matches (b and c).
  */
 case class MergeResult(a: MetaSet, b: MetaSet, c: MetaSet) extends Result
 
@@ -112,7 +111,7 @@ class Merger(mergeValidator: MergeValidator) {
   }
 
   /**
-   * Returns the complement of two sets. 
+   * Returns the complement of two sets of generic type ''T''. 
    * @param x
    * @param y
    * @return
@@ -136,7 +135,7 @@ class Merger(mergeValidator: MergeValidator) {
   }
 
   /**
-   * Combines a set of [[viem.TimedIdentifier]] with another TimedIdentifier. Ensures that
+   * Combines a set of [[viem.TimedIdentifier]] with another [[viem.TimedIdentifier]]. Ensures that
    * if the identifier type of ''y'' exists in x that the returned set only contains
    * the latest identifier from x and y of that type unioned with all other identifiers in x.
    * @param x
@@ -199,7 +198,7 @@ class Merger(mergeValidator: MergeValidator) {
   }
 
   /**
-   * Returns the result of merging tmed identifiers a1 and a2 both with associated
+   * Returns the result of merging timed identifiers a1 and a2 both with associated
    * metadata m with the set b. Both a1 and a2 must be present in b (possibly with
    * different times though).
    * @param a1
