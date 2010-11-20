@@ -60,26 +60,29 @@ class ViemTest {
   implicit def convert(t: Tuple3[Int, Int, Int]) = create(t._1.toString, t._2.toString, new Date(t._3))
   implicit def convert(t: TimedIdentifier) = new MetaSet(Set(t), emptyMetaData)
 
+  val date1 = new Date(100000000000L) //1973
+  val date0 = new Date(0) //1970
+  val date = new Date(date0.getTime() - 1000)
+  val m = "m"
+  val g = "g"
+  val a0 = create("a0", "1", date1)
+  val a0old = create("a0", "1", date0)
+  val a0older = create("a0", "1", date)
+  val a1 = create("a1", "1", date1)
+  val a1old = create("a1", "1", date0)
+  val a1older = create("a1", "1", date)
+  val a2 = create("a2", "2", date1)
+  val a2old = create("a2", "2", date0)
+  val a2olderDiff = create("a2", "4", date)
+  val a3 = create("a3", "1", date1)
+  val a3old = create("a3", "1", date0)
+  val a3older = create("a3", "1", date)
+  val mda = Data("a")
+  val mdb = Data("b")
+  val mdc = Data("c")
+
   @Test
   def testSystem() = {
-
-    val date1 = new Date(100000000000L) //1973
-    val date0 = new Date(0) //1970
-    val date = new Date(date0.getTime() - 1000)
-    val m = "m"
-    val g = "g"
-    val a0 = create("a0", "1", date1)
-    val a0old = create("a0", "1", date0)
-    val a0older = create("a0", "1", date)
-    val a1 = create("a1", "1", date1)
-    val a1old = create("a1", "1", date0)
-    val a1older = create("a1", "1", date)
-    val a2 = create("a2", "2", date1)
-    val a2old = create("a2", "2", date0)
-    val a2olderDiff = create("a2", "4", date)
-    val a3 = create("a3", "1", date1)
-    val a3old = create("a3", "1", date0)
-    val a3older = create("a3", "1", date)
 
     println(a1)
     println(a2)
@@ -114,10 +117,6 @@ class ViemTest {
     println("testing typeMatch")
     assertEquals(a2, merger.typeMatch(Set(a1, a2), a2old))
     assertEquals(a2, merger.typeMatch(Set(a1, a2), a2))
-
-    val mda = Data("a")
-    val mdb = Data("b")
-    val mdc = Data("c")
 
     assertFalse(mda == mdb)
 
@@ -194,7 +193,7 @@ class ViemTest {
     println("add (a1) to a system with (a1) and different meta")
     checkRejected(merger.merge(a1, a1, mda, MetaSet(Set(a1), mdb), empty), mdb)
 
-    val validator = new MergeValidatorRejectOne(mdb, mdc)
+    var validator: MergeValidator = new MergeValidatorRejectOne(mdb, mdc)
     merger = new Merger(validator)
 
     println("check mergeValidatorRejectOne")
@@ -209,18 +208,28 @@ class ViemTest {
     println("add (a1) to a system with (a1), invalid")
     checkRejected(merger.merge(a1, a1, mdb, MetaSet(Set(a1), mdc), empty), mdc)
 
+  }
+
+  @Test
+  def testMoreComplex1() {
+    val validator = new MergeValidatorRejectOne(mdb, mdc)
+    val merger = new Merger(validator)
+
     println("add (a1, a2) to a system with (old a1) (a0, old a2) invalid b against c")
-    r = merger.merge(a1, a2, mda,
-      MetaSet(Set(a1old), mdb), MetaSet(Set(a0,a2old), mdc))
-    checkEquals(MergeResult(MetaSet(Set(a1,a2),mda),empty,MetaSet(Set(a0),mdc)),r)
+    val r = merger.merge(a1, a2, mda,
+      MetaSet(Set(a1old), mdb), MetaSet(Set(a0, a2old), mdc))
+    checkEquals(MergeResult(MetaSet(Set(a0, a1, a2), mda),empty,empty), r)
+  }
 
-    println("add (a1, a2) to a system with (old a1) (a0, newer a2) invalid b against c")
-    r = merger.merge(a1old, a2old, mda,
-      MetaSet(Set(a1old), mdb), MetaSet(Set(a0,a2), mdc))
-    checkEquals(MergeResult(MetaSet(Set(a1),mda),empty,MetaSet(Set(a0,a2),mdc)),r)
+  @Test
+  def testMoreComplex2() {
+    val validator = new MergeValidatorConstant(true)
+    val merger = new Merger(validator)
 
-    println("******************\nfinished tests successfully")
-
+    println("add (old a1, old a2) to a system with (old a1) (a0, newer a2)")
+    val r = merger.merge(a1old, a2old, mda,
+      MetaSet(Set(a1old), mdb), MetaSet(Set(a0, a2), mdc))
+    checkEquals(MergeResult(empty, empty, MetaSet(Set(a0, a1old, a2), mdc)), r)
   }
 
 }

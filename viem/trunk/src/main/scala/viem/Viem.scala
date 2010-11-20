@@ -93,9 +93,11 @@ abstract trait MergeValidator {
 /**
  * Utility class for performing merges of [[scala.collection.immutable.Set]] of [[viem.TimedIdentifier]].
  */
-class Merger(mergeValidator: MergeValidator) {
+class Merger(validator: MergeValidator) {
 
   implicit def toSet(a: MetaSet): Set[TimedIdentifier] = a.set
+
+  val onlyMergeIfStrongestIdentifierOfSecondaryIntersects = false
 
   /**
    * Returns ''y'' and the member of set ''x'' that matches the [[viem.IdentifierType]] of
@@ -177,6 +179,8 @@ class Merger(mergeValidator: MergeValidator) {
     return x.time.getTime() >= typeMatch(y, x).time.getTime()
   }
 
+  def maxTime(set: Set[TimedIdentifier]): Long = set.map(_.time.getTime()).max
+
   /**
    * Returns the result of merging ''a1'' with associated metadata ''m'' with 
    * the set ''b''. ''b'' is expected to have an identifier with type and value of a1.
@@ -216,6 +220,9 @@ class Merger(mergeValidator: MergeValidator) {
       MergeResult(empty, MetaSet(z(b, a2), b.meta), empty)
   }
 
+  def later(x: Set[TimedIdentifier], y: Set[TimedIdentifier]) =
+    x.map(_.time.getTime()).max > y.map(_.time.getTime()).max
+
   /**
    * Returns the result of the merge of a1 and a2 with associated metadata m,
    * with the sets b and c. a1 must be in b and a2 must be in c (although 
@@ -238,7 +245,7 @@ class Merger(mergeValidator: MergeValidator) {
     assert(c.map(_.id.typ).size == c.size, "c must not have more than one identifier of any type")
     assert(b.map(_.id).intersect(c.map(_.id)).size == 0, "b and c cannot have an identifier in common")
 
-    if (!b.isEmpty && !mergeValidator.mergeIsValid(m, b.meta))
+    if (!b.isEmpty && !validator.mergeIsValid(m, b.meta))
       return InvalidMerge(b.meta)
     else if (a1.id == a2.id)
       merge(a1, m, b)
@@ -246,11 +253,11 @@ class Merger(mergeValidator: MergeValidator) {
       merge(a1, a2, m, b)
     else {
       val a: Set[TimedIdentifier] = Set(a1, a2)
+      if (!validator.mergeIsValid(m, c.meta))
+        return InvalidMerge(c.meta)
 
       if (!(>=(a1, b)) && !(>=(a2, c)))
-        if (!mergeValidator.mergeIsValid(m, c.meta))
-          return InvalidMerge(c.meta)
-        else if (mergeValidator.mergeIsValid(b.meta, c.meta)) {
+        if (validator.mergeIsValid(b.meta, c.meta)) {
           //if b and c have conflicting identifiers that both have later 
           //timestamps than a1 (or a2) then don't merge (no validity problem though)
 
@@ -267,19 +274,25 @@ class Merger(mergeValidator: MergeValidator) {
             return MergeResult(empty, MetaSet(z(b, c), b.meta), empty)
         } else
           return InvalidMerge(c.meta)
-      else if (>=(a1, b) && !(>=(a2, c)))
-        MergeResult(MetaSet(z(b, a1), m), empty, empty)
+      else if (>=(a1, b) && !(>=(a2, c)) && a2.id == c.max.id)
+        return MergeResult(empty, empty, MetaSet(z(z(b, c), a), c.meta))
       else if (a2.id == c.max.id)
-        MergeResult(MetaSet(z(z(b, c), a), m), empty, empty)
+        return MergeResult(MetaSet(z(z(b, c), a), m), empty, empty)
       else {
-        val aTypes = a.map(_.id.typ)
-        val cIntersection = c.set.filter(x => aTypes.contains(x.id.typ))
-        val cComplement = c.set.filter(x => !aTypes.contains(x.id.typ))
-        val c2 = if (cComplement.isEmpty) empty else MetaSet(cComplement, c.meta)
-        MergeResult(
-          MetaSet(z(z(b, cIntersection), a), m),
-          empty,
-          c2)
+        if (onlyMergeIfStrongestIdentifierOfSecondaryIntersects) {
+          //only merge across identifiers from c that intersect with a
+          val aTypes = a.map(_.id.typ)
+          val cIntersection = c.set.filter(x => aTypes.contains(x.id.typ))
+          val cComplement = c.set.filter(x => !aTypes.contains(x.id.typ))
+          val c2 = if (cComplement.isEmpty) empty else MetaSet(cComplement, c.meta)
+          MergeResult(
+            MetaSet(z(z(b, cIntersection), a), m),
+            empty,
+            c2)
+        } else if (maxTime(a) >= maxTime(c))
+          return MergeResult(MetaSet(z(z(b, c), a), m), empty, empty)
+        else
+          return MergeResult(empty, empty, MetaSet(z(z(b, c), a), c.meta))
       }
     }
   }
