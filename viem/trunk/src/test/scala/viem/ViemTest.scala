@@ -248,5 +248,13 @@ class ViemTest {
     checkEquals(MergeResult(empty, empty, MetaSet(Set(a0older, a1old, a2), mdc)), r)
   }
   
+    @Test
+  def testMoreComplex5() {
+    println("add (old a1, old a2) to a system with (old a1) (a0older, a2)")
+    val r = merger.merge(a1old, a2old, mda,
+      MetaSet(Set(a1old), mdb), MetaSet(Set(a0older, a2), mdc))
+    checkEquals(MergeResult(empty, empty, MetaSet(Set(a0older, a1old, a2), mdc)), r)
+  }
+  
 }
 
