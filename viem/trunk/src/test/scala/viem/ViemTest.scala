@@ -9,6 +9,10 @@ import viem.Merger._
 @Test
 class ViemTest {
 
+    val validator = new MergeValidatorConstant(true)
+    val merger = new Merger(validator)
+
+    
   def create(name: String, value: String, time: Date) =
     TimedIdentifier(Identifier(IdentifierType(name), value), time)
 
@@ -212,8 +216,7 @@ class ViemTest {
 
   @Test
   def testMoreComplex1() {
-    val validator = new MergeValidatorRejectOne(mdb, mdc)
-    val merger = new Merger(validator)
+    val merger = new Merger(new MergeValidatorRejectOne(mdb, mdc))
 
     println("add (a1, a2) to a system with (old a1) (a0, old a2) invalid b against c")
     val r = merger.merge(a1, a2, mda,
@@ -223,14 +226,27 @@ class ViemTest {
 
   @Test
   def testMoreComplex2() {
-    val validator = new MergeValidatorConstant(true)
-    val merger = new Merger(validator)
-
     println("add (old a1, old a2) to a system with (old a1) (a0, newer a2)")
     val r = merger.merge(a1old, a2old, mda,
       MetaSet(Set(a1old), mdb), MetaSet(Set(a0, a2), mdc))
     checkEquals(MergeResult(empty, empty, MetaSet(Set(a0, a1old, a2), mdc)), r)
   }
 
+  @Test
+  def testMoreComplex3() {
+    println("add (old a1, old a2) to a system with (old a1) (a0, old a2)")
+    val r = merger.merge(a1old, a2old, mda,
+      MetaSet(Set(a1old), mdb), MetaSet(Set(a0, a2old), mdc))
+    checkEquals(MergeResult(empty, empty, MetaSet(Set(a0, a1old, a2old), mdc)), r)
+  }
+  
+  @Test
+  def testMoreComplex4() {
+    println("add (old a1, old a2) to a system with (old a1) (a0older, a2)")
+    val r = merger.merge(a1old, a2old, mda,
+      MetaSet(Set(a1old), mdb), MetaSet(Set(a0older, a2), mdc))
+    checkEquals(MergeResult(empty, empty, MetaSet(Set(a0older, a1old, a2), mdc)), r)
+  }
+  
 }
 
