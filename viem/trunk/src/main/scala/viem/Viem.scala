@@ -340,12 +340,13 @@ class Merger(validator: MergeValidator) {
     assert(a.size > 0, "'a' must have at least one identifier")
     assert(matches.filter(_.map(_.id).intersect(a.map(_.id)).size == 0).size == 0, "every MetaSet in matches must have an intersection with a in terms of [[viem.Identifier]]")
     assert(matches.map(_.set).flatten.map(_.id).size == matches.map(_.set).flatten.size,
-      "the matches must mutually non intersecting n terms of [[viem.Identifier]]")
+      "elements of matches must be mutually non intersecting n terms of [[viem.Identifier]]")
 
     val list = List.fromIterator(a.set.iterator).sortWith((x, y) => (x compare y) < 0)
     println("adding " + list)
     var sets = matches
     var previous: MetaSet = null
+    var previousId: TimedIdentifier = null
     val iterator = list.iterator
 
     var x = iterator.next();
@@ -355,13 +356,16 @@ class Merger(validator: MergeValidator) {
       val metaset = sets.find(y => y.set.map(_.id).contains(x.id)).get
       if (previous == null)
         previous = metaset
+      if (previousId==null)
+          previousId = x
       //TODO not previous.max her, fix up
-      val result = merge(previous.max, x, a.meta, previous, metaset)
+      val result = merge(previousId, x, a.meta, previous, metaset)
       result match {
         case r: MergeResult => {
           println("merge succeeded for " + x)
           sets = ((sets - metaset) - previous) ++ r.set
           previous = metaset
+          previousId = x
           keepGoing = iterator.hasNext
           if (keepGoing) x = iterator.next
         }
@@ -377,8 +381,10 @@ class Merger(validator: MergeValidator) {
               keepGoing = iterator.hasNext
               if (keepGoing) x = iterator.next
               previous = null
+              previousId = null
           } else
             previous = metaset
+            previousId = x
         }
       }
     }
