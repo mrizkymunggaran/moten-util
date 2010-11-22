@@ -255,6 +255,11 @@ class ViemTest {
       MetaSet(Set(a1old), mdb), MetaSet(Set(a0older, a2), mdc))
     checkEquals(MergeResult(empty, empty, MetaSet(Set(a0older, a1old, a2), mdc)), r)
   }
-  
+    
+  @Test
+  def testHighLevel() {
+      println("high level")
+      //merger.merge(MetaSet(Set(a1,a2),mda), List(MetaSet(Set(a1),mdb),MetaSet(Set(a2),mdc)))
+  }
 }
 

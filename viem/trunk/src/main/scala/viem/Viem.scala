@@ -81,7 +81,9 @@ case class InvalidMerge(meta: MetaData) extends Result
 /**
  * The result of the merge of [[viem.MetaSet]] with primary and secondary matches (b and c).
  */
-case class MergeResult(a: MetaSet, b: MetaSet, c: MetaSet) extends Result
+case class MergeResult(a: MetaSet, b: MetaSet, c: MetaSet) extends Result {
+    def set = Set(a,b,c).filter(_!=empty)
+}
 
 /**
  * Validates the merging of two entities based on their [[viem.MetaData]].
@@ -236,6 +238,7 @@ class Merger(validator: MergeValidator) {
    */
   def merge(a1: TimedIdentifier, a2: TimedIdentifier, m: MetaData, b: MetaSet, c: MetaSet): Result = {
 
+    if (b==c && !b.isEmpty) return merge(a1,a2,m,b,empty)
     //do some precondition checks on the inputs
     assert(a1.time == a2.time, "a1 and a2 must have the same time because they came from the same fix set")
     assert(b.isEmpty || b.map(_.id).contains(a1.id), "a1 id must be in b if b is non-empty")
@@ -310,7 +313,35 @@ class Merger(validator: MergeValidator) {
     else if (a.size == 1) merge(a.max, a.max, a.meta, b, c)
     else merge(a.max, a.min, a.meta, b, c)
   }
-
+  
+  
+  def merge(a:MetaSet, matches:Set[MetaSet]):Set[MetaSet] = {
+      var sets = matches
+      val list = List.fromIterator(a.set.iterator).sortWith((x,y) => (x compare y) <0)
+      println("adding " + list)
+      var lastMetaset = sets.find(y => y.set.map(_.id).contains(list.head.id)).get
+      val iterator = list.iterator
+      var x = iterator.next();
+      while (iterator.hasNext) {
+          val metaset = sets.find(y => y.set.map(_.id).contains(x.id)).get
+          val result = merge(lastMetaset.max,x,a.meta,lastMetaset,metaset)
+          result match {
+              case r:MergeResult =>  { 
+                  sets=((sets-metaset)-lastMetaset)++r.set
+                  lastMetaset = metaset
+                  x = iterator.next
+              }
+              case InvalidMerge(meta) => {
+                  if (lastMetaset==metaset)
+                      error("do this bit")
+                  else
+                      lastMetaset = metaset
+              }
+          }
+      }
+      return sets;
+  }  
+  
 }
 
 /**
