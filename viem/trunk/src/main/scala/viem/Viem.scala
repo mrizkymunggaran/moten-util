@@ -57,7 +57,10 @@ trait MetaData
 /**
  * Container for a set of [[viem.TimedIdentifier]] associated with some [[viem.MetaData]].
  */
-case class MetaSet(set: Set[TimedIdentifier], meta: MetaData)
+case class MetaSet(set: Set[TimedIdentifier], meta: MetaData) {
+    //ensure that each identifier is unique by identifier type in the set
+    assert(set.size==set.map(_.id.typ).size)
+}
 
 /**
  * The result of a merge. This trait is sealed so that all its 
@@ -314,28 +317,47 @@ class Merger(validator: MergeValidator) {
     else merge(a.max, a.min, a.meta, b, c)
   }
   
+  def removeIdentifierIfNotOnly(metaset:MetaSet, id:Identifier)  = 
+      if (metaset.size>1)
+          MetaSet(metaset.set.filter(_.id!=id),metaset.meta)
+      else
+          metaset
+
   
   def merge(a:MetaSet, matches:Set[MetaSet]):Set[MetaSet] = {
+      //check there are no common identifiers among the matches
+      assert(matches.map(_.set).flatten.map(_.id).size==matches.map(_.set).flatten.size)
+      //check that each MetaSet is valid
       var sets = matches
       val list = List.fromIterator(a.set.iterator).sortWith((x,y) => (x compare y) <0)
       println("adding " + list)
-      var lastMetaset = sets.find(y => y.set.map(_.id).contains(list.head.id)).get
+      var previous:MetaSet = null
       val iterator = list.iterator
       var x = iterator.next();
       while (iterator.hasNext) {
+          if (previous==null)
+              previous = sets.find(y => y.set.map(_.id).contains(x.id)).get
           val metaset = sets.find(y => y.set.map(_.id).contains(x.id)).get
-          val result = merge(lastMetaset.max,x,a.meta,lastMetaset,metaset)
+          val result = merge(previous.max,x,a.meta,previous,metaset)
           result match {
               case r:MergeResult =>  { 
-                  sets=((sets-metaset)-lastMetaset)++r.set
-                  lastMetaset = metaset
+                  sets=((sets-metaset)-previous)++r.set
+                  previous = metaset
                   x = iterator.next
               }
               case InvalidMerge(meta) => {
-                  if (lastMetaset==metaset)
-                      error("do this bit")
+                  //remove problem identifiers from meta which is 
+                  //one of metaset or previous
+                  sets = ((sets-previous)-metaset)+
+                      removeIdentifierIfNotOnly(previous,x.id)+
+                      removeIdentifierIfNotOnly(metaset,x.id)
+                  
+                  if (previous==metaset) {
+                      x = iterator.next
+                      previous = null
+                  }
                   else
-                      lastMetaset = metaset
+                      previous = metaset
               }
           }
       }
