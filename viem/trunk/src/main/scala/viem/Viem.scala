@@ -58,8 +58,8 @@ trait MetaData
  * Container for a set of [[viem.TimedIdentifier]] associated with some [[viem.MetaData]].
  */
 case class MetaSet(set: Set[TimedIdentifier], meta: MetaData) {
-    //ensure that each identifier is unique by identifier type in the set
-    assert(set.size==set.map(_.id.typ).size)
+  //ensure that each identifier is unique by identifier type in the set
+  assert(set.size == set.map(_.id.typ).size)
 }
 
 /**
@@ -85,7 +85,7 @@ case class InvalidMerge(meta: MetaData) extends Result
  * The result of the merge of [[viem.MetaSet]] with primary and secondary matches (b and c).
  */
 case class MergeResult(a: MetaSet, b: MetaSet, c: MetaSet) extends Result {
-    def set = Set(a,b,c).filter(_!=empty)
+  def set = Set(a, b, c).filter(_ != empty)
 }
 
 /**
@@ -241,7 +241,7 @@ class Merger(validator: MergeValidator) {
    */
   def merge(a1: TimedIdentifier, a2: TimedIdentifier, m: MetaData, b: MetaSet, c: MetaSet): Result = {
 
-    if (b==c && !b.isEmpty) return merge(a1,a2,m,b,empty)
+    if (b == c && !b.isEmpty) return merge(a1, a2, m, b, empty)
     //do some precondition checks on the inputs
     assert(a1.time == a2.time, "a1 and a2 must have the same time because they came from the same fix set")
     assert(b.isEmpty || b.map(_.id).contains(a1.id), "a1 id must be in b if b is non-empty")
@@ -316,54 +316,75 @@ class Merger(validator: MergeValidator) {
     else if (a.size == 1) merge(a.max, a.max, a.meta, b, c)
     else merge(a.max, a.min, a.meta, b, c)
   }
-  
-  def removeIdentifierIfNotOnly(metaset:MetaSet, id:Identifier)  = 
-      if (metaset.size>1)
-          MetaSet(metaset.set.filter(_.id!=id),metaset.meta)
-      else
-          metaset
 
-  
-  def merge(a:MetaSet, matches:Set[MetaSet]):Set[MetaSet] = {
-      //check there are no common identifiers among the matches
-      assert(matches.map(_.set).flatten.map(_.id).size==matches.map(_.set).flatten.size)
-      //check that each MetaSet is valid
-      var sets = matches
-      val list = List.fromIterator(a.set.iterator).sortWith((x,y) => (x compare y) <0)
-      println("adding " + list)
-      var previous:MetaSet = null
-      val iterator = list.iterator
-      var x = iterator.next();
-      while (iterator.hasNext) {
-          if (previous==null)
-              previous = sets.find(y => y.set.map(_.id).contains(x.id)).get
-          val metaset = sets.find(y => y.set.map(_.id).contains(x.id)).get
-          val result = merge(previous.max,x,a.meta,previous,metaset)
-          result match {
-              case r:MergeResult =>  { 
-                  sets=((sets-metaset)-previous)++r.set
-                  previous = metaset
-                  x = iterator.next
-              }
-              case InvalidMerge(meta) => {
-                  //remove problem identifiers from meta which is 
-                  //one of metaset or previous
-                  sets = ((sets-previous)-metaset)+
-                      removeIdentifierIfNotOnly(previous,x.id)+
-                      removeIdentifierIfNotOnly(metaset,x.id)
-                  
-                  if (previous==metaset) {
-                      x = iterator.next
-                      previous = null
-                  }
-                  else
-                      previous = metaset
-              }
-          }
+  /**
+   * Returns the same metaset if it has only one identifier otherwise returns a new [[viem.MetaSet]]
+   * with the identifier ''id'' removed.
+   * @param metaset
+   * @param id
+   * @return
+   */
+  def removeIdentifierIfNotOnly(metaset: MetaSet, id: Identifier) =
+    if (metaset.size > 1)
+      MetaSet(metaset.set.filter(_.id != id), metaset.meta)
+    else
+      metaset
+
+  /**
+   * Returns the metasets which are the result of adding ''a'' to the ''matches''.
+   * @param a
+   * @param matches
+   * @return
+   */
+  def merge(a: MetaSet, matches: Set[MetaSet]): Set[MetaSet] = {
+    assert(a.size > 0, "'a' must have at least one identifier")
+    assert(matches.filter(_.map(_.id).intersect(a.map(_.id)).size == 0).size == 0, "every MetaSet in matches must have an intersection with a in terms of [[viem.Identifier]]")
+    assert(matches.map(_.set).flatten.map(_.id).size == matches.map(_.set).flatten.size,
+      "the matches must mutually non intersecting n terms of [[viem.Identifier]]")
+
+    val list = List.fromIterator(a.set.iterator).sortWith((x, y) => (x compare y) < 0)
+    println("adding " + list)
+    var sets = matches
+    var previous: MetaSet = null
+    val iterator = list.iterator
+
+    var x = iterator.next();
+    var keepGoing = true
+    while (keepGoing) {
+      println("merging " + x)
+      val metaset = sets.find(y => y.set.map(_.id).contains(x.id)).get
+      if (previous == null)
+        previous = metaset
+      //TODO not previous.max her, fix up
+      val result = merge(previous.max, x, a.meta, previous, metaset)
+      result match {
+        case r: MergeResult => {
+          println("merge succeeded for " + x)
+          sets = ((sets - metaset) - previous) ++ r.set
+          previous = metaset
+          keepGoing = iterator.hasNext
+          if (keepGoing) x = iterator.next
+        }
+        case InvalidMerge(meta) => {
+          println("Invalid merge using " + meta + " and " + x)
+          //remove problem identifiers from meta which is 
+          //one of metaset or previous
+          sets = ((sets - previous) - metaset) +
+            removeIdentifierIfNotOnly(previous, x.id) +
+            removeIdentifierIfNotOnly(metaset, x.id)
+
+          if (previous == metaset) {
+              keepGoing = iterator.hasNext
+              if (keepGoing) x = iterator.next
+              previous = null
+          } else
+            previous = metaset
+        }
       }
-      return sets;
-  }  
-  
+    }
+    return sets
+  }
+
 }
 
 /**

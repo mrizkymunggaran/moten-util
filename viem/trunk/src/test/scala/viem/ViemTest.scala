@@ -259,7 +259,8 @@ class ViemTest {
   @Test
   def testHighLevel() {
       println("high level")
-      //merger.merge(MetaSet(Set(a1,a2),mda), List(MetaSet(Set(a1),mdb),MetaSet(Set(a2),mdc)))
+      assertEquals(Set(MetaSet(Set(a1),mda)),
+                   merger.merge(MetaSet(Set(a1),mda),Set(MetaSet(Set(a1old),mdb))))
   }
 }
 
