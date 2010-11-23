@@ -10,10 +10,9 @@ import java.lang.AssertionError
 @Test
 class ViemTest {
 
-    val validator = new MergeValidatorConstant(true)
-    val merger = new Merger(validator)
+  val validator = new MergeValidatorConstant(true)
+  val merger = new Merger(validator)
 
-    
   def create(name: String, value: String, time: Date) =
     TimedIdentifier(Identifier(IdentifierType(name), value), time)
 
@@ -222,7 +221,7 @@ class ViemTest {
     println("add (a1, a2) to a system with (old a1) (a0, old a2) invalid b against c")
     val r = merger.merge(a1, a2, mda,
       MetaSet(Set(a1old), mdb), MetaSet(Set(a0, a2old), mdc))
-    checkEquals(MergeResult(MetaSet(Set(a0, a1, a2), mda),empty,empty), r)
+    checkEquals(MergeResult(MetaSet(Set(a0, a1, a2), mda), empty, empty), r)
   }
 
   @Test
@@ -240,7 +239,7 @@ class ViemTest {
       MetaSet(Set(a1old), mdb), MetaSet(Set(a0, a2old), mdc))
     checkEquals(MergeResult(empty, empty, MetaSet(Set(a0, a1old, a2old), mdc)), r)
   }
-  
+
   @Test
   def testMoreComplex4() {
     println("add (old a1, old a2) to a system with (old a1) (a0older, a2)")
@@ -248,41 +247,71 @@ class ViemTest {
       MetaSet(Set(a1old), mdb), MetaSet(Set(a0older, a2), mdc))
     checkEquals(MergeResult(empty, empty, MetaSet(Set(a0older, a1old, a2), mdc)), r)
   }
-  
-    @Test
+
+  @Test
   def testMoreComplex5() {
     println("add (old a1, old a2) to a system with (old a1) (a0older, a2)")
     val r = merger.merge(a1old, a2old, mda,
       MetaSet(Set(a1old), mdb), MetaSet(Set(a0older, a2), mdc))
     checkEquals(MergeResult(empty, empty, MetaSet(Set(a0older, a1old, a2), mdc)), r)
   }
-    
+
   @Test
   def testMerge1() {
-      println("merge (a1) with (a1old)")
-      assertEquals(Set(MetaSet(Set(a1),mda)),
-                   merger.merge(MetaSet(Set(a1),mda),Set(MetaSet(Set(a1old),mdb))))
+    println("merge (a1) with (a1old)")
+    assertEquals(Set(MetaSet(Set(a1), mda)),
+      merger.merge(MetaSet(Set(a1), mda), Set(MetaSet(Set(a1old), mdb))))
   }
-  
+
   @Test
   def testMerge2() {
-      println("merge (a1old) with (a1)")
-      assertEquals(Set(MetaSet(Set(a1),mdb)),
-                   merger.merge(MetaSet(Set(a1old),mda),Set(MetaSet(Set(a1),mdb))))
+    println("merge (a1old) with (a1)")
+    assertEquals(Set(MetaSet(Set(a1), mdb)),
+      merger.merge(MetaSet(Set(a1old), mda), Set(MetaSet(Set(a1), mdb))))
   }
-  
-  @Test(expected=classOf[AssertionError])
+
+  @Test(expected = classOf[AssertionError])
   def testMerge3() {
-      println("merge (a1) with (a2)")
-      merger.merge(MetaSet(Set(a1),mda),Set(MetaSet(Set(a2),mdb)))
+    println("merge (a1) with (a2)")
+    merger.merge(MetaSet(Set(a1), mda), Set(MetaSet(Set(a2), mdb)))
   }
 
   @Test
   def testMerge4() {
-      println("merge (a1) with (a1old,a2)")
-      assertEquals(
-              Set(MetaSet(Set(a1,a2),mda)),
-              merger.merge(MetaSet(Set(a1),mda),Set(MetaSet(Set(a1old,a2),mdb))))
+    println("merge (a1) with (a1old,a2)")
+    assertEquals(
+      Set(MetaSet(Set(a1, a2), mda)),
+      merger.merge(MetaSet(Set(a1), mda), Set(MetaSet(Set(a1old, a2), mdb))))
+  }
+
+  @Test
+  def testMerge5() {
+    println("merge (a1old) with (a1,a2)")
+    assertEquals(
+      Set(MetaSet(Set(a1, a2), mdb)),
+      merger.merge(MetaSet(Set(a1old), mda), Set(MetaSet(Set(a1, a2), mdb))))
+  }
+
+  @Test
+  def testMerge6() {
+    println("merge (a1) with (a1,a2)")
+    assertEquals(
+      Set(MetaSet(Set(a1, a2), mda)),
+      merger.merge(MetaSet(Set(a1), mda), Set(MetaSet(Set(a1, a2), mdb))))
+  }
+  
+  private def checkEquals(x:Set[MetaSet],y:Set[MetaSet]) {
+      println(x)
+      println(y)
+      assertEquals(x,y)
+  }
+  
+  @Test
+  def testMerge7() {
+    println("merge (a1,a2) with (a1old),(a2old)")
+    checkEquals(
+      Set(MetaSet(Set(a1, a2), mda)),
+      merger.merge(MetaSet(Set(a1,a2), mda), Set(MetaSet(Set(a1old), mdb),MetaSet(Set(a2old),mdc))))
   }
 }
 

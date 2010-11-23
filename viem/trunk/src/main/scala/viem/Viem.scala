@@ -362,7 +362,13 @@ class Merger(validator: MergeValidator) {
       result match {
         case r: MergeResult => {
           println("merge succeeded for " + x)
+          println("sets before=" + sets)
+          println("previous=" + previous)
+          println("metaset="+metaset)
+          //TODO sort this out, is that what I want?
           sets = ((sets - metaset) - previous) ++ r.set
+          println("sets after=" + sets)
+
           previous = metaset
           previousId = x
           keepGoing = iterator.hasNext
@@ -376,7 +382,7 @@ class Merger(validator: MergeValidator) {
             removeIdentifierIfNotOnly(previous, x.id) +
             removeIdentifierIfNotOnly(metaset, x.id)
 
-          if (previous == metaset) {
+            if (previous == metaset) {
               keepGoing = iterator.hasNext
               if (keepGoing) x = iterator.next
               previous = null
