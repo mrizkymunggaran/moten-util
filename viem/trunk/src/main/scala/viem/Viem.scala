@@ -358,7 +358,6 @@ class Merger(validator: MergeValidator) {
         previous = metaset
       if (previousId==null)
           previousId = x
-      //TODO not previous.max her, fix up
       val result = merge(previousId, x, a.meta, previous, metaset)
       result match {
         case r: MergeResult => {

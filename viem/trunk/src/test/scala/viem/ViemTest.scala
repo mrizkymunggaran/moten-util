@@ -5,6 +5,7 @@ import java.util.Date
 import Assert._
 import Predef._
 import viem.Merger._
+import java.lang.AssertionError
 
 @Test
 class ViemTest {
@@ -257,10 +258,31 @@ class ViemTest {
   }
     
   @Test
-  def testHighLevel() {
-      println("high level")
+  def testMerge1() {
+      println("merge (a1) with (a1old)")
       assertEquals(Set(MetaSet(Set(a1),mda)),
                    merger.merge(MetaSet(Set(a1),mda),Set(MetaSet(Set(a1old),mdb))))
+  }
+  
+  @Test
+  def testMerge2() {
+      println("merge (a1old) with (a1)")
+      assertEquals(Set(MetaSet(Set(a1),mdb)),
+                   merger.merge(MetaSet(Set(a1old),mda),Set(MetaSet(Set(a1),mdb))))
+  }
+  
+  @Test(expected=classOf[AssertionError])
+  def testMerge3() {
+      println("merge (a1) with (a2)")
+      merger.merge(MetaSet(Set(a1),mda),Set(MetaSet(Set(a2),mdb)))
+  }
+
+  @Test
+  def testMerge4() {
+      println("merge (a1) with (a1old,a2)")
+      assertEquals(
+              Set(MetaSet(Set(a1,a2),mda)),
+              merger.merge(MetaSet(Set(a1),mda),Set(MetaSet(Set(a1old,a2),mdb))))
   }
 }
 
