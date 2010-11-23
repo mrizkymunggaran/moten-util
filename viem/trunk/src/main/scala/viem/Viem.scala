@@ -354,17 +354,17 @@ class Merger(validator: MergeValidator) {
     while (keepGoing) {
       println("merging " + x)
       val metaset = sets.find(y => y.set.map(_.id).contains(x.id)).get
-      if (previous == null)
-        previous = metaset
-      if (previousId==null)
-          previousId = x
+      previous = if (previous == null) metaset
+      else sets.find(y => y.set.map(_.id).contains(previousId.id)).get
+      if (previousId == null)
+        previousId = x
       val result = merge(previousId, x, a.meta, previous, metaset)
       result match {
         case r: MergeResult => {
           println("merge succeeded for " + x)
           println("sets before=" + sets)
           println("previous=" + previous)
-          println("metaset="+metaset)
+          println("metaset=" + metaset)
           //TODO sort this out, is that what I want?
           sets = ((sets - metaset) - previous) ++ r.set
           println("sets after=" + sets)
@@ -382,14 +382,14 @@ class Merger(validator: MergeValidator) {
             removeIdentifierIfNotOnly(previous, x.id) +
             removeIdentifierIfNotOnly(metaset, x.id)
 
-            if (previous == metaset) {
-              keepGoing = iterator.hasNext
-              if (keepGoing) x = iterator.next
-              previous = null
-              previousId = null
+          if (previous == metaset) {
+            keepGoing = iterator.hasNext
+            if (keepGoing) x = iterator.next
+            previous = null
+            previousId = null
           } else
             previous = metaset
-            previousId = x
+          previousId = x
         }
       }
     }
