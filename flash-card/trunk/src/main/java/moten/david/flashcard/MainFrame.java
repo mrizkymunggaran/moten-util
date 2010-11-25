@@ -13,7 +13,7 @@ public class MainFrame extends JFrame {
         frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
         frame.setLocation(0, 0);
         frame.getContentPane().add(
-                new CardPanel(15,new Words(MainFrame.class
+                new CardPanel(6,new Words(MainFrame.class
                         .getResourceAsStream("/words-translated.txt"))));
         frame.setVisible(true);
     }
