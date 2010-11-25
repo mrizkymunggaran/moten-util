@@ -8,10 +8,10 @@ import javax.swing.JFrame;
 import com.google.api.translate.Language;
 
 
-public class MainFrame extends JFrame {
+public class Main extends JFrame {
 
     public static void main(String[] args) {
-        MainFrame frame = new MainFrame();
+        Main frame = new Main();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
         frame.setLocation(0, 0);
