@@ -1,6 +1,7 @@
 package moten.david.flashcard;
 
-import java.awt.GridLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -16,11 +17,17 @@ import javax.swing.JPanel;
 public class CardPanel extends JPanel {
 
     public CardPanel(int numWords, final Words words) {
-        setLayout(new GridLayout(1, 1));
+        GridBagLayout layout = new GridBagLayout();
+        setLayout(layout);
 
         final JButton button = new JButton("Press to continue");
         button.setFont(button.getFont().deriveFont(50f));
         add(button);
+        {
+            GridBagConstraints c = new GridBagConstraints();
+            c.gridx=0;c.gridy=0;c.gridwidth=2;c.fill=GridBagConstraints.BOTH;c.weightx=1;c.weighty=1;
+            layout.setConstraints(button, c);
+        }
         List<Entry<String, String>> entries = new ArrayList<Entry<String, String>>(
                 words.getMeanings().entrySet());
         for (int i = entries.size(); i > 0 && i > numWords; i--) {
