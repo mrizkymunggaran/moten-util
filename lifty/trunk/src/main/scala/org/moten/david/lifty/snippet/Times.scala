@@ -19,7 +19,7 @@ package snippet {
       def processEntryAdd() {
       }
       bind("entry", xhtml,
-        "date" -> SHtml.text(date, date(_), "id" -> "date", "onkeyup" -> Alert("hello")),
+        "date" -> SHtml.text(date, date(_), "id" -> "date", "onkeyup" -> Function("anony",List("e"),Alert("hello"))),
         "start" -> SHtml.text(start, start(_)),
         "finish" -> SHtml.text(finish, finish(_)),
         "submit" -> SHtml.submit("Add", processEntryAdd, "onclick" ->
