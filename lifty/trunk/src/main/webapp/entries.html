@@ -1,0 +1,10 @@
+<lift:surround with="default" at="content">
+		<p>
+      <lift:helloWorld.howdy>
+        <span>Entries at <b:time/></span>
+      </lift:helloWorld.howdy>
+      <lift:Times.add form="POST">
+		<entry:date /> <entry:start /><entry:finish/><entry:submit /><br/>
+	  </lift:Times.add>
+    </p>
+</lift:surround>
