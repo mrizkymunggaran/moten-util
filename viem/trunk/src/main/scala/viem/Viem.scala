@@ -3,7 +3,7 @@ package viem
 /**
  * Volatile Identifier Entity Matching (VIEM) is an algorithm for matching identities
  * based on mostly unique identifiers that change over time and incorporates a correction 
- * mechanism for incorrectly reported identifiers.
+ * mechanism for conflicting identifiers.
  */
 object `package` {}
 
