@@ -1,0 +1,47 @@
+<html>
+<head>
+<script type="text/javascript">
+function processKey() {
+
+	var k = event.keyCode	
+	msg(k);
+	var factor=0;
+	if (k==78) factor=1;
+	else if (k==66) factor=-1;
+	
+	document.getElementById('date').value
+		= new Date(Date.parse(document.getElementById('date').value) 
+		+ factor * 24 * 3600 *1000).toDateString();
+
+	var times=document.getElementById('times');
+			
+	//backspace ok
+	if (k==8) return true;
+
+	//don't allow typing after length is 8 characters
+	if (times.value.length>=8) 
+				return false;
+
+	if (factor==0) {
+		//if between 0 and 9 normal
+		if (48<=k && k<=57) {
+			//allow character
+			return true;	
+		}
+	}
+	//disallow character
+	return false;
+}
+
+function msg(s) {
+	document.getElementById('msg').value=s;
+}
+</script>
+</head>
+<form action="do" method="post">
+<input type="text" value="1 Jan 2010" id="date" readonly="readonly"/>
+<input type="text" value="" id="times" onkeydown="return processKey();"/>
+<input type="submit" value="add"/>
+<input type="text" value="" id="msg"/>
+</form>
+</html>

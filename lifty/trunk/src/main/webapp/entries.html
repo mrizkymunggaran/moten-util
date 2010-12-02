@@ -19,7 +19,8 @@ function processKey(dateId,timesId) {
 	if (k==8||k==13||k==9||k==37||k==39) return true;
 
 	//don't allow typing after length is 8 characters
-	if (times.value.length&gt;=8) 
+	var len=times.value.length;
+	if (len&gt;=8) 
 				return false;
 
 	if (factor==0) {
@@ -48,8 +49,8 @@ function msg(s) {
 		<entry:date id="date"/> 
 		<entry:start id="start" onkeydown="return processKey('date','start');"/>
 		<entry:finish id="finish"/>
-		<entry:submit /><br/>
 	  </lift:Times.add>
+	  <p><span id="list"/></p>
     </p>
 </form>
 </lift:surround>
