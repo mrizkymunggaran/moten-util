@@ -19,12 +19,10 @@ package snippet {
       def processEntryAdd() {
       }
       bind("entry", xhtml,
-        "date" -> SHtml.text(date, date(_), "id" -> "date", "onkeyup" -> Function("anony")),
+        "date" -> SHtml.text(date, date(_), "id" -> "date"),
         "start" -> SHtml.text(start, start(_)),
         "finish" -> SHtml.text(finish, finish(_)),
-        "submit" -> SHtml.submit("Add", processEntryAdd, "onclick" ->
-          JsIf(JsEq(ValById("date"), ""),
-            Alert("You must provide a date") & JsReturn(false))))
+        "submit" -> SHtml.submit("Add", processEntryAdd))
     }
   }
 

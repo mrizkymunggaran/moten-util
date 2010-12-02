@@ -24,7 +24,7 @@ function processKey() {
 
 	if (factor==0) {
 		//if between 0 and 9 normal
-		if (48<=k && k<=57) {
+		if (48&lt;=k &amp;&amp; k&lt;=57) {
 			//allow character
 			return true;	
 		}
@@ -38,7 +38,9 @@ function msg(s) {
 }
 </script>
 </head>
-		<p>
+
+<form method="post">
+	<p>
       <lift:helloWorld.howdy>
         <span>Entries at <b:time/></span>
       </lift:helloWorld.howdy>
@@ -46,7 +48,6 @@ function msg(s) {
 		<entry:date /> <entry:start /><entry:finish/><entry:submit /><br/>
 	  </lift:Times.add>
     </p>
-<form action="do" method="post">
 <input type="text" value="1 Jan 2010" id="date" readonly="readonly"/>
 <input type="text" value="" id="times" onkeydown="return processKey();"/>
 <input type="submit" value="add"/>
