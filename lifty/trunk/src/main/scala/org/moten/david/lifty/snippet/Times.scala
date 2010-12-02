@@ -11,7 +11,7 @@ package snippet {
   import JE._
 
   class Times {
-    object date extends RequestVar("12/02/2010")
+    object date extends RequestVar("1 Jan 2010")
     object start extends RequestVar("0830")
     object finish extends RequestVar("1230")
 
@@ -19,9 +19,9 @@ package snippet {
       def processEntryAdd() {
       }
       bind("entry", xhtml,
-        "date" -> SHtml.text(date, date(_), "id" -> "date"),
-        "start" -> SHtml.text(start, start(_)),
-        "finish" -> SHtml.text(finish, finish(_)),
+        "date" -%> SHtml.text(date, date(_)),
+        "start" -%> SHtml.text(start, start(_)),
+        "finish" -%> SHtml.text(finish, finish(_)),
         "submit" -> SHtml.submit("Add", processEntryAdd))
     }
   }

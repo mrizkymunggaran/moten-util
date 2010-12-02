@@ -1,7 +1,7 @@
 <lift:surround with="default" at="content">
 <head>
 <script type="text/javascript">
-function processKey() {
+function processKey(dateId,timesId) {
 
 	var k = event.keyCode	
 	msg(k);
@@ -9,17 +9,17 @@ function processKey() {
 	if (k==78) factor=1;
 	else if (k==66) factor=-1;
 	
-	document.getElementById('date').value
-		= new Date(Date.parse(document.getElementById('date').value) 
+	document.getElementById(dateId).value
+		= new Date(Date.parse(document.getElementById(dateId).value) 
 		+ factor * 24 * 3600 *1000).toDateString();
 
-	var times=document.getElementById('times');
+	var times=document.getElementById(timesId);
 			
 	//backspace ok
-	if (k==8) return true;
+	if (k==8||k==13||k==9) return true;
 
 	//don't allow typing after length is 8 characters
-	if (times.value.length>=8) 
+	if (times.value.length&gt;=8) 
 				return false;
 
 	if (factor==0) {
@@ -34,7 +34,7 @@ function processKey() {
 }
 
 function msg(s) {
-	document.getElementById('msg').value=s;
+	document.getElementById('finish').value=s;
 }
 </script>
 </head>
@@ -45,12 +45,10 @@ function msg(s) {
         <span>Entries at <b:time/></span>
       </lift:helloWorld.howdy>
       <lift:Times.add form="POST">
-		<entry:date /> <entry:start /><entry:finish/><entry:submit /><br/>
+		<entry:date id="date"/> <entry:start id="start" onkeydown="return processKey('date','start');"/><entry:finish id="finish"/><entry:submit /><br/>
 	  </lift:Times.add>
     </p>
-<input type="text" value="1 Jan 2010" id="date" readonly="readonly"/>
-<input type="text" value="" id="times" onkeydown="return processKey();"/>
-<input type="submit" value="add"/>
-<input type="text" value="" id="msg"/>
+
+
 </form>
 </lift:surround>
