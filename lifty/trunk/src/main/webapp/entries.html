@@ -15,8 +15,8 @@ function processKey(dateId,timesId) {
 
 	var times=document.getElementById(timesId);
 			
-	//backspace ok
-	if (k==8||k==13||k==9) return true;
+	//backspace ok, enter, tab, arrows
+	if (k==8||k==13||k==9||k==37||k==39) return true;
 
 	//don't allow typing after length is 8 characters
 	if (times.value.length&gt;=8) 
@@ -45,10 +45,11 @@ function msg(s) {
         <span>Entries at <b:time/></span>
       </lift:helloWorld.howdy>
       <lift:Times.add form="POST">
-		<entry:date id="date"/> <entry:start id="start" onkeydown="return processKey('date','start');"/><entry:finish id="finish"/><entry:submit /><br/>
+		<entry:date id="date"/> 
+		<entry:start id="start" onkeydown="return processKey('date','start');"/>
+		<entry:finish id="finish"/>
+		<entry:submit /><br/>
 	  </lift:Times.add>
     </p>
-
-
 </form>
 </lift:surround>
