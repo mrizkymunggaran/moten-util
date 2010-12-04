@@ -46,22 +46,21 @@ function msg(s) {
         <span>Entries at <b:time/></span>
       </lift:helloWorld.howdy>
       <lift:Times.add form="POST">
-		<entry:date id="date"/> 
+		<entry:date id="date" style="width:150px;"/> 
 		<entry:start id="start" onkeydown="return processKey('date','start');"/>
 		<entry:finish id="finish"/>
+		<entry:submit id="submit" value="add"/>
 	  </lift:Times.add>
 	  <p><span id="list"/></p>
     </p>
-    <div> 
-  <table> 
-    <lift:VarTable> 
-      <var:row> 
-    <tr> 
-        <td><var:date/></td><td><var:start/></td><td><var:finish/></td> 
-    </tr> 
-      </var:row> 
-    </lift:VarTable> 
-  </table> 
-</div> 
 </form>
+  <table border="1"> 
+    <lift:Times.list> 
+      <entry:row> 
+    <tr> 
+        <td style="width:150px;"><entry:date/></td><td><entry:start/></td><td><entry:finish/></td> 
+    </tr> 
+      </entry:row> 
+    </lift:Times.list> 
+  </table> 
 </lift:surround>
