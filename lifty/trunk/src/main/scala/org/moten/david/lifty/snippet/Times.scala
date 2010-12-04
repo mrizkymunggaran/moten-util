@@ -22,15 +22,37 @@ package snippet {
 
     def nextDay(d: Date, times: String): Date = {
       val finish = times.substring(4, 8)
-      println("before=" + d+" finish="+finish.toInt)
-      if (finish.toInt >= 1500) {
+      println("before=" + d + " finish=" + finish.toInt)
+      if (toMinutes(finish) >= 15 * 60) {
         println("incrementing date")
-        return new Date(d.getTime() + 24 * 60 * 60 * 1000L)
+        val cal = new GregorianCalendar()
+        cal.setTime(d);
+        val factor =
+          if (cal.get(Calendar.DAY_OF_WEEK) == 6) 3
+          else 1
+        return new Date(d.getTime() + factor * 24 * 60 * 60 * 1000L)
       } else return d;
     }
 
+    def toMinutes(s: String): Int = {
+      s.substring(0, 2).toInt * 60 + s.substring(2, 4).toInt
+    }
+
+    def toString(n: Int): String = {
+      val minutes = n % 60
+      val hours = n / 60
+      val s1 = (if (hours < 10) "0" else "") + hours
+      val s2 = (if (minutes < 10) "0" else "") + minutes
+      return s1 + s2
+    }
+
     def nextTimes(times: String): String = {
-      times
+      val start = toMinutes(times.substring(0, 4))
+      val finish = toMinutes(times.substring(4, 8))
+      Log.info("finishMinutes=" + finish)
+      if (finish >= 15 * 60)
+        return "08301230"
+      else return toString(finish + 30) + "1730"
     }
 
     def add(xhtml: NodeSeq): NodeSeq = {
@@ -39,7 +61,7 @@ package snippet {
         println("hello")
         println("date=" + date.get)
         println("times=" + times.get)
-        date(nextDay(date.get,times.get))
+        date(nextDay(date.get, times.get))
         times(nextTimes(times.get))
       }
       bind("entry", xhtml,
