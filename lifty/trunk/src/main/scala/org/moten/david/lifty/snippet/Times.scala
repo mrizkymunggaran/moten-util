@@ -16,29 +16,37 @@ package snippet {
 
   class Times {
     //make df a def not a val because not thread safe
-    def df = new java.text.SimpleDateFormat("EEE d MMM yyyy")
+    def df = new java.text.SimpleDateFormat("EEE MMM dd yyyy")
     object date extends RequestVar(new Date())
-    object start extends RequestVar("08301230")
-    object finish extends RequestVar("")
-    object item extends SessionVar("")
-    
-    def nextDay(d:Date): Date =
-      new Date(d.getTime() + 24 * 60 * 60 * 1000L)
+    object times extends RequestVar("08301230")
+
+    def nextDay(d: Date, times: String): Date = {
+      val finish = times.substring(4, 8)
+      println(finish)
+      if (true ||finish >= "0000")
+        new Date(d.getTime() + 24 * 60 * 60 * 1000L)
+      else d;
+    }
+
+    def nextTimes(times: String): String = {
+      times
+    }
 
     def add(xhtml: NodeSeq): NodeSeq = {
       def processEntryAdd() {
-          error("boo")
+//        error("boo")
+          println("hello")
+          println("date="+date.get)
       }
       bind("entry", xhtml,
         "date" -%> text(df.format(date.get),
-          x => date(nextDay(df.parse(x)))),
-        "start" -%> text(start,start(_)),
-        "finish" -%> text(finish, finish(_)),
-        "submit" -%> submit("submit",processEntryAdd))
+          x => date(nextDay(df.parse(x), times.get))),
+        "times" -%> text(times, x => times(nextTimes(times.get))),
+        "submit" -%> submit("submit", processEntryAdd))
     }
 
     def list(in: NodeSeq): NodeSeq = {
-      val df = new java.text.SimpleDateFormat("EEE d MMM yyyy");
+      val df = new java.text.SimpleDateFormat("EEE MMM dd yyyy");
       val toRender = (1 to 10).map(
         i => TimeEntry(new Date(), "0839", "1230"))
       toRender.flatMap { item =>
