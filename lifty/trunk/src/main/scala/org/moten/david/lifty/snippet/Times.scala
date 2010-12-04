@@ -22,10 +22,11 @@ package snippet {
 
     def nextDay(d: Date, times: String): Date = {
       val finish = times.substring(4, 8)
-      println(finish)
-      if (true ||finish >= "0000")
-        new Date(d.getTime() + 24 * 60 * 60 * 1000L)
-      else d;
+      println("before=" + d+" finish="+finish.toInt)
+      if (finish.toInt >= 1500) {
+        println("incrementing date")
+        return new Date(d.getTime() + 24 * 60 * 60 * 1000L)
+      } else return d;
     }
 
     def nextTimes(times: String): String = {
@@ -34,14 +35,17 @@ package snippet {
 
     def add(xhtml: NodeSeq): NodeSeq = {
       def processEntryAdd() {
-//        error("boo")
-          println("hello")
-          println("date="+date.get)
+        //        error("boo")
+        println("hello")
+        println("date=" + date.get)
+        println("times=" + times.get)
+        date(nextDay(date.get,times.get))
+        times(nextTimes(times.get))
       }
       bind("entry", xhtml,
         "date" -%> text(df.format(date.get),
-          x => date(nextDay(df.parse(x), times.get))),
-        "times" -%> text(times, x => times(nextTimes(times.get))),
+          x => date(df.parse(x))),
+        "times" -%> text(times, x => times(x)),
         "submit" -%> submit("submit", processEntryAdd))
     }
 
