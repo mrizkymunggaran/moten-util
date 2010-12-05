@@ -3,7 +3,8 @@
 <script type="text/javascript">
 function processKey(dateId,timesId) {
 
-	var k = event.keyCode	
+	var k = (document.all?event.keyCode:event.which)
+	alert(k);	
 	msg(k);
 	var factor=0;
 	if (k==78) factor=1;
@@ -20,8 +21,8 @@ function processKey(dateId,timesId) {
 
 	//don't allow typing after length is 8 characters
 	var len=times.value.length;
-	if (len&gt;=8) 
-				return false;
+	//if (len&gt;=8) 
+		//		return false;
 
 	if (factor==0) {
 		//if between 0 and 9 normal
@@ -39,18 +40,15 @@ function msg(s) {
 }
 </script>
 </head>
-<body onload="document.getElementById('times').focus()">
-<p id="msg"></p>
-<form method="post">
 	<p>
       <lift:Times.add form="POST">
 		<entry:date id="date" style="width:150px;"/> 
 		<entry:times id="times" onkeydown="return processKey('date','times');"/>
 		<entry:submit id="submit" value="add"/>
+		<input id="msg" value="" type="text"/>
 	  </lift:Times.add>
-	  <p><span id="list"/></p>
     </p>
-</form>
+    
   <table border="1"> 
     <lift:Times.list> 
       <entry:row> 
@@ -60,5 +58,4 @@ function msg(s) {
       </entry:row> 
     </lift:Times.list> 
   </table> 
-  </body>
 </lift:surround>

@@ -10,18 +10,21 @@ package snippet {
   import JsCmds._
   import JE._
   import SHtml._
-  import _root_.java.util._
+  import _root_.java.util.Date
+  import _root_.java.util.GregorianCalendar
+  import _root_.java.util.Calendar
+  import scala.collection.immutable._
 
   case class TimeEntry(date: Date, start: String, finish: String)
 
   class Times {
     //make df a def not a val because not thread safe
     def df = new java.text.SimpleDateFormat("EEE MMM dd yyyy")
-    object date extends RequestVar(new Date())
-    object times extends RequestVar("08301230")
-    
+    object date extends RequestVar[Date](new Date())
+    object times extends RequestVar[String]("08301230")
+    object list extends SessionVar[List[TimeEntry]](List[TimeEntry]())
+
     def nextDay(d: Date, times: String): Date = {
-      if (times.length < 8) error("Times must be 8 digits")
       val finish = times.substring(4, 8)
       println("before=" + d + " finish=" + finish.toInt)
       if (toMinutes(finish) >= 15 * 60) {
@@ -48,8 +51,10 @@ package snippet {
       return s1 + s2
     }
 
+    def timesValid(times: String): Boolean =
+      times.length == 8
+
     def nextTimes(times: String): String = {
-        if (times.length!=8) error("Times must be 8 digits");
       val start = toMinutes(times.substring(0, 4))
       val finish = toMinutes(times.substring(4, 8))
       Log.info("finishMinutes=" + finish)
@@ -60,27 +65,28 @@ package snippet {
 
     def add(xhtml: NodeSeq): NodeSeq = {
       def processEntryAdd() {
-                error("boo")
         println("hello")
         println("date=" + date.get)
         println("times=" + times.get)
-        
-        date(nextDay(date.get, times.get))
-        times(nextTimes(times.get))
-        times("boo")
+        if (!timesValid(times.get))
+          error("invalid times")
+        else {
+          val entry = TimeEntry(date.get, times.get.substring(0, 4), times.get.substring(4, 8))
+          list(entry :: list.get)
+          date(nextDay(date.get, times.get))
+          times(nextTimes(times.get))
+        }
       }
       bind("entry", xhtml,
-        "date" -%> text(df.format(date.get),
-          x => date(df.parse(x))),
-        "times" -%> text(times, x => times(x)),
+        "date" -%> text(df.format(date.get), x => date(df.parse(x))),
+        "times" -%> text(times, times(_)),
         "submit" -%> submit("submit", processEntryAdd))
     }
 
     def list(in: NodeSeq): NodeSeq = {
       val df = new java.text.SimpleDateFormat("EEE MMM dd yyyy");
-      val toRender = (1 to 10).map(
-        i => TimeEntry(new Date(), "0839", "1230"))
-      toRender.flatMap { item =>
+
+      list.flatMap { item =>
         def doRow(template: NodeSeq): NodeSeq = {
           bind(
             "entry", template,

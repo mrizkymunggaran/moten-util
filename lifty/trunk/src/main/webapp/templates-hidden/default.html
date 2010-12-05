@@ -7,10 +7,15 @@
 		<title>Lifty</title>
 		<script id="jquery" src="/classpath/jquery.js" type="text/javascript"></script>
 	</head>
-	<body>
+	<body onload="document.getElementById('times').focus();">
 		<h2>Lifty</h2>
 		<lift:msgs/>
+		
+		<div style="float:left;">
+			<lift:Menu.builder />
+		</div>
+		<div style="margin-left:150px;">
 		<lift:bind name="content" />
-		<lift:Menu.builder />
+		</div>
 	</body>
 </html>
