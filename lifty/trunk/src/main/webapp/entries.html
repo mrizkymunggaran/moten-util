@@ -39,12 +39,10 @@ function msg(s) {
 }
 </script>
 </head>
+<body onload="document.getElementById('times').focus()">
 <p id="msg"></p>
 <form method="post">
 	<p>
-      <lift:helloWorld.howdy>
-        <span>Entries at <b:time/></span>
-      </lift:helloWorld.howdy>
       <lift:Times.add form="POST">
 		<entry:date id="date" style="width:150px;"/> 
 		<entry:times id="times" onkeydown="return processKey('date','times');"/>
@@ -62,4 +60,5 @@ function msg(s) {
       </entry:row> 
     </lift:Times.list> 
   </table> 
+  </body>
 </lift:surround>

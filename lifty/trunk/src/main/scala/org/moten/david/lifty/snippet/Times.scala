@@ -19,8 +19,9 @@ package snippet {
     def df = new java.text.SimpleDateFormat("EEE MMM dd yyyy")
     object date extends RequestVar(new Date())
     object times extends RequestVar("08301230")
-
+    
     def nextDay(d: Date, times: String): Date = {
+      if (times.length < 8) error("Times must be 8 digits")
       val finish = times.substring(4, 8)
       println("before=" + d + " finish=" + finish.toInt)
       if (toMinutes(finish) >= 15 * 60) {
@@ -28,10 +29,11 @@ package snippet {
         val cal = new GregorianCalendar()
         cal.setTime(d);
         val factor =
-          if (cal.get(Calendar.DAY_OF_WEEK) == 6) 3
+          if (cal.get(Calendar.DAY_OF_WEEK) == Calendar.FRIDAY) 3
           else 1
         return new Date(d.getTime() + factor * 24 * 60 * 60 * 1000L)
-      } else return d;
+      } else
+        return d;
     }
 
     def toMinutes(s: String): Int = {
@@ -47,6 +49,7 @@ package snippet {
     }
 
     def nextTimes(times: String): String = {
+        if (times.length!=8) error("Times must be 8 digits");
       val start = toMinutes(times.substring(0, 4))
       val finish = toMinutes(times.substring(4, 8))
       Log.info("finishMinutes=" + finish)
@@ -57,12 +60,14 @@ package snippet {
 
     def add(xhtml: NodeSeq): NodeSeq = {
       def processEntryAdd() {
-        //        error("boo")
+                error("boo")
         println("hello")
         println("date=" + date.get)
         println("times=" + times.get)
+        
         date(nextDay(date.get, times.get))
         times(nextTimes(times.get))
+        times("boo")
       }
       bind("entry", xhtml,
         "date" -%> text(df.format(date.get),
