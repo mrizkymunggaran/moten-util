@@ -307,6 +307,13 @@ class ViemTest {
       Set(MetaSet(Set(a1, a2), mdb)),
       merger.merge(MetaSet(Set(a1old), mda), Set(MetaSet(Set(a1, a2), mdb))))
   }
+  
+  @Test
+  def testEmptyMatchesReturnsSetOfA() {
+	  println("emtpy matches returns set of A")
+	  assertEquals(Set(MetaSet(Set(a1),mda)),
+	 		 merger.merge(MetaSet(Set(a1),mda),Set()))
+  }
 
   @Test
   def testMerge6() {

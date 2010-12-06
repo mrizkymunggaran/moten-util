@@ -347,12 +347,16 @@ class Merger(validator: MergeValidator) {
    */
   def merge(a: MetaSet, matches: Set[MetaSet]): Set[MetaSet] = {
     //check some preconditions
-    require(a !=null, "parameter 'a' cannot be null")
-    require(matches !=null,"matches cannot be null")
+    require(a != null, "parameter 'a' cannot be null")
+    require(matches != null, "matches cannot be null")
     require(a.size > 0, "'a' must have at least one identifier")
-    require(matches.filter(_.map(_.id).intersect(a.map(_.id)).size == 0).size == 0, "every MetaSet in matches must have an intersection with a in terms of [[viem.Identifier]]")
-    require(matches.map(_.set).flatten.map(_.id).size == matches.map(_.set).flatten.size,
+    require(matches.isEmpty || matches.filter(_.map(_.id).intersect(a.map(_.id)).isEmpty).isEmpty,
+      "every MetaSet in matches must have an intersection with a in terms of [[viem.Identifier]]")
+    require(matches.isEmpty || matches.map(_.set).flatten.map(_.id).size == matches.map(_.set).flatten.size,
       "elements of matches must be mutually non intersecting n terms of [[viem.Identifier]]")
+
+    //if no matches the just return the set A back
+    if (matches.isEmpty) return Set(a)
 
     val list = List.fromIterator(a.set.iterator).sortWith((x, y) => (x compare y) < 0)
     println("adding " + list)
