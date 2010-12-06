@@ -276,6 +276,21 @@ class ViemTest {
     println("merge (a1) with (a2)")
     merger.merge(MetaSet(Set(a1), mda), Set(MetaSet(Set(a2), mdb)))
   }
+  
+  @Test(expected = classOf[IllegalArgumentException])
+  def testNullArgumentsProvokeException1 {
+	  merger.merge(null,null)
+  }
+  
+  @Test(expected = classOf[IllegalArgumentException])
+  def testNullArgumentsProvokeException2() {
+    merger.merge(null, Set(MetaSet(Set(a2), mdb)))
+  }
+  
+  @Test(expected = classOf[IllegalArgumentException])
+  def testNullArgumentsProvokeException3() {
+    merger.merge(MetaSet(Set(a2), mdb),null)
+  }
 
   @Test
   def testMerge4() {

@@ -347,6 +347,8 @@ class Merger(validator: MergeValidator) {
    */
   def merge(a: MetaSet, matches: Set[MetaSet]): Set[MetaSet] = {
     //check some preconditions
+    require(a !=null, "parameter 'a' cannot be null")
+    require(matches !=null,"matches cannot be null")
     require(a.size > 0, "'a' must have at least one identifier")
     require(matches.filter(_.map(_.id).intersect(a.map(_.id)).size == 0).size == 0, "every MetaSet in matches must have an intersection with a in terms of [[viem.Identifier]]")
     require(matches.map(_.set).flatten.map(_.id).size == matches.map(_.set).flatten.size,
