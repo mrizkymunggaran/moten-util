@@ -30,6 +30,7 @@ class ViemTest {
     value match {
       case InvalidMerge(_) => error("invalid merge")
       case _ => {
+    	println("actual:")
         println(pp(value))
         if (!(expected equals value))
           println("expected:\n" + pp(expected))
@@ -133,66 +134,66 @@ class ViemTest {
 
     println("add (a1) to an empty system")
     r = merger.merge(a1, a1, mda, empty, empty)
-    checkEquals(MergeResult(MetaSet(Set(a1), mda), empty, empty), r)
+    checkEquals(MergeResult(MetaSet(Set(a1), mda)), r)
 
     println("add (a1,a2) to an empty system")
     r = merger.merge(a1, a2, mda, empty, empty)
-    checkEquals(MergeResult(MetaSet(Set(a1, a2), mda), empty, empty), r)
+    checkEquals(MergeResult(MetaSet(Set(a1, a2), mda)), r)
 
     println("add (a1) to a system with (a1)")
     r = merger.merge(a1, a1, mda, MetaSet(Set(a1), mdb), empty)
-    checkEquals(MergeResult(MetaSet(Set(a1), mda), empty, empty), r)
+    checkEquals(MergeResult(MetaSet(Set(a1), mda)), r)
 
     println("add (a1) to a system with (a1,a2)")
     r = merger.merge(a1, a1, mda, MetaSet(Set(a1, a2), mdb), empty)
-    checkEquals(MergeResult(MetaSet(Set(a1, a2), mda), empty, empty), r)
+    checkEquals(MergeResult(MetaSet(Set(a1, a2), mda)), r)
 
     println("add (a1,a2) to a system with (a1)")
     r = merger.merge(a1, a2, mda, MetaSet(Set(a1), mdb), empty)
-    checkEquals(MergeResult(MetaSet(Set(a1, a2), mda), empty, empty), r)
+    checkEquals(MergeResult(MetaSet(Set(a1, a2), mda)), r)
 
     println("add (a1,a2) to a system with (a1,a2)")
     r = merger.merge(a1, a2, mda, MetaSet(Set(a1, a2), mdb), empty)
-    checkEquals(MergeResult(MetaSet(Set(a1, a2), mda), empty, empty), r)
+    checkEquals(MergeResult(MetaSet(Set(a1, a2), mda)), r)
 
     println("add (a1,a2) to a system with (a1,a2,a3)")
     r = merger.merge(a1, a2, mda, MetaSet(Set(a1, a2, a3), mdb), empty)
-    checkEquals(MergeResult(MetaSet(Set(a1, a2, a3), mda), empty, empty), r)
+    checkEquals(MergeResult(MetaSet(Set(a1, a2, a3), mda)), r)
 
     println("add (a1) to a system with newer (a1)")
     r = merger.merge(a1old, a1old, mda, MetaSet(Set(a1), mdb), empty)
-    checkEquals(MergeResult(empty, MetaSet(Set(a1), mdb), empty), r)
+    checkEquals(MergeResult( MetaSet(Set(a1), mdb)), r)
 
     println("add (a1, a2) to a system with (newer a1)")
     r = merger.merge(a1old, a2old, mda, MetaSet(Set(a1), mdb), empty)
-    checkEquals(MergeResult(empty, MetaSet(Set(a1, a2old), mdb), empty), r)
+    checkEquals(MergeResult(MetaSet(Set(a1, a2old), mdb)), r)
 
     println("add (a1, a2) to a system with (newer a1,older a2)")
     r = merger.merge(a1old, a2old, mda,
       MetaSet(Set(a1, a2olderDiff), mdb), empty)
-    checkEquals(MergeResult(empty, MetaSet(Set(a1, a2old), mdb), empty), r)
+    checkEquals(MergeResult(MetaSet(Set(a1, a2old), mdb)), r)
 
     println("add (a1, a2) to a system with (older a1,newer a2)")
     r = merger.merge(a1old, a2old, mda,
       MetaSet(Set(a1older, a2), mdb), empty)
-    checkEquals(MergeResult(MetaSet(Set(a1old, a2), mda), empty, empty), r)
+    checkEquals(MergeResult(MetaSet(Set(a1old, a2), mda)), r)
 
     println("add (a1, a2) to a system with (older a1) (older a2)")
     r = merger.merge(a1, a2, mda,
       MetaSet(Set(a1old), mdb), MetaSet(Set(a2old), mdc))
-    checkEquals(MergeResult(MetaSet(Set(a1, a2), mda), empty, empty), r)
+    checkEquals(MergeResult(MetaSet(Set(a1, a2), mda)), r)
 
     println("add (a1, a2) to a system with (newer a1) (newer a2)")
     r = merger.merge(a1old, a2old, mda,
       MetaSet(Set(a1), mdb), MetaSet(Set(a2), mdc))
-    checkEquals(MergeResult(empty, MetaSet(Set(a1, a2), mdb), empty), r)
+    checkEquals(MergeResult(MetaSet(Set(a1, a2), mdb)), r)
 
     //Invalid merge tests
     merger = new Merger(new MergeValidatorIfEqual)
 
     println("add (a1) to a system with (a1) and same meta")
     r = merger.merge(a1, a1, mda, MetaSet(Set(a1), mda), empty)
-    checkEquals(MergeResult(MetaSet(Set(a1), mda), empty, empty), r)
+    checkEquals(MergeResult(MetaSet(Set(a1), mda)), r)
 
     println("add (a1) to a system with (a1) and different meta")
     checkRejected(merger.merge(a1, a1, mda, MetaSet(Set(a1), mdb), empty), mdb)
@@ -207,7 +208,7 @@ class ViemTest {
 
     println("add (a1) to a system with (a1), valid")
     r = merger.merge(a1, a1, mda, MetaSet(Set(a1), mdb), empty)
-    checkEquals(MergeResult(MetaSet(Set(a1), mda), empty, empty), r)
+    checkEquals(MergeResult(MetaSet(Set(a1), mda)), r)
 
     println("add (a1) to a system with (a1), invalid")
     checkRejected(merger.merge(a1, a1, mdb, MetaSet(Set(a1), mdc), empty), mdc)
@@ -221,7 +222,7 @@ class ViemTest {
     println("add (a1, a2) to a system with (old a1) (a0, old a2) invalid b against c")
     val r = merger.merge(a1, a2, mda,
       MetaSet(Set(a1old), mdb), MetaSet(Set(a0, a2old), mdc))
-    checkEquals(MergeResult(MetaSet(Set(a0, a1, a2), mda), empty, empty), r)
+    checkEquals(MergeResult(MetaSet(Set(a0, a1, a2), mda)), r)
   }
 
   @Test
@@ -229,7 +230,7 @@ class ViemTest {
     println("add (old a1, old a2) to a system with (old a1) (a0, newer a2)")
     val r = merger.merge(a1old, a2old, mda,
       MetaSet(Set(a1old), mdb), MetaSet(Set(a0, a2), mdc))
-    checkEquals(MergeResult(empty, empty, MetaSet(Set(a0, a1old, a2), mdc)), r)
+    checkEquals(MergeResult(MetaSet(Set(a0, a1old, a2), mdc)), r)
   }
 
   @Test
@@ -237,7 +238,7 @@ class ViemTest {
     println("add (old a1, old a2) to a system with (old a1) (a0, old a2)")
     val r = merger.merge(a1old, a2old, mda,
       MetaSet(Set(a1old), mdb), MetaSet(Set(a0, a2old), mdc))
-    checkEquals(MergeResult(empty, empty, MetaSet(Set(a0, a1old, a2old), mdc)), r)
+    checkEquals(MergeResult(MetaSet(Set(a0, a1old, a2old), mdc)), r)
   }
 
   @Test
@@ -245,7 +246,7 @@ class ViemTest {
     println("add (old a1, old a2) to a system with (old a1) (a0older, a2)")
     val r = merger.merge(a1old, a2old, mda,
       MetaSet(Set(a1old), mdb), MetaSet(Set(a0older, a2), mdc))
-    checkEquals(MergeResult(empty, empty, MetaSet(Set(a0older, a1old, a2), mdc)), r)
+    checkEquals(MergeResult(MetaSet(Set(a0older, a1old, a2), mdc)), r)
   }
 
   @Test
@@ -253,7 +254,7 @@ class ViemTest {
     println("add (old a1, old a2) to a system with (old a1) (a0older, a2)")
     val r = merger.merge(a1old, a2old, mda,
       MetaSet(Set(a1old), mdb), MetaSet(Set(a0older, a2), mdc))
-    checkEquals(MergeResult(empty, empty, MetaSet(Set(a0older, a1old, a2), mdc)), r)
+    checkEquals(MergeResult(MetaSet(Set(a0older, a1old, a2), mdc)), r)
   }
 
   @Test

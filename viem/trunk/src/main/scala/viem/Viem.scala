@@ -84,8 +84,10 @@ case class InvalidMerge(meta: MetaData) extends Result
 /**
  * The result of the merge of [[viem.MetaSet]] with primary and secondary matches (b and c).
  */
-case class MergeResult(a: MetaSet, b: MetaSet, c: MetaSet) extends Result {
-  def set = Set(a, b, c).filter(_ != empty)
+case class MergeResult(set: Set[MetaSet]) extends Result
+
+object MergeResult {
+  def apply(x: MetaSet*): MergeResult = new MergeResult(x.toSet)
 }
 
 /**
@@ -196,14 +198,12 @@ class Merger(validator: MergeValidator) {
    */
   def merge(a1: TimedIdentifier, m: MetaData, b: MetaSet): MergeResult = {
     if (b.isEmpty)
-      MergeResult(MetaSet(Set(a1), m), b, empty)
+      MergeResult(MetaSet(Set(a1), m))
     else if (>=(a1, b))
       MergeResult(
-        MetaSet(z(b, a1), m),
-        empty,
-        empty)
+        MetaSet(z(b, a1), m))
     else
-      MergeResult(empty, b, empty)
+      MergeResult(b)
   }
 
   /**
@@ -218,11 +218,11 @@ class Merger(validator: MergeValidator) {
    */
   def merge(a1: TimedIdentifier, a2: TimedIdentifier, m: MetaData, b: MetaSet): MergeResult = {
     if (b.isEmpty)
-      MergeResult(MetaSet(Set(a1, a2), m), empty, empty)
+      MergeResult(MetaSet(Set(a1, a2), m))
     else if (>=(a1, b))
-      MergeResult(MetaSet(z(z(b, a1), a2), m), empty, empty)
+      MergeResult(MetaSet(z(z(b, a1), a2), m))
     else
-      MergeResult(empty, MetaSet(z(b, a2), b.meta), empty)
+      MergeResult(MetaSet(z(b, a2), b.meta))
   }
 
   def later(x: Set[TimedIdentifier], y: Set[TimedIdentifier]) =
@@ -273,32 +273,31 @@ class Merger(validator: MergeValidator) {
           val c2 = c.filter(t => b.map(x => x.id.typ).contains(t.id.typ) && !b.map(x => x.id).contains(t.id))
           if (!b2.isEmpty && b2.map(_.time.getTime()).max > a1.time.getTime())
             //don't merge
-            return MergeResult(empty, b, c)
+            return MergeResult(b, c)
           else if (!c2.isEmpty && c2.map(_.time.getTime()).max > a1.time.getTime())
-            return MergeResult(empty, b, c)
+            return MergeResult(b, c)
           else
-            return MergeResult(empty, MetaSet(z(b, c), b.meta), empty)
+            return MergeResult(MetaSet(z(b, c), b.meta))
         } else
           return InvalidMerge(c.meta)
       else if (>=(a1, b) && !(>=(a2, c)) && a2.id == c.max.id)
-        return MergeResult(empty, empty, MetaSet(z(z(b, c), a), c.meta))
+        return MergeResult(MetaSet(z(z(b, c), a), c.meta))
       else if (a2.id == c.max.id)
-        return MergeResult(MetaSet(z(z(b, c), a), m), empty, empty)
+        return MergeResult(MetaSet(z(z(b, c), a), m))
       else {
         if (onlyMergeIfStrongestIdentifierOfSecondaryIntersects) {
           //only merge across identifiers from c that intersect with a
           val aTypes = a.map(_.id.typ)
           val cIntersection = c.set.filter(x => aTypes.contains(x.id.typ))
           val cComplement = c.set.filter(x => !aTypes.contains(x.id.typ))
-          val c2 = if (cComplement.isEmpty) empty else MetaSet(cComplement, c.meta)
-          MergeResult(
-            MetaSet(z(z(b, cIntersection), a), m),
-            empty,
-            c2)
+          if (cComplement.isEmpty)
+            return MergeResult(MetaSet(z(z(b, cIntersection), a), m))
+          else
+            return MergeResult(MetaSet(z(z(b, cIntersection), a), m), MetaSet(cComplement, c.meta))
         } else if (maxTime(a) >= maxTime(c))
-          return MergeResult(MetaSet(z(z(b, c), a), m), empty, empty)
+          return MergeResult(MetaSet(z(z(b, c), a), m))
         else
-          return MergeResult(empty, empty, MetaSet(z(z(b, c), a), c.meta))
+          return MergeResult(MetaSet(z(z(b, c), a), c.meta))
       }
     }
   }
@@ -312,7 +311,7 @@ class Merger(validator: MergeValidator) {
    */
   def mergePair(a: MetaSet, b: MetaSet, c: MetaSet): Result = {
     assert(a.size <= 2, "a must have a size of 2 or less")
-    if (a.isEmpty) MergeResult(empty, b, c)
+    if (a.isEmpty) MergeResult(b, c)
     else if (a.size == 1) merge(a.max, a.max, a.meta, b, c)
     else merge(a.max, a.min, a.meta, b, c)
   }
