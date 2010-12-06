@@ -4,7 +4,6 @@
 function processKey(dateId,timesId) {
 
 	var k = (document.all?event.keyCode:event.which)
-	alert(k);	
 	msg(k);
 	var factor=0;
 	if (k==78) factor=1;
@@ -49,11 +48,11 @@ function msg(s) {
 	  </lift:Times.add>
     </p>
     
-  <table border="1"> 
+  <table border="0"> 
     <lift:Times.list> 
       <entry:row> 
     <tr> 
-        <td style="width:150px;"><entry:date/></td><td><entry:start/></td><td><entry:finish/></td> 
+        <td style="width:150px;"><entry:date/></td><td><entry:start/> - <entry:finish/></td> 
     </tr> 
       </entry:row> 
     </lift:Times.list> 
