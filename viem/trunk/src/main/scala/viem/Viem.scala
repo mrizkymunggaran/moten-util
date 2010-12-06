@@ -114,7 +114,7 @@ class Merger(validator: MergeValidator) {
    * @param y
    * @return
    */
-  def alpha(x: Set[TimedIdentifier], y: TimedIdentifier): Set[TimedIdentifier] = {
+  private[viem] def alpha(x: Set[TimedIdentifier], y: TimedIdentifier): Set[TimedIdentifier] = {
     val set = x.filter(_.id.typ == y.id.typ)
     set.union(Set(y))
   }
@@ -125,7 +125,7 @@ class Merger(validator: MergeValidator) {
    * @param y
    * @return
    */
-  def complement[T](x: Set[T], y: Set[T]): Set[T] =
+  private[viem] def complement[T](x: Set[T], y: Set[T]): Set[T] =
     x.filter(!y.contains(_))
 
   /**
@@ -135,7 +135,7 @@ class Merger(validator: MergeValidator) {
    * @param y
    * @return
    */
-  def typeMatch(x: Set[TimedIdentifier], y: TimedIdentifier): TimedIdentifier = {
+  private[viem] def typeMatch(x: Set[TimedIdentifier], y: TimedIdentifier): TimedIdentifier = {
     val a = x.find(_.id.typ == y.id.typ)
     a match {
       case t: Some[TimedIdentifier] => t.get
@@ -151,7 +151,7 @@ class Merger(validator: MergeValidator) {
    * @param y
    * @return
    */
-  def z(x: Set[TimedIdentifier], y: TimedIdentifier): Set[TimedIdentifier] = {
+  private[viem] def z(x: Set[TimedIdentifier], y: TimedIdentifier): Set[TimedIdentifier] = {
     val a = alpha(x, y)
     complement(x, a).union(Set(a.max))
   }
@@ -165,7 +165,7 @@ class Merger(validator: MergeValidator) {
    * @param y
    * @return
    */
-  def z(x: Set[TimedIdentifier], y: Set[TimedIdentifier]): Set[TimedIdentifier] = {
+  private[viem] def z(x: Set[TimedIdentifier], y: Set[TimedIdentifier]): Set[TimedIdentifier] = {
     if (y.size == 0)
       x
     else if (y.size == 1)
@@ -182,11 +182,11 @@ class Merger(validator: MergeValidator) {
    * @param y
    * @return
    */
-  def >=(x: TimedIdentifier, y: Set[TimedIdentifier]): Boolean = {
+  private[viem] def >=(x: TimedIdentifier, y: Set[TimedIdentifier]): Boolean = {
     return x.time.getTime() >= typeMatch(y, x).time.getTime()
   }
 
-  def maxTime(set: Set[TimedIdentifier]): Long = set.map(_.time.getTime()).max
+  private[viem] def maxTime(set: Set[TimedIdentifier]): Long = set.map(_.time.getTime()).max
 
   /**
    * Returns the result of merging ''a1'' with associated metadata ''m'' with 
@@ -196,7 +196,7 @@ class Merger(validator: MergeValidator) {
    * @param b
    * @return
    */
-  def merge(a1: TimedIdentifier, m: MetaData, b: MetaSet): MergeResult = {
+  private[viem] def merge(a1: TimedIdentifier, m: MetaData, b: MetaSet): MergeResult = {
     if (b.isEmpty)
       MergeResult(MetaSet(Set(a1), m))
     else if (>=(a1, b))
@@ -216,7 +216,7 @@ class Merger(validator: MergeValidator) {
    * @param b
    * @return
    */
-  def merge(a1: TimedIdentifier, a2: TimedIdentifier, m: MetaData, b: MetaSet): MergeResult = {
+  private[viem] def merge(a1: TimedIdentifier, a2: TimedIdentifier, m: MetaData, b: MetaSet): MergeResult = {
     if (b.isEmpty)
       MergeResult(MetaSet(Set(a1, a2), m))
     else if (>=(a1, b))
@@ -225,7 +225,7 @@ class Merger(validator: MergeValidator) {
       MergeResult(MetaSet(z(b, a2), b.meta))
   }
 
-  def later(x: Set[TimedIdentifier], y: Set[TimedIdentifier]) =
+  private[viem] def later(x: Set[TimedIdentifier], y: Set[TimedIdentifier]) =
     x.map(_.time.getTime()).max > y.map(_.time.getTime()).max
 
   /**
@@ -239,7 +239,7 @@ class Merger(validator: MergeValidator) {
    * @param c
    * @return
    */
-  def merge(a1: TimedIdentifier, a2: TimedIdentifier, m: MetaData, b: MetaSet, c: MetaSet): Result = {
+  private[viem] def merge(a1: TimedIdentifier, a2: TimedIdentifier, m: MetaData, b: MetaSet, c: MetaSet): Result = {
 
     if (b == c && !b.isEmpty) return merge(a1, a2, m, b, empty)
     //do some precondition checks on the inputs
@@ -303,13 +303,13 @@ class Merger(validator: MergeValidator) {
   }
 
   /**
-   *Returns the result of merging the identifiers in a (max 2) with ''b'' and ''c''.
+   *Returns the result of merging the identifiers in ''a'' (max 2) with ''b'' and ''c''.
    * @param a
    * @param b
    * @param c
    * @return
    */
-  def mergePair(a: MetaSet, b: MetaSet, c: MetaSet): Result = {
+  private[viem] def mergePair(a: MetaSet, b: MetaSet, c: MetaSet): Result = {
     assert(a.size <= 2, "a must have a size of 2 or less")
     if (a.isEmpty) MergeResult(b, c)
     else if (a.size == 1) merge(a.max, a.max, a.meta, b, c)
@@ -323,7 +323,7 @@ class Merger(validator: MergeValidator) {
    * @param id
    * @return
    */
-  def removeIdentifierIfNotOnly(metaset: MetaSet, id: Identifier) =
+  private[viem] def removeIdentifierIfNotOnly(metaset: MetaSet, id: Identifier) =
     if (metaset.size > 1)
       MetaSet(metaset.set.filter(_.id != id), metaset.meta)
     else
