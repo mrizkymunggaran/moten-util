@@ -21,7 +21,7 @@ public class Util {
 				return true;
 			}
 		};
-		Merger merger = new Merger(validator);
+		Merger merger = new Merger(validator, false);
 		// MetaSet m1 = new MetaSet(new HashSet())
 		Set matches = new HashSet<MetaSet>();
 
