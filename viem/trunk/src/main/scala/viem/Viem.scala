@@ -102,6 +102,11 @@ abstract trait MergeValidator {
  */
 class Merger(validator: MergeValidator) {
 
+  /**
+   * Implicit definition that allow a [[viem.MetaSet]] to be used as a [[scala.collection.immutable.Set]] of [[viem.TimedIdentifier]].
+   * @param a
+   * @return
+   */
   implicit def toSet(a: MetaSet): Set[TimedIdentifier] = a.set
 
   val onlyMergeIfStrongestIdentifierOfSecondaryIntersects = false
@@ -186,6 +191,11 @@ class Merger(validator: MergeValidator) {
     return x.time.getTime() >= typeMatch(y, x).time.getTime()
   }
 
+  /**
+   * Returns the maximum time value of a given set of [[set.TimedIdentifier]].
+   * @param set
+   * @return
+   */
   private[viem] def maxTime(set: Set[TimedIdentifier]): Long = set.map(_.time.getTime()).max
 
   /**
@@ -336,9 +346,10 @@ class Merger(validator: MergeValidator) {
    * @return
    */
   def merge(a: MetaSet, matches: Set[MetaSet]): Set[MetaSet] = {
-    assert(a.size > 0, "'a' must have at least one identifier")
-    assert(matches.filter(_.map(_.id).intersect(a.map(_.id)).size == 0).size == 0, "every MetaSet in matches must have an intersection with a in terms of [[viem.Identifier]]")
-    assert(matches.map(_.set).flatten.map(_.id).size == matches.map(_.set).flatten.size,
+    //check some preconditions
+    require(a.size > 0, "'a' must have at least one identifier")
+    require(matches.filter(_.map(_.id).intersect(a.map(_.id)).size == 0).size == 0, "every MetaSet in matches must have an intersection with a in terms of [[viem.Identifier]]")
+    require(matches.map(_.set).flatten.map(_.id).size == matches.map(_.set).flatten.size,
       "elements of matches must be mutually non intersecting n terms of [[viem.Identifier]]")
 
     val list = List.fromIterator(a.set.iterator).sortWith((x, y) => (x compare y) < 0)
@@ -348,6 +359,7 @@ class Merger(validator: MergeValidator) {
     var previousId: TimedIdentifier = null
     val iterator = list.iterator
 
+    //OO approach seems easier than functional in the case of the while loop below
     var x = iterator.next();
     var keepGoing = true
     while (keepGoing) {

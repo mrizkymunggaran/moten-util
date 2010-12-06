@@ -271,7 +271,7 @@ class ViemTest {
       merger.merge(MetaSet(Set(a1old), mda), Set(MetaSet(Set(a1), mdb))))
   }
 
-  @Test(expected = classOf[AssertionError])
+  @Test(expected = classOf[IllegalArgumentException])
   def testMerge3() {
     println("merge (a1) with (a2)")
     merger.merge(MetaSet(Set(a1), mda), Set(MetaSet(Set(a2), mdb)))
