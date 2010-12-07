@@ -24,6 +24,9 @@
 	<ciManagement>
 		<url>http://desktop:9009</url>
 	</ciManagement>
+	<issueManagement>
+		<url>http://code.google.com/p/moten-util/issues/list</url>
+	</issueManagement>
 	<licenses>
 		<license>
 			<name>Apache 2</name>
