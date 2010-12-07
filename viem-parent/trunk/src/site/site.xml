@@ -25,6 +25,10 @@
 			<item name="Introduction" href="index.html" />
 			<item name="Algorithm" href="viem.html" />
 		</menu>
+		<menu name="Components">
+			<item name="viem" href="viem/index.html"/>
+			<item name="viem-java" href="viem-java/index.html"/>
+		</menu>
 		<menu ref="reports" />
 	</body>
 </project>
