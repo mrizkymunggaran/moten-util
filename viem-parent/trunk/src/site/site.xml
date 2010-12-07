@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/DECORATION/1.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/DECORATION/1.0.0 http://maven.apache.org/xsd/decoration-1.0.0.xsd">
+
+	<bannerLeft>
+		<name>Maven</name>
+		<src>http://maven.apache.org/images/apache-maven-project.png</src>
+		<href>http://maven.apache.org/</href>
+	</bannerLeft>
+	<bannerRight>
+		<name>Viem</name>
+		<src>http://moten-util.googlecode.com</src>
+	</bannerRight>
+	<skin>
+		<groupId>org.apache.maven.skins</groupId>
+		<artifactId>maven-stylus-skin</artifactId>
+		<version>1.2</version>
+	</skin>
+	<body>
+		<links>
+			<item name="Developers Blog" href="http://developers-blog.org" />
+		</links>
+		<menu name="Overview">
+			<item name="Introduction" href="index.html" />
+			<item name="Algorithm" href="viem.html" />
+		</menu>
+		<menu ref="reports" />
+	</body>
+</project>
