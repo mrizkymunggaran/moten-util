@@ -15,11 +15,11 @@
 	</skin>
 	<body>
 		<links>
-			<item name="Developers Blog" href="http://developers-blog.org" />
+			<item name="moten-util" href="http://moten-util.googlecode.com" />
 		</links>
-		<menu name="Overview" >
+		<menu name="Overview">
 			<item name="Introduction" href="index.html" />
-			<item name="Algorithm" href="/viem.html" />
+			<item name="Algorithm" href="/algorithm.html" />
 		</menu>
 		<menu ref="parentProject" />
 		<menu ref="modules" />
