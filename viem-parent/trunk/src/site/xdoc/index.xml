@@ -8,25 +8,9 @@
     <body>
         <section name="Volatile Identifier Entity Matching">
 			<p><i>viem</i> is a library for the Java Virtual Machine written in the functional language <a href="http://scala-lang.org">Scala</a>. 
-			The library implements an entity matching <a href="viem.html">algorithm</a>
+			The library implements an entity matching <a href="viem/algorithm.html">algorithm</a>
 		for entities with volatile identifiers with a strict ordering.</p>
 		</section>
-		<section name="Abstract">
-		<p>The analysis phase of the development of a craft tracking system for 
-the Australia Maritime Safety Authority revealed a complex entity 
-matching problem. The requirement was to accept timestamped position reports (<i>fixes</i>) with one or more associated 
-identifiers and associate those reports with entities (vessels, aircraft, vehicles, tracking devices). Fixes 
-arrive from one or more sources. <i>Identifiers</i> uniquely identify 
-an entity at the time of the fix but some identifiers may change over time (<i>volatile identifiers</i>).
-As fixes arrive entities may be merged, or have identifiers removed 
-from them.</p>
-
-<p>Where is the complexity? Consider the case of a fix arriving with 5 identifiers. 
-Those identifiers may match say 3 till then different existing entities and it has to be decided
- how and if those entities are going to be merged and what is to occur to the other identifiers 
- on those entities. Defining a consistent, deterministic approach across the 
- large number of scenarios involved is an interesting challenge. </p> 
 		
-        </section>
     </body>
 </document>
