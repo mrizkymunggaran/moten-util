@@ -430,3 +430,17 @@ object Merger {
   val empty = MetaSet(Set(), emptyMetaData)
 
 }
+
+
+trait Entries[T] {
+	def entries:Set[MetaSet]
+	def add(set:MetaSet):T
+}
+
+//class MemoryEntries(entries:Set[MetaSet], merger:Merger) extends Entries[MemoryEntries] {
+//	def add(a:MetaSet) = {
+//		entries.flatMap(_.set.map(x=>x.id).exists(y=>a.set .map(z=>z.id).contains(y)))
+//	}
+//	
+//}
+	
