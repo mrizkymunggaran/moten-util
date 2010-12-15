@@ -438,9 +438,10 @@ trait Entries[T] {
 
 case class MemoryEntries(entries:Set[MetaSet], merger:Merger) extends Entries[MemoryEntries] {
 	def add(a:MetaSet) = {
-		val entries2=a.set.map(_.id).flatMap(x=>entries.find(y=>y.set.map(_.id).contains(x)))
-		//do merge
-		MemoryEntries(entries2,merger)
+		val matches=a.set.map(_.id).flatMap(x=>entries.find(y=>y.set.map(_.id).contains(x)))
+		val mergedMatches=merger.merge(a,matches)
+		val mergedEntries = entries.diff(matches) ++ mergedMatches
+		MemoryEntries(mergedEntries,merger)
 	}
 }
 	
