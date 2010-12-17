@@ -336,5 +336,12 @@ class ViemTest {
       Set(MetaSet(Set(a1, a2), mda)),
       merger.merge(MetaSet(Set(a1,a2), mda), Set(MetaSet(Set(a1old), mdb),MetaSet(Set(a2old),mdc))))
   }
+  
+  @Test
+  def testMemoryEntries {
+      println("testing memory entities")
+      var m = MemoryEntries(Set(MetaSet(Set(a1,a2),mda)), merger)
+      println(m.add(MetaSet(Set(a3),mdb)))
+  }
 }
 
