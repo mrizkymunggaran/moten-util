@@ -14,7 +14,7 @@ class ViemTest {
   val merger = new Merger(validator)
 
   def create(name: String, value: String, time: Date) =
-    TimedIdentifier(Identifier(IdentifierType(name), value), time)
+    TimedIdentifier(Identifier(IdentifierType(name), value), time.getTime)
 
   def pp(r: Result): String =
     r match {

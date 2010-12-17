@@ -39,11 +39,11 @@ case class Identifier(typ: IdentifierType, value: String) extends Ordered[Identi
 /** 
  * An [[viem.Identifier]] with a timestamp.
  */
-case class TimedIdentifier(id: Identifier, time: Date) extends Ordered[TimedIdentifier] {
+case class TimedIdentifier(id: Identifier, time: BigDecimal) extends Ordered[TimedIdentifier] {
   def compare(that: TimedIdentifier): Int =
     //compare using only type and time (not identifier value)
     if (this.id.typ.equals(that.id.typ))
-      this.time.compareTo(that.time)
+      this.time.compare(that.time)
     else
       this.id.compare(that.id)
 }
@@ -189,7 +189,7 @@ class Merger(validator: MergeValidator, onlyMergeIfStrongestIdentifierOfSecondar
    * @return
    */
   private[viem] def >=(x: TimedIdentifier, y: Set[TimedIdentifier]): Boolean = {
-    return x.time.getTime() >= typeMatch(y, x).time.getTime()
+    return x.time >= typeMatch(y, x).time
   }
 
   /**
@@ -197,7 +197,7 @@ class Merger(validator: MergeValidator, onlyMergeIfStrongestIdentifierOfSecondar
    * @param set
    * @return
    */
-  private[viem] def maxTime(set: Set[TimedIdentifier]): Long = set.map(_.time.getTime()).max
+  private[viem] def maxTime(set: Set[TimedIdentifier]): BigDecimal = set.map(_.time).max
 
   /**
    * Returns the result of merging ''a1'' with associated metadata ''m'' with 
@@ -237,7 +237,7 @@ class Merger(validator: MergeValidator, onlyMergeIfStrongestIdentifierOfSecondar
   }
 
   private[viem] def later(x: Set[TimedIdentifier], y: Set[TimedIdentifier]) =
-    x.map(_.time.getTime()).max > y.map(_.time.getTime()).max
+    x.map(_.time).max > y.map(_.time).max
 
   /**
    * Returns the result of the merge of a1 and a2 with associated metadata m,
@@ -282,10 +282,10 @@ class Merger(validator: MergeValidator, onlyMergeIfStrongestIdentifierOfSecondar
           val b2 = b.filter(t => c.map(x => x.id.typ).contains(t.id.typ) && !c.map(x => x.id).contains(t.id))
           //calculate common identifier types with different identifier values in c
           val c2 = c.filter(t => b.map(x => x.id.typ).contains(t.id.typ) && !b.map(x => x.id).contains(t.id))
-          if (!b2.isEmpty && b2.map(_.time.getTime()).max > a1.time.getTime())
+          if (!b2.isEmpty && b2.map(_.time).max > a1.time)
             //don't merge
             return MetaSets(b, c)
-          else if (!c2.isEmpty && c2.map(_.time.getTime()).max > a1.time.getTime())
+          else if (!c2.isEmpty && c2.map(_.time).max > a1.time)
             return MetaSets(b, c)
           else
             return MetaSets(MetaSet(z(b, c), b.meta))
@@ -462,8 +462,9 @@ case class MemoryEntries(entries: Set[MetaSet], merger: Merger) extends Entries[
   def find(id: Identifier) = {
     entries.find(x => x.set.map(_.id).contains(id))
   }
+
   def add(a: MetaSet) = {
-    val matches = a.set.map(_.id).flatMap(x => find(x))
+    val matches = a.set.map(_.id).flatMap(find _ )
     val mergedMatches = merger.merge(a, matches)
     val mergedEntries = entries.diff(matches) ++ mergedMatches
     MemoryEntries(mergedEntries, merger)
