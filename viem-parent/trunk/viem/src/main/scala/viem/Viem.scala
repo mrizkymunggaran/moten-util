@@ -103,7 +103,7 @@ abstract trait MergeValidator {
 /**
  * Utility class for performing merges of [[scala.collection.immutable.Set]] of [[viem.TimedIdentifier]].
  */
-class Merger(validator: MergeValidator,onlyMergeIfStrongestIdentifierOfSecondaryIntersects:Boolean = false) {
+class Merger(validator: MergeValidator, onlyMergeIfStrongestIdentifierOfSecondaryIntersects: Boolean = false) {
 
   /**
    * Implicit definition that allow a [[viem.MetaSet]] to be used as a [[scala.collection.immutable.Set]] of [[viem.TimedIdentifier]].
@@ -431,17 +431,42 @@ object Merger {
 
 }
 
+/**
+ * Holds the latest merged entities.
+ * @author dxm
+ *
+ */
 trait Entries[T] {
-	def entries:Set[MetaSet]
-	def add(set:MetaSet):T
+  /**
+   * Returns [[MetaSet]] that matches the given [[Identifier]] if one exists.
+   * @param id
+   * @return
+   */
+  def find(id: Identifier): Option[MetaSet]
+
+  /**
+   * Adds/merges an entity report with the existing entities.
+   * @param set
+   * @return
+   */
+  def add(set: MetaSet): T
 }
 
-case class MemoryEntries(entries:Set[MetaSet], merger:Merger) extends Entries[MemoryEntries] {
-	def add(a:MetaSet) = {
-		val matches=a.set.map(_.id).flatMap(x=>entries.find(y=>y.set.map(_.id).contains(x)))
-		val mergedMatches=merger.merge(a,matches)
-		val mergedEntries = entries.diff(matches) ++ mergedMatches
-		MemoryEntries(mergedEntries,merger)
-	}
+/**
+ * Holds the latest merged entities in memory.
+ * @author dxm
+ *
+ */
+case class MemoryEntries(entries: Set[MetaSet], merger: Merger) extends Entries[MemoryEntries] {
+
+  def find(id: Identifier) = {
+    entries.find(x => x.set.map(_.id).contains(id))
+  }
+  def add(a: MetaSet) = {
+    val matches = a.set.map(_.id).flatMap(x => find(x))
+    val mergedMatches = merger.merge(a, matches)
+    val mergedEntries = entries.diff(matches) ++ mergedMatches
+    MemoryEntries(mergedEntries, merger)
+  }
 }
-	
+
