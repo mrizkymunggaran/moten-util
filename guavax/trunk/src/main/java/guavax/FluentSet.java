@@ -4,6 +4,7 @@ import java.util.Set;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.google.common.collect.ImmutableSet.Builder;
 
@@ -63,13 +64,17 @@ public class FluentSet<T> extends FluentCollection<T> {
 		return create(builder.build());
 	}
 
-	public static <S> Function<Set<S>, Set<S>> identity() {
+	public static <S> Function<Set<S>, Set<S>> identity(Class<S> cls) {
 		return new Function<Set<S>, Set<S>>() {
 			@Override
 			public Set<S> apply(Set<S> input) {
 				return input;
 			}
 		};
+	}
+
+	public FluentSet<T> plus(T t) {
+		return union(ImmutableSet.of(t));
 	}
 
 }
