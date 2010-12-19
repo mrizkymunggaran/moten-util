@@ -3,6 +3,7 @@ package guavax;
 import java.util.Set;
 
 import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
@@ -13,7 +14,7 @@ public class FluentSet<T> extends FluentCollection<T> {
 	private final Set<T> set;
 
 	public FluentSet(Set<T> set) {
-		super(set);
+		super(Preconditions.checkNotNull(set));
 		this.set = set;
 	}
 
@@ -64,6 +65,14 @@ public class FluentSet<T> extends FluentCollection<T> {
 		return create(builder.build());
 	}
 
+	public <R, S> FluentSet<S> flatMap(Function<T, R> f, Function<R, Set<S>> g) {
+		return map(f).flatten(g);
+	}
+
+	public FluentSet<T> flatMap(Function<T, Set<T>> f, Class<T> cls) {
+		return flatMap(f, identity(cls));
+	}
+
 	public static <S> Function<Set<S>, Set<S>> identity(Class<S> cls) {
 		return new Function<Set<S>, Set<S>>() {
 			@Override
@@ -77,4 +86,18 @@ public class FluentSet<T> extends FluentCollection<T> {
 		return union(ImmutableSet.of(t));
 	}
 
+	@Override
+	public int hashCode() {
+		return set.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		return set.equals(o);
+	}
+
+	@Override
+	public String toString() {
+		return set.toString();
+	}
 }
