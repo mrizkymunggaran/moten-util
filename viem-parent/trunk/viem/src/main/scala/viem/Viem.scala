@@ -126,15 +126,6 @@ class Merger(validator: MergeValidator, onlyMergeIfStrongestIdentifierOfSecondar
   }
 
   /**
-   * Returns the complement of two sets of generic type ''T''. 
-   * @param x
-   * @param y
-   * @return
-   */
-  private[viem] def complement[T](x: Set[T], y: Set[T]): Set[T] =
-    x.filter(!y.contains(_))
-
-  /**
    * Returns the (first) item in x that has the same [[viem.IdentifierType]] as y.
    * Throws a [[java.lang.RuntimeException]] if the identifier type of x not found in y.
    * @param x
@@ -159,7 +150,7 @@ class Merger(validator: MergeValidator, onlyMergeIfStrongestIdentifierOfSecondar
    */
   private[viem] def z(x: Set[TimedIdentifier], y: TimedIdentifier): Set[TimedIdentifier] = {
     val a = alpha(x, y)
-    complement(x, a).union(Set(a.max))
+    x.diff(a).union(Set(a.max))
   }
 
   /**
@@ -458,9 +449,11 @@ trait Entries[T] {
  *
  */
 case class MemoryEntries(entries: Set[MetaSet], merger: Merger) extends Entries[MemoryEntries] {
-
+  val map = Map.empty[Identifier,MetaSet] ++ entries.flatMap(x=>x.set.map(y=>(y.id,x)))
+  
   def find(id: Identifier) = {
-    entries.find(x => x.set.map(_.id).contains(id))
+  //  entries.find(x => x.set.map(_.id).contains(id))
+	  map.get(id)
   }
 
   def add(a: MetaSet) = {
