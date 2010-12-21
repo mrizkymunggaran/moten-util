@@ -3,7 +3,7 @@ package guavax;
 import java.util.Collection;
 import java.util.Iterator;
 
-public class CollectionFacade<T> implements Collection<T> {
+class CollectionFacade<T> implements Collection<T> {
     private final Collection<T> c;
 
     public CollectionFacade(Collection<T> c) {

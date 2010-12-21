@@ -1,5 +1,6 @@
 package guavax;
 
+
 import java.util.Collection;
 
 import com.google.common.base.Predicate;
