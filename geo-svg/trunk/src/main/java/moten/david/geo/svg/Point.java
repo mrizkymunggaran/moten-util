@@ -1,3 +1,4 @@
+package moten.david.geo.svg;
 public class Point {
 	private final double x;
 	private final double y;

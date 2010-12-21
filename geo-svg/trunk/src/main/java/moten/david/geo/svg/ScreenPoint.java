@@ -1,3 +1,4 @@
+package moten.david.geo.svg;
 public class ScreenPoint {
 	private final int x;
 	private final int y;
