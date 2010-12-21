@@ -70,6 +70,7 @@ class CollectionFacade<T> implements Collection<T> {
 	return c.toArray();
     }
 
+    @SuppressWarnings("hiding")
     @Override
     public <T> T[] toArray(T[] arg0) {
 	return c.toArray(arg0);

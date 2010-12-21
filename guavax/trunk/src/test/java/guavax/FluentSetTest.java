@@ -36,6 +36,8 @@ public class FluentSetTest {
     public void testFlatMap() {
 	Set<Integer> s = ImmutableSet.of(1, 3, 5, 7);
 	Set<Integer> t = ImmutableSet.of(2, 4, 6, 8);
+	s.contains(1);
+	t.contains(2);
 
     }
 }
