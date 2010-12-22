@@ -57,10 +57,10 @@ public class SvgGeneratorTest {
 		* (horizontalExtentDegrees / widthPixels);
 
 	g
-		.add(new Image(
-			new ScreenPoint(0, 0),
+		.add(new Image(new ScreenPoint(0, 0),
 			widthPixels,
 			heightPixels,
+			// "src/test/resources/australia.jpg"
 			"http://vmap0.tiles.osgeo.org/wms/vmap0?LAYERS=basic&SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&STYLES=&EXCEPTIONS=application/vnd.ogc.se_inimage&FORMAT=image/jpeg&SRS=EPSG:4326&BBOX="
 				+ topLeft.getX()
 				+ ","
@@ -76,5 +76,4 @@ public class SvgGeneratorTest {
 				+ heightPixels));
 	return g;
     }
-
 }
