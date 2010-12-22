@@ -1,20 +1,19 @@
 package moten.david.geo.svg;
 
 import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
 import moten.david.util.io.IoUtil;
 
-import org.junit.Test;
-
-public class FixesTest {
-    @Test
-    public void testLotsOfDots() throws IOException {
+public class Main {
+    public static void main(String[] args) throws IOException {
 	SvgGenerator g = SvgGeneratorTest.createSvgGenerator(false);
 	FixParser parser = new FixParser();
-	for (String line : IoUtil.getLines(getClass().getResourceAsStream(
-		"/fixes.txt"))) {
+	for (String line : IoUtil.getLines(new FileInputStream(System
+		.getProperty("user.home")
+		+ "/" + "fixes.txt"))) {
 	    System.out.println(line);
 
 	    if (line.trim().length() > 0) {
@@ -23,7 +22,7 @@ public class FixesTest {
 		g.add(new Point(fix.getLon(), fix.getLat()));
 	    }
 	}
-	FileOutputStream fos = new FileOutputStream("target/test2.svg");
+	FileOutputStream fos = new FileOutputStream("target/test3.svg");
 	fos.write(g.svg().getBytes());
 	fos.close();
     }

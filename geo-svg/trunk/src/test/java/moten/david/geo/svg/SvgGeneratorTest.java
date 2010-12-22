@@ -12,7 +12,7 @@ public class SvgGeneratorTest {
 
     @Test
     public void test() throws IOException {
-	SvgGenerator g = createSvgGenerator();
+	SvgGenerator g = createSvgGenerator(true);
 	g.add(new Point(144, -21));
 	g.add(new Line(new Point(125, -10), new Point(138, -39)));
 	FileOutputStream fos = new FileOutputStream("target/test.svg");
@@ -40,7 +40,7 @@ public class SvgGeneratorTest {
 	p.parse(new ByteArrayInputStream(xml.getBytes()));
     }
 
-    public static SvgGenerator createSvgGenerator() {
+    public static SvgGenerator createSvgGenerator(boolean external) {
 	int widthPixels = 1200;
 	int heightPixels = 800;
 	double horizontalExtentDegrees = 70;
@@ -56,22 +56,37 @@ public class SvgGeneratorTest {
 	double verticalExtentDegrees = heightPixels
 		* (horizontalExtentDegrees / widthPixels);
 
-	g.add(new Image(new ScreenPoint(0, 0), widthPixels, heightPixels,
-		"../src/test/resources/australia.jpg"
-	// "http://vmap0.tiles.osgeo.org/wms/vmap0?LAYERS=basic&SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&STYLES=&EXCEPTIONS=application/vnd.ogc.se_inimage&FORMAT=image/jpeg&SRS=EPSG:4326&BBOX="
-		// + topLeft.getX()
-		// + ","
-		// + (topLeft.getY() - verticalExtentDegrees)
-		// + ","
-		// + (topLeft.getX() + horizontalExtentDegrees)
-		// + ","
-		// + topLeft.getY()
-		// // + "135,-22,146,-11"
-		// + "&WIDTH="
-		// + widthPixels
-		// + "&HEIGHT="
-		// + heightPixels
-		));
+	if (external)
+	    g.add(createImageExternal(topLeft, widthPixels, heightPixels,
+		    verticalExtentDegrees, horizontalExtentDegrees));
+	else
+	    g.add(createImageInternal(widthPixels, heightPixels));
+
 	return g;
+    }
+
+    private static Image createImageExternal(Point topLeft, int widthPixels,
+	    int heightPixels, double verticalExtentDegrees,
+	    double horizontalExtentDegrees) {
+	return new Image(
+		new ScreenPoint(0, 0),
+		widthPixels,
+		heightPixels,
+		// "../src/test/resources/australia.jpg"
+		"http://vmap0.tiles.osgeo.org/wms/vmap0?LAYERS=basic&SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&STYLES=&EXCEPTIONS=application/vnd.ogc.se_inimage&FORMAT=image/jpeg&SRS=EPSG:4326&BBOX="
+			+ topLeft.getX()
+			+ ","
+			+ (topLeft.getY() - verticalExtentDegrees)
+			+ ","
+			+ (topLeft.getX() + horizontalExtentDegrees)
+			+ ","
+			+ topLeft.getY()
+			// + "135,-22,146,-11"
+			+ "&WIDTH=" + widthPixels + "&HEIGHT=" + heightPixels);
+    }
+
+    private static Image createImageInternal(int widthPixels, int heightPixels) {
+	return new Image(new ScreenPoint(0, 0), widthPixels, heightPixels,
+		"../src/test/resources/australia.jpg");
     }
 }
