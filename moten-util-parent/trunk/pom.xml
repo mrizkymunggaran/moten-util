@@ -4,7 +4,7 @@
 	<artifactId>moten-util-parent</artifactId>
 	<packaging>pom</packaging>
 	<name>moten-util-parent</name>
-	<version>0.0.6</version>
+	<version>0.0.7-SNAPSHOT</version>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<site.url>file://${user.home}/Development/site</site.url>
@@ -31,9 +31,9 @@
 		</license>
 	</licenses>
 	<scm>
-		<connection>scm:svn:http://moten-util.googlecode.com/svn/moten-util-parent/tags/moten-util-parent-0.0.6</connection>
-		<developerConnection>scm:svn:https://moten-util.googlecode.com/svn/moten-util-parent/tags/moten-util-parent-0.0.6</developerConnection>
-		<url>http://code.google.com/p/moten-util/source/browse/#svn/moten-util-parent/tags/moten-util-parent-0.0.6</url>
+		<connection>scm:svn:http://moten-util.googlecode.com/svn/moten-util-parent/trunk</connection>
+		<developerConnection>scm:svn:https://moten-util.googlecode.com/svn/moten-util-parent/trunk</developerConnection>
+		<url>http://code.google.com/p/moten-util/source/browse/#svn/moten-util-parent/trunk</url>
 	</scm>
 	<modules>
 		<module>moten-util</module>
