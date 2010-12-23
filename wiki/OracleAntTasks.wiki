@@ -14,7 +14,7 @@ Here's an example of use within a build.xml file:
 {{{
 <path id="libraries">...</path>
 <taskdef name="loadjava" classname="moten.david.util.database.oracle.LoadJavaTask" classpathref="libraries" />
-<loadjava failonerror="true" resolve="false" 
+<loadjava failonerror="true" resolve="true" 
     force="false" showchangesonly="false" showlog="true"
     thin="true" user="scott/tiger@dbhost:1521:orcl">
     <path>
