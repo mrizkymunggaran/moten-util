@@ -23,7 +23,7 @@ public class Util {
 		};
 		Merger merger = new Merger(validator, false);
 		// MetaSet m1 = new MetaSet(new HashSet())
-		Set matches = new HashSet<MetaSet>();
+		Set<MetaSet> matches = new HashSet<MetaSet>();
 
 		MetaSet a = create(1, id(1, 1, 1), id(2, 2, 1));
 		MetaSet b = create(2, id(1, 1, 0));
@@ -33,8 +33,9 @@ public class Util {
 	}
 
 	private static TimedIdentifier id(int name, int value, int time) {
+		scala.math.BigDecimal d = new scala.math.BigDecimal(new java.math.BigDecimal(time));
 		return new TimedIdentifier(new Identifier(
-				new IdentifierType(name + ""), value + ""), new Date(time));
+				new IdentifierType(name + ""), value + ""), d);
 	}
 
 	private static MetaSet create(int metaData, TimedIdentifier... identifiers) {
