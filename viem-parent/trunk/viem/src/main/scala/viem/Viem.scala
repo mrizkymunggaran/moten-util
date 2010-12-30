@@ -60,7 +60,7 @@ trait Data
 /**
  * Container for a set of [[viem.TimedIdentifier]] associated with a [[viem.Data]].
  */
-case class Entity(set: Set[TimedIdentifier], meta: Data) {
+case class Entity(set: Set[TimedIdentifier], data: Data) {
   //ensure that each identifier is unique by identifier type in the set
   assert(set.size == set.map(_.id.typ).size)
 }
@@ -76,10 +76,10 @@ sealed trait Result
 /**
  * Invalid merge result.
  * 
- * @param meta is the meta data of the set that provoked the invalid merge. 
- * For ''a'' against primary match ''b'' it will be ''b.meta''. For ''a'' 
- * against secondary match ''c'' it will be ''c.meta''. For ''b'' against 
- * ''c'' it will be the meta of the weaker identifier set, that is c.meta. 
+ * @param ''data'' is the [[viem.Data]] of the set that provoked the invalid merge. 
+ * For ''a'' against primary match ''b'' it will be ''b.data''. For ''a'' 
+ * against secondary match ''c'' it will be ''c.data''. For ''b'' against 
+ * ''c'' it will be the meta of the weaker identifier set, that is c.data. 
  *
  */
 case class InvalidMerge(meta: Data) extends Result
@@ -224,7 +224,7 @@ class Merger(validator: MergeValidator, onlyMergeIfStrongestIdentifierOfSecondar
     else if (>=(a1, b))
       Entities(Entity(z(z(b, a1), a2), m))
     else
-      Entities(Entity(z(b, a2), b.meta))
+      Entities(Entity(z(b, a2), b.data))
   }
 
   private[viem] def later(x: Set[TimedIdentifier], y: Set[TimedIdentifier]) =
@@ -253,19 +253,19 @@ class Merger(validator: MergeValidator, onlyMergeIfStrongestIdentifierOfSecondar
     assert(c.map(_.id.typ).size == c.size, "c must not have more than one identifier of any type")
     assert(b.map(_.id).intersect(c.map(_.id)).size == 0, "b and c cannot have an identifier in common")
 
-    if (!b.isEmpty && !validator.mergeIsValid(m, b.meta))
-      return InvalidMerge(b.meta)
+    if (!b.isEmpty && !validator.mergeIsValid(m, b.data))
+      return InvalidMerge(b.data)
     else if (a1.id == a2.id)
       merge(a1, m, b)
     else if (c isEmpty)
       merge(a1, a2, m, b)
     else {
       val a: Set[TimedIdentifier] = Set(a1, a2)
-      if (!validator.mergeIsValid(m, c.meta))
-        return InvalidMerge(c.meta)
+      if (!validator.mergeIsValid(m, c.data))
+        return InvalidMerge(c.data)
 
       if (!(>=(a1, b)) && !(>=(a2, c)))
-        if (validator.mergeIsValid(b.meta, c.meta)) {
+        if (validator.mergeIsValid(b.data, c.data)) {
           //if b and c have conflicting identifiers that both have later 
           //timestamps than a1 (or a2) then don't merge (no validity problem though)
 
@@ -279,11 +279,11 @@ class Merger(validator: MergeValidator, onlyMergeIfStrongestIdentifierOfSecondar
           else if (!c2.isEmpty && c2.map(_.time).max > a1.time)
             return Entities(b, c)
           else
-            return Entities(Entity(z(b, c), b.meta))
+            return Entities(Entity(z(b, c), b.data))
         } else
-          return InvalidMerge(c.meta)
+          return InvalidMerge(c.data)
       else if (>=(a1, b) && !(>=(a2, c)) && a2.id == c.max.id)
-        return Entities(Entity(z(z(b, c), a), c.meta))
+        return Entities(Entity(z(z(b, c), a), c.data))
       else if (a2.id == c.max.id)
         return Entities(Entity(z(z(b, c), a), m))
       else {
@@ -295,11 +295,11 @@ class Merger(validator: MergeValidator, onlyMergeIfStrongestIdentifierOfSecondar
           if (cComplement.isEmpty)
             return Entities(Entity(z(z(b, cIntersection), a), m))
           else
-            return Entities(Entity(z(z(b, cIntersection), a), m), Entity(cComplement, c.meta))
+            return Entities(Entity(z(z(b, cIntersection), a), m), Entity(cComplement, c.data))
         } else if (maxTime(a) >= maxTime(c))
           return Entities(Entity(z(z(b, c), a), m))
         else
-          return Entities(Entity(z(z(b, c), a), c.meta))
+          return Entities(Entity(z(z(b, c), a), c.data))
       }
     }
   }
@@ -314,22 +314,22 @@ class Merger(validator: MergeValidator, onlyMergeIfStrongestIdentifierOfSecondar
   private[viem] def mergePair(a: Entity, b: Entity, c: Entity): Result = {
     assert(a.size <= 2, "a must have a size of 2 or less")
     if (a.isEmpty) Entities(b, c)
-    else if (a.size == 1) merge(a.max, a.max, a.meta, b, c)
-    else merge(a.max, a.min, a.meta, b, c)
+    else if (a.size == 1) merge(a.max, a.max, a.data, b, c)
+    else merge(a.max, a.min, a.data, b, c)
   }
 
   /**
    * Returns the same [[viem.Entity]] if it has only one identifier otherwise returns a new [[viem.Entity]]
    * with the identifier ''id'' removed.
-   * @param metaset
+   * @param entity
    * @param id
    * @return
    */
-  private[viem] def removeIdentifierIfNotOnly(metaset: Entity, id: Identifier) =
-    if (metaset.size > 1)
-      Entity(metaset.set.filter(_.id != id), metaset.meta)
+  private[viem] def removeIdentifierIfNotOnly(entity: Entity, id: Identifier) =
+    if (entity.size > 1)
+      Entity(entity.set.filter(_.id != id), entity.data)
     else
-      metaset
+      entity
 
   /**
    * Returns the [[viem.Entity]]s which are the result of adding ''a'' to the ''matches''.
@@ -362,42 +362,42 @@ class Merger(validator: MergeValidator, onlyMergeIfStrongestIdentifierOfSecondar
     var keepGoing = true
     while (keepGoing) {
       println("merging " + x)
-      val metaset = sets.find(y => y.set.map(_.id).contains(x.id)).get
-      previous = if (previous == null) metaset
+      val entity = sets.find(y => y.set.map(_.id).contains(x.id)).get
+      previous = if (previous == null) entity
       else sets.find(y => y.set.map(_.id).contains(previousId.id)).get
       if (previousId == null)
         previousId = x
-      val result = merge(previousId, x, a.meta, previous, metaset)
+      val result = merge(previousId, x, a.data, previous, entity)
       result match {
         case r: Entities => {
           println("merge succeeded for " + x)
           println("sets before=" + sets)
           println("previous=" + previous)
-          println("metaset=" + metaset)
+          println("entity=" + entity)
           //TODO sort this out, is that what I want?
-          sets = ((sets - metaset) - previous) ++ r.set
+          sets = ((sets - entity) - previous) ++ r.set
           println("sets after=" + sets)
 
-          previous = metaset
+          previous = entity
           previousId = x
           keepGoing = iterator.hasNext
           if (keepGoing) x = iterator.next
         }
-        case InvalidMerge(meta) => {
-          println("Invalid merge using " + meta + " and " + x)
-          //remove problem identifiers from meta which is 
-          //one of metaset or previous
-          sets = ((sets - previous) - metaset) +
+        case InvalidMerge(data) => {
+          println("Invalid merge using " + data + " and " + x)
+          //remove problem identifiers from data which is 
+          //one of entity or previous
+          sets = ((sets - previous) - entity) +
             removeIdentifierIfNotOnly(previous, x.id) +
-            removeIdentifierIfNotOnly(metaset, x.id)
+            removeIdentifierIfNotOnly(entity, x.id)
 
-          if (previous == metaset) {
+          if (previous == entity) {
             keepGoing = iterator.hasNext
             if (keepGoing) x = iterator.next
             previous = null
             previousId = null
           } else
-            previous = metaset
+            previous = entity
           previousId = x
         }
       }
