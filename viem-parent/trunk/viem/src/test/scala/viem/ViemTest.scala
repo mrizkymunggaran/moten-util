@@ -19,14 +19,14 @@ class ViemTest {
   def pp(r: Result): String =
     r match {
       case InvalidMerge(_) => "invalid merge"
-      case m: MetaSets =>
+      case m: Entities =>
         m.toString()
-          .replace("MetaSet", "\n\tMetaSet")
+          .replace("Entity", "\n\tEntity")
           .replace("TimedIdentifier", "\n\t\t\tTimedIdentifier")
-          .replace("MetaData", "\n\t\tMetaData")
+          .replace("Data", "\n\t\tData")
     }
 
-  def checkEquals(expected: MetaSets, value: Result) {
+  def checkEquals(expected: Entities, value: Result) {
     value match {
       case InvalidMerge(_) => error("invalid merge")
       case _ => {
@@ -40,7 +40,7 @@ class ViemTest {
     }
   }
 
-  def checkRejected(r: Result, meta: MetaData) {
+  def checkRejected(r: Result, meta: Data) {
     r match {
       case InvalidMerge(m) if m != meta => error("incorrect meta on invalid merge")
       case InvalidMerge(_) => Unit
@@ -49,21 +49,21 @@ class ViemTest {
   }
 
   case class MergeValidatorIfEqual extends MergeValidator {
-    override def mergeIsValid(a: MetaData, b: MetaData): Boolean = a == b
+    override def mergeIsValid(a: Data, b: Data): Boolean = a == b
   }
 
   case class MergeValidatorConstant(valid: Boolean) extends MergeValidator {
-    override def mergeIsValid(a: MetaData, b: MetaData): Boolean = valid
+    override def mergeIsValid(a: Data, b: Data): Boolean = valid
   }
 
-  case class MergeValidatorRejectOne(x: MetaData, y: MetaData) extends MergeValidator {
-    override def mergeIsValid(a: MetaData, b: MetaData): Boolean = !(a == x && b == y || a == y && b == x)
+  case class MergeValidatorRejectOne(x: Data, y: Data) extends MergeValidator {
+    override def mergeIsValid(a: Data, b: Data): Boolean = !(a == x && b == y || a == y && b == x)
   }
 
-  case class Data(name: String) extends MetaData
+  case class MyData(name: String) extends Data
 
   implicit def convert(t: Tuple3[Int, Int, Int]) = create(t._1.toString, t._2.toString, new Date(t._3))
-  implicit def convert(t: TimedIdentifier) = new MetaSet(Set(t), emptyMetaData)
+  implicit def convert(t: TimedIdentifier) = new Entity(Set(t), emptyData)
 
   val date1 = new Date(100000000000L) //1973
   val date0 = new Date(0) //1970
@@ -82,9 +82,9 @@ class ViemTest {
   val a3 = create("a3", "1", date1)
   val a3old = create("a3", "1", date0)
   val a3older = create("a3", "1", date)
-  val mda = Data("a")
-  val mdb = Data("b")
-  val mdc = Data("c")
+  val mda = MyData("a")
+  val mdb = MyData("b")
+  val mdc = MyData("c")
 
   @Test
   def testSystem() = {
@@ -128,75 +128,75 @@ class ViemTest {
     println("testing merge")
     var r = merger.merge(
       a1, a2, mda,
-      MetaSet(Set(a1old, a2old), mdb),
+      Entity(Set(a1old, a2old), mdb),
       empty)
     println(pp(r))
 
     println("add (a1) to an empty system")
     r = merger.merge(a1, a1, mda, empty, empty)
-    checkEquals(MetaSets(MetaSet(Set(a1), mda)), r)
+    checkEquals(Entities(Entity(Set(a1), mda)), r)
 
     println("add (a1,a2) to an empty system")
     r = merger.merge(a1, a2, mda, empty, empty)
-    checkEquals(MetaSets(MetaSet(Set(a1, a2), mda)), r)
+    checkEquals(Entities(Entity(Set(a1, a2), mda)), r)
 
     println("add (a1) to a system with (a1)")
-    r = merger.merge(a1, a1, mda, MetaSet(Set(a1), mdb), empty)
-    checkEquals(MetaSets(MetaSet(Set(a1), mda)), r)
+    r = merger.merge(a1, a1, mda, Entity(Set(a1), mdb), empty)
+    checkEquals(Entities(Entity(Set(a1), mda)), r)
 
     println("add (a1) to a system with (a1,a2)")
-    r = merger.merge(a1, a1, mda, MetaSet(Set(a1, a2), mdb), empty)
-    checkEquals(MetaSets(MetaSet(Set(a1, a2), mda)), r)
+    r = merger.merge(a1, a1, mda, Entity(Set(a1, a2), mdb), empty)
+    checkEquals(Entities(Entity(Set(a1, a2), mda)), r)
 
     println("add (a1,a2) to a system with (a1)")
-    r = merger.merge(a1, a2, mda, MetaSet(Set(a1), mdb), empty)
-    checkEquals(MetaSets(MetaSet(Set(a1, a2), mda)), r)
+    r = merger.merge(a1, a2, mda, Entity(Set(a1), mdb), empty)
+    checkEquals(Entities(Entity(Set(a1, a2), mda)), r)
 
     println("add (a1,a2) to a system with (a1,a2)")
-    r = merger.merge(a1, a2, mda, MetaSet(Set(a1, a2), mdb), empty)
-    checkEquals(MetaSets(MetaSet(Set(a1, a2), mda)), r)
+    r = merger.merge(a1, a2, mda, Entity(Set(a1, a2), mdb), empty)
+    checkEquals(Entities(Entity(Set(a1, a2), mda)), r)
 
     println("add (a1,a2) to a system with (a1,a2,a3)")
-    r = merger.merge(a1, a2, mda, MetaSet(Set(a1, a2, a3), mdb), empty)
-    checkEquals(MetaSets(MetaSet(Set(a1, a2, a3), mda)), r)
+    r = merger.merge(a1, a2, mda, Entity(Set(a1, a2, a3), mdb), empty)
+    checkEquals(Entities(Entity(Set(a1, a2, a3), mda)), r)
 
     println("add (a1) to a system with newer (a1)")
-    r = merger.merge(a1old, a1old, mda, MetaSet(Set(a1), mdb), empty)
-    checkEquals(MetaSets( MetaSet(Set(a1), mdb)), r)
+    r = merger.merge(a1old, a1old, mda, Entity(Set(a1), mdb), empty)
+    checkEquals(Entities( Entity(Set(a1), mdb)), r)
 
     println("add (a1, a2) to a system with (newer a1)")
-    r = merger.merge(a1old, a2old, mda, MetaSet(Set(a1), mdb), empty)
-    checkEquals(MetaSets(MetaSet(Set(a1, a2old), mdb)), r)
+    r = merger.merge(a1old, a2old, mda, Entity(Set(a1), mdb), empty)
+    checkEquals(Entities(Entity(Set(a1, a2old), mdb)), r)
 
     println("add (a1, a2) to a system with (newer a1,older a2)")
     r = merger.merge(a1old, a2old, mda,
-      MetaSet(Set(a1, a2olderDiff), mdb), empty)
-    checkEquals(MetaSets(MetaSet(Set(a1, a2old), mdb)), r)
+      Entity(Set(a1, a2olderDiff), mdb), empty)
+    checkEquals(Entities(Entity(Set(a1, a2old), mdb)), r)
 
     println("add (a1, a2) to a system with (older a1,newer a2)")
     r = merger.merge(a1old, a2old, mda,
-      MetaSet(Set(a1older, a2), mdb), empty)
-    checkEquals(MetaSets(MetaSet(Set(a1old, a2), mda)), r)
+      Entity(Set(a1older, a2), mdb), empty)
+    checkEquals(Entities(Entity(Set(a1old, a2), mda)), r)
 
     println("add (a1, a2) to a system with (older a1) (older a2)")
     r = merger.merge(a1, a2, mda,
-      MetaSet(Set(a1old), mdb), MetaSet(Set(a2old), mdc))
-    checkEquals(MetaSets(MetaSet(Set(a1, a2), mda)), r)
+      Entity(Set(a1old), mdb), Entity(Set(a2old), mdc))
+    checkEquals(Entities(Entity(Set(a1, a2), mda)), r)
 
     println("add (a1, a2) to a system with (newer a1) (newer a2)")
     r = merger.merge(a1old, a2old, mda,
-      MetaSet(Set(a1), mdb), MetaSet(Set(a2), mdc))
-    checkEquals(MetaSets(MetaSet(Set(a1, a2), mdb)), r)
+      Entity(Set(a1), mdb), Entity(Set(a2), mdc))
+    checkEquals(Entities(Entity(Set(a1, a2), mdb)), r)
 
     //Invalid merge tests
     merger = new Merger(new MergeValidatorIfEqual)
 
     println("add (a1) to a system with (a1) and same meta")
-    r = merger.merge(a1, a1, mda, MetaSet(Set(a1), mda), empty)
-    checkEquals(MetaSets(MetaSet(Set(a1), mda)), r)
+    r = merger.merge(a1, a1, mda, Entity(Set(a1), mda), empty)
+    checkEquals(Entities(Entity(Set(a1), mda)), r)
 
     println("add (a1) to a system with (a1) and different meta")
-    checkRejected(merger.merge(a1, a1, mda, MetaSet(Set(a1), mdb), empty), mdb)
+    checkRejected(merger.merge(a1, a1, mda, Entity(Set(a1), mdb), empty), mdb)
 
     var validator: MergeValidator = new MergeValidatorRejectOne(mdb, mdc)
     merger = new Merger(validator)
@@ -207,11 +207,11 @@ class ViemTest {
     assertFalse(validator.mergeIsValid(mdb, mdc))
 
     println("add (a1) to a system with (a1), valid")
-    r = merger.merge(a1, a1, mda, MetaSet(Set(a1), mdb), empty)
-    checkEquals(MetaSets(MetaSet(Set(a1), mda)), r)
+    r = merger.merge(a1, a1, mda, Entity(Set(a1), mdb), empty)
+    checkEquals(Entities(Entity(Set(a1), mda)), r)
 
     println("add (a1) to a system with (a1), invalid")
-    checkRejected(merger.merge(a1, a1, mdb, MetaSet(Set(a1), mdc), empty), mdc)
+    checkRejected(merger.merge(a1, a1, mdb, Entity(Set(a1), mdc), empty), mdc)
 
   }
 
@@ -221,60 +221,60 @@ class ViemTest {
 
     println("add (a1, a2) to a system with (old a1) (a0, old a2) invalid b against c")
     val r = merger.merge(a1, a2, mda,
-      MetaSet(Set(a1old), mdb), MetaSet(Set(a0, a2old), mdc))
-    checkEquals(MetaSets(MetaSet(Set(a0, a1, a2), mda)), r)
+      Entity(Set(a1old), mdb), Entity(Set(a0, a2old), mdc))
+    checkEquals(Entities(Entity(Set(a0, a1, a2), mda)), r)
   }
 
   @Test
   def testMoreComplex2() {
     println("add (old a1, old a2) to a system with (old a1) (a0, newer a2)")
     val r = merger.merge(a1old, a2old, mda,
-      MetaSet(Set(a1old), mdb), MetaSet(Set(a0, a2), mdc))
-    checkEquals(MetaSets(MetaSet(Set(a0, a1old, a2), mdc)), r)
+      Entity(Set(a1old), mdb), Entity(Set(a0, a2), mdc))
+    checkEquals(Entities(Entity(Set(a0, a1old, a2), mdc)), r)
   }
 
   @Test
   def testMoreComplex3() {
     println("add (old a1, old a2) to a system with (old a1) (a0, old a2)")
     val r = merger.merge(a1old, a2old, mda,
-      MetaSet(Set(a1old), mdb), MetaSet(Set(a0, a2old), mdc))
-    checkEquals(MetaSets(MetaSet(Set(a0, a1old, a2old), mdc)), r)
+      Entity(Set(a1old), mdb), Entity(Set(a0, a2old), mdc))
+    checkEquals(Entities(Entity(Set(a0, a1old, a2old), mdc)), r)
   }
 
   @Test
   def testMoreComplex4() {
     println("add (old a1, old a2) to a system with (old a1) (a0older, a2)")
     val r = merger.merge(a1old, a2old, mda,
-      MetaSet(Set(a1old), mdb), MetaSet(Set(a0older, a2), mdc))
-    checkEquals(MetaSets(MetaSet(Set(a0older, a1old, a2), mdc)), r)
+      Entity(Set(a1old), mdb), Entity(Set(a0older, a2), mdc))
+    checkEquals(Entities(Entity(Set(a0older, a1old, a2), mdc)), r)
   }
 
   @Test
   def testMoreComplex5() {
     println("add (old a1, old a2) to a system with (old a1) (a0older, a2)")
     val r = merger.merge(a1old, a2old, mda,
-      MetaSet(Set(a1old), mdb), MetaSet(Set(a0older, a2), mdc))
-    checkEquals(MetaSets(MetaSet(Set(a0older, a1old, a2), mdc)), r)
+      Entity(Set(a1old), mdb), Entity(Set(a0older, a2), mdc))
+    checkEquals(Entities(Entity(Set(a0older, a1old, a2), mdc)), r)
   }
 
   @Test
   def testMerge1() {
     println("merge (a1) with (a1old)")
-    assertEquals(Set(MetaSet(Set(a1), mda)),
-      merger.merge(MetaSet(Set(a1), mda), Set(MetaSet(Set(a1old), mdb))))
+    assertEquals(Set(Entity(Set(a1), mda)),
+      merger.merge(Entity(Set(a1), mda), Set(Entity(Set(a1old), mdb))))
   }
 
   @Test
   def testMerge2() {
     println("merge (a1old) with (a1)")
-    assertEquals(Set(MetaSet(Set(a1), mdb)),
-      merger.merge(MetaSet(Set(a1old), mda), Set(MetaSet(Set(a1), mdb))))
+    assertEquals(Set(Entity(Set(a1), mdb)),
+      merger.merge(Entity(Set(a1old), mda), Set(Entity(Set(a1), mdb))))
   }
 
   @Test(expected = classOf[IllegalArgumentException])
   def testMerge3() {
     println("merge (a1) with (a2)")
-    merger.merge(MetaSet(Set(a1), mda), Set(MetaSet(Set(a2), mdb)))
+    merger.merge(Entity(Set(a1), mda), Set(Entity(Set(a2), mdb)))
   }
   
   @Test(expected = classOf[IllegalArgumentException])
@@ -284,46 +284,46 @@ class ViemTest {
   
   @Test(expected = classOf[IllegalArgumentException])
   def testNullArgumentsProvokeException2() {
-    merger.merge(null, Set(MetaSet(Set(a2), mdb)))
+    merger.merge(null, Set(Entity(Set(a2), mdb)))
   }
   
   @Test(expected = classOf[IllegalArgumentException])
   def testNullArgumentsProvokeException3() {
-    merger.merge(MetaSet(Set(a2), mdb),null)
+    merger.merge(Entity(Set(a2), mdb),null)
   }
 
   @Test
   def testMerge4() {
     println("merge (a1) with (a1old,a2)")
     assertEquals(
-      Set(MetaSet(Set(a1, a2), mda)),
-      merger.merge(MetaSet(Set(a1), mda), Set(MetaSet(Set(a1old, a2), mdb))))
+      Set(Entity(Set(a1, a2), mda)),
+      merger.merge(Entity(Set(a1), mda), Set(Entity(Set(a1old, a2), mdb))))
   }
 
   @Test
   def testMerge5() {
     println("merge (a1old) with (a1,a2)")
     assertEquals(
-      Set(MetaSet(Set(a1, a2), mdb)),
-      merger.merge(MetaSet(Set(a1old), mda), Set(MetaSet(Set(a1, a2), mdb))))
+      Set(Entity(Set(a1, a2), mdb)),
+      merger.merge(Entity(Set(a1old), mda), Set(Entity(Set(a1, a2), mdb))))
   }
   
   @Test
   def testEmptyMatchesReturnsSetOfA() {
 	  println("emtpy matches returns set of A")
-	  assertEquals(Set(MetaSet(Set(a1),mda)),
-	 		 merger.merge(MetaSet(Set(a1),mda),Set()))
+	  assertEquals(Set(Entity(Set(a1),mda)),
+	 		 merger.merge(Entity(Set(a1),mda),Set()))
   }
 
   @Test
   def testMerge6() {
     println("merge (a1) with (a1,a2)")
     assertEquals(
-      Set(MetaSet(Set(a1, a2), mda)),
-      merger.merge(MetaSet(Set(a1), mda), Set(MetaSet(Set(a1, a2), mdb))))
+      Set(Entity(Set(a1, a2), mda)),
+      merger.merge(Entity(Set(a1), mda), Set(Entity(Set(a1, a2), mdb))))
   }
   
-  private def checkEquals(x:Set[MetaSet],y:Set[MetaSet]) {
+  private def checkEquals(x:Set[Entity],y:Set[Entity]) {
       println(x)
       println(y)
       assertEquals(x,y)
@@ -333,15 +333,15 @@ class ViemTest {
   def testMerge7() {
     println("merge (a1,a2) with (a1old),(a2old)")
     checkEquals(
-      Set(MetaSet(Set(a1, a2), mda)),
-      merger.merge(MetaSet(Set(a1,a2), mda), Set(MetaSet(Set(a1old), mdb),MetaSet(Set(a2old),mdc))))
+      Set(Entity(Set(a1, a2), mda)),
+      merger.merge(Entity(Set(a1,a2), mda), Set(Entity(Set(a1old), mdb),Entity(Set(a2old),mdc))))
   }
   
   @Test
   def testMemoryEntries {
       println("testing memory entities")
-      var m = MemoryEntries(Set(MetaSet(Set(a1,a2),mda)), merger)
-      println(m.add(MetaSet(Set(a3),mdb)))
+      var m = MemoryEntries(Set(Entity(Set(a1,a2),mda)), merger)
+      println(m.add(Entity(Set(a3),mdb)))
   }
 }
 
