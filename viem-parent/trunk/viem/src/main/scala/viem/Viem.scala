@@ -49,10 +49,10 @@ case class TimedIdentifier(id: Identifier, time: BigDecimal) extends Ordered[Tim
 }
 
 /**
- * Ancillary (meta) data with a value. Would be used to hold an entityId
+ * Ancillary data with a value. Would be used to hold an entityId
  * for example. In a position tracking system might hold entityId, time,
  * lat and long so that a [[viem.MergeValidator]] can compare two 
- * [[viem.Entity]]s based on their [[viem.MetaData]] and that further 
+ * [[viem.Entity]]s based on their [[viem.Data]] and that further 
  * the Entity can be associated with some persisted object.
  */
 trait Data
@@ -319,7 +319,7 @@ class Merger(validator: MergeValidator, onlyMergeIfStrongestIdentifierOfSecondar
   }
 
   /**
-   * Returns the same metaset if it has only one identifier otherwise returns a new [[viem.Entity]]
+   * Returns the same [[viem.Entity]] if it has only one identifier otherwise returns a new [[viem.Entity]]
    * with the identifier ''id'' removed.
    * @param metaset
    * @param id
@@ -332,7 +332,7 @@ class Merger(validator: MergeValidator, onlyMergeIfStrongestIdentifierOfSecondar
       metaset
 
   /**
-   * Returns the metasets which are the result of adding ''a'' to the ''matches''.
+   * Returns the [[viem.Entity]]s which are the result of adding ''a'' to the ''matches''.
    * @param a
    * @param matches
    * @return
