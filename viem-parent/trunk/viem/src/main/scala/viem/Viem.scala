@@ -355,6 +355,8 @@ class Merger(validator: MergeValidator, onlyMergeIfStrongestIdentifierOfSecondar
     require(matches.isEmpty || matches.map(_.set).flatten.map(_.id).size == matches.map(_.set).flatten.size,
       "elements of matches must be mutually non intersecting n terms of [[viem.Identifier]]")
 
+    def find(entities: Set[Entity],id:Identifier)=entities.find(y => y.set.map(_.id).contains(id)).get
+    
     //if no matches the just return the set A back
     if (matches.isEmpty) return Set(a)
 
@@ -371,11 +373,11 @@ class Merger(validator: MergeValidator, onlyMergeIfStrongestIdentifierOfSecondar
     var keepGoing = true
     while (keepGoing) {
       println("merging " + x)
-      val entity = sets.find(y => y.set.map(_.id).contains(x.id)).get
+      val entity = find(sets, x.id)
 
       prev = prev match {
         case None => Some(EntityAndId(entity, x))
-        case Some(e) => Some(EntityAndId(sets.find(y => y.set.map(_.id).contains(e.id.id)).get, e.id))
+        case Some(e) => Some(EntityAndId(find(sets, e.id.id), e.id))
       }
       val result = merge(prev.get.id, x, a.data, prev.get.entity, entity)
 
@@ -402,7 +404,7 @@ class Merger(validator: MergeValidator, onlyMergeIfStrongestIdentifierOfSecondar
           if (prev.get.entity == entity) {
             keepGoing = iterator.hasNext
             if (keepGoing) x = iterator.next
-            prev = None
+            prev = Some(EntityAndId(find(sets,x.id),x))
           } else
             prev = Some(EntityAndId(entity, x))
         }
@@ -410,7 +412,6 @@ class Merger(validator: MergeValidator, onlyMergeIfStrongestIdentifierOfSecondar
     }
     return sets
   }
-
 }
 
 /**
