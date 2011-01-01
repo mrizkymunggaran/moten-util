@@ -362,34 +362,32 @@ class Merger(validator: MergeValidator, onlyMergeIfStrongestIdentifierOfSecondar
     println("adding " + list)
     var sets = matches
 
-    var previous: Entity = null
-    var previousId: TimedIdentifier = null
-    val iterator = list.iterator
+    case class EntityAndId(entity: Entity, id: TimedIdentifier)
+    var prev: Option[EntityAndId] = None
 
     //imperative approach seems easier than functional in the case of the while loop below
+    val iterator = list.iterator
     var x = iterator.next();
     var keepGoing = true
     while (keepGoing) {
       println("merging " + x)
       val entity = sets.find(y => y.set.map(_.id).contains(x.id)).get
-      previous =
-        if (previous == null) entity
-        else sets.find(y => y.set.map(_.id).contains(previousId.id)).get
-      if (previousId == null)
-        previousId = x
-      val result = merge(previousId, x, a.data, previous, entity)
+
+      prev = prev match {
+        case None => Some(EntityAndId(entity, x))
+        case Some(e) => Some(EntityAndId(sets.find(y => y.set.map(_.id).contains(e.id.id)).get, e.id))
+      }
+      val result = merge(prev.get.id, x, a.data, prev.get.entity, entity)
+
       result match {
         case r: Entities => {
           println("merge succeeded for " + x)
           println("sets before=" + sets)
-          println("previous=" + previous)
+          println("previous=" + prev.get.entity)
           println("entity=" + entity)
-          //TODO sort this out, is that what I want?
-          sets = ((sets - entity) - previous) ++ r.set
+          sets = ((sets - entity) - prev.get.entity) ++ r.set
           println("sets after=" + sets)
-
-          previous = entity
-          previousId = x
+          prev = Some(EntityAndId(entity, x))
           keepGoing = iterator.hasNext
           if (keepGoing) x = iterator.next
         }
@@ -397,18 +395,16 @@ class Merger(validator: MergeValidator, onlyMergeIfStrongestIdentifierOfSecondar
           println("Invalid merge using " + data + " and " + x)
           //remove problem identifiers from data which is 
           //one of entity or previous
-          sets = ((sets - previous) - entity) +
-            removeIdentifierIfNotOnly(previous, x.id) +
+          sets = ((sets - prev.get.entity) - entity) +
+            removeIdentifierIfNotOnly(prev.get.entity, x.id) +
             removeIdentifierIfNotOnly(entity, x.id)
 
-          if (previous == entity) {
+          if (prev.get.entity == entity) {
             keepGoing = iterator.hasNext
             if (keepGoing) x = iterator.next
-            previous = null
-            previousId = null
+            prev = None
           } else
-            previous = entity
-          previousId = x
+            prev = Some(EntityAndId(entity, x))
         }
       }
     }
@@ -459,6 +455,7 @@ trait Entries[T] {
  *
  */
 case class MemoryEntries(entries: Set[Entity], merger: Merger) extends Entries[MemoryEntries] {
+  //make a map of identifier to entity to speed lookup
   val map = Map.empty[Identifier, Entity] ++ entries.flatMap(x => x.set.map(y => (y.id, x)))
 
   def find(id: Identifier) = {
