@@ -13,8 +13,8 @@ class ViemTest {
   val validator = new MergeValidatorConstant(true)
   val merger = new Merger(validator)
 
-  def create(name: String, value: String, time: Date) =
-    TimedIdentifier(Identifier(IdentifierType(name), value), time.getTime)
+  def create(name: String, value: String, time: Long) =
+    TimedIdentifier(Identifier(IdentifierType(name), value), time)
 
   def pp(r: Result): String =
     r match {
@@ -62,12 +62,12 @@ class ViemTest {
 
   case class MyData(name: String) extends Data
 
-  implicit def convert(t: Tuple3[Int, Int, Int]) = create(t._1.toString, t._2.toString, new Date(t._3))
+  implicit def convert(t: Tuple3[Int, Int, Int]) = create(t._1.toString, t._2.toString, t._3)
   implicit def convert(t: TimedIdentifier) = new Entity(Set(t), emptyData)
 
-  val date1 = new Date(100000000000L) //1973
-  val date0 = new Date(0) //1970
-  val date = new Date(date0.getTime() - 1000)
+  val date1 = 100000000000L //1973
+  val date0 = 0 //1970
+  val date = date0 - 1000
   val m = "m"
   val g = "g"
   val a0 = create("a0", "1", date1)

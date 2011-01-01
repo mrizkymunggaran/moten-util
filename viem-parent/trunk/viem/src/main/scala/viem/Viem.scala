@@ -101,9 +101,17 @@ abstract trait MergeValidator {
 }
 
 /**
+ * Merges entity with matching entities.
+ *
+ */
+abstract trait MergerLike {
+  def merge(a: Entity, matches: Set[Entity]): Set[Entity]
+}
+
+/**
  * Utility class for performing merges of [[scala.collection.immutable.Set]] of [[viem.TimedIdentifier]].
  */
-class Merger(validator: MergeValidator, onlyMergeIfStrongestIdentifierOfSecondaryIntersects: Boolean = false) {
+class Merger(validator: MergeValidator, onlyMergeIfStrongestIdentifierOfSecondaryIntersects: Boolean = false) extends MergerLike {
 
   /**
    * Implicit definition that allow a [[viem.Entity]] to be used as a [[scala.collection.immutable.Set]] of [[viem.TimedIdentifier]].
@@ -353,18 +361,20 @@ class Merger(validator: MergeValidator, onlyMergeIfStrongestIdentifierOfSecondar
     val list = List.fromIterator(a.set.iterator).sortWith((x, y) => (x compare y) < 0)
     println("adding " + list)
     var sets = matches
+
     var previous: Entity = null
     var previousId: TimedIdentifier = null
     val iterator = list.iterator
 
-    //OO approach seems easier than functional in the case of the while loop below
+    //imperative approach seems easier than functional in the case of the while loop below
     var x = iterator.next();
     var keepGoing = true
     while (keepGoing) {
       println("merging " + x)
       val entity = sets.find(y => y.set.map(_.id).contains(x.id)).get
-      previous = if (previous == null) entity
-      else sets.find(y => y.set.map(_.id).contains(previousId.id)).get
+      previous =
+        if (previous == null) entity
+        else sets.find(y => y.set.map(_.id).contains(previousId.id)).get
       if (previousId == null)
         previousId = x
       val result = merge(previousId, x, a.data, previous, entity)
@@ -449,15 +459,15 @@ trait Entries[T] {
  *
  */
 case class MemoryEntries(entries: Set[Entity], merger: Merger) extends Entries[MemoryEntries] {
-  val map = Map.empty[Identifier,Entity] ++ entries.flatMap(x=>x.set.map(y=>(y.id,x)))
-  
+  val map = Map.empty[Identifier, Entity] ++ entries.flatMap(x => x.set.map(y => (y.id, x)))
+
   def find(id: Identifier) = {
-  //  entries.find(x => x.set.map(_.id).contains(id))
-	  map.get(id)
+    //  entries.find(x => x.set.map(_.id).contains(id))
+    map.get(id)
   }
 
   def add(a: Entity) = {
-    val matches = a.set.map(_.id).flatMap(find _ )
+    val matches = a.set.map(_.id).flatMap(find _)
     val mergedMatches = merger.merge(a, matches)
     val mergedEntries = entries.diff(matches) ++ mergedMatches
     MemoryEntries(mergedEntries, merger)
