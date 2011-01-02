@@ -370,6 +370,7 @@ class Merger(validator: MergeValidator, onlyMergeIfStrongestIdentifierOfSecondar
     //imperative approach seems easier than functional in the case of the while loop below
     val iterator = list.iterator
     var x = iterator.next();
+    
     var keepGoing = true
     while (keepGoing) {
       println("merging " + x)
