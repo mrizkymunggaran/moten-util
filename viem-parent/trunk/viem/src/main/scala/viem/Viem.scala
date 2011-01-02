@@ -339,6 +339,11 @@ class Merger(validator: MergeValidator, onlyMergeIfStrongestIdentifierOfSecondar
     else
       entity
 
+  case class EntityAndId(entity: Entity, id: TimedIdentifier)
+  case class Group(entities: Set[Entity], previous: EntityAndId)
+
+  def find(entities: Set[Entity], id: Identifier) = entities.find(y => y.set.map(_.id).contains(id)).get
+
   /**
    * Returns the [[viem.Entity]]s which are the result of adding ''a'' to the ''matches''.
    * @param a
@@ -355,59 +360,65 @@ class Merger(validator: MergeValidator, onlyMergeIfStrongestIdentifierOfSecondar
     require(matches.isEmpty || matches.map(_.set).flatten.map(_.id).size == matches.map(_.set).flatten.size,
       "elements of matches must be mutually non intersecting n terms of [[viem.Identifier]]")
 
-    def find(entities: Set[Entity], id: Identifier) = entities.find(y => y.set.map(_.id).contains(id)).get
-
     //if no matches the just return the set A back
     if (matches.isEmpty) return Set(a)
 
+    //sort the list in descending strength of identifier
     val list = List.fromIterator(a.set.iterator).sortWith((x, y) => (x compare y) < 0)
+
     println("adding " + list)
-    //    var sets = matches
 
-    case class EntityAndId(entity: Entity, id: TimedIdentifier)
-    case class Group(entities: Set[Entity], previous: EntityAndId)
-
-    //imperative approach seems easier than functional in the case of the while loop below
+    //obtain an iterator for the identifiers and the first element of the list
     val iterator = list.iterator
-    var x = iterator.next();
-    var group = Group(matches, EntityAndId(find(matches, x.id), x))
-    var keepGoing = true
-    while (keepGoing) {
-      println("merging " + x)
-      val entity = find(group.entities, x.id)
+    //preconditions have checked that iterator has at least one element
+    val x = iterator.next();
 
-      val prev = EntityAndId(find(group.entities, group.previous.id.id), group.previous.id)
-      val result = merge(prev.id, x, a.data, prev.entity, entity)
+    //initialize the Group object to pass into the recursive method
+    val group = Group(matches, EntityAndId(find(matches, x.id), x))
 
-      result match {
-        case r: Entities => {
-          val entities = ((group.entities - prev.entity) - entity) ++ r.set
-          group = Group(entities, EntityAndId(entity, x))
-          keepGoing = iterator.hasNext
-          if (keepGoing) x = iterator.next
-        }
-        case InvalidMerge(data) => {
-          //remove problem identifiers from data which is 
-          //one of entity or previous
-          val entities = ((group.entities - prev.entity) - entity) +
-            removeIdentifierIfNotOnly(prev.entity, x.id) +
-            removeIdentifierIfNotOnly(entity, x.id)
+    //use recursion to run through the iterator performing merges
+    val g = findGroup(a.data, group, x, iterator)
+    return g.entities
+  }
 
-          val pre =
-            if (prev.entity == entity) {
-              keepGoing = iterator.hasNext
-              if (keepGoing) {
-                x = iterator.next
-                EntityAndId(find(entities, x.id), x)
-              } else
-                prev
-            } else
-              EntityAndId(entity, x)
-          group = Group(entities, pre)
+  private def findGroup(data: Data, group: Group, x: TimedIdentifier, iterator: Iterator[TimedIdentifier]): Group = {
+    println("merging " + x)
+
+    val entity = find(group.entities, x.id)
+    val prev = EntityAndId(find(group.entities, group.previous.id.id), group.previous.id)
+    //attempt the merge
+    val result = merge(prev.id, x, data, prev.entity, entity)
+
+    result match {
+      //merge succeeded
+      case r: Entities => {
+        val entities = ((group.entities - prev.entity) - entity) ++ r.set
+        val g = Group(entities, EntityAndId(entity, x))
+        return if (iterator.hasNext)
+          findGroup(data, g, iterator.next, iterator)
+        else g
+      }
+      //merge deemed invalid
+      case InvalidMerge(data) => {
+        //remove problem identifiers from data which is 
+        //one of entity or previous
+        val entities = ((group.entities - prev.entity) - entity) +
+          removeIdentifierIfNotOnly(prev.entity, x.id) +
+          removeIdentifierIfNotOnly(entity, x.id)
+
+        if (prev.entity == entity) {
+          if (iterator.hasNext) {
+            val y = iterator.next
+            val g = Group(entities, EntityAndId(find(entities, y.id), y))
+            return findGroup(data, g, y, iterator)
+          } else
+            return Group(entities, group.previous)
+        } else {
+          val g = Group(entities, EntityAndId(entity, x))
+          return findGroup(data, g, x, iterator)
         }
       }
     }
-    return group.entities
   }
 }
 
