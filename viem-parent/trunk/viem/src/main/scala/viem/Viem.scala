@@ -355,63 +355,59 @@ class Merger(validator: MergeValidator, onlyMergeIfStrongestIdentifierOfSecondar
     require(matches.isEmpty || matches.map(_.set).flatten.map(_.id).size == matches.map(_.set).flatten.size,
       "elements of matches must be mutually non intersecting n terms of [[viem.Identifier]]")
 
-    def find(entities: Set[Entity],id:Identifier)=entities.find(y => y.set.map(_.id).contains(id)).get
-    
+    def find(entities: Set[Entity], id: Identifier) = entities.find(y => y.set.map(_.id).contains(id)).get
+
     //if no matches the just return the set A back
     if (matches.isEmpty) return Set(a)
 
     val list = List.fromIterator(a.set.iterator).sortWith((x, y) => (x compare y) < 0)
     println("adding " + list)
-    var sets = matches
+    //    var sets = matches
 
     case class EntityAndId(entity: Entity, id: TimedIdentifier)
-    var prev: Option[EntityAndId] = None
+    case class Group(entities: Set[Entity], previous: EntityAndId)
 
     //imperative approach seems easier than functional in the case of the while loop below
     val iterator = list.iterator
     var x = iterator.next();
-    
+    var group = Group(matches, EntityAndId(find(matches, x.id), x))
     var keepGoing = true
     while (keepGoing) {
       println("merging " + x)
-      val entity = find(sets, x.id)
+      val entity = find(group.entities, x.id)
 
-      prev = prev match {
-        case None => Some(EntityAndId(entity, x))
-        case Some(e) => Some(EntityAndId(find(sets, e.id.id), e.id))
-      }
-      val result = merge(prev.get.id, x, a.data, prev.get.entity, entity)
+      val prev = EntityAndId(find(group.entities, group.previous.id.id), group.previous.id)
+      val result = merge(prev.id, x, a.data, prev.entity, entity)
 
       result match {
         case r: Entities => {
-          println("merge succeeded for " + x)
-          println("sets before=" + sets)
-          println("previous=" + prev.get.entity)
-          println("entity=" + entity)
-          sets = ((sets - entity) - prev.get.entity) ++ r.set
-          println("sets after=" + sets)
-          prev = Some(EntityAndId(entity, x))
+          val entities = ((group.entities - prev.entity) - entity) ++ r.set
+          group = Group(entities, EntityAndId(entity, x))
           keepGoing = iterator.hasNext
           if (keepGoing) x = iterator.next
         }
         case InvalidMerge(data) => {
-          println("Invalid merge using " + data + " and " + x)
           //remove problem identifiers from data which is 
           //one of entity or previous
-          sets = ((sets - prev.get.entity) - entity) +
-            removeIdentifierIfNotOnly(prev.get.entity, x.id) +
+          val entities = ((group.entities - prev.entity) - entity) +
+            removeIdentifierIfNotOnly(prev.entity, x.id) +
             removeIdentifierIfNotOnly(entity, x.id)
 
-          if (prev.get.entity == entity) {
-            keepGoing = iterator.hasNext
-            if (keepGoing) x = iterator.next
-            prev = Some(EntityAndId(find(sets,x.id),x))
-          } else
-            prev = Some(EntityAndId(entity, x))
+          val pre =
+            if (prev.entity == entity) {
+              keepGoing = iterator.hasNext
+              if (keepGoing) {
+                x = iterator.next
+                EntityAndId(find(entities, x.id), x)
+              } else
+                prev
+            } else
+              EntityAndId(entity, x)
+          group = Group(entities, pre)
         }
       }
     }
-    return sets
+    return group.entities
   }
 }
 
