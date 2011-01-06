@@ -24,7 +24,8 @@ case class IdentifierType(name: String) extends Ordered[IdentifierType] {
 }
 
 /**
- * Based on an [[viem.IdentifierType]] and a value.
+ *
+ * An identifier for e.g. an [[viem.Entity]] composed of an [[viem.IdentifierType]] and a [[java.lang.String]] value.
  * Has strict ordering based on [[viem.IdentifierType]] ordering then value alphabetical
  * ordering.
  */
@@ -37,7 +38,7 @@ case class Identifier(typ: IdentifierType, value: String) extends Ordered[Identi
 }
 
 /** 
- * An [[viem.Identifier]] with a timestamp.
+ * An [[viem.Identifier]] with a [[scala.math.BigDecimal]] timestamp. Might be used to identify an [[viem.Entity]] at a given time.
  */
 case class TimedIdentifier(id: Identifier, time: BigDecimal) extends Ordered[TimedIdentifier] {
   def compare(that: TimedIdentifier): Int =
@@ -49,11 +50,11 @@ case class TimedIdentifier(id: Identifier, time: BigDecimal) extends Ordered[Tim
 }
 
 /**
- * Ancillary data with a value. Would be used to hold an entityId
+ * Ancillary data normally for an [[viem.Entity]]. Would be used to hold an entityId
  * for example. In a position tracking system might hold entityId, time,
  * lat and long so that a [[viem.MergeValidator]] can compare two 
  * [[viem.Entity]]s based on their [[viem.Data]] and that further 
- * the Entity can be associated with some persisted object.
+ * the Entity can be associated with some persisted object (using the entityId).
  */
 trait Data
 
@@ -85,10 +86,13 @@ sealed trait Result
 case class InvalidMerge(meta: Data) extends Result
 
 /**
- * The result of the merge of [[viem.Entity]] with primary and secondary matches (b and c).
+ * A set of [[viem.Entity]] returned as a Merger result.
  */
 case class Entities(set: Set[Entity]) extends Result
 
+/**
+ * Companion object for [[viem.Entities]].
+ */
 object Entities {
   def apply(x: Entity*): Entities = new Entities(x.toSet)
 }
@@ -97,6 +101,12 @@ object Entities {
  * Validates the merging of two entities based on their [[viem.Data]].
  */
 abstract trait MergeValidator {
+  /**
+   * Returns true if and only if ''a'' and ''b'' are ok to merge.
+   * @param a
+   * @param b
+   * @return
+   */
   def mergeIsValid(a: Data, b: Data): Boolean
 }
 
@@ -105,6 +115,13 @@ abstract trait MergeValidator {
  *
  */
 abstract trait MergerLike {
+  /**
+   * Returns the result of merging [[viem.Entity]] ''a'' with the entities that it matches 
+   * (found by matching [[viem.Identifier]]s).
+   * @param a
+   * @param matches
+   * @return
+   */
   def merge(a: Entity, matches: Set[Entity]): Set[Entity]
 }
 
@@ -235,6 +252,13 @@ class Merger(validator: MergeValidator, onlyMergeIfStrongestIdentifierOfSecondar
       Entities(Entity(z(b, a2), b.data))
   }
 
+  /**
+   * Returns true if and only if latest time from ''x'' is strictly 
+   * later than the latest time from ''y''. 
+   * @param x
+   * @param y
+   * @return
+   */
   private[viem] def later(x: Set[TimedIdentifier], y: Set[TimedIdentifier]) =
     x.map(_.time).max > y.map(_.time).max
 
@@ -339,10 +363,25 @@ class Merger(validator: MergeValidator, onlyMergeIfStrongestIdentifierOfSecondar
     else
       entity
 
-  case class EntityAndId(entity: Entity, id: TimedIdentifier)
-  case class Group(entities: Set[Entity], previous: EntityAndId)
+  /**
+   * Entity and one of its [[viem.TimedIdentifier]]s.
+   */
+  private[viem] case class EntityAndId(entity: Entity, id: TimedIdentifier)
 
-  def find(entities: Set[Entity], id: Identifier) = entities.find(y => y.set.map(_.id).contains(id)).get
+  /**
+   * A set of merged entities and the last entity merged with the used [[viem.TimedIdentifier]].
+   */
+  private[viem] case class Group(entities: Set[Entity], previous: EntityAndId)
+
+  /**
+   * Returns the [[viem.Entity]] that matches the given [[viem.Identifier]].
+   * 
+   * @param entities
+   * @param id
+   * @return
+   */
+  private[viem] def find(entities: Set[Entity], id: Identifier): Entity =
+    entities.find(y => y.set.map(_.id).contains(id)).get
 
   /**
    * Returns the [[viem.Entity]]s which are the result of adding ''a'' to the ''matches''.
@@ -370,14 +409,17 @@ class Merger(validator: MergeValidator, onlyMergeIfStrongestIdentifierOfSecondar
 
     //obtain an iterator for the identifiers and the first element of the list
     val iterator = list.iterator
+
     //preconditions have checked that iterator has at least one element
-    val x = iterator.next();
+    val firstId = iterator.next();
 
     //initialize the Group object to pass into the recursive method
-    val group = Group(matches, EntityAndId(find(matches, x.id), x))
+    val group = Group(matches, EntityAndId(find(matches, firstId.id), firstId))
 
     //use recursion to run through the iterator performing merges
-    val g = findGroup(a.data, group, x, iterator)
+    val g = findGroup(a.data, group, firstId, iterator)
+
+    //return the merged entities
     return g.entities
   }
 
@@ -385,14 +427,15 @@ class Merger(validator: MergeValidator, onlyMergeIfStrongestIdentifierOfSecondar
     println("merging " + x)
 
     val entity = find(group.entities, x.id)
-    val prev = EntityAndId(find(group.entities, group.previous.id.id), group.previous.id)
+    val prevEntity = find(group.entities, group.previous.id.id)
+    val prev = EntityAndId(prevEntity, group.previous.id)
     //attempt the merge
     val result = merge(prev.id, x, data, prev.entity, entity)
 
     result match {
       //merge succeeded
       case r: Entities => {
-        val entities = ((group.entities - prev.entity) - entity) ++ r.set
+        val entities = group.entities - prev.entity - entity ++ r.set
         val g = Group(entities, EntityAndId(entity, x))
         return if (iterator.hasNext)
           findGroup(data, g, iterator.next, iterator)
@@ -402,7 +445,7 @@ class Merger(validator: MergeValidator, onlyMergeIfStrongestIdentifierOfSecondar
       case InvalidMerge(data) => {
         //remove problem identifiers from data which is 
         //one of entity or previous
-        val entities = ((group.entities - prev.entity) - entity) +
+        val entities = group.entities - prev.entity - entity +
           removeIdentifierIfNotOnly(prev.entity, x.id) +
           removeIdentifierIfNotOnly(entity, x.id)
 
@@ -412,8 +455,10 @@ class Merger(validator: MergeValidator, onlyMergeIfStrongestIdentifierOfSecondar
             val g = Group(entities, EntityAndId(find(entities, y.id), y))
             return findGroup(data, g, y, iterator)
           } else
+            // none left, return what we've got
             return Group(entities, group.previous)
         } else {
+          //don't advance the iterator, throw away previous identifier
           val g = Group(entities, EntityAndId(entity, x))
           return findGroup(data, g, x, iterator)
         }
@@ -429,6 +474,7 @@ class Merger(validator: MergeValidator, onlyMergeIfStrongestIdentifierOfSecondar
  */
 object Merger {
 
+  //TODO move this stuff to Test class.
   case class EmptyData() extends Data
 
   val emptyData = EmptyData()
