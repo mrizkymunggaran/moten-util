@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://www.amsa.gov.au/craft-position/"
+	targetNamespace="http://www.amsa.gov.au/craft-position/"
+	elementFormDefault="qualified" version="1.0">
+	<annotation>
+		<documentation>This schema created by Dave Moten 14 Jan 2010 so that
+			organisations can communicate craft positions to AMSA for ingestion
+			by the Craft Tracking System (CTS). 
+		</documentation>
+	</annotation>
+
+	<element name="positions" type="tns:positions" />
+
+	<complexType name="positions">
+		<annotation>
+			<documentation>Multiple craft position reports</documentation>
+		</annotation>
+		<sequence>
+			<element name="position" type="tns:position" maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+	<complexType name="position">
+		<annotation>
+			<documentation>A position report for a craft</documentation>
+		</annotation>
+		<sequence>
+			<element name="craft-type" type="tns:craft-type" />
+			<element ref="tns:identifier" maxOccurs="unbounded" />
+			<element name="timestamp" type="dateTime" />
+			<element name="latitude" type="tns:latitude" />
+			<element name="longitude" type="tns:longitude" />
+			<element name="course" type="tns:course" minOccurs="0" />
+			<element name="heading" type="tns:heading" minOccurs="0" />
+			<element name="speed-knots" type="tns:speed-knots" minOccurs="0" />
+			<element name="property" type="tns:property" minOccurs="0"
+				maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+	<simpleType name="craft-type">
+		<annotation>
+			<documentation>Acceptable craft types</documentation>
+		</annotation>
+		<restriction base="string">
+			<enumeration value="VESSEL" />
+			<enumeration value="AIRCRAFT" />
+			<enumeration value="HELICOPTER" />
+			<enumeration value="VEHICLE" />
+			<enumeration value="TRACKING_DEVICE" />
+			<enumeration value="OTHER" />
+		</restriction>
+	</simpleType>
+
+
+	<simpleType name="latitude">
+		<restriction base="decimal">
+			<minInclusive value="-90" />
+			<maxInclusive value="90" />
+		</restriction>
+	</simpleType>
+
+	<simpleType name="longitude">
+		<restriction base="decimal">
+			<minInclusive value="-180" />
+			<maxInclusive value="180" />
+		</restriction>
+	</simpleType>
+
+	<simpleType name="course">
+		<annotation>
+			<documentation>the intended path of a vehicle over the surface of the
+				Earth in decimal degrees</documentation>
+		</annotation>
+		<restriction base="decimal">
+			<minInclusive value="0" />
+			<maxInclusive value="360" />
+		</restriction>
+	</simpleType>
+
+	<simpleType name="heading">
+		<annotation>
+			<documentation>the angle of the vessel, aircraft or vehicle to true
+				north</documentation>
+		</annotation>
+		<restriction base="decimal">
+			<minInclusive value="0" />
+			<maxInclusive value="360" />
+		</restriction>
+	</simpleType>
+
+	<simpleType name="speed-knots">
+		<restriction base="decimal">
+			<minInclusive value="0" />
+		</restriction>
+	</simpleType>
+
+	<complexType name="property">
+		<annotation>
+			<documentation>Miscellaneous properties</documentation>
+		</annotation>
+		<attribute name="name" type="string" />
+		<attribute name="value" type="string" />
+	</complexType>
+
+	<element name="identifier" abstract="true" type="tns:identifier" />
+	<element name="mmsi" substitutionGroup="tns:identifier" type="tns:mmsi" />
+	<element name="imo-number" substitutionGroup="tns:identifier"
+		type="tns:imo-number" />
+	<element name="callsign" substitutionGroup="tns:identifier"
+		type="tns:callsign" />
+	<element name="registration" substitutionGroup="tns:identifier"
+		type="tns:registration" />
+	<element name="inmarsat-c-mobile-number" substitutionGroup="tns:identifier"
+		type="tns:inmarsat-c-mobile-number" />
+	<element name="tracking-device-id" substitutionGroup="tns:identifier"
+		type="tns:tracking-device-id" />
+	<element name="name" substitutionGroup="tns:identifier" type="tns:name" />
+
+	<simpleType name="identifier">
+		<annotation>
+			<documentation>A unique identifier for a craft. Note that name is not
+				normally an appropriate identifier for a vessel because it is not
+				unique. Some identifiers may be reused over time but at any one time
+				an identifier should only correspond to one active craft.
+			</documentation>
+		</annotation>
+		<restriction base="string" />
+	</simpleType>
+
+	<simpleType name="mmsi">
+		<annotation>
+			<documentation>Vessel identifier</documentation>
+		</annotation>
+		<restriction base="tns:identifier">
+			<pattern value="[0-9]{9}" />
+		</restriction>
+	</simpleType>
+
+	<simpleType name="imo-number">
+		<annotation>
+			<documentation>Vessel identifier</documentation>
+		</annotation>
+		<restriction base="tns:identifier">
+			<pattern value="[0-9]{7}" />
+		</restriction>
+	</simpleType>
+
+	<simpleType name="callsign">
+		<annotation>
+			<documentation>Aircraft identifier </documentation>
+		</annotation>
+		<restriction base="tns:identifier">
+		</restriction>
+	</simpleType>
+
+	<simpleType name="registration">
+		<annotation>
+			<documentation>Vehicle identifier</documentation>
+		</annotation>
+		<restriction base="tns:identifier">
+		</restriction>
+	</simpleType>
+
+	<simpleType name="name">
+		<annotation>
+			<documentation>Craft identifier, preferrably unique. The AMSA Craft
+				Tracking System will probably only use this as a primary identifier
+				if no other identifier exists. This is because vessel names for
+				instance are not usually unique.</documentation>
+		</annotation>
+		<restriction base="tns:identifier">
+		</restriction>
+	</simpleType>
+
+	<simpleType name="inmarsat-c-mobile-number">
+		<annotation>
+			<documentation>Identifies a craft via the inmarsat c mobile unit
+				(commonly used on vessels)</documentation>
+		</annotation>
+		<restriction base="tns:identifier">
+			<pattern value="[0-9]{9}" />
+		</restriction>
+	</simpleType>
+
+	<simpleType name="tracking-device-id">
+		<annotation>
+			<documentation>Note that the id needs to be unique across all device
+				providers so a restriction may need to be imposed on this field.
+				e.g. prefix the unit serial number/id with the tracking device
+				provider/type. AMSA is currently consuming this sort of information
+				from only one tracking device provider (MarineTrack) so further
+				consideration for this issue will wait till AMSA is using more
+				providers.					</documentation>
+		</annotation>
+		<restriction base="tns:identifier">
+		</restriction>
+	</simpleType>
+
+</schema>
