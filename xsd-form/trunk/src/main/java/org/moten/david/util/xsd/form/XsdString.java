@@ -4,6 +4,7 @@ public class XsdString implements XsdType<String> {
 
 	private String value;
 
+	@Override
 	public String getValue() {
 		return value;
 	}

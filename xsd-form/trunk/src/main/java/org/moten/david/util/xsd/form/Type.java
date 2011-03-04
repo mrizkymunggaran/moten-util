@@ -1,5 +1,7 @@
 package org.moten.david.util.xsd.form;
 
+import javax.xml.namespace.QName;
+
 public interface Type {
-	String getName();
+	QName getQName();
 }

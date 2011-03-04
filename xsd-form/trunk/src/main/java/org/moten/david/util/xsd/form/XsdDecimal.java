@@ -6,6 +6,7 @@ public class XsdDecimal implements XsdType<BigDecimal> {
 
 	private BigDecimal value;
 
+	@Override
 	public BigDecimal getValue() {
 		return value;
 	}

@@ -1,19 +1,24 @@
 package org.moten.david.util.xsd.form;
 
 import java.util.List;
-import java.util.Map;
+
+import javax.xml.namespace.QName;
+
+import com.google.common.collect.ImmutableMap;
 
 public class ComplexType implements PartList, Type {
 
-	private String name;
-	private Map<String, SimpleType<?>> attributes;
+	private QName name;
+	private ImmutableMap<String, QName> attributes;
 	private List<Part> list;
 
+	@Override
 	public List<Part> getList() {
 		return list;
 	}
 
-	public String getName() {
+	@Override
+	public QName getQName() {
 		return name;
 	}
 
