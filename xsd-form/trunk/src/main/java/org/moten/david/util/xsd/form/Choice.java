@@ -6,6 +6,7 @@ public class Choice implements Part, PartList {
 
 	private List<Part> list;
 
+	@Override
 	public List<Part> getList() {
 		return list;
 	}
