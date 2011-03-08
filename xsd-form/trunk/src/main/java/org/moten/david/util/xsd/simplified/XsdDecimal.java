@@ -6,7 +6,12 @@ import javax.xml.namespace.QName;
 
 public class XsdDecimal implements XsdType<BigDecimal> {
 
-	private BigDecimal value;
+	private final BigDecimal value;
+
+	public XsdDecimal(BigDecimal value) {
+		super();
+		this.value = value;
+	}
 
 	@Override
 	public BigDecimal getValue() {

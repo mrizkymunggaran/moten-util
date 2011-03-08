@@ -4,9 +4,13 @@ import java.util.Calendar;
 
 import javax.xml.namespace.QName;
 
-public class XsdDate implements XsdType<Calendar> {
+public class XsdDateTime implements XsdType<Calendar> {
 
-	private Calendar value;
+	private final Calendar value;
+
+	public XsdDateTime(Calendar calendar) {
+		this.value = calendar;
+	}
 
 	@Override
 	public Calendar getValue() {

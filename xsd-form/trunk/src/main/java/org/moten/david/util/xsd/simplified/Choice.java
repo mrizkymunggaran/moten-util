@@ -2,13 +2,25 @@ package org.moten.david.util.xsd.simplified;
 
 import java.util.List;
 
-public class Choice implements Part, PartList {
+public class Choice implements Group {
+	private final Group group;
 
-	private List<Part> list;
-
-	@Override
-	public List<Part> getList() {
-		return list;
+	public Choice(Group group) {
+		this.group = group;
 	}
 
+	@Override
+	public MaxOccurs getMaxOccurs() {
+		return group.getMaxOccurs();
+	}
+
+	@Override
+	public int getMinOccurs() {
+		return group.getMinOccurs();
+	}
+
+	@Override
+	public List<Particle> getParticles() {
+		return group.getParticles();
+	}
 }

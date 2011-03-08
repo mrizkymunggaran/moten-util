@@ -4,7 +4,12 @@ import javax.xml.namespace.QName;
 
 public class XsdString implements XsdType<String> {
 
-	private String value;
+	private final String value;
+
+	public XsdString(String value) {
+		super();
+		this.value = value;
+	}
 
 	@Override
 	public String getValue() {

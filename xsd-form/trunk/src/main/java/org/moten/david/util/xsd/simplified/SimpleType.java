@@ -2,12 +2,12 @@ package org.moten.david.util.xsd.simplified;
 
 import javax.xml.namespace.QName;
 
-public class SimpleType<T extends XsdType> implements Part, Type {
+public class SimpleType implements Particle, Type {
 
 	private final QName name;
-	private Restriction<T> restriction;
+	private final Restriction restriction;
 
-	public SimpleType(QName name, Restriction<T> restriction) {
+	public SimpleType(QName name, Restriction restriction) {
 		this.name = name;
 		this.restriction = restriction;
 	}

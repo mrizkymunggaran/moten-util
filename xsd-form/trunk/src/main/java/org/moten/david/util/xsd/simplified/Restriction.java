@@ -3,32 +3,27 @@ package org.moten.david.util.xsd.simplified;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Restriction<T extends XsdType> {
-	private final Class<T> cls;
-	private final List<T> enumerations = new ArrayList<T>();
+public class Restriction {
+	private final List<XsdType<?>> enumerations = new ArrayList<XsdType<?>>();
 	private String pattern;
 
-	private Restriction(Class<T> cls) {
-		this.cls = cls;
-	}
+	public static class Builder {
+		private final Restriction r;
 
-	public static class Builder<T extends XsdType<?>> {
-		private final Restriction<T> r;
-
-		public Builder(Class<T> cls) {
-			r = new Restriction<T>(cls);
+		public Builder() {
+			r = new Restriction();
 		}
 
-		public Restriction<T> build() {
+		public Restriction build() {
 			return r;
 		}
 
-		public Builder<T> pattern(String pattern) {
+		public Builder pattern(String pattern) {
 			r.pattern = pattern;
 			return this;
 		}
 
-		public Builder<T> enumeration(T value) {
+		public Builder enumeration(XsdType<?> value) {
 			r.enumerations.add(value);
 			return this;
 		}
