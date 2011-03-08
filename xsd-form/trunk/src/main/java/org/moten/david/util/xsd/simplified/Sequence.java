@@ -2,12 +2,25 @@ package org.moten.david.util.xsd.simplified;
 
 import java.util.List;
 
-public class Sequence implements Part, PartList {
+public class Sequence implements Group {
+	private final Group group;
 
-	private List<Part> list;
-
-	public List<Part> getList() {
-		return list;
+	public Sequence(Group group) {
+		this.group = group;
 	}
 
+	@Override
+	public MaxOccurs getMaxOccurs() {
+		return group.getMaxOccurs();
+	}
+
+	@Override
+	public int getMinOccurs() {
+		return group.getMinOccurs();
+	}
+
+	@Override
+	public List<Particle> getParticles() {
+		return group.getParticles();
+	}
 }

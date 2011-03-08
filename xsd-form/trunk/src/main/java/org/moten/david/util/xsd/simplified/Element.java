@@ -2,7 +2,7 @@ package org.moten.david.util.xsd.simplified;
 
 import javax.xml.namespace.QName;
 
-public class Element implements Part {
+public class Element implements Particle {
 	private String name;
 	private int minOccurs = 1;
 
@@ -14,20 +14,16 @@ public class Element implements Part {
 		return minOccurs;
 	}
 
-	public int getMaxOccurs() {
+	public MaxOccurs getMaxOccurs() {
 		return maxOccurs;
-	}
-
-	public boolean isMaxUnbounded() {
-		return maxUnbounded;
 	}
 
 	public QName getType() {
 		return type;
 	}
 
-	private int maxOccurs = 1;
-	private boolean maxUnbounded = false;
+	private MaxOccurs maxOccurs = new MaxOccurs();
+	private final boolean maxUnbounded = false;
 	private QName type;
 
 	private Element() {
@@ -60,14 +56,10 @@ public class Element implements Part {
 			return this;
 		}
 
-		public Builder maxOccurs(int maxOccurs) {
+		public Builder maxOccurs(MaxOccurs maxOccurs) {
 			e.maxOccurs = maxOccurs;
 			return this;
 		}
 
-		public Builder maxUnbounded(boolean isUnbounded) {
-			e.maxUnbounded = isUnbounded;
-			return this;
-		}
 	}
 }

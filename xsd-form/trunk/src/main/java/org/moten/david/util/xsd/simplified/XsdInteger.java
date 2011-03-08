@@ -4,7 +4,12 @@ import javax.xml.namespace.QName;
 
 public class XsdInteger implements XsdType<Integer> {
 
-	private Integer value;
+	private final Integer value;
+
+	public XsdInteger(Integer value) {
+		super();
+		this.value = value;
+	}
 
 	@Override
 	public Integer getValue() {
