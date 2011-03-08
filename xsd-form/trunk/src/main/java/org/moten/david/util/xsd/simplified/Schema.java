@@ -5,39 +5,65 @@ import java.util.List;
 
 public class Schema {
 	public static final String XML_SCHEMA_NAMESPACE = "http://www.w3.org/XMLSchema";
-	private final List<ComplexType> complexTypes = new ArrayList<ComplexType>();
-	private final List<SimpleType> simpleTypes = new ArrayList<SimpleType>();
-	private final List<Element> elements = new ArrayList<Element>();
-	private String namespace;
+	private final String namespace;
 
-	private Schema() {
-
+	private Schema(String namespace, List<ComplexType> complexTypes,
+			List<SimpleType> simpleTypes, List<Element> elements) {
+		super();
+		this.namespace = namespace;
+		this.complexTypes = complexTypes;
+		this.simpleTypes = simpleTypes;
+		this.elements = elements;
 	}
 
+	public String getNamespace() {
+		return namespace;
+	}
+
+	public List<ComplexType> getComplexTypes() {
+		// return a defensive copy
+		return new ArrayList<ComplexType>(complexTypes);
+	}
+
+	public List<SimpleType> getSimpleTypes() {
+		return simpleTypes;
+	}
+
+	public List<Element> getElements() {
+		return elements;
+	}
+
+	private final List<ComplexType> complexTypes;
+	private final List<SimpleType> simpleTypes;
+	private final List<Element> elements;
+
 	public static class Builder {
-		Schema s = new Schema();
+		private final List<ComplexType> complexTypes = new ArrayList<ComplexType>();
+		private final List<SimpleType> simpleTypes = new ArrayList<SimpleType>();
+		private final List<Element> elements = new ArrayList<Element>();
+		private String namespace;
 
 		public Schema build() {
-			return s;
+			return new Schema(namespace, complexTypes, simpleTypes, elements);
 		}
 
 		public Builder namespace(String namespace) {
-			s.namespace = namespace;
+			this.namespace = namespace;
 			return this;
 		}
 
 		public Builder complexType(ComplexType complexType) {
-			s.complexTypes.add(complexType);
+			this.complexTypes.add(complexType);
 			return this;
 		}
 
 		public Builder simpleType(SimpleType simpleType) {
-			s.simpleTypes.add(simpleType);
+			this.simpleTypes.add(simpleType);
 			return this;
 		}
 
 		public Builder element(Element element) {
-			s.elements.add(element);
+			this.elements.add(element);
 			return this;
 		}
 	}
