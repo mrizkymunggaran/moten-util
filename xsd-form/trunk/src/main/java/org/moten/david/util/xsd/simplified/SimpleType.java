@@ -4,8 +4,17 @@ import javax.xml.namespace.QName;
 
 public class SimpleType<T extends XsdType> implements Part, Type {
 
-	private QName name;
+	private final QName name;
 	private Restriction<T> restriction;
+
+	public SimpleType(QName name, Restriction<T> restriction) {
+		this.name = name;
+		this.restriction = restriction;
+	}
+
+	public SimpleType(QName name) {
+		this(name, null);
+	}
 
 	@Override
 	public QName getQName() {
