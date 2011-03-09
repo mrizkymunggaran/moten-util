@@ -74,7 +74,7 @@ public class Convertor {
 					builder.enumeration(xsdType);
 				} else if (isNoFixedFacet(e, "maxInclusive"))
 					builder.maxInclusive(getBigDecimalFromFacet(e));
-				else if (isNoFixedFacet(e, "minxInclusive"))
+				else if (isNoFixedFacet(e, "minInclusive"))
 					builder.minInclusive(getBigDecimalFromFacet(e));
 				else if (isNoFixedFacet(e, "maxExclusive"))
 					builder.maxExclusive(getBigDecimalFromFacet(e));
@@ -82,7 +82,7 @@ public class Convertor {
 					builder.minExclusive(getBigDecimalFromFacet(e));
 				else
 					throw new RuntimeException("unsupported facet: "
-							+ e.getValue().getClass());
+							+ e.getValue());
 			} else if (facet instanceof Pattern) {
 				Pattern pattern = (Pattern) facet;
 				log.info("pattern=" + pattern.getValue());
@@ -101,7 +101,7 @@ public class Convertor {
 
 	private boolean isNoFixedFacet(JAXBElement e, String name) {
 		return e.getName().toString()
-				.equals("{http://www.w3.org/2001/XMLSchema}" + name)
+				.equals("{" + Schema.XML_SCHEMA_NAMESPACE + "}" + name)
 				&& e.getValue() instanceof NoFixedFacet;
 	}
 
@@ -154,8 +154,7 @@ public class Convertor {
 		for (Object p : g.getParticle()) {
 			if (p instanceof JAXBElement) {
 				JAXBElement<?> e = (JAXBElement<?>) p;
-				System.out.println(e.getDeclaredType() + " " + e.getName());
-
+				log.info("particle: " + e.getDeclaredType() + " " + e.getName());
 				Object value = e.getValue();
 				if (value instanceof LocalElement) {
 					Element element = convert((LocalElement) value);
