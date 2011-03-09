@@ -1,31 +1,70 @@
 package org.moten.david.util.xsd.simplified;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Restriction {
-	private final List<XsdType<?>> enumerations = new ArrayList<XsdType<?>>();
-	private String pattern;
+	private final List<XsdType<?>> enumerations;;
+	private final String pattern;
+
+	public Restriction(List<XsdType<?>> enumerations, String pattern,
+			BigDecimal maxInclusive, BigDecimal maxExclusive,
+			BigDecimal minInclusive, BigDecimal minExclusive) {
+		super();
+		this.enumerations = enumerations;
+		this.pattern = pattern;
+		this.maxInclusive = maxInclusive;
+		this.maxExclusive = maxExclusive;
+		this.minInclusive = minInclusive;
+		this.minExclusive = minExclusive;
+	}
+
+	private final BigDecimal maxInclusive;
+	private final BigDecimal maxExclusive;
+	private final BigDecimal minInclusive;
+	private final BigDecimal minExclusive;
 
 	public static class Builder {
-		private final Restriction r;
+		private final List<XsdType<?>> enumerations = new ArrayList<XsdType<?>>();
+		private String pattern;
+		private BigDecimal maxInclusive;
+		private BigDecimal maxExclusive;
+		private BigDecimal minInclusive;
+		private BigDecimal minExclusive;
 
 		public Builder() {
-			r = new Restriction();
 		}
 
 		public Restriction build() {
-			return r;
+			return new Restriction(enumerations, pattern, maxInclusive,
+					maxExclusive, minInclusive, minExclusive);
 		}
 
 		public Builder pattern(String pattern) {
-			r.pattern = pattern;
+			this.pattern = pattern;
 			return this;
 		}
 
 		public Builder enumeration(XsdType<?> value) {
-			r.enumerations.add(value);
+			this.enumerations.add(value);
 			return this;
+		}
+
+		public void maxInclusive(BigDecimal value) {
+			this.maxInclusive = value;
+		}
+
+		public void maxExclusive(BigDecimal value) {
+			this.maxExclusive = value;
+		}
+
+		public void minInclusive(BigDecimal value) {
+			this.minInclusive = value;
+		}
+
+		public void minExclusive(BigDecimal value) {
+			this.minExclusive = value;
 		}
 	}
 }

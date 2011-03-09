@@ -1,6 +1,7 @@
 package org.moten.david.util.xsd.simplified;
 
 import java.math.BigDecimal;
+import java.util.logging.Logger;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.datatype.DatatypeConfigurationException;
@@ -19,7 +20,10 @@ import org.w3._2001.xmlschema.TopLevelSimpleType;
 
 public class Convertor {
 
+	private static Logger log = Logger.getLogger(Convertor.class.getName());
+
 	public Schema convert(org.w3._2001.xmlschema.Schema s) {
+		log.info("converting schema: " + s.getTargetNamespace());
 		Schema.Builder builder = new Schema.Builder();
 		builder.namespace(s.getTargetNamespace());
 		for (OpenAttrs a : s.getSimpleTypeOrComplexTypeOrGroup()) {
@@ -38,6 +42,7 @@ public class Convertor {
 	}
 
 	private Element convert(TopLevelElement t) {
+		log.info("converting top level element: " + t.getName());
 		Element.Builder builder = new Element.Builder();
 		builder.name(t.getName()).type(t.getType());
 		builder.maxOccurs(MaxOccurs.parse(t.getMaxOccurs()));
@@ -48,12 +53,13 @@ public class Convertor {
 	}
 
 	private SimpleType convert(TopLevelSimpleType t, String targetNamespace) {
-
+		log.info("converting top level simple type: " + t.getName());
 		return new SimpleType(new QName(targetNamespace, t.getName()),
 				convert(t.getRestriction()));
 	}
 
 	private Restriction convert(org.w3._2001.xmlschema.Restriction restriction) {
+		log.info("converting restriction");
 		if (restriction == null)
 			return null;
 		QName base = restriction.getBase();
@@ -61,15 +67,25 @@ public class Convertor {
 		for (Object facet : restriction.getFacets()) {
 			if (facet instanceof JAXBElement) {
 				JAXBElement e = (JAXBElement) facet;
-				if (isNoFixedFacet(e)) {
+				log.info("JAXBElement facet: " + e.getName());
+				if (isNoFixedFacet(e, "enumeration")) {
 					NoFixedFacet f = (NoFixedFacet) e.getValue();
 					XsdType<?> xsdType = getXsdType(f, base);
 					builder.enumeration(xsdType);
-				} else
+				} else if (isNoFixedFacet(e, "maxInclusive"))
+					builder.maxInclusive(getBigDecimalFromFacet(e));
+				else if (isNoFixedFacet(e, "minxInclusive"))
+					builder.minInclusive(getBigDecimalFromFacet(e));
+				else if (isNoFixedFacet(e, "maxExclusive"))
+					builder.maxExclusive(getBigDecimalFromFacet(e));
+				else if (isNoFixedFacet(e, "minExclusive"))
+					builder.minExclusive(getBigDecimalFromFacet(e));
+				else
 					throw new RuntimeException("unsupported facet: "
 							+ e.getValue().getClass());
 			} else if (facet instanceof Pattern) {
 				Pattern pattern = (Pattern) facet;
+				log.info("pattern=" + pattern.getValue());
 				builder.pattern(pattern.getValue());
 			} else
 				throw new RuntimeException("unsupported facet "
@@ -78,13 +94,19 @@ public class Convertor {
 		return builder.build();
 	}
 
-	private boolean isNoFixedFacet(JAXBElement e) {
+	private BigDecimal getBigDecimalFromFacet(JAXBElement e) {
+		NoFixedFacet f = (NoFixedFacet) e.getValue();
+		return new BigDecimal(f.getValue());
+	}
+
+	private boolean isNoFixedFacet(JAXBElement e, String name) {
 		return e.getName().toString()
-				.equals("{http://www.w3.org/2001/XMLSchema}enumeration")
+				.equals("{http://www.w3.org/2001/XMLSchema}" + name)
 				&& e.getValue() instanceof NoFixedFacet;
 	}
 
 	private XsdType<?> getXsdType(NoFixedFacet f, QName base) {
+		log.info("converting facet to XsdType: " + f.getValue());
 		if ("{http://www.w3.org/2001/XMLSchema}decimal".equals(base.toString())) {
 			return new XsdDecimal(new BigDecimal(f.getValue()));
 		} else if ("{http://www.w3.org/2001/XMLSchema}integer".equals(base

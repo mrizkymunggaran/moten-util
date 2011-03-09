@@ -51,6 +51,7 @@
 		<xs:restriction base="xs:string">
 			<xs:enumeration value="Afghanistan" />
 			<xs:enumeration value="Albania" />
+			<!-- 
 			<xs:enumeration value="Algeria" />
 			<xs:enumeration value="Andorra" />
 			<xs:enumeration value="Angola" />
@@ -244,14 +245,25 @@
 			<xs:enumeration value="Yemen" />
 			<xs:enumeration value="Zambia" />
 			<xs:enumeration value="Zimbabwe" />
+			 -->
 		</xs:restriction>
 	</xs:simpleType>
 
 	<xs:simpleType name="code">
 		<xs:restriction base="xs:integer">
-			<xs:maxInclusive value="100" />
-			<xs:minExclusive value="20" />
+			<xs:minExclusive value="100" />
+			<xs:maxExclusive value="20" />
 		</xs:restriction>
 	</xs:simpleType>
+
+
+	<xs:simpleType name="code2">
+		<xs:restriction base="xs:integer">
+			<xs:maxInclusive value="100" />
+			<xs:maxInclusive value="20" />
+		</xs:restriction>
+	</xs:simpleType>
+		
+	
 
 </xs:schema>
