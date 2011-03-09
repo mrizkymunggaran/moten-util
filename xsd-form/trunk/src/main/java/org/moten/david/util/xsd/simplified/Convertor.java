@@ -12,6 +12,7 @@ import org.w3._2001.xmlschema.ExplicitGroup;
 import org.w3._2001.xmlschema.LocalElement;
 import org.w3._2001.xmlschema.NoFixedFacet;
 import org.w3._2001.xmlschema.OpenAttrs;
+import org.w3._2001.xmlschema.Pattern;
 import org.w3._2001.xmlschema.TopLevelComplexType;
 import org.w3._2001.xmlschema.TopLevelElement;
 import org.w3._2001.xmlschema.TopLevelSimpleType;
@@ -24,7 +25,7 @@ public class Convertor {
 		for (OpenAttrs a : s.getSimpleTypeOrComplexTypeOrGroup()) {
 			if (a instanceof TopLevelComplexType) {
 				TopLevelComplexType t = (TopLevelComplexType) a;
-				builder.complexType(convert(t));
+				builder.complexType(convert(t, s.getTargetNamespace()));
 			} else if (a instanceof TopLevelSimpleType) {
 				TopLevelSimpleType t = (TopLevelSimpleType) a;
 				builder.simpleType(convert(t, s.getTargetNamespace()));
@@ -47,23 +48,34 @@ public class Convertor {
 	}
 
 	private SimpleType convert(TopLevelSimpleType t, String targetNamespace) {
-		Restriction restriction = null;
-		if (t.getRestriction() != null) {
-			QName base = t.getRestriction().getBase();
-			Restriction.Builder builder = new Restriction.Builder();
-			for (Object facet : t.getRestriction().getFacets()) {
-				if (facet instanceof JAXBElement) {
-					JAXBElement e = (JAXBElement) facet;
-					if (isNoFixedFacet(e)) {
-						NoFixedFacet f = (NoFixedFacet) e.getValue();
-						XsdType<?> xsdType = getXsdType(f, base);
-						builder.enumeration(xsdType);
-					}
-				}
-			}
-			restriction = builder.build();
+
+		return new SimpleType(new QName(targetNamespace, t.getName()),
+				convert(t.getRestriction()));
+	}
+
+	private Restriction convert(org.w3._2001.xmlschema.Restriction restriction) {
+		if (restriction == null)
+			return null;
+		QName base = restriction.getBase();
+		Restriction.Builder builder = new Restriction.Builder();
+		for (Object facet : restriction.getFacets()) {
+			if (facet instanceof JAXBElement) {
+				JAXBElement e = (JAXBElement) facet;
+				if (isNoFixedFacet(e)) {
+					NoFixedFacet f = (NoFixedFacet) e.getValue();
+					XsdType<?> xsdType = getXsdType(f, base);
+					builder.enumeration(xsdType);
+				} else
+					throw new RuntimeException("unsupported facet: "
+							+ e.getValue().getClass());
+			} else if (facet instanceof Pattern) {
+				Pattern pattern = (Pattern) facet;
+				builder.pattern(pattern.getValue());
+			} else
+				throw new RuntimeException("unsupported facet "
+						+ facet.getClass());
 		}
-		return new SimpleType(new QName(targetNamespace), restriction);
+		return builder.build();
 	}
 
 	private boolean isNoFixedFacet(JAXBElement e) {
@@ -96,15 +108,21 @@ public class Convertor {
 			throw new RuntimeException("base not supported:" + base);
 	}
 
-	private ComplexType convert(org.w3._2001.xmlschema.ComplexType t) {
+	private ComplexType convert(org.w3._2001.xmlschema.ComplexType t,
+			String targetNamespace) {
 		t.getAttributeOrAttributeGroup();
+		Group group = null;
 		if (t.getChoice() != null) {
-			Group group = convert(t.getChoice());
+			group = convert(t.getChoice());
 
 		} else if (t.getSequence() != null) {
-			Group group = convert(t.getSequence());
-		}
-		return null;
+			group = convert(t.getSequence());
+		} else
+			throw new RuntimeException(
+					"complexType must have sequence or choice children only");
+		ComplexType complexType = new ComplexType(new QName(targetNamespace,
+				t.getName()), group, null);
+		return complexType;
 	}
 
 	private Group convert(ExplicitGroup g) {
