@@ -14,6 +14,6 @@ public class ConvertorTest {
 		Schema s = m.unmarshal(ConvertorTest.class
 				.getResourceAsStream("/test.xsd"));
 		org.moten.david.util.xsd.simplified.Schema simple = c.convert(s);
-
+		System.out.println(simple);
 	}
 }
