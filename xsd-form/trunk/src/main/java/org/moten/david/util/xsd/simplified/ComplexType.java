@@ -10,6 +10,19 @@ public class ComplexType implements Type, Group {
 
 	private final QName name;
 	private final ImmutableMap<String, QName> attributes;
+
+	public QName getName() {
+		return name;
+	}
+
+	public ImmutableMap<String, QName> getAttributes() {
+		return attributes;
+	}
+
+	public Group getGroup() {
+		return group;
+	}
+
 	private final Group group;
 
 	@Override
@@ -37,6 +50,12 @@ public class ComplexType implements Type, Group {
 	@Override
 	public List<Particle> getParticles() {
 		return group.getParticles();
+	}
+
+	@Override
+	public String toString() {
+		return "\n\tComplexType [name=" + name + ", attributes=" + attributes
+				+ ", \n\tgroup=" + group + "]";
 	}
 
 }

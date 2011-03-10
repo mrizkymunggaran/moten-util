@@ -10,6 +10,13 @@ public class Element implements Particle {
 		return name;
 	}
 
+	@Override
+	public String toString() {
+		return "\n\tElement [name=" + name + ", minOccurs=" + minOccurs
+				+ ", maxOccurs=" + maxOccurs + ", maxUnbounded=" + maxUnbounded
+				+ ", type=" + type + "]";
+	}
+
 	public int getMinOccurs() {
 		return minOccurs;
 	}
@@ -24,6 +31,27 @@ public class Element implements Particle {
 
 	private MaxOccurs maxOccurs = new MaxOccurs();
 	private final boolean maxUnbounded = false;
+
+	public boolean isMaxUnbounded() {
+		return maxUnbounded;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public void setMinOccurs(int minOccurs) {
+		this.minOccurs = minOccurs;
+	}
+
+	public void setMaxOccurs(MaxOccurs maxOccurs) {
+		this.maxOccurs = maxOccurs;
+	}
+
+	public void setType(QName type) {
+		this.type = type;
+	}
+
 	private QName type;
 
 	private Element() {

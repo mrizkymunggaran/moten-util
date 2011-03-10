@@ -10,6 +10,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 
 import org.w3._2001.xmlschema.ExplicitGroup;
+import org.w3._2001.xmlschema.Facet;
 import org.w3._2001.xmlschema.LocalElement;
 import org.w3._2001.xmlschema.NoFixedFacet;
 import org.w3._2001.xmlschema.OpenAttrs;
@@ -18,6 +19,7 @@ import org.w3._2001.xmlschema.TopLevelComplexType;
 import org.w3._2001.xmlschema.TopLevelElement;
 import org.w3._2001.xmlschema.TopLevelSimpleType;
 
+@SuppressWarnings("restriction")
 public class Convertor {
 
 	private static Logger log = Logger.getLogger(Convertor.class.getName());
@@ -66,19 +68,20 @@ public class Convertor {
 		Restriction.Builder builder = new Restriction.Builder();
 		for (Object facet : restriction.getFacets()) {
 			if (facet instanceof JAXBElement) {
-				JAXBElement e = (JAXBElement) facet;
+
+				JAXBElement<?> e = (JAXBElement<?>) facet;
 				log.info("JAXBElement facet: " + e.getName());
-				if (isNoFixedFacet(e, "enumeration")) {
+				if (isFacet(e, "enumeration")) {
 					NoFixedFacet f = (NoFixedFacet) e.getValue();
 					XsdType<?> xsdType = getXsdType(f, base);
 					builder.enumeration(xsdType);
-				} else if (isNoFixedFacet(e, "maxInclusive"))
+				} else if (isFacet(e, "maxInclusive"))
 					builder.maxInclusive(getBigDecimalFromFacet(e));
-				else if (isNoFixedFacet(e, "minInclusive"))
+				else if (isFacet(e, "minInclusive"))
 					builder.minInclusive(getBigDecimalFromFacet(e));
-				else if (isNoFixedFacet(e, "maxExclusive"))
+				else if (isFacet(e, "maxExclusive"))
 					builder.maxExclusive(getBigDecimalFromFacet(e));
-				else if (isNoFixedFacet(e, "minExclusive"))
+				else if (isFacet(e, "minExclusive"))
 					builder.minExclusive(getBigDecimalFromFacet(e));
 				else
 					throw new RuntimeException("unsupported facet: "
@@ -94,15 +97,14 @@ public class Convertor {
 		return builder.build();
 	}
 
-	private BigDecimal getBigDecimalFromFacet(JAXBElement e) {
-		NoFixedFacet f = (NoFixedFacet) e.getValue();
+	private BigDecimal getBigDecimalFromFacet(JAXBElement<?> e) {
+		Facet f = (Facet) e.getValue();
 		return new BigDecimal(f.getValue());
 	}
 
-	private boolean isNoFixedFacet(JAXBElement e, String name) {
-		return e.getName().toString()
-				.equals("{" + Schema.XML_SCHEMA_NAMESPACE + "}" + name)
-				&& e.getValue() instanceof NoFixedFacet;
+	private boolean isFacet(JAXBElement<?> e, String name) {
+		QName qName = new QName(Schema.XML_SCHEMA_NAMESPACE, name);
+		return e.getName().equals(qName) && e.getValue() instanceof Facet;
 	}
 
 	private XsdType<?> getXsdType(NoFixedFacet f, QName base) {

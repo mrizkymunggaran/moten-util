@@ -20,7 +20,40 @@ public class Restriction {
 		this.minExclusive = minExclusive;
 	}
 
+	@Override
+	public String toString() {
+		return "Restriction [enumerations=" + enumerations + ", pattern="
+				+ pattern + ", maxInclusive=" + maxInclusive
+				+ ", maxExclusive=" + maxExclusive + ", minInclusive="
+				+ minInclusive + ", minExclusive=" + minExclusive + "]";
+	}
+
 	private final BigDecimal maxInclusive;
+
+	public List<XsdType<?>> getEnumerations() {
+		return enumerations;
+	}
+
+	public String getPattern() {
+		return pattern;
+	}
+
+	public BigDecimal getMaxInclusive() {
+		return maxInclusive;
+	}
+
+	public BigDecimal getMaxExclusive() {
+		return maxExclusive;
+	}
+
+	public BigDecimal getMinInclusive() {
+		return minInclusive;
+	}
+
+	public BigDecimal getMinExclusive() {
+		return minExclusive;
+	}
+
 	private final BigDecimal maxExclusive;
 	private final BigDecimal minInclusive;
 	private final BigDecimal minExclusive;

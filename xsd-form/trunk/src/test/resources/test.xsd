@@ -260,7 +260,7 @@
 	<xs:simpleType name="code2">
 		<xs:restriction base="xs:integer">
 			<xs:maxInclusive value="100" />
-			<xs:maxInclusive value="20" />
+			<xs:minInclusive value="20" />
 		</xs:restriction>
 	</xs:simpleType>
 		

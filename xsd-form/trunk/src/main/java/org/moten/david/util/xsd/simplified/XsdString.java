@@ -24,4 +24,9 @@ public class XsdString implements XsdType<String> {
 		return qName;
 	}
 
+	@Override
+	public String toString() {
+		return "XsdString [value=" + value + "]";
+	}
+
 }

@@ -15,6 +15,11 @@ public class Choice implements Group {
 	}
 
 	@Override
+	public String toString() {
+		return "Choice [group=" + group + "]";
+	}
+
+	@Override
 	public int getMinOccurs() {
 		return group.getMinOccurs();
 	}

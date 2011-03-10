@@ -8,14 +8,23 @@ public class BasicGroup implements Group {
 	private MaxOccurs maxOccurs = new MaxOccurs();
 	private int minOccurs = 1;
 
+	@Override
 	public MaxOccurs getMaxOccurs() {
 		return maxOccurs;
 	}
 
+	@Override
+	public String toString() {
+		return "BasicGroup [particles=" + particles + ", maxOccurs="
+				+ maxOccurs + ", minOccurs=" + minOccurs + "]";
+	}
+
+	@Override
 	public int getMinOccurs() {
 		return minOccurs;
 	}
 
+	@Override
 	public List<Particle> getParticles() {
 		return particles;
 	}

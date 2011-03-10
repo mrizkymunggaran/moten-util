@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Schema {
-	public static final String XML_SCHEMA_NAMESPACE = "http://www.w3.org/XMLSchema";
+	public static final String XML_SCHEMA_NAMESPACE = "http://www.w3.org/2001/XMLSchema";
 	private final String namespace;
 
 	private Schema(String namespace, List<ComplexType> complexTypes,
@@ -14,6 +14,13 @@ public class Schema {
 		this.complexTypes = complexTypes;
 		this.simpleTypes = simpleTypes;
 		this.elements = elements;
+	}
+
+	@Override
+	public String toString() {
+		return "Schema [\nnamespace=" + namespace + ", \ncomplexTypes="
+				+ complexTypes + ", \nsimpleTypes=" + simpleTypes
+				+ ", \nelements=" + elements + "]";
 	}
 
 	public String getNamespace() {
