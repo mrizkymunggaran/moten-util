@@ -1,4 +1,4 @@
-package au.gov.amsa.util.xsd;
+package org.moten.david.util.xsd;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
