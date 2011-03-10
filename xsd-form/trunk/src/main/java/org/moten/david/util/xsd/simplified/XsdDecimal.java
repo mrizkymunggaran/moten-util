@@ -26,4 +26,9 @@ public class XsdDecimal implements XsdType<BigDecimal> {
 		return qName;
 	}
 
+	@Override
+	public String toString() {
+		return "XsdDecimal [value=" + value + "]";
+	}
+
 }

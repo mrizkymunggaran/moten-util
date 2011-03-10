@@ -5,6 +5,13 @@ public class MaxOccurs {
 	private final Integer maxOccurs;
 
 	public static final MaxOccurs UNBOUNDED = new MaxOccurs(true);
+
+	@Override
+	public String toString() {
+		return "MaxOccurs [isUnbounded=" + isUnbounded + ", maxOccurs="
+				+ maxOccurs + "]";
+	}
+
 	public static final MaxOccurs DEFAULT = new MaxOccurs(1);
 
 	public MaxOccurs(boolean isUnbounded) {

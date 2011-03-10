@@ -24,4 +24,9 @@ public class XsdInteger implements XsdType<Integer> {
 		return qName;
 	}
 
+	@Override
+	public String toString() {
+		return "XsdInteger [value=" + value + "]";
+	}
+
 }

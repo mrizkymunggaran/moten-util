@@ -15,6 +15,11 @@ public class Sequence implements Group {
 	}
 
 	@Override
+	public String toString() {
+		return "Sequence [group=" + group + "]";
+	}
+
+	@Override
 	public int getMinOccurs() {
 		return group.getMinOccurs();
 	}

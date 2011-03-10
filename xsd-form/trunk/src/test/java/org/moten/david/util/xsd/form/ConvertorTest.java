@@ -16,4 +16,14 @@ public class ConvertorTest {
 		org.moten.david.util.xsd.simplified.Schema simple = c.convert(s);
 		System.out.println(simple);
 	}
+
+	@Test
+	public void testConvertorOnForm63Schema() {
+		Convertor c = new Convertor();
+		Marshaller m = new Marshaller();
+		Schema s = m.unmarshal(ConvertorTest.class
+				.getResourceAsStream("/test-complex.xsd"));
+		org.moten.david.util.xsd.simplified.Schema simple = c.convert(s);
+		System.out.println(simple);
+	}
 }

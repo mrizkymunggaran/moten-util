@@ -17,6 +17,11 @@ public class XsdDateTime implements XsdType<Calendar> {
 		return value;
 	}
 
+	@Override
+	public String toString() {
+		return "XsdDateTime [value=" + value + "]";
+	}
+
 	private static final QName qName = new QName(Schema.XML_SCHEMA_NAMESPACE,
 			"date");
 
