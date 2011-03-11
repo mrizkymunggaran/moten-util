@@ -76,7 +76,9 @@
 					<runTarget>Application.html</runTarget>
 					<hostedWebapp>${webappDirectory}</hostedWebapp>
 					<i18nMessagesBundle>org.moten.david.util.xsd.form.client.Messages</i18nMessagesBundle>
-				</configuration>
+					<mode>htmlunit</mode>
+				        <htmlunit>FF3</htmlunit>
+	       		        </configuration>
 			</plugin>
 
 			<!-- Copy static web files before executing gwt:run -->
