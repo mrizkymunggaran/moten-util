@@ -10,6 +10,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.w3._2001.xmlschema.ObjectFactory;
 import org.w3._2001.xmlschema.Schema;
+
 public class MarshallerTest {
 
 	@Test
@@ -17,13 +18,15 @@ public class MarshallerTest {
 		try {
 			JAXBContext context = JAXBContext.newInstance(ObjectFactory.class);
 			Unmarshaller u = context.createUnmarshaller();
-			StreamSource source = new StreamSource(MarshallerTest.class.getResourceAsStream("/test.xsd"));
+			StreamSource source = new StreamSource(
+					MarshallerTest.class.getResourceAsStream("/test.xsd"));
 			JAXBElement<Schema> element = u.unmarshal(source, Schema.class);
 			Schema schema = element.getValue();
-			Assert.assertEquals("http://www.amsa.gov.au/craft-position/",  schema.getTargetNamespace());
+			Assert.assertEquals("http://www.amsa.gov.au/craft-position/",
+					schema.getTargetNamespace());
 		} catch (JAXBException e) {
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 }

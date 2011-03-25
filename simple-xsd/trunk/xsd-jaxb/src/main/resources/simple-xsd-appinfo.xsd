@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema"
+	xmlns:tns="http://moten.david.org/util/xsd/simplified/appinfo"
+	targetNamespace="http://moten.david.org/util/xsd/simplified/appinfo"
+	elementFormDefault="qualified" version="1.0">
+
+	<element name="info" type="tns:info" />
+
+	<complexType name="info">
+		<sequence>
+			<element name="heading" type="tns:name-value" minOccurs="0" />
+			<element name="before" type="tns:name-value" minOccurs="0" />
+			<element name="label" type="tns:name-value" minOccurs="0" />
+			<element name="hint" type="tns:name-value" minOccurs="0" />
+			<element name="after" type="tns:name-value" minOccurs="0" />
+			<element name="component" type="tns:component" minOccurs="0" />
+		</sequence>
+		<attribute name="name" type="string" use="optional" />
+	</complexType>
+
+	<complexType name="name-value">
+		<simpleContent>
+			<extension base="string">
+				<attribute name="name" type="string" use="optional" />
+			</extension>
+		</simpleContent>
+	</complexType>
+
+	<simpleType name="component">
+		<restriction base="string">
+			<enumeration value="listBox" />
+			<enumeration value="dropDown" />
+			<enumeration value="singleLineText" />
+			<enumeration value="multiLineText" />
+		</restriction>
+	</simpleType>
+
+</schema>
