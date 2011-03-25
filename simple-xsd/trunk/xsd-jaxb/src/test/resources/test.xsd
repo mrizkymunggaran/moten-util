@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://www.amsa.gov.au/craft-position/"
+	xmlns:i="http://moten.david.org/util/xsd/simplified/appinfo"
 	targetNamespace="http://www.amsa.gov.au/craft-position/"
 	elementFormDefault="qualified" version="1.0">
 	<annotation>
@@ -25,7 +26,21 @@
 			<documentation>A position report for a craft</documentation>
 		</annotation>
 		<sequence>
-			<element name="craft-type" type="tns:craft-type" />
+			<element name="craft-type" type="tns:craft-type">
+				<annotation>
+					<appinfo>
+						<appinfo>
+							<i:info>
+								<i:label>Craft Type</i:label>
+								<i:hint>The type of craft. Be as specific as possible. If the
+									craft has more than one type then pick it's primary mode.
+								</i:hint>
+								<i:component>dropdown</i:component>
+							</i:info>
+						</appinfo>
+					</appinfo>
+				</annotation>
+			</element>
 			<element ref="tns:identifier" maxOccurs="unbounded" />
 			<element name="timestamp" type="dateTime" />
 			<element name="latitude" type="tns:latitude" />
