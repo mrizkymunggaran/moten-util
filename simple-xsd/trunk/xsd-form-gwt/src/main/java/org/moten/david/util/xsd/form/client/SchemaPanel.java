@@ -13,6 +13,8 @@ import org.moten.david.util.xsd.simplified.SimpleType;
 import org.moten.david.util.xsd.simplified.Type;
 import org.moten.david.util.xsd.simplified.XsdType;
 
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
@@ -36,22 +38,20 @@ public class SchemaPanel extends VerticalPanel {
 
 	private Widget createElementPanel(Element element) {
 		VerticalPanel p = new VerticalPanel();
-		p.add(new Label(element.getName()));
 		Type t = getType(schema, element);
 		if (t instanceof ComplexType) {
-			p.add(createComplexTypePanel((ComplexType) t));
+			p.add(createComplexTypePanel(element.getName(), (ComplexType) t));
 		} else if (t instanceof SimpleType)
-			p.add(createSimpleType((SimpleType) t));
+			p.add(createSimpleType(element.getName(), (SimpleType) t));
 		else
 			throw new RuntimeException("could not find type: "
 					+ element.getType());
 		return decorate(p);
 	}
 
-	private Widget createSimpleType(SimpleType t) {
+	private Widget createSimpleType(String name, SimpleType t) {
 		HorizontalPanel p = new HorizontalPanel();
-		p.add(new Label(t.getName().getLocalPart()));
-
+		p.add(new Label(name));
 		if (t.getRestriction() != null) {
 			List<XsdType<?>> xsdTypes = t.getRestriction().getEnumerations();
 			ListBox listBox = new ListBox();
@@ -59,14 +59,17 @@ public class SchemaPanel extends VerticalPanel {
 				listBox.addItem(x.getValue().toString());
 			}
 			p.add(listBox);
-		} else
-			p.add(new TextBox());
+		} else {
+			TextBox text = new TextBox();
+			text.setText(t.getName().getLocalPart());
+			p.add(text);
+		}
 		return decorate(p);
 	}
 
-	private Widget createComplexTypePanel(ComplexType t) {
+	private Widget createComplexTypePanel(String name, ComplexType t) {
 		VerticalPanel p = new VerticalPanel();
-		p.add(new Label(t.getName().toString()));
+		p.add(new Label(name + ":" + t.getName().toString()));
 		for (Particle particle : t.getParticles()) {
 			p.add(createParticle(particle));
 		}
@@ -78,7 +81,8 @@ public class SchemaPanel extends VerticalPanel {
 		if (particle instanceof Element)
 			p.add(createElementPanel((Element) particle));
 		else if (particle instanceof SimpleType)
-			p.add(createSimpleType((SimpleType) particle));
+			p.add(createSimpleType(particle.getClass().getName(),
+					(SimpleType) particle));
 		else if (particle instanceof Group)
 			p.add(createGroup((Group) particle));
 		else
@@ -105,14 +109,30 @@ public class SchemaPanel extends VerticalPanel {
 			p.add(new Label("choice"));
 			String groupName = "group" + nextGroup();
 			boolean first = true;
+			final Widget[] lastChecked = new Widget[] { null };
+			int count = 1;
 			for (Particle particle : group.getParticles()) {
-				RadioButton rb = new RadioButton(groupName, "");
-				if (first)
-					rb.setValue(true);
-				first = false;
+				RadioButton rb = new RadioButton(groupName, "option " + count);
+				count++;
 				p.add(rb);
 				final Widget particlePanel = createParticle(particle);
+				particlePanel.setStyleName("uncheckedRadioButtonContent");
+				rb.addClickHandler(new ClickHandler() {
+					public void onClick(ClickEvent event) {
+						if (lastChecked[0] != null)
+							lastChecked[0]
+									.setStyleName("uncheckedRadioButtonContent");
+						particlePanel.setStyleName("checkedRadioButtonContent");
+						lastChecked[0] = particlePanel;
+					}
+				});
 				p.add(particlePanel);
+				if (first) {
+					rb.setValue(true);
+					particlePanel.setStyleName("checkedRadioButtonContent");
+					lastChecked[0] = particlePanel;
+				}
+				first = false;
 			}
 		} else if (group instanceof Sequence) {
 			p.add(new Label("sequence"));
