@@ -1,6 +1,5 @@
 package org.moten.david.util.xsd.form.client;
 
-import org.moten.david.util.xsd.form.shared.FieldVerifier;
 import org.moten.david.util.xsd.simplified.Schema;
 
 import com.google.gwt.core.client.EntryPoint;
@@ -15,6 +14,7 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -116,10 +116,12 @@ public class Application implements EntryPoint {
 				// First, we validate the input.
 				errorLabel.setText("");
 				String textToServer = nameField.getText();
-				if (!FieldVerifier.isValidName(textToServer)) {
-					errorLabel.setText("Please enter at least four characters");
-					return;
-				}
+				// Disable the verifier for simple-xsd.
+
+				// if (!FieldVerifier.isValidName(textToServer)) {
+				// errorLabel.setText("Please enter at least four characters");
+				// return;
+				// }
 
 				// Then, we send the input to the server.
 				sendButton.setEnabled(false);
@@ -129,7 +131,7 @@ public class Application implements EntryPoint {
 
 					public void onFailure(Throwable arg0) {
 						// Show the RPC error message to the user
-						dialogBox.setText("Remote Procedure Call - Failure");
+						dialogBox.setText("RPC - Failure");
 						serverResponseLabel
 								.addStyleName("serverResponseLabelError");
 						serverResponseLabel.setHTML(SERVER_ERROR);
@@ -138,12 +140,19 @@ public class Application implements EntryPoint {
 					}
 
 					public void onSuccess(Schema result) {
-						dialogBox.setText("Remote Procedure Call");
 						serverResponseLabel
 								.removeStyleName("serverResponseLabelError");
 						serverResponseLabel.setHTML(result.getNamespace());
-						dialogBox.center();
-						closeButton.setFocus(true);
+						try {
+							Panel schemaPanel = new SchemaPanel(result);
+							RootPanel.get("schemaContainer").clear();
+							RootPanel.get("schemaContainer").add(schemaPanel);
+						} catch (RuntimeException e) {
+							serverResponseLabel
+									.addStyleName("serverResponseLabelError");
+							serverResponseLabel.setHTML(e.getMessage());
+						}
+						sendButton.setEnabled(true);
 					}
 				});
 				if (false)

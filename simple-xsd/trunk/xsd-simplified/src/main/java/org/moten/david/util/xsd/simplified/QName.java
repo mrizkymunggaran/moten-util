@@ -5,7 +5,7 @@ import java.io.Serializable;
 public class QName implements Serializable {
 
 	private String namespace;
-	private String element;
+	private String localPart;
 
 	public String getNamespace() {
 		return namespace;
@@ -15,33 +15,33 @@ public class QName implements Serializable {
 		this.namespace = namespace;
 	}
 
-	public String getElement() {
-		return element;
+	public String getLocalPart() {
+		return localPart;
 	}
 
 	@Override
 	public String toString() {
-		return "QName [namespace=" + namespace + ", element=" + element + "]";
+		return "QName [namespace=" + namespace + ", element=" + localPart + "]";
 	}
 
-	public void setElement(String element) {
-		this.element = element;
+	public void setLocalPart(String localPart) {
+		this.localPart = localPart;
 	}
 
 	public QName() {
 
 	}
 
-	public QName(String namespace, String element) {
+	public QName(String namespace, String localPart) {
 		this.namespace = namespace;
-		this.element = element;
+		this.localPart = localPart;
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((element == null) ? 0 : element.hashCode());
+		result = prime * result + ((localPart == null) ? 0 : localPart.hashCode());
 		result = prime * result
 				+ ((namespace == null) ? 0 : namespace.hashCode());
 		return result;
@@ -56,10 +56,10 @@ public class QName implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		QName other = (QName) obj;
-		if (element == null) {
-			if (other.element != null)
+		if (localPart == null) {
+			if (other.localPart != null)
 				return false;
-		} else if (!element.equals(other.element))
+		} else if (!localPart.equals(other.localPart))
 			return false;
 		if (namespace == null) {
 			if (other.namespace != null)
