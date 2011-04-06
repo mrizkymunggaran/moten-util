@@ -1,16 +1,21 @@
 package org.moten.david.util.xsd.form.client;
 
+import java.util.List;
+
 import org.moten.david.util.xsd.simplified.Choice;
 import org.moten.david.util.xsd.simplified.ComplexType;
 import org.moten.david.util.xsd.simplified.Element;
 import org.moten.david.util.xsd.simplified.Group;
 import org.moten.david.util.xsd.simplified.Particle;
 import org.moten.david.util.xsd.simplified.Schema;
+import org.moten.david.util.xsd.simplified.Sequence;
 import org.moten.david.util.xsd.simplified.SimpleType;
 import org.moten.david.util.xsd.simplified.Type;
+import org.moten.david.util.xsd.simplified.XsdType;
 
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -46,7 +51,16 @@ public class SchemaPanel extends VerticalPanel {
 	private Widget createSimpleType(SimpleType t) {
 		HorizontalPanel p = new HorizontalPanel();
 		p.add(new Label(t.getName().getLocalPart()));
-		p.add(new TextBox());
+
+		if (t.getRestriction() != null) {
+			List<XsdType<?>> xsdTypes = t.getRestriction().getEnumerations();
+			ListBox listBox = new ListBox();
+			for (XsdType<?> x : xsdTypes) {
+				listBox.addItem(x.getValue().toString());
+			}
+			p.add(listBox);
+		} else
+			p.add(new TextBox());
 		return decorate(p);
 	}
 
@@ -88,6 +102,7 @@ public class SchemaPanel extends VerticalPanel {
 	private Widget createGroup(Group group) {
 		VerticalPanel p = new VerticalPanel();
 		if (group instanceof Choice) {
+			p.add(new Label("choice"));
 			String groupName = "group" + nextGroup();
 			boolean first = true;
 			for (Particle particle : group.getParticles()) {
@@ -96,6 +111,12 @@ public class SchemaPanel extends VerticalPanel {
 					rb.setValue(true);
 				first = false;
 				p.add(rb);
+				final Widget particlePanel = createParticle(particle);
+				p.add(particlePanel);
+			}
+		} else if (group instanceof Sequence) {
+			p.add(new Label("sequence"));
+			for (Particle particle : group.getParticles()) {
 				final Widget particlePanel = createParticle(particle);
 				p.add(particlePanel);
 			}
