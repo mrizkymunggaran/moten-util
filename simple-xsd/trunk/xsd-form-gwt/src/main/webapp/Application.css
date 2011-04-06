@@ -34,7 +34,7 @@ h1 {
 }
 
 .box {
-  padding: 1px 1px 1px 1px;
+  padding: 1px 1px 1px 8px;
   border: 1px;
   border-color: #e0e0e0;
   border-style: solid
