@@ -7,5 +7,9 @@ public interface Group extends Particle {
 
 	int getMinOccurs();
 
+	void setMinOccurs(int minOccurs);
+
 	List<Particle> getParticles();
+
+	void setParticles(List<Particle> particles);
 }

@@ -1,8 +1,8 @@
 package org.moten.david.util.xsd.form;
 
 import org.junit.Test;
+import org.moten.david.util.xsd.Convertor;
 import org.moten.david.util.xsd.Marshaller;
-import org.moten.david.util.xsd.simplified.Convertor;
 import org.w3._2001.xmlschema.Schema;
 
 public class ConvertorTest {

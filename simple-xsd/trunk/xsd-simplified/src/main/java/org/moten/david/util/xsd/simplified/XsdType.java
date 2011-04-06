@@ -1,9 +1,13 @@
 package org.moten.david.util.xsd.simplified;
 
-import javax.xml.namespace.QName;
+import java.io.Serializable;
 
-public interface XsdType<T> {
+public interface XsdType<T> extends Serializable {
 	T getValue();
 
 	QName getQName();
+
+	void setValue(T t);
+
+	void setQName(QName q);
 }

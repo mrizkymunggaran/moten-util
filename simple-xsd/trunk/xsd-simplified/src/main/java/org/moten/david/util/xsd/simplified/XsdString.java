@@ -1,10 +1,21 @@
 package org.moten.david.util.xsd.simplified;
 
-import javax.xml.namespace.QName;
-
 public class XsdString implements XsdType<String> {
 
-	private final String value;
+	private String value;
+	private QName qName = new QName(Schema.XML_SCHEMA_NAMESPACE, "string");
+
+	public QName getqName() {
+		return qName;
+	}
+
+	public void setqName(QName qName) {
+		this.qName = qName;
+	}
+
+	public XsdString() {
+
+	}
 
 	public XsdString(String value) {
 		super();
@@ -16,8 +27,10 @@ public class XsdString implements XsdType<String> {
 		return value;
 	}
 
-	private static final QName qName = new QName(Schema.XML_SCHEMA_NAMESPACE,
-			"string");
+	@Override
+	public void setValue(String value) {
+		this.value = value;
+	}
 
 	@Override
 	public QName getQName() {
@@ -27,6 +40,11 @@ public class XsdString implements XsdType<String> {
 	@Override
 	public String toString() {
 		return "XsdString [value=" + value + "]";
+	}
+
+	@Override
+	public void setQName(QName q) {
+		this.qName = q;
 	}
 
 }

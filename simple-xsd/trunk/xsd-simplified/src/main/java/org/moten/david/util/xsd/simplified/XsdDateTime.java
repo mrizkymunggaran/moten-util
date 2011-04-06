@@ -1,19 +1,33 @@
 package org.moten.david.util.xsd.simplified;
 
-import java.util.Calendar;
+import java.util.Date;
 
-import javax.xml.namespace.QName;
+public class XsdDateTime implements XsdType<Date> {
 
-public class XsdDateTime implements XsdType<Calendar> {
+	private QName qName = new QName(Schema.XML_SCHEMA_NAMESPACE, "date");
+	// would prefer to use calendar but gwt client does not support
+	private Date value;
 
-	private final Calendar value;
+	@Override
+	public void setQName(QName qName) {
+		this.qName = qName;
+	}
 
-	public XsdDateTime(Calendar calendar) {
+	public XsdDateTime() {
+
+	}
+
+	@Override
+	public void setValue(Date value) {
+		this.value = value;
+	}
+
+	public XsdDateTime(Date calendar) {
 		this.value = calendar;
 	}
 
 	@Override
-	public Calendar getValue() {
+	public Date getValue() {
 		return value;
 	}
 
@@ -21,9 +35,6 @@ public class XsdDateTime implements XsdType<Calendar> {
 	public String toString() {
 		return "XsdDateTime [value=" + value + "]";
 	}
-
-	private static final QName qName = new QName(Schema.XML_SCHEMA_NAMESPACE,
-			"date");
 
 	@Override
 	public QName getQName() {

@@ -1,10 +1,25 @@
 package org.moten.david.util.xsd.simplified;
 
-public class MaxOccurs {
-	private final boolean isUnbounded;
-	private final Integer maxOccurs;
+import java.io.Serializable;
+
+public class MaxOccurs implements Serializable {
+	private boolean isUnbounded;
+
+	private Integer maxOccurs;
+
+	public MaxOccurs() {
+		this(false, 1);
+	}
 
 	public static final MaxOccurs UNBOUNDED = new MaxOccurs(true);
+
+	public void setUnbounded(boolean isUnbounded) {
+		this.isUnbounded = isUnbounded;
+	}
+
+	public void setMaxOccurs(Integer maxOccurs) {
+		this.maxOccurs = maxOccurs;
+	}
 
 	@Override
 	public String toString() {
@@ -20,10 +35,6 @@ public class MaxOccurs {
 
 	public MaxOccurs(int maxOccurs) {
 		this(false, maxOccurs);
-	}
-
-	public MaxOccurs() {
-		this(false, 1);
 	}
 
 	private MaxOccurs(boolean isUnbounded, Integer maxOccurs) {

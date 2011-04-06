@@ -1,4 +1,4 @@
-package org.moten.david.util.xsd.simplified;
+package org.moten.david.util.xsd;
 
 import java.math.BigDecimal;
 import java.util.logging.Logger;
@@ -7,8 +7,23 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
-import javax.xml.namespace.QName;
 
+import org.moten.david.util.xsd.simplified.BasicGroup;
+import org.moten.david.util.xsd.simplified.Choice;
+import org.moten.david.util.xsd.simplified.ComplexType;
+import org.moten.david.util.xsd.simplified.Element;
+import org.moten.david.util.xsd.simplified.Group;
+import org.moten.david.util.xsd.simplified.MaxOccurs;
+import org.moten.david.util.xsd.simplified.QName;
+import org.moten.david.util.xsd.simplified.Restriction;
+import org.moten.david.util.xsd.simplified.Schema;
+import org.moten.david.util.xsd.simplified.Sequence;
+import org.moten.david.util.xsd.simplified.SimpleType;
+import org.moten.david.util.xsd.simplified.XsdDateTime;
+import org.moten.david.util.xsd.simplified.XsdDecimal;
+import org.moten.david.util.xsd.simplified.XsdInteger;
+import org.moten.david.util.xsd.simplified.XsdString;
+import org.moten.david.util.xsd.simplified.XsdType;
 import org.w3._2001.xmlschema.ExplicitGroup;
 import org.w3._2001.xmlschema.Facet;
 import org.w3._2001.xmlschema.LocalElement;
@@ -46,12 +61,16 @@ public class Convertor {
 	private Element convert(TopLevelElement t) {
 		log.info("converting top level element: " + t.getName());
 		Element.Builder builder = new Element.Builder();
-		builder.name(t.getName()).type(t.getType());
+		builder.name(t.getName()).type(toQName(t.getType()));
 		builder.maxOccurs(MaxOccurs.parse(t.getMaxOccurs()));
 		if (t.getMinOccurs() != null)
 			builder.minOccurs(t.getMinOccurs().intValue());
 
 		return builder.build();
+	}
+
+	private static QName toQName(javax.xml.namespace.QName q) {
+		return new QName(q.getNamespaceURI(), q.getLocalPart());
 	}
 
 	private SimpleType convert(TopLevelSimpleType t, String targetNamespace) {
@@ -64,7 +83,7 @@ public class Convertor {
 		log.info("converting restriction");
 		if (restriction == null)
 			return null;
-		QName base = restriction.getBase();
+		javax.xml.namespace.QName base = restriction.getBase();
 		Restriction.Builder builder = new Restriction.Builder();
 		for (Object facet : restriction.getFacets()) {
 			if (facet instanceof JAXBElement) {
@@ -103,11 +122,12 @@ public class Convertor {
 	}
 
 	private boolean isFacet(JAXBElement<?> e, String name) {
-		QName qName = new QName(Schema.XML_SCHEMA_NAMESPACE, name);
+		javax.xml.namespace.QName qName = new javax.xml.namespace.QName(
+				Schema.XML_SCHEMA_NAMESPACE, name);
 		return e.getName().equals(qName) && e.getValue() instanceof Facet;
 	}
 
-	private XsdType<?> getXsdType(NoFixedFacet f, QName base) {
+	private XsdType<?> getXsdType(NoFixedFacet f, javax.xml.namespace.QName base) {
 		log.info("converting facet to XsdType: " + f.getValue());
 		if ("{http://www.w3.org/2001/XMLSchema}decimal".equals(base.toString())) {
 			return new XsdDecimal(new BigDecimal(f.getValue()));
@@ -123,7 +143,7 @@ public class Convertor {
 				DatatypeFactory factory = DatatypeFactory.newInstance();
 				XMLGregorianCalendar date = factory.newXMLGregorianCalendar(f
 						.getValue());
-				return new XsdDateTime(date.toGregorianCalendar());
+				return new XsdDateTime(date.toGregorianCalendar().getTime());
 			} catch (DatatypeConfigurationException e) {
 				throw new RuntimeException(e);
 			}
@@ -181,7 +201,7 @@ public class Convertor {
 
 	private Element convert(LocalElement e) {
 		Element.Builder builder = new Element.Builder();
-		builder.name(e.getName()).type(e.getType());
+		builder.name(e.getName()).type(toQName(e.getType()));
 		if (e.getMinOccurs() != null)
 			builder.minOccurs(e.getMinOccurs().intValue());
 		builder.maxOccurs(MaxOccurs.parse(e.getMaxOccurs()));

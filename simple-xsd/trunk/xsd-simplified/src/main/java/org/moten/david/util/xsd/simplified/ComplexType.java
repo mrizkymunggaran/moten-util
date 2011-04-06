@@ -1,21 +1,31 @@
 package org.moten.david.util.xsd.simplified;
 
 import java.util.List;
-
-import javax.xml.namespace.QName;
-
-import com.google.common.collect.ImmutableMap;
+import java.util.Map;
 
 public class ComplexType implements Type, Group {
 
-	private final QName name;
-	private final ImmutableMap<String, QName> attributes;
+	private QName name;
+	private Map<String, QName> attributes;
+	private Group group;
+
+	public void setGroup(Group group) {
+		this.group = group;
+	}
+
+	public void setName(QName name) {
+		this.name = name;
+	}
+
+	public void setAttributes(Map<String, QName> attributes) {
+		this.attributes = attributes;
+	}
 
 	public QName getName() {
 		return name;
 	}
 
-	public ImmutableMap<String, QName> getAttributes() {
+	public Map<String, QName> getAttributes() {
 		return attributes;
 	}
 
@@ -23,15 +33,16 @@ public class ComplexType implements Type, Group {
 		return group;
 	}
 
-	private final Group group;
-
 	@Override
 	public QName getQName() {
 		return name;
 	}
 
-	public ComplexType(QName name, Group group,
-			ImmutableMap<String, QName> attributes) {
+	public ComplexType() {
+
+	}
+
+	public ComplexType(QName name, Group group, Map<String, QName> attributes) {
 		this.name = name;
 		this.group = group;
 		this.attributes = attributes;
@@ -56,6 +67,17 @@ public class ComplexType implements Type, Group {
 	public String toString() {
 		return "\n\tComplexType [name=" + name + ", attributes=" + attributes
 				+ ", \n\tgroup=" + group + "]";
+	}
+
+	@Override
+	public void setMinOccurs(int minOccurs) {
+		group.setMinOccurs(minOccurs);
+
+	}
+
+	@Override
+	public void setParticles(List<Particle> particles) {
+		group.setParticles(particles);
 	}
 
 }
