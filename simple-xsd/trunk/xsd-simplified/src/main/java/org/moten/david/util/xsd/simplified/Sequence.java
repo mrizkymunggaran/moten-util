@@ -3,7 +3,19 @@ package org.moten.david.util.xsd.simplified;
 import java.util.List;
 
 public class Sequence implements Group {
-	private final Group group;
+	private Group group;
+
+	public Sequence() {
+
+	}
+
+	public Group getGroup() {
+		return group;
+	}
+
+	public void setGroup(Group group) {
+		this.group = group;
+	}
 
 	public Sequence(Group group) {
 		this.group = group;
@@ -27,5 +39,15 @@ public class Sequence implements Group {
 	@Override
 	public List<Particle> getParticles() {
 		return group.getParticles();
+	}
+
+	@Override
+	public void setMinOccurs(int minOccurs) {
+		group.setMinOccurs(minOccurs);
+	}
+
+	@Override
+	public void setParticles(List<Particle> particles) {
+		group.setParticles(particles);
 	}
 }

@@ -3,7 +3,15 @@ package org.moten.david.util.xsd.simplified;
 import java.util.List;
 
 public class Choice implements Group {
-	private final Group group;
+	private Group group;
+
+	public Group getGroup() {
+		return group;
+	}
+
+	public Choice() {
+
+	}
 
 	public Choice(Group group) {
 		this.group = group;
@@ -27,5 +35,16 @@ public class Choice implements Group {
 	@Override
 	public List<Particle> getParticles() {
 		return group.getParticles();
+	}
+
+	@Override
+	public void setMinOccurs(int minOccurs) {
+		group.setMinOccurs(minOccurs);
+
+	}
+
+	@Override
+	public void setParticles(List<Particle> particles) {
+		group.setParticles(particles);
 	}
 }

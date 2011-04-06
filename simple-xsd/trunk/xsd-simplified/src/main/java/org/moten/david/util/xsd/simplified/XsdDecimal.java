@@ -2,11 +2,28 @@ package org.moten.david.util.xsd.simplified;
 
 import java.math.BigDecimal;
 
-import javax.xml.namespace.QName;
-
 public class XsdDecimal implements XsdType<BigDecimal> {
 
-	private final BigDecimal value;
+	private QName qName = new QName(Schema.XML_SCHEMA_NAMESPACE, "decimal");
+
+	public QName getqName() {
+		return qName;
+	}
+
+	public void setqName(QName qName) {
+		this.qName = qName;
+	}
+
+	private BigDecimal value;
+
+	public XsdDecimal() {
+
+	}
+
+	@Override
+	public void setValue(BigDecimal value) {
+		this.value = value;
+	}
 
 	public XsdDecimal(BigDecimal value) {
 		super();
@@ -18,8 +35,10 @@ public class XsdDecimal implements XsdType<BigDecimal> {
 		return value;
 	}
 
-	private static final QName qName = new QName(Schema.XML_SCHEMA_NAMESPACE,
-			"decimal");
+	@Override
+	public String toString() {
+		return "XsdDecimal [value=" + value + "]";
+	}
 
 	@Override
 	public QName getQName() {
@@ -27,8 +46,8 @@ public class XsdDecimal implements XsdType<BigDecimal> {
 	}
 
 	@Override
-	public String toString() {
-		return "XsdDecimal [value=" + value + "]";
+	public void setQName(QName q) {
+		this.qName = q;
 	}
 
 }

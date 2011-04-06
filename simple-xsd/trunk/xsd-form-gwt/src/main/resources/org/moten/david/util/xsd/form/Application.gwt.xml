@@ -11,6 +11,7 @@
   <!-- <inherits name='com.google.gwt.user.theme.dark.Dark'/>     -->
 
   <!-- Other module inherits                                      -->
+  <inherits name="org.moten.david.util.xsd.simplified"/>
 
   <!-- Specify the app entry point class.                         -->
   <entry-point class='org.moten.david.util.xsd.form.client.Application'/>

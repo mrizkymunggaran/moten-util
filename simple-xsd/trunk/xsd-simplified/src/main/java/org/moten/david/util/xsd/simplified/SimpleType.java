@@ -1,11 +1,25 @@
 package org.moten.david.util.xsd.simplified;
 
-import javax.xml.namespace.QName;
-
 public class SimpleType implements Particle, Type {
 
-	private final QName name;
-	private final Restriction restriction;
+	private QName name;
+	private Restriction restriction;
+
+	public SimpleType() {
+
+	}
+
+	public QName getName() {
+		return name;
+	}
+
+	public void setName(QName name) {
+		this.name = name;
+	}
+
+	public void setRestriction(Restriction restriction) {
+		this.restriction = restriction;
+	}
 
 	public Restriction getRestriction() {
 		return restriction;

@@ -1,10 +1,16 @@
 package org.moten.david.util.xsd.simplified;
 
-import javax.xml.namespace.QName;
 
 public class Element implements Particle {
 	private String name;
 	private int minOccurs = 1;
+	private QName type;
+	private MaxOccurs maxOccurs = new MaxOccurs();
+	private boolean maxUnbounded = false;
+
+	public void setMaxUnbounded(boolean maxUnbounded) {
+		this.maxUnbounded = maxUnbounded;
+	}
 
 	public String getName() {
 		return name;
@@ -29,9 +35,6 @@ public class Element implements Particle {
 		return type;
 	}
 
-	private MaxOccurs maxOccurs = new MaxOccurs();
-	private final boolean maxUnbounded = false;
-
 	public boolean isMaxUnbounded() {
 		return maxUnbounded;
 	}
@@ -52,9 +55,7 @@ public class Element implements Particle {
 		this.type = type;
 	}
 
-	private QName type;
-
-	private Element() {
+	public Element() {
 
 	}
 

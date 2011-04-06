@@ -1,12 +1,45 @@
 package org.moten.david.util.xsd.simplified;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Restriction {
-	private final List<XsdType<?>> enumerations;;
-	private final String pattern;
+public class Restriction implements Serializable {
+	private List<XsdType<?>> enumerations;;
+	private String pattern;
+	private BigDecimal maxInclusive;
+	private BigDecimal maxExclusive;
+	private BigDecimal minInclusive;
+	private BigDecimal minExclusive;
+
+	public Restriction() {
+
+	}
+
+	public void setEnumerations(List<XsdType<?>> enumerations) {
+		this.enumerations = enumerations;
+	}
+
+	public void setPattern(String pattern) {
+		this.pattern = pattern;
+	}
+
+	public void setMaxInclusive(BigDecimal maxInclusive) {
+		this.maxInclusive = maxInclusive;
+	}
+
+	public void setMaxExclusive(BigDecimal maxExclusive) {
+		this.maxExclusive = maxExclusive;
+	}
+
+	public void setMinInclusive(BigDecimal minInclusive) {
+		this.minInclusive = minInclusive;
+	}
+
+	public void setMinExclusive(BigDecimal minExclusive) {
+		this.minExclusive = minExclusive;
+	}
 
 	public Restriction(List<XsdType<?>> enumerations, String pattern,
 			BigDecimal maxInclusive, BigDecimal maxExclusive,
@@ -27,8 +60,6 @@ public class Restriction {
 				+ ", maxExclusive=" + maxExclusive + ", minInclusive="
 				+ minInclusive + ", minExclusive=" + minExclusive + "]";
 	}
-
-	private final BigDecimal maxInclusive;
 
 	public List<XsdType<?>> getEnumerations() {
 		return enumerations;
@@ -53,10 +84,6 @@ public class Restriction {
 	public BigDecimal getMinExclusive() {
 		return minExclusive;
 	}
-
-	private final BigDecimal maxExclusive;
-	private final BigDecimal minInclusive;
-	private final BigDecimal minExclusive;
 
 	public static class Builder {
 		private final List<XsdType<?>> enumerations = new ArrayList<XsdType<?>>();

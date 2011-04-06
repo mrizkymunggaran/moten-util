@@ -4,9 +4,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BasicGroup implements Group {
-	private final List<Particle> particles = new ArrayList<Particle>();
+	private List<Particle> particles = new ArrayList<Particle>();
+
+	public void setParticles(List<Particle> particles) {
+		this.particles = particles;
+	}
+
+	public void setMaxOccurs(MaxOccurs maxOccurs) {
+		this.maxOccurs = maxOccurs;
+	}
+
+	public void setMinOccurs(int minOccurs) {
+		this.minOccurs = minOccurs;
+	}
+
 	private MaxOccurs maxOccurs = new MaxOccurs();
 	private int minOccurs = 1;
+
+	public BasicGroup() {
+
+	}
 
 	@Override
 	public MaxOccurs getMaxOccurs() {
