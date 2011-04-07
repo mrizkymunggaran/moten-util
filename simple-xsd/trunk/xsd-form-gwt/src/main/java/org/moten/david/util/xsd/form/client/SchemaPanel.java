@@ -15,6 +15,7 @@ import org.moten.david.util.xsd.simplified.XsdType;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
@@ -51,15 +52,25 @@ public class SchemaPanel extends VerticalPanel {
 
 	private Widget createSimpleType(String name, SimpleType t) {
 		HorizontalPanel p = new HorizontalPanel();
-		p.add(new Label(name));
 		if (t.getRestriction() != null) {
+			p.add(new Label(name));
 			List<XsdType<?>> xsdTypes = t.getRestriction().getEnumerations();
-			ListBox listBox = new ListBox();
-			for (XsdType<?> x : xsdTypes) {
-				listBox.addItem(x.getValue().toString());
+			if (xsdTypes.size() > 0) {
+				ListBox listBox = new ListBox();
+				for (XsdType<?> x : xsdTypes) {
+					listBox.addItem(x.getValue().toString());
+				}
+				p.add(listBox);
+			} else {
+				TextBox text = new TextBox();
+				text.setText(t.getRestriction().getPattern());
+				p.add(text);
 			}
-			p.add(listBox);
+		} else if (t.getName().getLocalPart().equals("boolean")) {
+			CheckBox c = new CheckBox(name);
+			p.add(c);
 		} else {
+			p.add(new Label(name));
 			TextBox text = new TextBox();
 			text.setText(t.getName().getLocalPart());
 			p.add(text);
@@ -69,7 +80,7 @@ public class SchemaPanel extends VerticalPanel {
 
 	private Widget createComplexTypePanel(String name, ComplexType t) {
 		VerticalPanel p = new VerticalPanel();
-		p.add(new Label(name + ":" + t.getName().toString()));
+		p.add(new Label(name));
 		for (Particle particle : t.getParticles()) {
 			p.add(createParticle(particle));
 		}
