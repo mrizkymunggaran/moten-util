@@ -15,6 +15,7 @@ import org.moten.david.util.xsd.simplified.XsdType;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
@@ -47,6 +48,11 @@ public class SchemaPanel extends VerticalPanel {
 		else
 			throw new RuntimeException("could not find type: "
 					+ element.getType());
+		if (element.getMaxOccurs() != null
+				&& (element.getMaxOccurs().isUnbounded() || element
+						.getMaxOccurs().getMaxOccurs() > 1)) {
+			p.add(new Button("Add"));
+		}
 		return decorate(p);
 	}
 
