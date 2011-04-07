@@ -117,7 +117,6 @@ public class SchemaPanel extends VerticalPanel {
 	private Widget createGroup(Group group) {
 		VerticalPanel p = new VerticalPanel();
 		if (group instanceof Choice) {
-			p.add(new Label("choice"));
 			String groupName = "group" + nextGroup();
 			boolean first = true;
 			final Widget[] lastChecked = new Widget[] { null };
