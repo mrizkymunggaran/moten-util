@@ -1,12 +1,30 @@
 package org.moten.david.util.xsd.simplified;
 
-
 public class Element implements Particle {
 	private String name;
+	private String displayName;
+	private String description;
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
 	private int minOccurs = 1;
 	private QName type;
 	private MaxOccurs maxOccurs = new MaxOccurs();
 	private boolean maxUnbounded = false;
+
+	public String getDisplayName() {
+		return displayName;
+	}
+
+	public void setDisplayName(String displayName) {
+		this.displayName = displayName;
+	}
 
 	public void setMaxUnbounded(boolean maxUnbounded) {
 		this.maxUnbounded = maxUnbounded;
@@ -77,6 +95,16 @@ public class Element implements Particle {
 
 		public Builder type(QName type) {
 			e.type = type;
+			return this;
+		}
+
+		public Builder displayName(String displayName) {
+			e.displayName = displayName;
+			return this;
+		}
+
+		public Builder description(String description) {
+			e.description = description;
 			return this;
 		}
 

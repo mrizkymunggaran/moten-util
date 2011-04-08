@@ -39,26 +39,46 @@ public class SchemaPanel extends VerticalPanel {
 	}
 
 	private Widget createElementPanel(Element element) {
+		// use a parent so we can add multiple elements if required
+		final VerticalPanel parent = new VerticalPanel();
+		parent.add(createElementPanel(parent, element));
+		return decorate(parent);
+	}
+
+	private Widget createElementPanel(final VerticalPanel parent,
+			final Element element) {
 		VerticalPanel p = new VerticalPanel();
 		Type t = getType(schema, element);
 		if (t instanceof ComplexType) {
 			p.add(createComplexTypePanel(element.getName(), (ComplexType) t));
 		} else if (t instanceof SimpleType)
-			p.add(createSimpleType(element.getName(), (SimpleType) t));
+			p.add(createSimpleType(element.getDisplayName(),
+					element.getDescription(), (SimpleType) t));
 		else
 			throw new RuntimeException("could not find type: "
 					+ element.getType());
 		if (element.getMaxOccurs() != null
 				&& (element.getMaxOccurs().isUnbounded() || element
 						.getMaxOccurs().getMaxOccurs() > 1)) {
-			p.add(new Button("Add"));
+			final Button button = new Button("Add");
+			button.setStyleName("add");
+			p.add(button);
+			button.addClickHandler(new ClickHandler() {
+
+				public void onClick(ClickEvent arg0) {
+					button.setVisible(false);
+					parent.add(createElementPanel(parent, element));
+				}
+			});
 		}
 		return decorate(p);
 	}
 
-	private Widget createSimpleType(String name, SimpleType t) {
+	private Widget createSimpleType(String name, String description,
+			SimpleType t) {
 		HorizontalPanel p = new HorizontalPanel();
 		if (t.getRestriction() != null) {
+			// list boxes
 			p.add(new Label(name));
 			List<XsdType<?>> xsdTypes = t.getRestriction().getEnumerations();
 			if (xsdTypes.size() > 0) {
@@ -66,22 +86,36 @@ public class SchemaPanel extends VerticalPanel {
 				for (XsdType<?> x : xsdTypes) {
 					listBox.addItem(x.getValue().toString());
 				}
-				p.add(listBox);
+				p.add(addDescription(listBox, description));
 			} else {
+				// patterns
 				TextBox text = new TextBox();
 				text.setText(t.getRestriction().getPattern());
-				p.add(text);
+				p.add(addDescription(text, description));
 			}
 		} else if (t.getName().getLocalPart().equals("boolean")) {
+			// checkboxes
 			CheckBox c = new CheckBox(name);
-			p.add(c);
+			p.add(addDescription(c, description));
 		} else {
+			// plain text box
 			p.add(new Label(name));
 			TextBox text = new TextBox();
 			text.setText(t.getName().getLocalPart());
-			p.add(text);
+			p.add(addDescription(text, description));
 		}
 		return decorate(p);
+	}
+
+	private Widget addDescription(Widget widget, String description) {
+		VerticalPanel vp = new VerticalPanel();
+		vp.add(widget);
+		if (description != null) {
+			Label label = new Label(description);
+			vp.add(label);
+		}
+		vp.setStyleName("description");
+		return vp;
 	}
 
 	private Widget createComplexTypePanel(String name, ComplexType t) {
@@ -98,7 +132,7 @@ public class SchemaPanel extends VerticalPanel {
 		if (particle instanceof Element)
 			p.add(createElementPanel((Element) particle));
 		else if (particle instanceof SimpleType)
-			p.add(createSimpleType(particle.getClass().getName(),
+			p.add(createSimpleType(particle.getClass().getName(), null,
 					(SimpleType) particle));
 		else if (particle instanceof Group)
 			p.add(createGroup((Group) particle));

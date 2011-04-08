@@ -65,7 +65,7 @@ public class GreetingServiceImpl extends RemoteServiceServlet implements
 			Marshaller m = new Marshaller();
 			org.w3._2001.xmlschema.Schema s = m
 					.unmarshal(GreetingServiceImpl.class
-							.getResourceAsStream("/test.xsd"));
+							.getResourceAsStream("/form63.xsd"));
 			Schema schema = c.convert(s);
 			return schema;
 		} catch (RuntimeException e) {

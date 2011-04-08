@@ -6,6 +6,7 @@ import java.util.List;
 
 public class Schema implements Serializable {
 	public static final String XML_SCHEMA_NAMESPACE = "http://www.w3.org/2001/XMLSchema";
+	public static final String APPINFO_NAMESPACE = "http://moten.david.org/util/xsd/simplified/appinfo";
 	private String namespace;
 	private List<ComplexType> complexTypes;
 	private List<SimpleType> simpleTypes;
