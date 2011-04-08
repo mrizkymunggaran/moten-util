@@ -10,7 +10,7 @@
 		</documentation>
 	</annotation>
 
-	<element name="positions" type="tns:positions" />
+	<element name="positions" type="tns:positions" i:label="Positions:"/>
 
 	<complexType name="positions">
 		<annotation>

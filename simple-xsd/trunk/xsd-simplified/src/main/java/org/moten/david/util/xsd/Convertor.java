@@ -1,6 +1,8 @@
 package org.moten.david.util.xsd;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.xml.bind.JAXBElement;
@@ -58,15 +60,10 @@ public class Convertor {
 		return builder.build();
 	}
 
-	private Element convert(TopLevelElement t) {
-		log.info("converting top level element: " + t.getName());
-		Element.Builder builder = new Element.Builder();
-		builder.name(t.getName()).type(toQName(t.getType()));
-		builder.maxOccurs(MaxOccurs.parse(t.getMaxOccurs()));
-		if (t.getMinOccurs() != null)
-			builder.minOccurs(t.getMinOccurs().intValue());
-
-		return builder.build();
+	private Element convert(TopLevelElement e) {
+		log.info("converting top level element: " + e.getName());
+		return convertElement(e.getName(), e.getType(), e.getOtherAttributes(),
+				e.getMinOccurs(), e.getMaxOccurs());
 	}
 
 	private static QName toQName(javax.xml.namespace.QName q) {
@@ -199,12 +196,34 @@ public class Convertor {
 
 	}
 
-	private Element convert(LocalElement e) {
+	private String getInfo(Map<javax.xml.namespace.QName, String> attributes,
+			String name) {
+		return attributes.get(new javax.xml.namespace.QName(
+				Schema.APPINFO_NAMESPACE, name));
+	}
+
+	private Element convertElement(String name,
+			javax.xml.namespace.QName qName,
+			Map<javax.xml.namespace.QName, String> attributes,
+			BigInteger minOccurs, String maxOccurs) {
 		Element.Builder builder = new Element.Builder();
-		builder.name(e.getName()).type(toQName(e.getType()));
-		if (e.getMinOccurs() != null)
-			builder.minOccurs(e.getMinOccurs().intValue());
-		builder.maxOccurs(MaxOccurs.parse(e.getMaxOccurs()));
+		builder.name(name).type(toQName(qName));
+		builder.displayName(name);
+		if (attributes != null) {
+			String displayName = getInfo(attributes, "label");
+			if (displayName != null)
+				builder.displayName(displayName);
+			String description = getInfo(attributes, "description");
+			builder.description(description);
+		}
+		if (minOccurs != null)
+			builder.minOccurs(minOccurs.intValue());
+		builder.maxOccurs(MaxOccurs.parse(maxOccurs));
 		return builder.build();
+	}
+
+	private Element convert(LocalElement e) {
+		return convertElement(e.getName(), e.getType(), e.getOtherAttributes(),
+				e.getMinOccurs(), e.getMaxOccurs());
 	}
 }

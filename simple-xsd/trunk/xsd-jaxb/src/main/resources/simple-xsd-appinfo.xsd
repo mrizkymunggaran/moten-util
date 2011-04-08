@@ -5,6 +5,10 @@
 	elementFormDefault="qualified" version="1.0">
 
 	<element name="info" type="tns:info" />
+	
+	<attribute name="label" type="string"/>
+	
+	<attribute name="description" type="string"/>
 
 	<complexType name="info">
 		<sequence>
