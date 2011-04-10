@@ -105,7 +105,7 @@ public class SchemaPanel extends VerticalPanel {
 	}
 
 	private Widget createSimpleType(String name, String description,
-			SimpleType t) {
+			final SimpleType t) {
 		HorizontalPanel p = new HorizontalPanel();
 		if (t.getRestriction() != null) {
 			// list boxes
