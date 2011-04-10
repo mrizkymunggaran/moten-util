@@ -54,3 +54,22 @@ h1 {
 .add {
 	float: right;
 }
+
+.before {
+	padding-bottom: 10px;
+	padding-top: 10px;
+}
+
+.after {
+	padding-bottom: 10px;
+	padding-top: 10px;
+}
+
+.label {
+	padding-right: 2em;	
+	vertical-align: middle;
+}
+
+.item {
+	vertical-align: middle;	
+}

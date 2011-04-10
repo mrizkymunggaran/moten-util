@@ -17,6 +17,9 @@ public class Element implements Particle {
 	private QName type;
 	private MaxOccurs maxOccurs = new MaxOccurs();
 	private boolean maxUnbounded = false;
+	public String validation;
+	public String before;
+	public String after;
 
 	public String getDisplayName() {
 		return displayName;
@@ -39,6 +42,14 @@ public class Element implements Particle {
 		return "\n\tElement [name=" + name + ", minOccurs=" + minOccurs
 				+ ", maxOccurs=" + maxOccurs + ", maxUnbounded=" + maxUnbounded
 				+ ", type=" + type + "]";
+	}
+
+	public String getValidation() {
+		return validation;
+	}
+
+	public void setValidation(String validation) {
+		this.validation = validation;
 	}
 
 	public int getMinOccurs() {
@@ -118,5 +129,33 @@ public class Element implements Particle {
 			return this;
 		}
 
+		public void validation(String validation) {
+			e.validation = validation;
+		}
+
+		public void before(String before) {
+			e.before = before;
+		}
+
+		public void after(String after) {
+			e.after = after;
+		}
+
+	}
+
+	public String getBefore() {
+		return before;
+	}
+
+	public void setBefore(String before) {
+		this.before = before;
+	}
+
+	public String getAfter() {
+		return after;
+	}
+
+	public void setAfter(String after) {
+		this.after = after;
 	}
 }

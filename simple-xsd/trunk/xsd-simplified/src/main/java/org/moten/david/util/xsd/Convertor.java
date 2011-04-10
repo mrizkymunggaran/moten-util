@@ -208,13 +208,19 @@ public class Convertor {
 			BigInteger minOccurs, String maxOccurs) {
 		Element.Builder builder = new Element.Builder();
 		builder.name(name).type(toQName(qName));
-		builder.displayName(name);
+		builder.displayName(toDisplay(name));
 		if (attributes != null) {
 			String displayName = getInfo(attributes, "label");
 			if (displayName != null)
 				builder.displayName(displayName);
 			String description = getInfo(attributes, "description");
 			builder.description(description);
+			String validation = getInfo(attributes, "validation");
+			builder.validation(validation);
+			String before = getInfo(attributes, "before");
+			builder.before(before);
+			String after = getInfo(attributes, "after");
+			builder.after(after);
 		}
 		if (minOccurs != null)
 			builder.minOccurs(minOccurs.intValue());
@@ -222,8 +228,38 @@ public class Convertor {
 		return builder.build();
 	}
 
+	private String toDisplay(String s) {
+		String separators = "-_.";
+
+		StringBuffer a = new StringBuffer();
+		Character last = null;
+		for (char ch : s.toCharArray()) {
+			if (separators.contains(ch + "")) {
+				a.append(" ");
+			} else {
+				if (last != null && Character.isUpperCase(ch)
+						&& Character.isLowerCase(last))
+					a.append(" ");
+				if (a.length() == 0)
+					a.append(Character.toUpperCase(ch));
+				else {
+					a.append(Character.toLowerCase(ch));
+				}
+			}
+			last = ch;
+		}
+		return a.toString();
+	}
+
+	private Map<javax.xml.namespace.QName, String> getAttributes(LocalElement e) {
+		if (e.getAnnotation() == null)
+			return null;
+		else
+			return e.getAnnotation().getOtherAttributes();
+	}
+
 	private Element convert(LocalElement e) {
-		return convertElement(e.getName(), e.getType(), e.getOtherAttributes(),
+		return convertElement(e.getName(), e.getType(), getAttributes(e),
 				e.getMinOccurs(), e.getMaxOccurs());
 	}
 }
