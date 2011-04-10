@@ -1,5 +1,6 @@
-#Thu Sep 02 10:55:28 CEST 2010
+#Fri Apr 08 21:52:39 EST 2011
 eclipse.preferences.version=1
 jarsExcludedFromWebInfLib=
+lastWarOutDir=/home/dave/Development/ide/eclipse/workspace-3.5/simple-xsd/xsd-form-gwt/target/xsd-form-gwt-1.0.0-SNAPSHOT
 warSrcDir=src/main/webapp
-warSrcDirIsOutput=true
+warSrcDirIsOutput=false

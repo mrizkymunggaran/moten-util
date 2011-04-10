@@ -68,6 +68,7 @@
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
 			<version>r08</version>
+			<type>pom</type>
 		</dependency>
 	</dependencies>
 </project>

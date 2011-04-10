@@ -10,6 +10,7 @@
 		<module>xsd-jaxb</module>
 		<module>xsd-simplified</module>
 		<module>xsd-form-gwt</module>
+		<module>xsd-sample</module>
 	</modules>
 	<build>
 		<plugins>

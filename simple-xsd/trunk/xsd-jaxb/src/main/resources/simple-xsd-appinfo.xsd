@@ -9,6 +9,11 @@
 	<attribute name="label" type="string"/>
 	
 	<attribute name="description" type="string"/>
+	
+	<attribute name="before" type="string"/>
+	
+	<attribute name="after" type="string"/>
+	<attribute name="validation" type="string"/>
 
 	<complexType name="info">
 		<sequence>
