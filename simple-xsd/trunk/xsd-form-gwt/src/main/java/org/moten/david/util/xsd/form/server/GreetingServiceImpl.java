@@ -1,5 +1,6 @@
 package org.moten.david.util.xsd.form.server;
 
+import java.io.InputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -63,9 +64,11 @@ public class GreetingServiceImpl extends RemoteServiceServlet implements
 		try {
 			Convertor c = new Convertor();
 			Marshaller m = new Marshaller();
-			org.w3._2001.xmlschema.Schema s = m
-					.unmarshal(GreetingServiceImpl.class
-							.getResourceAsStream("/test.xsd"));
+			InputStream is = GreetingServiceImpl.class
+					.getResourceAsStream("/test.xsd");
+			// InputStream is = new
+			// FileInputStream("src/main/resources/test.xsd");
+			org.w3._2001.xmlschema.Schema s = m.unmarshal(is);
 			Schema schema = c.convert(s);
 			return schema;
 		} catch (RuntimeException e) {

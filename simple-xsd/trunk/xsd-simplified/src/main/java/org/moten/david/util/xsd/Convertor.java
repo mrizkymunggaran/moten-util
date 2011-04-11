@@ -82,6 +82,8 @@ public class Convertor {
 			return null;
 		javax.xml.namespace.QName base = restriction.getBase();
 		Restriction.Builder builder = new Restriction.Builder();
+		if (base != null)
+			builder.base(toQName(base));
 		for (Object facet : restriction.getFacets()) {
 			if (facet instanceof JAXBElement) {
 
