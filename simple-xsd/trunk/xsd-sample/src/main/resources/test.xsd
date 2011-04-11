@@ -15,8 +15,8 @@
 				<xs:annotation
 					i:before="Date of birth is required for age based statistical analysis but will not be available publicly"
 					i:label="Date of birth" i:description="dd/mm/yyyy (dd=day, mm=month, yyyy=year)"
-					i:validation="This field must of the form dd/mm/yyyy. For example, 12 March 2011 is 12/03/2011" 
-					i:after="If you have concerns about privacy please see our &lt;a href=&quot;http://google.com&quot;&gt;privacy statement&lt;a&gt;"/>
+					i:validation="This field must of the form dd/mm/yyyy. For example, 12 March 2011 is 12/03/2011"
+					i:after="If you have concerns about privacy please see our &lt;a href=&quot;http://google.com&quot;&gt;privacy statement&lt;a&gt;" />
 			</xs:element>
 			<xs:element name="passport-no" type="passport-no">
 				<xs:annotation i:label="Passport Number"
@@ -25,8 +25,9 @@
 			</xs:element>
 			<xs:element name="last-submission" type="xs:dateTime"
 				minOccurs="0" />
-			<xs:element name="lived-in" type="country" maxOccurs="unbounded" >
-				<xs:annotation i:description="Select the current country name for the location you lived in. You may select multiple locations by clicking on the Add button."/>
+			<xs:element name="lived-in" type="country" maxOccurs="unbounded">
+				<xs:annotation
+					i:description="Select the current country name for the location you lived in. You may select multiple locations by clicking on the Add button." />
 			</xs:element>
 			<xs:element name="number-of-children" type="xs:integer"
 				default="0" />
@@ -34,14 +35,17 @@
 				<xs:element name="address" type="xs:string" i:label="Address" />
 				<xs:element name="phone" type="xs:string" maxOccurs="unbounded" />
 			</xs:choice>
-			<xs:element name="code" type="code" >
-				<xs:annotation i:label="Identifier Code"  i:validation="This field must be a whole number between 11 and 19"/>
+			<xs:element name="code" type="code">
+				<xs:annotation i:label="Identifier Code"
+					i:validation="This field must be a whole number between 11 and 19" />
 			</xs:element>
 			<xs:element name="story" type="xs:string" minOccurs="0" />
 		</xs:sequence>
-		<xs:attribute name="height-cm" type="xs:decimal" />
+		<xs:element name="height-m" type="xs:decimal">
+			<xs:annotation i:label="Height in metres" />
+		</xs:element>
 		<xs:attribute name="nationality" type="country" />
-		<xs:element name="permanent-resident" type="xs:boolean"/>
+		<xs:element name="permanent-resident" type="xs:boolean" />
 	</xs:complexType>
 
 	<xs:simpleType name="passport-no">
