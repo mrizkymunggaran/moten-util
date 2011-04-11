@@ -12,6 +12,15 @@ public class Restriction implements Serializable {
 	private BigDecimal maxExclusive;
 	private BigDecimal minInclusive;
 	private BigDecimal minExclusive;
+	private QName base;
+
+	public QName getBase() {
+		return base;
+	}
+
+	public void setBase(QName base) {
+		this.base = base;
+	}
 
 	public Restriction() {
 
@@ -43,7 +52,7 @@ public class Restriction implements Serializable {
 
 	public Restriction(List<XsdType<?>> enumerations, String pattern,
 			BigDecimal maxInclusive, BigDecimal maxExclusive,
-			BigDecimal minInclusive, BigDecimal minExclusive) {
+			BigDecimal minInclusive, BigDecimal minExclusive, QName base) {
 		super();
 		this.enumerations = enumerations;
 		this.pattern = pattern;
@@ -51,6 +60,7 @@ public class Restriction implements Serializable {
 		this.maxExclusive = maxExclusive;
 		this.minInclusive = minInclusive;
 		this.minExclusive = minExclusive;
+		this.base = base;
 	}
 
 	@Override
@@ -92,13 +102,19 @@ public class Restriction implements Serializable {
 		private BigDecimal maxExclusive;
 		private BigDecimal minInclusive;
 		private BigDecimal minExclusive;
+		private QName base;
 
 		public Builder() {
 		}
 
 		public Restriction build() {
 			return new Restriction(enumerations, pattern, maxInclusive,
-					maxExclusive, minInclusive, minExclusive);
+					maxExclusive, minInclusive, minExclusive, base);
+		}
+
+		public Builder base(QName base) {
+			this.base = base;
+			return this;
 		}
 
 		public Builder pattern(String pattern) {

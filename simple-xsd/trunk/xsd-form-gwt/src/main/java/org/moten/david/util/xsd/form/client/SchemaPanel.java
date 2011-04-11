@@ -8,6 +8,7 @@ import org.moten.david.util.xsd.simplified.ComplexType;
 import org.moten.david.util.xsd.simplified.Element;
 import org.moten.david.util.xsd.simplified.Group;
 import org.moten.david.util.xsd.simplified.Particle;
+import org.moten.david.util.xsd.simplified.Restriction;
 import org.moten.david.util.xsd.simplified.Schema;
 import org.moten.david.util.xsd.simplified.Sequence;
 import org.moten.david.util.xsd.simplified.SimpleType;
@@ -21,6 +22,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
+import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CheckBox;
@@ -31,6 +33,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.TextBox;
+import com.google.gwt.user.client.ui.TextBoxBase;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.user.datepicker.client.DatePicker;
@@ -124,7 +127,7 @@ public class SchemaPanel extends VerticalPanel {
 				}
 				listBox.setStyleName("item");
 				p.add(addDescription(listBox, description));
-			} else {
+			} else if (t.getRestriction().getPattern() != null) {
 				// patterns
 
 				final TextBox text = new TextBox();
@@ -135,26 +138,41 @@ public class SchemaPanel extends VerticalPanel {
 				validation.setVisible(false);
 				validation.setStyleName("validation");
 
-				text.addChangeHandler(new ChangeHandler() {
-					public void onChange(ChangeEvent event) {
-						RegExp pattern = RegExp.compile(t.getRestriction()
-								.getPattern());
-						if (pattern.exec(text.getText()) == null) {
-							if (validationMessage != null)
-								validation.setText(validationMessage);
-							else
-								validation.setText("invalid");
-							validation.setVisible(true);
-						} else
-							validation.setVisible(false);
-					}
-				});
+				text.addChangeHandler(createPatternChangeHandler(t
+						.getRestriction().getPattern(), text,
+						validationMessage, validation));
 
 				VerticalPanel vp = new VerticalPanel();
 				vp.add(text);
 				vp.add(addDescription(validation, description));
 
 				p.add(vp);
+			} else if (t.getRestriction().getBase() != null
+					&& t.getRestriction().getBase().getLocalPart()
+							.equals("integer")) {
+				final TextBox text = new TextBox();
+				text.setText("");
+				text.setStyleName("item");
+
+				final Label validation = new Label();
+				validation.setVisible(false);
+				validation.setStyleName("validation");
+
+				text.addChangeHandler(createIntegerChangeHandler(
+						t.getRestriction(), text, validationMessage, validation));
+
+				VerticalPanel vp = new VerticalPanel();
+				vp.add(text);
+				vp.add(addDescription(validation, description));
+
+				p.add(vp);
+			} else {
+				// plain text box
+				p.add(createLabel(name));
+				TextBox text = new TextBox();
+				text.setText(t.getName().getLocalPart());
+				text.setStyleName("item");
+				p.add(addDescription(text, description));
 			}
 		} else if (t.getName().getLocalPart().equals("boolean")) {
 			// checkboxes
@@ -176,8 +194,8 @@ public class SchemaPanel extends VerticalPanel {
 			datePicker.addValueChangeHandler(new ValueChangeHandler<Date>() {
 				public void onValueChange(ValueChangeEvent<Date> event) {
 					Date date = event.getValue();
-					String dateString = DateTimeFormat.getMediumDateFormat()
-							.format(date);
+					String dateString = DateTimeFormat.getFormat(
+							PredefinedFormat.DATE_FULL).format(date);
 					text.setText(dateString);
 				}
 			});
@@ -189,7 +207,7 @@ public class SchemaPanel extends VerticalPanel {
 			d.setContent(datePicker);
 			p.add(d);
 		} else if (t.getName().getLocalPart().equals("dateTime")) {
-
+			p.add(new Label("TODO dateTime"));
 		} else {
 			// plain text box
 			p.add(createLabel(name));
@@ -199,6 +217,59 @@ public class SchemaPanel extends VerticalPanel {
 			p.add(addDescription(text, description));
 		}
 		return decorate(p);
+	}
+
+	private ChangeHandler createIntegerChangeHandler(
+			final Restriction restriction, final TextBox text,
+			final String validationMessage, final Label validation) {
+		return new ChangeHandler() {
+			public void onChange(ChangeEvent event) {
+				boolean isValid = true;
+				int i = 0;
+				try {
+					i = Integer.parseInt(text.getText());
+				} catch (NumberFormatException e) {
+					isValid = false;
+				}
+				if (restriction.getMinInclusive() != null
+						&& i < restriction.getMinInclusive().doubleValue())
+					isValid = false;
+				if (restriction.getMinExclusive() != null
+						&& i <= restriction.getMinExclusive().doubleValue())
+					isValid = false;
+				if (restriction.getMaxInclusive() != null
+						&& i > restriction.getMaxInclusive().doubleValue())
+					isValid = false;
+				if (restriction.getMaxExclusive() != null
+						&& i >= restriction.getMaxExclusive().doubleValue())
+					isValid = false;
+				updateValidation(isValid, validation, validationMessage);
+			}
+		};
+	}
+
+	private void updateValidation(boolean isValid, Label validation,
+			String validationMessage) {
+		if (!isValid) {
+			if (validationMessage != null)
+				validation.setText(validationMessage);
+			else
+				validation.setText("invalid");
+			validation.setVisible(true);
+		} else
+			validation.setVisible(false);
+	}
+
+	private ChangeHandler createPatternChangeHandler(final String pattern,
+			final TextBoxBase text, final String validationMessage,
+			final Label validation) {
+		return new ChangeHandler() {
+			public void onChange(ChangeEvent event) {
+				RegExp regex = RegExp.compile(pattern);
+				boolean isValid = regex.exec(text.getText()) != null;
+				updateValidation(isValid, validation, validationMessage);
+			}
+		};
 	}
 
 	private Widget addDescription(Widget widget, String description) {
