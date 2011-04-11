@@ -63,7 +63,7 @@ public class SchemaPanel extends VerticalPanel {
 
 	private Widget createElementPanel(final VerticalPanel parent,
 			final Element element) {
-		VerticalPanel p = new VerticalPanel();
+		final VerticalPanel p = new VerticalPanel();
 		if (element.getBefore() != null) {
 			HTML html = new HTML(element.getBefore());
 			p.add(html);
@@ -74,7 +74,8 @@ public class SchemaPanel extends VerticalPanel {
 			p.add(createComplexTypePanel(element.getName(), (ComplexType) t));
 		} else if (t instanceof SimpleType)
 			p.add(createSimpleType(element.getDisplayName(),
-					element.getDescription(), (SimpleType) t));
+					element.getDescription(), element.getValidation(),
+					(SimpleType) t));
 		else
 			throw new RuntimeException("could not find type: "
 					+ element.getType());
@@ -83,16 +84,21 @@ public class SchemaPanel extends VerticalPanel {
 						.getMaxOccurs().getMaxOccurs() > 1)) {
 			final HorizontalPanel h = new HorizontalPanel();
 			h.setStyleName("add");
-			final Button button = new Button("Add");
-			h.add(button);
+			final Button add = new Button("Add");
+			h.add(add);
 			final Button remove = new Button("Remove");
 			h.add(remove);
 			p.add(h);
-			button.addClickHandler(new ClickHandler() {
+			add.addClickHandler(new ClickHandler() {
 
-				public void onClick(ClickEvent arg0) {
+				public void onClick(ClickEvent event) {
 					// h.setVisible(false);
 					parent.add(createElementPanel(parent, element));
+				}
+			});
+			remove.addClickHandler(new ClickHandler() {
+				public void onClick(ClickEvent event) {
+					p.setVisible(false);
 				}
 			});
 		}
@@ -105,7 +111,7 @@ public class SchemaPanel extends VerticalPanel {
 	}
 
 	private Widget createSimpleType(String name, String description,
-			final SimpleType t) {
+			final String validationMessage, final SimpleType t) {
 		HorizontalPanel p = new HorizontalPanel();
 		if (t.getRestriction() != null) {
 			// list boxes
@@ -120,23 +126,35 @@ public class SchemaPanel extends VerticalPanel {
 				p.add(addDescription(listBox, description));
 			} else {
 				// patterns
-				final Label validation = new Label();
-				validation.setVisible(false);
+
 				final TextBox text = new TextBox();
 				text.setText(t.getRestriction().getPattern());
 				text.setStyleName("item");
+
+				final Label validation = new Label();
+				validation.setVisible(false);
+				validation.setStyleName("validation");
+
 				text.addChangeHandler(new ChangeHandler() {
 					public void onChange(ChangeEvent event) {
 						RegExp pattern = RegExp.compile(t.getRestriction()
 								.getPattern());
-						if (pattern.exec(text.getText()) != null) {
-
-						}
-
+						if (pattern.exec(text.getText()) == null) {
+							if (validationMessage != null)
+								validation.setText(validationMessage);
+							else
+								validation.setText("invalid");
+							validation.setVisible(true);
+						} else
+							validation.setVisible(false);
 					}
 				});
 
-				p.add(addDescription(text, description));
+				VerticalPanel vp = new VerticalPanel();
+				vp.add(text);
+				vp.add(addDescription(validation, description));
+
+				p.add(vp);
 			}
 		} else if (t.getName().getLocalPart().equals("boolean")) {
 			// checkboxes
@@ -208,7 +226,7 @@ public class SchemaPanel extends VerticalPanel {
 		if (particle instanceof Element)
 			p.add(createElementPanel((Element) particle));
 		else if (particle instanceof SimpleType)
-			p.add(createSimpleType(particle.getClass().getName(), null,
+			p.add(createSimpleType(particle.getClass().getName(), null, null,
 					(SimpleType) particle));
 		else if (particle instanceof Group)
 			p.add(createGroup((Group) particle));
