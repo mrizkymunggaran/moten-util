@@ -45,7 +45,7 @@ public class SchemaPanel extends VerticalPanel {
 	public SchemaPanel(Schema schema) {
 		this.schema = schema;
 		Label namespace = new Label(schema.getNamespace());
-		add(namespace);
+		// add(namespace);
 		for (Element element : schema.getElements()) {
 			add(createElementPanel(element));
 		}
@@ -130,23 +130,9 @@ public class SchemaPanel extends VerticalPanel {
 			} else if (t.getRestriction().getPattern() != null) {
 				// patterns
 
-				final TextBox text = new TextBox();
-				text.setText(t.getRestriction().getPattern());
-				text.setStyleName("item");
-
-				final Label validation = new Label();
-				validation.setVisible(false);
-				validation.setStyleName("validation");
-
-				text.addChangeHandler(createPatternChangeHandler(t
-						.getRestriction().getPattern(), text,
-						validationMessage, validation));
-
-				VerticalPanel vp = new VerticalPanel();
-				vp.add(text);
-				vp.add(addDescription(validation, description));
-
-				p.add(vp);
+				Widget w = createPatternWidget(t.getRestriction().getPattern(),
+						description, validationMessage);
+				p.add(w);
 			} else if (t.getRestriction().getBase() != null
 					&& t.getRestriction().getBase().getLocalPart()
 							.equals("integer")) {
@@ -217,6 +203,25 @@ public class SchemaPanel extends VerticalPanel {
 			p.add(addDescription(text, description));
 		}
 		return decorate(p);
+	}
+
+	private Widget createPatternWidget(String pattern, String description,
+			String validationMessage) {
+		final TextBox text = new TextBox();
+		text.setText(pattern);
+		text.setStyleName("item");
+
+		final Label validation = new Label();
+		validation.setVisible(false);
+		validation.setStyleName("validation");
+
+		text.addChangeHandler(createPatternChangeHandler(pattern, text,
+				validationMessage, validation));
+
+		VerticalPanel vp = new VerticalPanel();
+		vp.add(text);
+		vp.add(addDescription(validation, description));
+		return vp;
 	}
 
 	private ChangeHandler createIntegerChangeHandler(
