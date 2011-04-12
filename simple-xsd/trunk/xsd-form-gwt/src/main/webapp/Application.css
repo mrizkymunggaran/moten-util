@@ -85,3 +85,7 @@ h1 {
 .validation {
 	color: red;	
 }
+
+.textArea {
+	width: 100%;	
+}

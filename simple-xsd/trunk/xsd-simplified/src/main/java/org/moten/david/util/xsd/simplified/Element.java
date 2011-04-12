@@ -20,6 +20,24 @@ public class Element implements Particle {
 	public String validation;
 	public String before;
 	public String after;
+	public Integer lines;
+	public Integer cols;
+
+	public Integer getCols() {
+		return cols;
+	}
+
+	public void setCols(Integer cols) {
+		this.cols = cols;
+	}
+
+	public Integer getLines() {
+		return lines;
+	}
+
+	public void setLines(Integer lines) {
+		this.lines = lines;
+	}
 
 	public String getDisplayName() {
 		return displayName;
@@ -139,6 +157,14 @@ public class Element implements Particle {
 
 		public void after(String after) {
 			e.after = after;
+		}
+
+		public void lines(Integer lines) {
+			e.lines = lines;
+		}
+
+		public void cols(Integer cols) {
+			e.cols = cols;
 		}
 
 	}
