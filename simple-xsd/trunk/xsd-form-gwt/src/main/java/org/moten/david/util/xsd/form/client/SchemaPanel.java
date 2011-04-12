@@ -32,6 +32,7 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.RadioButton;
+import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.TextBoxBase;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -79,7 +80,7 @@ public class SchemaPanel extends VerticalPanel {
 		} else if (t instanceof SimpleType)
 			p.add(createSimpleType(element.getDisplayName(),
 					element.getDescription(), element.getValidation(),
-					(SimpleType) t));
+					element.getLines(), element.getCols(), (SimpleType) t));
 		else
 			throw new RuntimeException("could not find type: "
 					+ element.getType());
@@ -115,7 +116,8 @@ public class SchemaPanel extends VerticalPanel {
 	}
 
 	private Widget createSimpleType(String name, String description,
-			final String validationMessage, final SimpleType t) {
+			final String validationMessage, Integer lines, Integer cols,
+			final SimpleType t) {
 		HorizontalPanel p = new HorizontalPanel();
 		if (t.getRestriction() != null) {
 			// list boxes
@@ -198,9 +200,19 @@ public class SchemaPanel extends VerticalPanel {
 		} else {
 			// plain text box
 			p.add(createLabel(name));
-			TextBox text = new TextBox();
-			text.setText(t.getName().getLocalPart());
-			text.setStyleName("item");
+			TextBoxBase text;
+			if (lines != null && lines > 1) {
+				TextArea textArea = new TextArea();
+				textArea.setVisibleLines(lines);
+				textArea.setCharacterWidth(50);
+				if (cols != null && cols > 0)
+					textArea.setCharacterWidth(cols);
+				text = textArea;
+				text.setStyleName("textArea");
+			} else {
+				text = new TextBox();
+				text.setStyleName("item");
+			}
 			p.add(addDescription(text, description));
 		}
 		return decorate(p);
@@ -209,7 +221,7 @@ public class SchemaPanel extends VerticalPanel {
 	private Widget createPatternWidget(String pattern, String description,
 			String validationMessage) {
 		final TextBox text = new TextBox();
-		text.setText(pattern);
+		text.setText("");
 		text.setStyleName("item");
 
 		final Label validation = new Label();
@@ -304,7 +316,7 @@ public class SchemaPanel extends VerticalPanel {
 			p.add(createElementPanel((Element) particle));
 		else if (particle instanceof SimpleType)
 			p.add(createSimpleType(particle.getClass().getName(), null, null,
-					(SimpleType) particle));
+					null, null, (SimpleType) particle));
 		else if (particle instanceof Group)
 			p.add(createGroup((Group) particle));
 		else

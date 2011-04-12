@@ -62,7 +62,12 @@ public class Convertor {
 
 	private Element convert(TopLevelElement e) {
 		log.info("converting top level element: " + e.getName());
-		return convertElement(e.getName(), e.getType(), e.getOtherAttributes(),
+		Map<javax.xml.namespace.QName, String> attributes;
+		if (e.getAnnotation() == null)
+			attributes = null;
+		else
+			attributes = e.getAnnotation().getOtherAttributes();
+		return convertElement(e.getName(), e.getType(), attributes,
 				e.getMinOccurs(), e.getMaxOccurs());
 	}
 
@@ -223,11 +228,22 @@ public class Convertor {
 			builder.before(before);
 			String after = getInfo(attributes, "after");
 			builder.after(after);
+			Integer lines = toInteger(getInfo(attributes, "lines"));
+			builder.lines(lines);
+			Integer cols = toInteger(getInfo(attributes, "cols"));
+			builder.cols(cols);
 		}
 		if (minOccurs != null)
 			builder.minOccurs(minOccurs.intValue());
 		builder.maxOccurs(MaxOccurs.parse(maxOccurs));
 		return builder.build();
+	}
+
+	private Integer toInteger(String s) {
+		if (s == null)
+			return null;
+		else
+			return Integer.parseInt(s);
 	}
 
 	private Map<javax.xml.namespace.QName, String> getAttributes(LocalElement e) {

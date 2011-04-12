@@ -16,8 +16,7 @@
 					i:before="Date of birth is required for age based statistical analysis but will not be available publically"
 					i:label="Date of birth" i:description="dd/mm/yyyy (dd=day, mm=month, yyyy=year)"
 					i:validation="This field must of the form dd/mm/yyyy. For example, 12 March 2011 is 12/03/2011"
-					i:after="If you have concerns about privacy please see our &lt;a href=&quot;http://google.com&quot;&gt;privacy statement&lt;a&gt;" 
-					/>
+					i:after="If you have concerns about privacy please see our &lt;a href=&quot;http://google.com&quot;&gt;privacy statement&lt;a&gt;" />
 			</xs:element>
 			<xs:element name="passport-no" type="passport-no">
 				<xs:annotation i:label="Passport Number"
@@ -33,14 +32,18 @@
 			<xs:element name="number-of-children" type="xs:integer"
 				default="0" />
 			<xs:choice>
-				<xs:element name="address" type="xs:string" i:label="Address" />
+				<xs:element name="address" type="xs:string">
+					<xs:annotation i:label="Address" i:lines="4" i:cols="40" />
+				</xs:element>
 				<xs:element name="phone" type="xs:string" maxOccurs="unbounded" />
 			</xs:choice>
 			<xs:element name="code" type="code">
 				<xs:annotation i:label="Identifier Code"
 					i:validation="This field must be a whole number between 11 and 19" />
 			</xs:element>
-			<xs:element name="story" type="xs:string" minOccurs="0" />
+			<xs:element name="story" type="xs:string" minOccurs="0">
+				<xs:annotation i:lines="10" i:cols="50" />
+			</xs:element>
 		</xs:sequence>
 		<xs:element name="height-m" type="xs:decimal">
 			<xs:annotation i:label="Height in metres" />
