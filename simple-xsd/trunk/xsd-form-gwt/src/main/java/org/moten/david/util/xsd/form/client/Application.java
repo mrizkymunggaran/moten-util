@@ -16,7 +16,6 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.RootPanel;
-import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 /**
@@ -45,8 +44,6 @@ public class Application implements EntryPoint {
 	 */
 	public void onModuleLoad() {
 		final Button sendButton = new Button(messages.sendButton());
-		final TextBox nameField = new TextBox();
-		nameField.setText(messages.nameField());
 		final Label errorLabel = new Label();
 
 		// We can add style names to widgets
@@ -54,13 +51,13 @@ public class Application implements EntryPoint {
 
 		// Add the nameField and sendButton to the RootPanel
 		// Use RootPanel.get() to get the entire body element
-		RootPanel.get("nameFieldContainer").add(nameField);
+		// RootPanel.get("nameFieldContainer").add(nameField);
 		RootPanel.get("sendButtonContainer").add(sendButton);
 		RootPanel.get("errorLabelContainer").add(errorLabel);
 
 		// Focus the cursor on the name field when the app loads
-		nameField.setFocus(true);
-		nameField.selectAll();
+		sendButton.setFocus(true);
+		// nameField.selectAll();
 
 		// Create the popup dialog box
 		final DialogBox dialogBox = new DialogBox();
@@ -115,7 +112,7 @@ public class Application implements EntryPoint {
 			private void sendNameToServer() {
 				// First, we validate the input.
 				errorLabel.setText("");
-				String textToServer = nameField.getText();
+				String textToServer = "blah";
 				// Disable the verifier for simple-xsd.
 
 				// if (!FieldVerifier.isValidName(textToServer)) {
@@ -184,6 +181,7 @@ public class Application implements EntryPoint {
 		// Add a handler to send the name to the server
 		MyHandler handler = new MyHandler();
 		sendButton.addClickHandler(handler);
-		nameField.addKeyUpHandler(handler);
+		// nameField.addKeyUpHandler(handler);
+		sendButton.click();
 	}
 }

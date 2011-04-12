@@ -14,6 +14,10 @@
 	
 	<attribute name="after" type="string"/>
 	<attribute name="validation" type="string"/>
+	
+	<attribute name="style" type="string"/>
+	
+	<attribute name="styleName" type="string"/>
 
 	<complexType name="info">
 		<sequence>
