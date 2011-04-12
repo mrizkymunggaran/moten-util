@@ -13,10 +13,11 @@
 			</xs:element>
 			<xs:element name="date-of-birth" type="xs:date">
 				<xs:annotation
-					i:before="Date of birth is required for age based statistical analysis but will not be available publicly"
+					i:before="Date of birth is required for age based statistical analysis but will not be available publically"
 					i:label="Date of birth" i:description="dd/mm/yyyy (dd=day, mm=month, yyyy=year)"
 					i:validation="This field must of the form dd/mm/yyyy. For example, 12 March 2011 is 12/03/2011"
-					i:after="If you have concerns about privacy please see our &lt;a href=&quot;http://google.com&quot;&gt;privacy statement&lt;a&gt;" />
+					i:after="If you have concerns about privacy please see our &lt;a href=&quot;http://google.com&quot;&gt;privacy statement&lt;a&gt;" 
+					/>
 			</xs:element>
 			<xs:element name="passport-no" type="passport-no">
 				<xs:annotation i:label="Passport Number"
