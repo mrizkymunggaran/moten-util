@@ -74,7 +74,8 @@ public class SchemaPanel extends VerticalPanel {
 		}
 		Type t = getType(schema, element);
 		if (t instanceof ComplexType) {
-			p.add(createComplexTypePanel(element.getName(), (ComplexType) t));
+			p.add(createComplexTypePanel(element.getDisplayName(),
+					(ComplexType) t));
 		} else if (t instanceof SimpleType)
 			p.add(createSimpleType(element.getDisplayName(),
 					element.getDescription(), element.getValidation(),
@@ -288,9 +289,9 @@ public class SchemaPanel extends VerticalPanel {
 		return vp;
 	}
 
-	private Widget createComplexTypePanel(String name, ComplexType t) {
+	private Widget createComplexTypePanel(String displayName, ComplexType t) {
 		VerticalPanel p = new VerticalPanel();
-		p.add(new Label(name));
+		p.add(new Label(displayName));
 		for (Particle particle : t.getParticles()) {
 			p.add(createParticle(particle));
 		}
