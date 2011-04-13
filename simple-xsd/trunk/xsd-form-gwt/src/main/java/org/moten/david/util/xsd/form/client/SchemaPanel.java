@@ -29,6 +29,7 @@ import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.DisclosurePanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.IntegerBox;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.RadioButton;
@@ -61,8 +62,15 @@ public class SchemaPanel extends VerticalPanel {
 
 	private Label createLabel(String name) {
 		Label label = new Label(name);
-		label.setStyleName("label");
+		label.addStyleName("label");
 		return label;
+	}
+
+	private Widget border(Widget w) {
+		VerticalPanel outer = new VerticalPanel();
+		outer.add(new HTML("<hr/>"));
+		outer.add(w);
+		return outer;
 	}
 
 	private Widget createElementPanel(final VerticalPanel parent,
@@ -71,7 +79,7 @@ public class SchemaPanel extends VerticalPanel {
 		if (element.getBefore() != null) {
 			HTML html = new HTML(element.getBefore());
 			p.add(html);
-			html.setStyleName("before");
+			html.addStyleName("before");
 		}
 		Type t = getType(schema, element);
 		if (t instanceof ComplexType) {
@@ -80,7 +88,8 @@ public class SchemaPanel extends VerticalPanel {
 		} else if (t instanceof SimpleType)
 			p.add(createSimpleType(element.getDisplayName(),
 					element.getDescription(), element.getValidation(),
-					element.getLines(), element.getCols(), (SimpleType) t));
+					element.getLines(), element.getCols(), (SimpleType) t,
+					element.getMinOccurs()));
 		else
 			throw new RuntimeException("could not find type: "
 					+ element.getType());
@@ -88,7 +97,7 @@ public class SchemaPanel extends VerticalPanel {
 				&& (element.getMaxOccurs().isUnbounded() || element
 						.getMaxOccurs().getMaxOccurs() > 1)) {
 			final HorizontalPanel h = new HorizontalPanel();
-			h.setStyleName("add");
+			h.addStyleName("add");
 			final Button add = new Button("Add");
 			h.add(add);
 			final Button remove = new Button("Remove");
@@ -110,14 +119,15 @@ public class SchemaPanel extends VerticalPanel {
 		if (element.getAfter() != null) {
 			HTML html = new HTML(element.getAfter());
 			p.add(html);
-			html.setStyleName("after");
+			html.addStyleName("after");
 		}
-		return decorate(p);
+		return border(decorate(p));
 	}
 
 	private Widget createSimpleType(String name, String description,
 			final String validationMessage, Integer lines, Integer cols,
-			final SimpleType t) {
+			final SimpleType t, final int minOccurs) {
+
 		HorizontalPanel p = new HorizontalPanel();
 		if (t.getRestriction() != null) {
 			// list boxes
@@ -128,27 +138,25 @@ public class SchemaPanel extends VerticalPanel {
 				for (XsdType<?> x : xsdTypes) {
 					listBox.addItem(x.getValue().toString());
 				}
-				listBox.setStyleName("item");
+				listBox.addStyleName("item");
 				p.add(addDescription(listBox, description));
 			} else if (t.getRestriction().getPattern() != null) {
 				// patterns
-
 				Widget w = createPatternWidget(t.getRestriction().getPattern(),
 						description, validationMessage);
 				p.add(w);
 			} else if (t.getRestriction().getBase() != null
 					&& t.getRestriction().getBase().getLocalPart()
 							.equals("integer")) {
-				final TextBox text = new TextBox();
+				final IntegerBox text = new IntegerBox();
 				text.setText("");
-				text.setStyleName("item");
+				text.addStyleName("item");
 
-				final Label validation = new Label();
+				final Label validation = new Label(validationMessage);
 				validation.setVisible(false);
-				validation.setStyleName("validation");
-
+				validation.addStyleName("validation");
 				text.addChangeHandler(createIntegerChangeHandler(
-						t.getRestriction(), text, validationMessage, validation));
+						t.getRestriction(), text, validation));
 
 				VerticalPanel vp = new VerticalPanel();
 				vp.add(text);
@@ -159,21 +167,22 @@ public class SchemaPanel extends VerticalPanel {
 				// plain text box
 				p.add(createLabel(name));
 				TextBox text = new TextBox();
-				text.setText(t.getName().getLocalPart());
-				text.setStyleName("item");
+				text.setText(t.getName().getLocalPart()
+						+ "unsupported restriction");
+				text.addStyleName("item");
 				p.add(addDescription(text, description));
 			}
 		} else if (t.getName().getLocalPart().equals("boolean")) {
 			// checkboxes
 			CheckBox c = new CheckBox(name);
-			c.setStyleName("item");
+			c.addStyleName("item");
 			p.add(addDescription(c, description));
 		} else if (t.getName().getLocalPart().equals("date")) {
 			final Label label = createLabel(name);
 			p.add(label);
 			final TextBox text = new TextBox();
 			text.setReadOnly(true);
-			text.setStyleName("item");
+			text.addStyleName("item");
 			p.add(text);
 
 			// Create a date picker
@@ -191,7 +200,7 @@ public class SchemaPanel extends VerticalPanel {
 
 			// Set the default value
 			datePicker.setValue(new Date(), true);
-			datePicker.setStyleName("item");
+			datePicker.addStyleName("item");
 			DisclosurePanel d = new DisclosurePanel("");
 			d.setContent(datePicker);
 			p.add(d);
@@ -200,20 +209,36 @@ public class SchemaPanel extends VerticalPanel {
 		} else {
 			// plain text box
 			p.add(createLabel(name));
-			TextBoxBase text;
+			final TextBoxBase text;
 			if (lines != null && lines > 1) {
 				TextArea textArea = new TextArea();
 				textArea.setVisibleLines(lines);
-				textArea.setCharacterWidth(50);
 				if (cols != null && cols > 0)
 					textArea.setCharacterWidth(cols);
+				else
+					textArea.setCharacterWidth(50);
 				text = textArea;
-				text.setStyleName("textArea");
+				text.addStyleName("textArea");
 			} else {
 				text = new TextBox();
-				text.setStyleName("item");
+				text.addStyleName("item");
 			}
-			p.add(addDescription(text, description));
+			final Label validation = new Label();
+			validation.setVisible(false);
+			validation.addStyleName("validation");
+			text.addChangeHandler(new ChangeHandler() {
+				public void onChange(ChangeEvent event) {
+					boolean isValid = (text.getText() != null && text.getText()
+							.trim().length() > 0)
+							|| minOccurs == 0;
+					updateValidation(isValid, text, validation, "mandatory");
+				}
+			});
+
+			VerticalPanel vp = new VerticalPanel();
+			vp.add(text);
+			vp.add(addDescription(validation, description));
+			p.add(vp);
 		}
 		return decorate(p);
 	}
@@ -222,11 +247,11 @@ public class SchemaPanel extends VerticalPanel {
 			String validationMessage) {
 		final TextBox text = new TextBox();
 		text.setText("");
-		text.setStyleName("item");
+		text.addStyleName("item");
 
-		final Label validation = new Label();
+		final Label validation = new Label(validationMessage);
 		validation.setVisible(false);
-		validation.setStyleName("validation");
+		validation.addStyleName("validation");
 
 		text.addChangeHandler(createPatternChangeHandler(pattern, text,
 				validationMessage, validation));
@@ -238,14 +263,14 @@ public class SchemaPanel extends VerticalPanel {
 	}
 
 	private ChangeHandler createIntegerChangeHandler(
-			final Restriction restriction, final TextBox text,
-			final String validationMessage, final Label validation) {
+			final Restriction restriction, final IntegerBox item,
+			final Label validation) {
 		return new ChangeHandler() {
 			public void onChange(ChangeEvent event) {
 				boolean isValid = true;
 				int i = 0;
 				try {
-					i = Integer.parseInt(text.getText());
+					i = Integer.parseInt(item.getText());
 				} catch (NumberFormatException e) {
 					isValid = false;
 				}
@@ -261,21 +286,23 @@ public class SchemaPanel extends VerticalPanel {
 				if (restriction.getMaxExclusive() != null
 						&& i >= restriction.getMaxExclusive().doubleValue())
 					isValid = false;
-				updateValidation(isValid, validation, validationMessage);
+				updateValidation(isValid, item, validation, "invalid");
 			}
 		};
 	}
 
-	private void updateValidation(boolean isValid, Label validation,
-			String validationMessage) {
+	private void updateValidation(boolean isValid, Widget item,
+			Label validation, String defaultValidationMessage) {
 		if (!isValid) {
-			if (validationMessage != null)
-				validation.setText(validationMessage);
-			else
-				validation.setText("invalid");
+			if (validation.getText() == null
+					|| validation.getText().trim().length() == 0)
+				validation.setText(defaultValidationMessage);
 			validation.setVisible(true);
-		} else
+			item.addStyleName("invalidItem");
+		} else {
 			validation.setVisible(false);
+			item.removeStyleName("invalidItem");
+		}
 	}
 
 	private ChangeHandler createPatternChangeHandler(final String pattern,
@@ -283,9 +310,9 @@ public class SchemaPanel extends VerticalPanel {
 			final Label validation) {
 		return new ChangeHandler() {
 			public void onChange(ChangeEvent event) {
-				RegExp regex = RegExp.compile(pattern);
-				boolean isValid = regex.exec(text.getText()) != null;
-				updateValidation(isValid, validation, validationMessage);
+				RegExp regex = RegExp.compile("^" + pattern + "$");
+				boolean isValid = regex.test(text.getText());
+				updateValidation(isValid, text, validation, "invalid format");
 			}
 		};
 	}
@@ -296,7 +323,7 @@ public class SchemaPanel extends VerticalPanel {
 		if (description != null) {
 			Label label = new Label(description);
 			vp.add(label);
-			label.setStyleName("description");
+			label.addStyleName("description");
 		}
 		return vp;
 	}
@@ -316,7 +343,7 @@ public class SchemaPanel extends VerticalPanel {
 			p.add(createElementPanel((Element) particle));
 		else if (particle instanceof SimpleType)
 			p.add(createSimpleType(particle.getClass().getName(), null, null,
-					null, null, (SimpleType) particle));
+					null, null, (SimpleType) particle, 1));
 		else if (particle instanceof Group)
 			p.add(createGroup((Group) particle));
 		else
@@ -327,7 +354,7 @@ public class SchemaPanel extends VerticalPanel {
 	private Widget decorate(Widget w) {
 		VerticalPanel p = new VerticalPanel();
 		p.add(w);
-		p.setStyleName("box");
+		p.addStyleName("box");
 		return p;
 	}
 
@@ -349,20 +376,23 @@ public class SchemaPanel extends VerticalPanel {
 				count++;
 				p.add(rb);
 				final Widget particlePanel = createParticle(particle);
-				particlePanel.setStyleName("uncheckedRadioButtonContent");
+				particlePanel.addStyleName("uncheckedRadioButtonContent");
 				rb.addClickHandler(new ClickHandler() {
 					public void onClick(ClickEvent event) {
-						if (lastChecked[0] != null)
+						if (lastChecked[0] != null) {
 							lastChecked[0]
-									.setStyleName("uncheckedRadioButtonContent");
-						particlePanel.setStyleName("checkedRadioButtonContent");
+									.addStyleName("uncheckedRadioButtonContent");
+						}
+						particlePanel
+								.removeStyleName("uncheckedRadioButtonContent");
+						particlePanel.addStyleName("checkedRadioButtonContent");
 						lastChecked[0] = particlePanel;
 					}
 				});
 				p.add(particlePanel);
 				if (first) {
 					rb.setValue(true);
-					particlePanel.setStyleName("checkedRadioButtonContent");
+					particlePanel.removeStyleName("checkedRadioButtonContent");
 					lastChecked[0] = particlePanel;
 				}
 				first = false;

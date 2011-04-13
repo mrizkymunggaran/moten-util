@@ -48,8 +48,8 @@
 		<xs:element name="height-m" type="xs:decimal">
 			<xs:annotation i:label="Height in metres" />
 		</xs:element>
-		<xs:attribute name="nationality" type="country" />
 		<xs:element name="permanent-resident" type="xs:boolean" />
+		<xs:attribute name="nationality" type="country" />
 	</xs:complexType>
 
 	<xs:simpleType name="passport-no">
