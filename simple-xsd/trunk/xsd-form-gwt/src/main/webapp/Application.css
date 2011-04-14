@@ -82,6 +82,10 @@ h1 {
 	vertical-align: middle;	
 }
 
+.simpleType {
+	vertical-align: middle;	
+}
+
 .invalidItem {
 	vertical-align:middle;
 	background: #FFCDCD ;	
