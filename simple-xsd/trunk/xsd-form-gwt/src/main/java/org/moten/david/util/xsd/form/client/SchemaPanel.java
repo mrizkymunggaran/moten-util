@@ -128,9 +128,10 @@ public class SchemaPanel extends VerticalPanel {
 
 	private Widget createSimpleType(String name, String description,
 			final String validationMessage, Integer lines, Integer cols,
-			final SimpleType t, final int minOccurs) {
+			final SimpleType t, final int minOccurs, List<Runnable> validators) {
 
 		HorizontalPanel p = new HorizontalPanel();
+		p.addStyleName("simpleType");
 		if (t.getRestriction() != null) {
 			addRestrictionWidget(p, t, name, description, validationMessage);
 		} else if (t.getName().getLocalPart().equals("boolean")) {
@@ -143,12 +144,13 @@ public class SchemaPanel extends VerticalPanel {
 		} else if (t.getName().getLocalPart().equals("dateTime")) {
 			p.add(new Label("TODO dateTime"));
 		} else {
-			addTextWidget(p, name, description, lines, cols, minOccurs);
+			validators.add(addTextWidget(p, name, description, lines, cols,
+					minOccurs));
 		}
 		return decorate(p);
 	}
 
-	private void addTextWidget(HorizontalPanel p, String name,
+	private Runnable addTextWidget(HorizontalPanel p, String name,
 			String description, Integer lines, Integer cols, final int minOccurs) {
 		// plain text box
 		p.add(createLabel(name));
@@ -169,12 +171,17 @@ public class SchemaPanel extends VerticalPanel {
 		final Label validation = new Label();
 		validation.setVisible(false);
 		validation.addStyleName("validation");
-		text.addChangeHandler(new ChangeHandler() {
-			public void onChange(ChangeEvent event) {
+		final Runnable validator = new Runnable() {
+			public void run() {
 				boolean isValid = (text.getText() != null && text.getText()
 						.trim().length() > 0)
 						|| minOccurs == 0;
 				updateValidation(isValid, text, validation, "mandatory");
+			}
+		};
+		text.addChangeHandler(new ChangeHandler() {
+			public void onChange(ChangeEvent event) {
+				validator.run();
 			}
 		});
 
@@ -182,6 +189,7 @@ public class SchemaPanel extends VerticalPanel {
 		vp.add(text);
 		vp.add(addDescription(validation, description));
 		p.add(vp);
+		return validator;
 	}
 
 	private void addDateWidget(HorizontalPanel p, String name) {
@@ -214,7 +222,7 @@ public class SchemaPanel extends VerticalPanel {
 
 	}
 
-	private void addRestrictionWidget(HorizontalPanel p, SimpleType t,
+	private Runnable addRestrictionWidget(HorizontalPanel p, SimpleType t,
 			String name, String description, String validationMessage) {
 		// list boxes
 		p.add(createLabel(name));
