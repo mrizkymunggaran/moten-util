@@ -23,6 +23,7 @@
 					i:description="L followed by digits"
 					i:validation="This field must start with an L and then follow with digits only" />
 			</xs:element>
+			<xs:element name="permanent-resident" type="xs:boolean" />
 			<xs:element name="last-submission" type="xs:dateTime"
 				minOccurs="0" />
 			<xs:element name="lived-in" type="country" maxOccurs="unbounded">
@@ -44,11 +45,10 @@
 			<xs:element name="story" type="xs:string" minOccurs="0">
 				<xs:annotation i:lines="10" i:cols="50" />
 			</xs:element>
+			<xs:element name="height-m" type="xs:decimal">
+				<xs:annotation i:label="Height in metres" />
+			</xs:element>
 		</xs:sequence>
-		<xs:element name="height-m" type="xs:decimal">
-			<xs:annotation i:label="Height in metres" />
-		</xs:element>
-		<xs:element name="permanent-resident" type="xs:boolean" />
 		<xs:attribute name="nationality" type="country" />
 	</xs:complexType>
 

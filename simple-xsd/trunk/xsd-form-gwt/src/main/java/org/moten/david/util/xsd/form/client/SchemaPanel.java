@@ -51,6 +51,8 @@ public class SchemaPanel extends VerticalPanel {
 		for (Element element : schema.getElements()) {
 			add(createElementPanel(element));
 		}
+		Button submit = new Button("Submit");
+		add(submit);
 	}
 
 	private Widget createElementPanel(Element element) {
@@ -130,117 +132,132 @@ public class SchemaPanel extends VerticalPanel {
 
 		HorizontalPanel p = new HorizontalPanel();
 		if (t.getRestriction() != null) {
-			// list boxes
-			p.add(createLabel(name));
-			List<XsdType<?>> xsdTypes = t.getRestriction().getEnumerations();
-			if (xsdTypes.size() > 0) {
-				ListBox listBox = new ListBox();
-				for (XsdType<?> x : xsdTypes) {
-					listBox.addItem(x.getValue().toString());
-				}
-				listBox.addStyleName("item");
-				p.add(addDescription(listBox, description));
-			} else if (t.getRestriction().getPattern() != null) {
-				// patterns
-				Widget w = createPatternWidget(t.getRestriction().getPattern(),
-						description, validationMessage);
-				p.add(w);
-			} else if (t.getRestriction().getBase() != null
-					&& t.getRestriction().getBase().getLocalPart()
-							.equals("integer")) {
-				final IntegerBox text = new IntegerBox();
-				text.setText("");
-				text.addStyleName("item");
-
-				final Label validation = new Label(validationMessage);
-				validation.setVisible(false);
-				validation.addStyleName("validation");
-				text.addChangeHandler(createIntegerChangeHandler(
-						t.getRestriction(), text, validation));
-
-				VerticalPanel vp = new VerticalPanel();
-				vp.add(text);
-				vp.add(addDescription(validation, description));
-
-				p.add(vp);
-			} else {
-				// plain text box
-				p.add(createLabel(name));
-				TextBox text = new TextBox();
-				text.setText(t.getName().getLocalPart()
-						+ "unsupported restriction");
-				text.addStyleName("item");
-				p.add(addDescription(text, description));
-			}
+			addRestrictionWidget(p, t, name, description, validationMessage);
 		} else if (t.getName().getLocalPart().equals("boolean")) {
 			// checkboxes
 			CheckBox c = new CheckBox(name);
 			c.addStyleName("item");
 			p.add(addDescription(c, description));
 		} else if (t.getName().getLocalPart().equals("date")) {
-			final Label label = createLabel(name);
-			p.add(label);
-			final TextBox text = new TextBox();
-			text.setReadOnly(true);
-			text.addStyleName("item");
-			p.add(text);
-
-			// Create a date picker
-			DatePicker datePicker = new DatePicker();
-
-			// Set the value in the text box when the user selects a date
-			datePicker.addValueChangeHandler(new ValueChangeHandler<Date>() {
-				public void onValueChange(ValueChangeEvent<Date> event) {
-					Date date = event.getValue();
-					String dateString = DateTimeFormat.getFormat(
-							PredefinedFormat.DATE_FULL).format(date);
-					text.setText(dateString);
-				}
-			});
-
-			// Set the default value
-			datePicker.setValue(new Date(), true);
-			datePicker.addStyleName("item");
-			DisclosurePanel d = new DisclosurePanel("");
-			d.setContent(datePicker);
-			p.add(d);
+			addDateWidget(p, name);
 		} else if (t.getName().getLocalPart().equals("dateTime")) {
 			p.add(new Label("TODO dateTime"));
 		} else {
-			// plain text box
-			p.add(createLabel(name));
-			final TextBoxBase text;
-			if (lines != null && lines > 1) {
-				TextArea textArea = new TextArea();
-				textArea.setVisibleLines(lines);
-				if (cols != null && cols > 0)
-					textArea.setCharacterWidth(cols);
-				else
-					textArea.setCharacterWidth(50);
-				text = textArea;
-				text.addStyleName("textArea");
-			} else {
-				text = new TextBox();
-				text.addStyleName("item");
+			addTextWidget(p, name, description, lines, cols, minOccurs);
+		}
+		return decorate(p);
+	}
+
+	private void addTextWidget(HorizontalPanel p, String name,
+			String description, Integer lines, Integer cols, final int minOccurs) {
+		// plain text box
+		p.add(createLabel(name));
+		final TextBoxBase text;
+		if (lines != null && lines > 1) {
+			TextArea textArea = new TextArea();
+			textArea.setVisibleLines(lines);
+			if (cols != null && cols > 0)
+				textArea.setCharacterWidth(cols);
+			else
+				textArea.setCharacterWidth(50);
+			text = textArea;
+			text.addStyleName("textArea");
+		} else {
+			text = new TextBox();
+			text.addStyleName("item");
+		}
+		final Label validation = new Label();
+		validation.setVisible(false);
+		validation.addStyleName("validation");
+		text.addChangeHandler(new ChangeHandler() {
+			public void onChange(ChangeEvent event) {
+				boolean isValid = (text.getText() != null && text.getText()
+						.trim().length() > 0)
+						|| minOccurs == 0;
+				updateValidation(isValid, text, validation, "mandatory");
 			}
-			final Label validation = new Label();
+		});
+
+		VerticalPanel vp = new VerticalPanel();
+		vp.add(text);
+		vp.add(addDescription(validation, description));
+		p.add(vp);
+	}
+
+	private void addDateWidget(HorizontalPanel p, String name) {
+		final Label label = createLabel(name);
+		p.add(label);
+		final TextBox text = new TextBox();
+		text.setReadOnly(true);
+		text.addStyleName("item");
+		p.add(text);
+
+		// Create a date picker
+		DatePicker datePicker = new DatePicker();
+
+		// Set the value in the text box when the user selects a date
+		datePicker.addValueChangeHandler(new ValueChangeHandler<Date>() {
+			public void onValueChange(ValueChangeEvent<Date> event) {
+				Date date = event.getValue();
+				String dateString = DateTimeFormat.getFormat(
+						PredefinedFormat.DATE_FULL).format(date);
+				text.setText(dateString);
+			}
+		});
+
+		// Set the default value
+		datePicker.setValue(new Date(), true);
+		datePicker.addStyleName("item");
+		DisclosurePanel d = new DisclosurePanel("");
+		d.setContent(datePicker);
+		p.add(d);
+
+	}
+
+	private void addRestrictionWidget(HorizontalPanel p, SimpleType t,
+			String name, String description, String validationMessage) {
+		// list boxes
+		p.add(createLabel(name));
+		List<XsdType<?>> xsdTypes = t.getRestriction().getEnumerations();
+		if (xsdTypes.size() > 0) {
+			ListBox listBox = new ListBox();
+			for (XsdType<?> x : xsdTypes) {
+				listBox.addItem(x.getValue().toString());
+			}
+			listBox.addStyleName("item");
+			p.add(addDescription(listBox, description));
+		} else if (t.getRestriction().getPattern() != null) {
+			// patterns
+			Widget w = createPatternWidget(t.getRestriction().getPattern(),
+					description, validationMessage);
+			p.add(w);
+		} else if (t.getRestriction().getBase() != null
+				&& t.getRestriction().getBase().getLocalPart()
+						.equals("integer")) {
+			final IntegerBox text = new IntegerBox();
+			text.setText("");
+			text.addStyleName("item");
+
+			final Label validation = new Label(validationMessage);
 			validation.setVisible(false);
 			validation.addStyleName("validation");
-			text.addChangeHandler(new ChangeHandler() {
-				public void onChange(ChangeEvent event) {
-					boolean isValid = (text.getText() != null && text.getText()
-							.trim().length() > 0)
-							|| minOccurs == 0;
-					updateValidation(isValid, text, validation, "mandatory");
-				}
-			});
+			text.addChangeHandler(createIntegerChangeHandler(
+					t.getRestriction(), text, validation));
 
 			VerticalPanel vp = new VerticalPanel();
 			vp.add(text);
 			vp.add(addDescription(validation, description));
+
 			p.add(vp);
+		} else {
+			// plain text box
+			p.add(createLabel(name));
+			TextBox text = new TextBox();
+			text.setText(t.getName().getLocalPart() + "unsupported restriction");
+			text.addStyleName("item");
+			p.add(addDescription(text, description));
 		}
-		return decorate(p);
+
 	}
 
 	private Widget createPatternWidget(String pattern, String description,
