@@ -1,5 +1,6 @@
 package org.moten.david.util.xsd.form.client;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -48,17 +49,21 @@ public class SchemaPanel extends VerticalPanel {
 		this.schema = schema;
 		Label namespace = new Label(schema.getNamespace());
 		// add(namespace);
+		add(layout("Email", new TextBox(), new Label("validation message"),
+				"description", "Here is a message to put before",
+				"This is the text that goes after"));
+		List<Runnable> list = new ArrayList<Runnable>();
 		for (Element element : schema.getElements()) {
-			add(createElementPanel(element));
+			add(createElementPanel(element, list));
 		}
 		Button submit = new Button("Submit");
 		add(submit);
 	}
 
-	private Widget createElementPanel(Element element) {
+	private Widget createElementPanel(Element element, List<Runnable> validators) {
 		// use a parent so we can add multiple elements if required
 		final VerticalPanel parent = new VerticalPanel();
-		parent.add(createElementPanel(parent, element));
+		parent.add(createElementPanel(parent, element, validators));
 		return decorate(parent);
 	}
 
@@ -76,7 +81,7 @@ public class SchemaPanel extends VerticalPanel {
 	}
 
 	private Widget createElementPanel(final VerticalPanel parent,
-			final Element element) {
+			final Element element, final List<Runnable> validators) {
 		final VerticalPanel p = new VerticalPanel();
 		if (element.getBefore() != null) {
 			HTML html = new HTML(element.getBefore());
@@ -86,12 +91,12 @@ public class SchemaPanel extends VerticalPanel {
 		Type t = getType(schema, element);
 		if (t instanceof ComplexType) {
 			p.add(createComplexTypePanel(element.getDisplayName(),
-					(ComplexType) t));
+					(ComplexType) t, validators));
 		} else if (t instanceof SimpleType)
 			p.add(createSimpleType(element.getDisplayName(),
 					element.getDescription(), element.getValidation(),
 					element.getLines(), element.getCols(), (SimpleType) t,
-					element.getMinOccurs()));
+					element.getMinOccurs(), validators));
 		else
 			throw new RuntimeException("could not find type: "
 					+ element.getType());
@@ -109,7 +114,7 @@ public class SchemaPanel extends VerticalPanel {
 
 				public void onClick(ClickEvent event) {
 					// h.setVisible(false);
-					parent.add(createElementPanel(parent, element));
+					parent.add(createElementPanel(parent, element, validators));
 				}
 			});
 			remove.addClickHandler(new ClickHandler() {
@@ -133,7 +138,8 @@ public class SchemaPanel extends VerticalPanel {
 		HorizontalPanel p = new HorizontalPanel();
 		p.addStyleName("simpleType");
 		if (t.getRestriction() != null) {
-			addRestrictionWidget(p, t, name, description, validationMessage);
+			addRestrictionWidget(p, t, name, description, validationMessage,
+					validators);
 		} else if (t.getName().getLocalPart().equals("boolean")) {
 			// checkboxes
 			CheckBox c = new CheckBox(name);
@@ -219,11 +225,44 @@ public class SchemaPanel extends VerticalPanel {
 		DisclosurePanel d = new DisclosurePanel("");
 		d.setContent(datePicker);
 		p.add(d);
-
 	}
 
-	private Runnable addRestrictionWidget(HorizontalPanel p, SimpleType t,
-			String name, String description, String validationMessage) {
+	private Widget layout(String label, Widget item, Widget validation,
+			String description, String before, String after) {
+		VerticalPanel vp = new VerticalPanel();
+		vp.add(createBeforeWidget(before));
+		HorizontalPanel hp = new HorizontalPanel();
+		hp.add(createLabelWidget(label));
+		hp.add(item);
+		hp.addStyleName("item");
+		vp.add(hp);
+		vp.add(validation);
+		vp.add(createBeforeWidget(description));
+		vp.add(createAfterWidget(after));
+		return vp;
+	}
+
+	private Widget createLabelWidget(String label) {
+		Label widget = new Label(label);
+		widget.addStyleName("label");
+		return widget;
+	}
+
+	private Widget createBeforeWidget(String before) {
+		Label widget = new Label(before);
+		widget.addStyleName("before");
+		return widget;
+	}
+
+	private Widget createAfterWidget(String after) {
+		Label widget = new Label(after);
+		widget.addStyleName("after");
+		return widget;
+	}
+
+	private void addRestrictionWidget(HorizontalPanel p, SimpleType t,
+			String name, String description, String validationMessage,
+			List<Runnable> validators) {
 		// list boxes
 		p.add(createLabel(name));
 		List<XsdType<?>> xsdTypes = t.getRestriction().getEnumerations();
@@ -353,24 +392,25 @@ public class SchemaPanel extends VerticalPanel {
 		return vp;
 	}
 
-	private Widget createComplexTypePanel(String displayName, ComplexType t) {
+	private Widget createComplexTypePanel(String displayName, ComplexType t,
+			List<Runnable> validators) {
 		VerticalPanel p = new VerticalPanel();
 		p.add(new Label(displayName));
 		for (Particle particle : t.getParticles()) {
-			p.add(createParticle(particle));
+			p.add(createParticle(particle, validators));
 		}
 		return decorate(p);
 	}
 
-	private Widget createParticle(Particle particle) {
+	private Widget createParticle(Particle particle, List<Runnable> validators) {
 		VerticalPanel p = new VerticalPanel();
 		if (particle instanceof Element)
-			p.add(createElementPanel((Element) particle));
+			p.add(createElementPanel((Element) particle, validators));
 		else if (particle instanceof SimpleType)
 			p.add(createSimpleType(particle.getClass().getName(), null, null,
-					null, null, (SimpleType) particle, 1));
+					null, null, (SimpleType) particle, 1, validators));
 		else if (particle instanceof Group)
-			p.add(createGroup((Group) particle));
+			p.add(createGroup((Group) particle, validators));
 		else
 			throw new RuntimeException("unknown particle:" + particle);
 		return decorate(p);
@@ -389,7 +429,7 @@ public class SchemaPanel extends VerticalPanel {
 		return groupCount++;
 	}
 
-	private Widget createGroup(Group group) {
+	private Widget createGroup(Group group, List<Runnable> validators) {
 		VerticalPanel p = new VerticalPanel();
 		if (group instanceof Choice) {
 			String groupName = "group" + nextGroup();
@@ -400,7 +440,8 @@ public class SchemaPanel extends VerticalPanel {
 				RadioButton rb = new RadioButton(groupName, "option " + count);
 				count++;
 				p.add(rb);
-				final Widget particlePanel = createParticle(particle);
+				final Widget particlePanel = createParticle(particle,
+						validators);
 				particlePanel.addStyleName("uncheckedRadioButtonContent");
 				rb.addClickHandler(new ClickHandler() {
 					public void onClick(ClickEvent event) {
@@ -425,7 +466,8 @@ public class SchemaPanel extends VerticalPanel {
 		} else if (group instanceof Sequence) {
 			p.add(new Label("sequence"));
 			for (Particle particle : group.getParticles()) {
-				final Widget particlePanel = createParticle(particle);
+				final Widget particlePanel = createParticle(particle,
+						validators);
 				p.add(particlePanel);
 			}
 		}
