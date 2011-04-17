@@ -28,11 +28,13 @@ import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.DisclosurePanel;
+import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.IntegerBox;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
+import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.TextBox;
@@ -229,7 +231,8 @@ public class SchemaPanel extends VerticalPanel {
 
 	private Widget layout(String label, Widget item, Widget validation,
 			String description, String before, String after) {
-		VerticalPanel vp = new VerticalPanel();
+
+		Panel vp = new FlowPanel();
 		vp.add(createBeforeWidget(before));
 		HorizontalPanel hp = new HorizontalPanel();
 		hp.add(createLabelWidget(label));
