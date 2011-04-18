@@ -11,6 +11,10 @@
 			<xs:element name="name" type="xs:string">
 				<xs:annotation i:label="Full name" />
 			</xs:element>
+			<xs:element name="email" type="email">
+				<xs:annotation i:validation="Invalid format"
+					i:after="If you have concerns about privacy please see our &lt;a href=&quot;http://google.com&quot;&gt;privacy statement&lt;a&gt;" />
+			</xs:element>
 			<xs:element name="date-of-birth" type="xs:date">
 				<xs:annotation
 					i:before="Date of birth is required for age based statistical analysis but will not be available publically"
@@ -51,6 +55,12 @@
 		</xs:sequence>
 		<xs:attribute name="nationality" type="country" />
 	</xs:complexType>
+
+	<xs:simpleType name="email">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="[A-Za-z0-9_]+([-+.'][A-Za-z0-9_]+)*@[A-Za-z0-9_]+([-.][A-Za-z0-9_]+)*\.[A-Za-z0-9_]+([-.][A-Za-z0-9_]+)*" />
+		</xs:restriction>
+	</xs:simpleType>
 
 	<xs:simpleType name="passport-no">
 		<xs:restriction base="xs:string">

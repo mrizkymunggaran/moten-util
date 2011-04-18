@@ -86,6 +86,7 @@
 					<mode>htmlunit</mode>
 					<htmlunit>FF3</htmlunit>
 					<draftCompile>true</draftCompile>
+					<skipTests>true</skipTests>
 				</configuration>
 			</plugin>
 
