@@ -11,6 +11,15 @@ public class Schema implements Serializable {
 	private List<ComplexType> complexTypes;
 	private List<SimpleType> simpleTypes;
 	private List<Element> elements;
+	private boolean numberItems = false;
+
+	public boolean getNumberItems() {
+		return numberItems;
+	}
+
+	public void setNumberItems(boolean numberItems) {
+		this.numberItems = numberItems;
+	}
 
 	public void setNamespace(String namespace) {
 		this.namespace = namespace;
@@ -33,19 +42,21 @@ public class Schema implements Serializable {
 	}
 
 	private Schema(String namespace, List<ComplexType> complexTypes,
-			List<SimpleType> simpleTypes, List<Element> elements) {
+			List<SimpleType> simpleTypes, List<Element> elements,
+			boolean numberItems) {
 		super();
 		this.namespace = namespace;
 		this.complexTypes = complexTypes;
 		this.simpleTypes = simpleTypes;
 		this.elements = elements;
+		this.numberItems = numberItems;
 	}
 
 	@Override
 	public String toString() {
-		return "Schema [\nnamespace=" + namespace + ", \ncomplexTypes="
-				+ complexTypes + ", \nsimpleTypes=" + simpleTypes
-				+ ", \nelements=" + elements + "]";
+		return "Schema [namespace=" + namespace + ", complexTypes="
+				+ complexTypes + ", simpleTypes=" + simpleTypes + ", elements="
+				+ elements + ", numberItems=" + numberItems + "]";
 	}
 
 	public String getNamespace() {
@@ -70,9 +81,11 @@ public class Schema implements Serializable {
 		private final List<SimpleType> simpleTypes = new ArrayList<SimpleType>();
 		private final List<Element> elements = new ArrayList<Element>();
 		private String namespace;
+		private boolean numberItems = false;
 
 		public Schema build() {
-			return new Schema(namespace, complexTypes, simpleTypes, elements);
+			return new Schema(namespace, complexTypes, simpleTypes, elements,
+					numberItems);
 		}
 
 		public Builder namespace(String namespace) {
@@ -92,6 +105,11 @@ public class Schema implements Serializable {
 
 		public Builder element(Element element) {
 			this.elements.add(element);
+			return this;
+		}
+
+		public Builder numberItems(boolean numberItems) {
+			this.numberItems = numberItems;
 			return this;
 		}
 	}

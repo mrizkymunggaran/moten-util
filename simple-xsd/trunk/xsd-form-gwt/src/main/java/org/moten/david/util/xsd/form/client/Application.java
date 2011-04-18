@@ -6,9 +6,6 @@ import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.KeyCodes;
-import com.google.gwt.event.dom.client.KeyUpEvent;
-import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
@@ -43,20 +40,23 @@ public class Application implements EntryPoint {
 	 * This is the entry point method.
 	 */
 	public void onModuleLoad() {
-		final Button sendButton = new Button(messages.sendButton());
-		final Label errorLabel = new Label();
-
+		final Button sendButton1 = new Button(messages.sendButton() + " 1");
 		// We can add style names to widgets
-		sendButton.addStyleName("sendButton");
+		sendButton1.addStyleName("sendButton");
+		final Button sendButton2 = new Button(messages.sendButton() + " 2");
+		// We can add style names to widgets
+		sendButton2.addStyleName("sendButton");
+		final Label errorLabel = new Label();
 
 		// Add the nameField and sendButton to the RootPanel
 		// Use RootPanel.get() to get the entire body element
 		// RootPanel.get("nameFieldContainer").add(nameField);
-		RootPanel.get("sendButtonContainer").add(sendButton);
+		RootPanel.get("sendButtonContainer").add(sendButton1);
+		RootPanel.get("sendButtonContainer").add(sendButton2);
 		RootPanel.get("errorLabelContainer").add(errorLabel);
 
 		// Focus the cursor on the name field when the app loads
-		sendButton.setFocus(true);
+		sendButton1.setFocus(true);
 		// nameField.selectAll();
 
 		// Create the popup dialog box
@@ -82,34 +82,32 @@ public class Application implements EntryPoint {
 		closeButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				dialogBox.hide();
-				sendButton.setEnabled(true);
-				sendButton.setFocus(true);
+				sendButton1.setEnabled(true);
+				sendButton1.setFocus(true);
 			}
 		});
 
 		// Create a handler for the sendButton and nameField
-		class MyHandler implements ClickHandler, KeyUpHandler {
+		class MyHandler implements ClickHandler {
+
+			private final String schema;
+
+			public MyHandler(String schema) {
+				this.schema = schema;
+			}
+
 			/**
 			 * Fired when the user clicks on the sendButton.
 			 */
 			public void onClick(ClickEvent event) {
-				sendNameToServer();
-			}
-
-			/**
-			 * Fired when the user types in the nameField.
-			 */
-			public void onKeyUp(KeyUpEvent event) {
-				if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
-					sendNameToServer();
-				}
+				loadSchema(schema);
 			}
 
 			/**
 			 * Send the name from the nameField to the server and wait for a
 			 * response.
 			 */
-			private void sendNameToServer() {
+			private void loadSchema(String schema) {
 				// First, we validate the input.
 				errorLabel.setText("");
 				String textToServer = "blah";
@@ -121,10 +119,10 @@ public class Application implements EntryPoint {
 				// }
 
 				// Then, we send the input to the server.
-				sendButton.setEnabled(false);
+				sendButton1.setEnabled(false);
 				textToServerLabel.setText(textToServer);
 				serverResponseLabel.setText("");
-				greetingService.getSchema("", new AsyncCallback<Schema>() {
+				greetingService.getSchema(schema, new AsyncCallback<Schema>() {
 
 					public void onFailure(Throwable arg0) {
 						// Show the RPC error message to the user
@@ -149,39 +147,17 @@ public class Application implements EntryPoint {
 									.addStyleName("serverResponseLabelError");
 							serverResponseLabel.setHTML(e.getMessage());
 						}
-						sendButton.setEnabled(true);
+						sendButton1.setEnabled(true);
 					}
 				});
-				if (false)
-					greetingService.greetServer(textToServer,
-							new AsyncCallback<String>() {
-								public void onFailure(Throwable caught) {
-									// Show the RPC error message to the user
-									dialogBox
-											.setText("Remote Procedure Call - Failure");
-									serverResponseLabel
-											.addStyleName("serverResponseLabelError");
-									serverResponseLabel.setHTML(SERVER_ERROR);
-									dialogBox.center();
-									closeButton.setFocus(true);
-								}
-
-								public void onSuccess(String result) {
-									dialogBox.setText("Remote Procedure Call");
-									serverResponseLabel
-											.removeStyleName("serverResponseLabelError");
-									serverResponseLabel.setHTML(result);
-									dialogBox.center();
-									closeButton.setFocus(true);
-								}
-							});
 			}
 		}
 
 		// Add a handler to send the name to the server
-		MyHandler handler = new MyHandler();
-		sendButton.addClickHandler(handler);
-		// nameField.addKeyUpHandler(handler);
-		sendButton.click();
+		MyHandler handler1 = new MyHandler("/test.xsd");
+		MyHandler handler2 = new MyHandler("/test-complex.xsd");
+		sendButton1.addClickHandler(handler1);
+		sendButton2.addClickHandler(handler2);
+		sendButton1.click();
 	}
 }

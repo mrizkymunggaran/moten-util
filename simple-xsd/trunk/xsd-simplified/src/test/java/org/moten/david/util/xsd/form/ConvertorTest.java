@@ -1,5 +1,7 @@
 package org.moten.david.util.xsd.form;
 
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Test;
 import org.moten.david.util.xsd.Convertor;
 import org.moten.david.util.xsd.Marshaller;
@@ -14,6 +16,7 @@ public class ConvertorTest {
 		Schema s = m.unmarshal(ConvertorTest.class
 				.getResourceAsStream("/test.xsd"));
 		org.moten.david.util.xsd.simplified.Schema simple = c.convert(s);
+		assertTrue(simple.getNumberItems());
 		System.out.println(simple);
 	}
 
