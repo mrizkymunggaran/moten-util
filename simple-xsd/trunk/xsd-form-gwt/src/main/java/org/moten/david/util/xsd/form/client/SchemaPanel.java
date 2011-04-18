@@ -1,5 +1,7 @@
 package org.moten.david.util.xsd.form.client;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -9,6 +11,7 @@ import org.moten.david.util.xsd.simplified.ComplexType;
 import org.moten.david.util.xsd.simplified.Element;
 import org.moten.david.util.xsd.simplified.Group;
 import org.moten.david.util.xsd.simplified.Particle;
+import org.moten.david.util.xsd.simplified.QName;
 import org.moten.david.util.xsd.simplified.Restriction;
 import org.moten.david.util.xsd.simplified.Schema;
 import org.moten.david.util.xsd.simplified.Sequence;
@@ -49,15 +52,18 @@ public class SchemaPanel extends VerticalPanel {
 
 	private final Schema schema;
 
+	private int itemNumber = 0;
+
 	public SchemaPanel(Schema schema) {
 		this.schema = schema;
-		Label namespace = new Label(schema.getNamespace());
 		List<Runnable> list = new ArrayList<Runnable>();
 		for (Element element : schema.getElements()) {
 			add(createElementPanel(element, list));
 		}
 		Button submit = new Button("Submit");
 		add(submit);
+		add(new Label(schema.getNamespace()));
+
 	}
 
 	private Widget createElementPanel(Element element, List<Runnable> validators) {
@@ -65,12 +71,6 @@ public class SchemaPanel extends VerticalPanel {
 		final VerticalPanel parent = new VerticalPanel();
 		parent.add(createElementPanel(parent, element, validators));
 		return decorate(parent);
-	}
-
-	private Label createLabel(String name) {
-		Label label = new Label(name);
-		label.addStyleName("label");
-		return label;
 	}
 
 	private Widget createElementPanel(final VerticalPanel parent,
@@ -114,32 +114,34 @@ public class SchemaPanel extends VerticalPanel {
 				}
 			});
 		}
-		if (element.getAfter() != null) {
-			HTML html = new HTML(element.getAfter());
-			p.add(html);
-			html.addStyleName("after");
-		}
+
 		return decorate(p);
 	}
 
 	private Widget createSimpleType(String name, String description,
-			final String validationMessage, Integer lines, Integer cols,
+			final String validation, Integer lines, Integer cols,
 			final SimpleType t, final int minOccurs, String before,
 			String after, List<Runnable> validators) {
 
 		HorizontalPanel p = new HorizontalPanel();
 		p.addStyleName("simpleType");
 		if (t.getRestriction() != null) {
-			addRestrictionWidget(p, t, name, description, validationMessage,
+			addRestrictionWidget(p, t, name, description, validation,
 					validators, before, after);
-		} else if (t.getName().getLocalPart().equals("boolean")) {
+		} else if (isStandardType(t.getQName(), "boolean")) {
 			// checkboxes
 			p.add(createCheckBox(name, description));
-		} else if (t.getName().getLocalPart().equals("date")) {
+		} else if (isStandardType(t.getQName(), "date")) {
 			p.add(createDateWidget(name));
-		} else if (t.getName().getLocalPart().equals("dateTime")) {
+		} else if (isStandardType(t.getQName(), "dateTime")) {
 			p.add(createTextWidget(name, description + "TODO dateTime", lines,
 					cols, minOccurs, validators));
+		} else if (isStandardType(t.getQName(), "integer")) {
+			p.add(createNumericWidget(name, t.getRestriction(), description,
+					validation, before, after, true));
+		} else if (isStandardType(t.getQName(), "decimal")) {
+			p.add(createNumericWidget(name, t.getRestriction(), description,
+					validation, before, after, false));
 		} else {
 			p.add(createTextWidget(name, description, lines, cols, minOccurs,
 					validators));
@@ -148,7 +150,7 @@ public class SchemaPanel extends VerticalPanel {
 	}
 
 	private Widget createCheckBox(String name, String description) {
-		CheckBox c = new CheckBox(name);
+		CheckBox c = new CheckBox(number(name));
 		c.addStyleName("item");
 		VerticalPanel p = new VerticalPanel();
 		p.add(addDescription(c, description));
@@ -200,14 +202,15 @@ public class SchemaPanel extends VerticalPanel {
 	}
 
 	private Widget createDateWidget(String name) {
-		HorizontalPanel p = new HorizontalPanel();
+		VerticalPanel p = new VerticalPanel();
 		p.addStyleName("itemGroup");
-		final Label label = createLabel(name);
-		p.add(label);
+		p.add(createLabelWidget(name));
+
+		HorizontalPanel hp = new HorizontalPanel();
 		final TextBox text = new TextBox();
 		text.setReadOnly(true);
 		text.addStyleName("item");
-		p.add(text);
+		hp.add(text);
 
 		// Create a date picker
 		DatePicker datePicker = new DatePicker();
@@ -225,9 +228,11 @@ public class SchemaPanel extends VerticalPanel {
 		// Set the default value
 		datePicker.setValue(new Date(), true);
 		datePicker.addStyleName("item");
-		DisclosurePanel d = new DisclosurePanel("");
+		DisclosurePanel d = new DisclosurePanel();
+		d.setHeader(text);
 		d.setContent(datePicker);
-		p.add(d);
+		hp.add(d);
+		p.add(hp);
 		return p;
 	}
 
@@ -263,9 +268,20 @@ public class SchemaPanel extends VerticalPanel {
 		return vp;
 	}
 
+	private String number(String s) {
+		String result = s;
+		if (schema.getNumberItems()) {
+			itemNumber++;
+			result = itemNumber + ". " + s;
+		}
+		return result;
+	}
+
 	private Label createLabel(String message, String styleName) {
 		Label widget = new Label(message);
 		widget.addStyleName(styleName);
+		if (message == null)
+			widget.setVisible(false);
 		return widget;
 	}
 
@@ -280,21 +296,35 @@ public class SchemaPanel extends VerticalPanel {
 	}
 
 	private Widget createLabelWidget(String label) {
-		Label widget = new Label(label);
+		Label widget = new Label(number(label));
 		widget.addStyleName("label");
 		return widget;
 	}
 
 	private Widget createBeforeWidget(String before) {
-		return createLabel(before, "before");
+		return createHTML(before, "before");
 	}
 
 	private Widget createAfterWidget(String after) {
-		return createLabel(after, "after");
+		return createHTML(after, "after");
+	}
+
+	private Widget createHTML(String html, String style) {
+		Widget w = new HTML(html);
+		if (html == null)
+			w.setVisible(false);
+		w.addStyleName(style);
+		return w;
 	}
 
 	private boolean isEnumeration(Restriction r) {
 		return r.getEnumerations().size() > 0;
+	}
+
+	private boolean isStandardType(QName qName, String localPart) {
+		return qName != null
+				&& Schema.XML_SCHEMA_NAMESPACE.equals(qName.getNamespace())
+				&& localPart.equals(qName.getLocalPart());
 	}
 
 	private void addRestrictionWidget(HorizontalPanel p, SimpleType t,
@@ -309,13 +339,14 @@ public class SchemaPanel extends VerticalPanel {
 			// patterns
 			p.add(createPatternWidget(name, t.getRestriction().getPattern(),
 					description, validationMessage, before, after));
-
-		} else if (t.getRestriction().getBase() != null
-				&& t.getRestriction().getBase().getLocalPart()
-						.equals("integer")) {
+		} else if (isStandardType(t.getRestriction().getBase(), "integer")) {
 			// integers
-			p.add(createIntegerWidget(name, t.getRestriction(), description,
-					validationMessage, before, after));
+			p.add(createNumericWidget(name, t.getRestriction(), description,
+					validationMessage, before, after, true));
+		} else if (isStandardType(t.getRestriction().getBase(), "decimal")) {
+			// decimal
+			p.add(createNumericWidget(name, t.getRestriction(), description,
+					validationMessage, before, after, false));
 		} else {
 			// plain text box
 			String defaultValue = t.getName().getLocalPart()
@@ -353,51 +384,60 @@ public class SchemaPanel extends VerticalPanel {
 				before, after, factory);
 	}
 
-	private Widget createIntegerWidget(String name,
+	private Widget createNumericWidget(String name,
 			final Restriction restriction, final String description,
-			final String validationMessage, String before, String after) {
+			final String validation, String before, String after,
+			final boolean isInteger) {
 
 		ChangeHandlerFactory factory = new ChangeHandlerFactory() {
-
 			public ChangeHandler create(final HasChangeHandlers item,
 					final Label validation) {
-
-				return createIntegerChangeHandler(restriction, (TextBox) item,
-						validation);
+				return createNumericChangeHandler(restriction, (TextBox) item,
+						validation, isInteger);
 			}
 		};
-
-		return layout(name, new TextBox(), validationMessage, description,
-				before, after, factory);
+		TextBox text = new TextBox();
+		return layout(name, text, validation, description, before, after,
+				factory);
 	}
 
-	private ChangeHandler createIntegerChangeHandler(
+	private ChangeHandler createNumericChangeHandler(
 			final Restriction restriction, final TextBox item,
-			final Label validation) {
+			final Label validation, final boolean isInteger) {
 		return new ChangeHandler() {
 			public void onChange(ChangeEvent event) {
 				boolean isValid = true;
-				int i = 0;
 				try {
-					i = Integer.parseInt(item.getText());
+					BigDecimal value = new BigDecimal(item.getText());
+					if (isInteger)
+						new BigInteger(item.getText());
+					isValid = isValidAgainstRestriction(value, restriction);
 				} catch (NumberFormatException e) {
 					isValid = false;
 				}
-				if (restriction.getMinInclusive() != null
-						&& i < restriction.getMinInclusive().doubleValue())
-					isValid = false;
-				if (restriction.getMinExclusive() != null
-						&& i <= restriction.getMinExclusive().doubleValue())
-					isValid = false;
-				if (restriction.getMaxInclusive() != null
-						&& i > restriction.getMaxInclusive().doubleValue())
-					isValid = false;
-				if (restriction.getMaxExclusive() != null
-						&& i >= restriction.getMaxExclusive().doubleValue())
-					isValid = false;
 				updateValidation(isValid, item, validation, "invalid");
 			}
 		};
+	}
+
+	private boolean isValidAgainstRestriction(BigDecimal i,
+			Restriction restriction) {
+		boolean isValid = true;
+		if (restriction != null) {
+			if (restriction.getMinInclusive() != null
+					&& i.compareTo(restriction.getMinInclusive()) < 0)
+				isValid = false;
+			if (restriction.getMinExclusive() != null
+					&& i.compareTo(restriction.getMinExclusive()) <= 0)
+				isValid = false;
+			if (restriction.getMaxInclusive() != null
+					&& i.compareTo(restriction.getMaxInclusive()) > 0)
+				isValid = false;
+			if (restriction.getMaxExclusive() != null
+					&& i.compareTo(restriction.getMaxExclusive()) >= 0)
+				isValid = false;
+		}
+		return isValid;
 	}
 
 	private void updateValidation(boolean isValid, Widget item,
@@ -421,7 +461,8 @@ public class SchemaPanel extends VerticalPanel {
 			public void onChange(ChangeEvent event) {
 				RegExp regex = RegExp.compile("^" + pattern + "$");
 				boolean isValid = regex.test(text.getText());
-				updateValidation(isValid, text, validation, "invalid format");
+				updateValidation(isValid, text, validation,
+						"invalid against format: " + pattern);
 			}
 		};
 	}

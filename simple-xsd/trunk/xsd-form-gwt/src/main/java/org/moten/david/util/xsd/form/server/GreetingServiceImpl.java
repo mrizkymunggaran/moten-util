@@ -65,7 +65,7 @@ public class GreetingServiceImpl extends RemoteServiceServlet implements
 			Convertor c = new Convertor();
 			Marshaller m = new Marshaller();
 			InputStream is = GreetingServiceImpl.class
-					.getResourceAsStream("/test.xsd");
+					.getResourceAsStream(namespace);
 			// InputStream is = new
 			// FileInputStream("src/main/resources/test.xsd");
 			org.w3._2001.xmlschema.Schema s = m.unmarshal(is);

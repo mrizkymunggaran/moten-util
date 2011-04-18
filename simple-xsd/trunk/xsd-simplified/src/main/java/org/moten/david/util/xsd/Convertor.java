@@ -45,6 +45,10 @@ public class Convertor {
 		log.info("converting schema: " + s.getTargetNamespace());
 		Schema.Builder builder = new Schema.Builder();
 		builder.namespace(s.getTargetNamespace());
+		boolean numberItems = "true".equals(getInfo(s
+				.getIncludeOrImportOrRedefine().get(0).getOtherAttributes(),
+				"numberItems"));
+		builder.numberItems(numberItems);
 		for (OpenAttrs a : s.getSimpleTypeOrComplexTypeOrGroup()) {
 			if (a instanceof TopLevelComplexType) {
 				TopLevelComplexType t = (TopLevelComplexType) a;
