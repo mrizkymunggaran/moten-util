@@ -20,6 +20,7 @@ import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.HasChangeHandlers;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
@@ -31,7 +32,6 @@ import com.google.gwt.user.client.ui.DisclosurePanel;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.IntegerBox;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.Panel;
@@ -45,15 +45,13 @@ import com.google.gwt.user.datepicker.client.DatePicker;
 
 public class SchemaPanel extends VerticalPanel {
 
+	private int depth = 1;
+
 	private final Schema schema;
 
 	public SchemaPanel(Schema schema) {
 		this.schema = schema;
 		Label namespace = new Label(schema.getNamespace());
-		// add(namespace);
-		add(layout("Email", new TextBox(), new Label("validation message"),
-				"description", "Here is a message to put before",
-				"This is the text that goes after"));
 		List<Runnable> list = new ArrayList<Runnable>();
 		for (Element element : schema.getElements()) {
 			add(createElementPanel(element, list));
@@ -75,30 +73,21 @@ public class SchemaPanel extends VerticalPanel {
 		return label;
 	}
 
-	private Widget border(Widget w) {
-		VerticalPanel outer = new VerticalPanel();
-		outer.add(new HTML("<hr/>"));
-		outer.add(w);
-		return outer;
-	}
-
 	private Widget createElementPanel(final VerticalPanel parent,
 			final Element element, final List<Runnable> validators) {
 		final VerticalPanel p = new VerticalPanel();
-		if (element.getBefore() != null) {
-			HTML html = new HTML(element.getBefore());
-			p.add(html);
-			html.addStyleName("before");
-		}
+
 		Type t = getType(schema, element);
 		if (t instanceof ComplexType) {
 			p.add(createComplexTypePanel(element.getDisplayName(),
-					(ComplexType) t, validators));
+					(ComplexType) t, element.getBefore(), element.getAfter(),
+					validators));
 		} else if (t instanceof SimpleType)
 			p.add(createSimpleType(element.getDisplayName(),
 					element.getDescription(), element.getValidation(),
 					element.getLines(), element.getCols(), (SimpleType) t,
-					element.getMinOccurs(), validators));
+					element.getMinOccurs(), element.getBefore(),
+					element.getAfter(), validators));
 		else
 			throw new RuntimeException("could not find type: "
 					+ element.getType());
@@ -130,38 +119,47 @@ public class SchemaPanel extends VerticalPanel {
 			p.add(html);
 			html.addStyleName("after");
 		}
-		return border(decorate(p));
+		return decorate(p);
 	}
 
 	private Widget createSimpleType(String name, String description,
 			final String validationMessage, Integer lines, Integer cols,
-			final SimpleType t, final int minOccurs, List<Runnable> validators) {
+			final SimpleType t, final int minOccurs, String before,
+			String after, List<Runnable> validators) {
 
 		HorizontalPanel p = new HorizontalPanel();
 		p.addStyleName("simpleType");
 		if (t.getRestriction() != null) {
 			addRestrictionWidget(p, t, name, description, validationMessage,
-					validators);
+					validators, before, after);
 		} else if (t.getName().getLocalPart().equals("boolean")) {
 			// checkboxes
-			CheckBox c = new CheckBox(name);
-			c.addStyleName("item");
-			p.add(addDescription(c, description));
+			p.add(createCheckBox(name, description));
 		} else if (t.getName().getLocalPart().equals("date")) {
-			addDateWidget(p, name);
+			p.add(createDateWidget(name));
 		} else if (t.getName().getLocalPart().equals("dateTime")) {
-			p.add(new Label("TODO dateTime"));
+			p.add(createTextWidget(name, description + "TODO dateTime", lines,
+					cols, minOccurs, validators));
 		} else {
-			validators.add(addTextWidget(p, name, description, lines, cols,
-					minOccurs));
+			p.add(createTextWidget(name, description, lines, cols, minOccurs,
+					validators));
 		}
 		return decorate(p);
 	}
 
-	private Runnable addTextWidget(HorizontalPanel p, String name,
-			String description, Integer lines, Integer cols, final int minOccurs) {
+	private Widget createCheckBox(String name, String description) {
+		CheckBox c = new CheckBox(name);
+		c.addStyleName("item");
+		VerticalPanel p = new VerticalPanel();
+		p.add(addDescription(c, description));
+		p.addStyleName("itemGroup");
+		return p;
+	}
+
+	private Widget createTextWidget(String name, String description,
+			Integer lines, Integer cols, final int minOccurs,
+			List<Runnable> validators) {
 		// plain text box
-		p.add(createLabel(name));
 		final TextBoxBase text;
 		if (lines != null && lines > 1) {
 			TextArea textArea = new TextArea();
@@ -176,31 +174,34 @@ public class SchemaPanel extends VerticalPanel {
 			text = new TextBox();
 			text.addStyleName("item");
 		}
-		final Label validation = new Label();
-		validation.setVisible(false);
-		validation.addStyleName("validation");
-		final Runnable validator = new Runnable() {
-			public void run() {
-				boolean isValid = (text.getText() != null && text.getText()
-						.trim().length() > 0)
-						|| minOccurs == 0;
-				updateValidation(isValid, text, validation, "mandatory");
+
+		ChangeHandlerFactory factory = new ChangeHandlerFactory() {
+
+			public ChangeHandler create(HasChangeHandlers item,
+					final Label validation) {
+				final Runnable validator = new Runnable() {
+					public void run() {
+						boolean isValid = (text.getText() != null && text
+								.getText().trim().length() > 0)
+								|| minOccurs == 0;
+						updateValidation(isValid, text, validation, "mandatory");
+					}
+				};
+				return new ChangeHandler() {
+					public void onChange(ChangeEvent event) {
+						validator.run();
+					}
+				};
 			}
 		};
-		text.addChangeHandler(new ChangeHandler() {
-			public void onChange(ChangeEvent event) {
-				validator.run();
-			}
-		});
 
-		VerticalPanel vp = new VerticalPanel();
-		vp.add(text);
-		vp.add(addDescription(validation, description));
-		p.add(vp);
-		return validator;
+		return layout(name, text, "You must put an answer here", description,
+				null, null, factory);
 	}
 
-	private void addDateWidget(HorizontalPanel p, String name) {
+	private Widget createDateWidget(String name) {
+		HorizontalPanel p = new HorizontalPanel();
+		p.addStyleName("itemGroup");
 		final Label label = createLabel(name);
 		p.add(label);
 		final TextBox text = new TextBox();
@@ -227,22 +228,55 @@ public class SchemaPanel extends VerticalPanel {
 		DisclosurePanel d = new DisclosurePanel("");
 		d.setContent(datePicker);
 		p.add(d);
+		return p;
 	}
 
-	private Widget layout(String label, Widget item, Widget validation,
-			String description, String before, String after) {
+	/**
+	 * Layouts an item as a {@link Widget}
+	 * 
+	 * @param label
+	 * @param item
+	 * @param validation
+	 * @param description
+	 * @param before
+	 * @param after
+	 * @return
+	 */
+	private Widget layout(String label, Widget item, String validation,
+			String description, String before, String after,
+			ChangeHandlerFactory factory) {
 
 		Panel vp = new FlowPanel();
+		vp.addStyleName("itemGroup");
 		vp.add(createBeforeWidget(before));
-		HorizontalPanel hp = new HorizontalPanel();
-		hp.add(createLabelWidget(label));
-		hp.add(item);
-		hp.addStyleName("item");
-		vp.add(hp);
-		vp.add(validation);
-		vp.add(createBeforeWidget(description));
+		vp.add(createLabelWidget(label));
+		vp.add(item);
+		item.addStyleName("item");
+		Label validationLabel = createValidationWidget(validation);
+		vp.add(validationLabel);
+		vp.add(createDescriptionWidget(description));
 		vp.add(createAfterWidget(after));
+		if (factory != null && item instanceof HasChangeHandlers) {
+			HasChangeHandlers itm = (HasChangeHandlers) item;
+			itm.addChangeHandler(factory.create(itm, validationLabel));
+		}
 		return vp;
+	}
+
+	private Label createLabel(String message, String styleName) {
+		Label widget = new Label(message);
+		widget.addStyleName(styleName);
+		return widget;
+	}
+
+	private Label createValidationWidget(String validation) {
+		Label label = createLabel(validation, "validation");
+		label.setVisible(false);
+		return label;
+	}
+
+	private Widget createDescriptionWidget(String description) {
+		return createLabel(description, "description");
 	}
 
 	private Widget createLabelWidget(String label) {
@@ -252,85 +286,93 @@ public class SchemaPanel extends VerticalPanel {
 	}
 
 	private Widget createBeforeWidget(String before) {
-		Label widget = new Label(before);
-		widget.addStyleName("before");
-		return widget;
+		return createLabel(before, "before");
 	}
 
 	private Widget createAfterWidget(String after) {
-		Label widget = new Label(after);
-		widget.addStyleName("after");
-		return widget;
+		return createLabel(after, "after");
+	}
+
+	private boolean isEnumeration(Restriction r) {
+		return r.getEnumerations().size() > 0;
 	}
 
 	private void addRestrictionWidget(HorizontalPanel p, SimpleType t,
 			String name, String description, String validationMessage,
-			List<Runnable> validators) {
-		// list boxes
-		p.add(createLabel(name));
-		List<XsdType<?>> xsdTypes = t.getRestriction().getEnumerations();
-		if (xsdTypes.size() > 0) {
-			ListBox listBox = new ListBox();
-			for (XsdType<?> x : xsdTypes) {
-				listBox.addItem(x.getValue().toString());
-			}
-			listBox.addStyleName("item");
-			p.add(addDescription(listBox, description));
+			List<Runnable> validators, String before, String after) {
+		if (isEnumeration(t.getRestriction())) {
+			// list boxes
+			ListBox listBox = createListBox(t.getRestriction());
+			p.add(layout(name, listBox, validationMessage, description, null,
+					null, null));
 		} else if (t.getRestriction().getPattern() != null) {
 			// patterns
-			Widget w = createPatternWidget(t.getRestriction().getPattern(),
-					description, validationMessage);
-			p.add(w);
+			p.add(createPatternWidget(name, t.getRestriction().getPattern(),
+					description, validationMessage, before, after));
+
 		} else if (t.getRestriction().getBase() != null
 				&& t.getRestriction().getBase().getLocalPart()
 						.equals("integer")) {
-			final IntegerBox text = new IntegerBox();
-			text.setText("");
-			text.addStyleName("item");
-
-			final Label validation = new Label(validationMessage);
-			validation.setVisible(false);
-			validation.addStyleName("validation");
-			text.addChangeHandler(createIntegerChangeHandler(
-					t.getRestriction(), text, validation));
-
-			VerticalPanel vp = new VerticalPanel();
-			vp.add(text);
-			vp.add(addDescription(validation, description));
-
-			p.add(vp);
+			// integers
+			p.add(createIntegerWidget(name, t.getRestriction(), description,
+					validationMessage, before, after));
 		} else {
 			// plain text box
-			p.add(createLabel(name));
+			String defaultValue = t.getName().getLocalPart()
+					+ "unsupported restriction";
 			TextBox text = new TextBox();
-			text.setText(t.getName().getLocalPart() + "unsupported restriction");
-			text.addStyleName("item");
-			p.add(addDescription(text, description));
+			text.setText(defaultValue);
+			p.add(layout(name, text, validationMessage, description, before,
+					after, null));
 		}
 
 	}
 
-	private Widget createPatternWidget(String pattern, String description,
-			String validationMessage) {
-		final TextBox text = new TextBox();
-		text.setText("");
-		text.addStyleName("item");
+	private ListBox createListBox(Restriction restriction) {
+		List<XsdType<?>> xsdTypes = restriction.getEnumerations();
+		ListBox listBox = new ListBox();
+		for (XsdType<?> x : xsdTypes) {
+			listBox.addItem(x.getValue().toString());
+		}
+		return listBox;
+	}
 
-		final Label validation = new Label(validationMessage);
-		validation.setVisible(false);
-		validation.addStyleName("validation");
+	private Widget createPatternWidget(String name, final String pattern,
+			final String description, final String validationMessage,
+			String before, String after) {
 
-		text.addChangeHandler(createPatternChangeHandler(pattern, text,
-				validationMessage, validation));
+		ChangeHandlerFactory factory = new ChangeHandlerFactory() {
 
-		VerticalPanel vp = new VerticalPanel();
-		vp.add(text);
-		vp.add(addDescription(validation, description));
-		return vp;
+			public ChangeHandler create(HasChangeHandlers item, Label validation) {
+				return createPatternChangeHandler(pattern, (TextBoxBase) item,
+						validationMessage, validation);
+			}
+		};
+
+		return layout(name, new TextBox(), validationMessage, description,
+				before, after, factory);
+	}
+
+	private Widget createIntegerWidget(String name,
+			final Restriction restriction, final String description,
+			final String validationMessage, String before, String after) {
+
+		ChangeHandlerFactory factory = new ChangeHandlerFactory() {
+
+			public ChangeHandler create(final HasChangeHandlers item,
+					final Label validation) {
+
+				return createIntegerChangeHandler(restriction, (TextBox) item,
+						validation);
+			}
+		};
+
+		return layout(name, new TextBox(), validationMessage, description,
+				before, after, factory);
 	}
 
 	private ChangeHandler createIntegerChangeHandler(
-			final Restriction restriction, final IntegerBox item,
+			final Restriction restriction, final TextBox item,
 			final Label validation) {
 		return new ChangeHandler() {
 			public void onChange(ChangeEvent event) {
@@ -396,12 +438,14 @@ public class SchemaPanel extends VerticalPanel {
 	}
 
 	private Widget createComplexTypePanel(String displayName, ComplexType t,
-			List<Runnable> validators) {
+			String before, String after, List<Runnable> validators) {
 		VerticalPanel p = new VerticalPanel();
-		p.add(new Label(displayName));
+		depth++;
+		p.add(new HTML("<h" + depth + ">" + displayName + "</h" + depth + ">"));
 		for (Particle particle : t.getParticles()) {
 			p.add(createParticle(particle, validators));
 		}
+		depth--;
 		return decorate(p);
 	}
 
@@ -411,7 +455,8 @@ public class SchemaPanel extends VerticalPanel {
 			p.add(createElementPanel((Element) particle, validators));
 		else if (particle instanceof SimpleType)
 			p.add(createSimpleType(particle.getClass().getName(), null, null,
-					null, null, (SimpleType) particle, 1, validators));
+					null, null, (SimpleType) particle, 1, null, null,
+					validators));
 		else if (particle instanceof Group)
 			p.add(createGroup((Group) particle, validators));
 		else
