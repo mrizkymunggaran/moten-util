@@ -253,9 +253,17 @@ public class SchemaPanel extends VerticalPanel {
 
 		Panel vp = new FlowPanel();
 		vp.addStyleName("itemGroup");
+
 		vp.add(createBeforeWidget(before));
-		vp.add(createLabelWidget(label));
-		vp.add(item);
+		if (true) {
+			HorizontalPanel hp = new HorizontalPanel();
+			hp.add(createLabelWidget(label));
+			hp.add(item);
+			vp.add(hp);
+		} else {
+			vp.add(createLabelWidget(label));
+			vp.add(item);
+		}
 		item.addStyleName("item");
 		Label validationLabel = createValidationWidget(validation);
 		vp.add(validationLabel);
