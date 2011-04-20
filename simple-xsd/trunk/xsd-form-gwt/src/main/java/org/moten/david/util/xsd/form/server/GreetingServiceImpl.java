@@ -66,8 +66,6 @@ public class GreetingServiceImpl extends RemoteServiceServlet implements
 			Marshaller m = new Marshaller();
 			InputStream is = GreetingServiceImpl.class
 					.getResourceAsStream(namespace);
-			// InputStream is = new
-			// FileInputStream("src/main/resources/test.xsd");
 			org.w3._2001.xmlschema.Schema s = m.unmarshal(is);
 			Schema schema = c.convert(s);
 			return schema;

@@ -74,14 +74,12 @@ h1 {
 	width: 100%;
 }
 
-.label { //
-	padding-right: 2em; //
-	vertical-align: middle;
+.label { 
+	padding-right: 2em; 
+	min-width: 150px;
 }
 
-.item { //
-	vertical-align: middle; //
-	width: 100px; //
+.item {  
 	margin-left: 00px;
 }
 
