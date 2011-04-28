@@ -29,6 +29,7 @@ import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.regexp.shared.RegExp;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.DisclosurePanel;
@@ -54,6 +55,8 @@ public class SchemaPanel extends VerticalPanel {
 
 	private int itemNumber = 0;
 
+	private final String style;
+
 	public SchemaPanel(Schema schema) {
 		this.schema = schema;
 		List<Runnable> list = new ArrayList<Runnable>();
@@ -63,7 +66,7 @@ public class SchemaPanel extends VerticalPanel {
 		Button submit = new Button("Submit");
 		add(submit);
 		add(new Label(schema.getNamespace()));
-
+		style = Window.Location.getParameter("style");
 	}
 
 	private Widget createElementPanel(Element element, List<Runnable> validators) {
@@ -129,7 +132,6 @@ public class SchemaPanel extends VerticalPanel {
 			addRestrictionWidget(p, t, name, description, validation,
 					validators, before, after);
 		} else if (isStandardType(t.getQName(), "boolean")) {
-			// checkboxes
 			p.add(createCheckBox(name, description));
 		} else if (isStandardType(t.getQName(), "date")) {
 			p.add(createDateWidget(name));
@@ -202,7 +204,12 @@ public class SchemaPanel extends VerticalPanel {
 	}
 
 	private Widget createDateWidget(String name) {
-		VerticalPanel p = new VerticalPanel();
+
+		Panel p;
+		if (isInline())
+			p = new HorizontalPanel();
+		else
+			p = new VerticalPanel();
 		p.addStyleName("itemGroup");
 		p.add(createLabelWidget(name));
 
@@ -236,6 +243,10 @@ public class SchemaPanel extends VerticalPanel {
 		return p;
 	}
 
+	private boolean isInline() {
+		return true;
+	}
+
 	/**
 	 * Layouts an item as a {@link Widget}
 	 * 
@@ -255,7 +266,7 @@ public class SchemaPanel extends VerticalPanel {
 		vp.addStyleName("itemGroup");
 
 		vp.add(createBeforeWidget(before));
-		if (true) {
+		if (isInline()) {
 			HorizontalPanel hp = new HorizontalPanel();
 			hp.add(createLabelWidget(label));
 			hp.add(item);
@@ -357,10 +368,7 @@ public class SchemaPanel extends VerticalPanel {
 					validationMessage, before, after, false));
 		} else {
 			// plain text box
-			String defaultValue = t.getName().getLocalPart()
-					+ "unsupported restriction";
 			TextBox text = new TextBox();
-			text.setText(defaultValue);
 			p.add(layout(name, text, validationMessage, description, before,
 					after, null));
 		}
