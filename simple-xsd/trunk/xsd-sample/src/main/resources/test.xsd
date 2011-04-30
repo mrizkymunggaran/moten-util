@@ -1,7 +1,7 @@
 <xs:schema targetNamespace="http://org.moten.david/example"
 	xmlns="http://org.moten.david/example" xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	xmlns:i="http://moten.david.org/util/xsd/simplified/appinfo">
-	
+
 	<xs:annotation i:numberItems="true" />
 
 	<xs:element name="person" type="person">
@@ -54,13 +54,16 @@
 			<xs:element name="height-m" type="xs:decimal">
 				<xs:annotation i:label="Height in metres" />
 			</xs:element>
+			<xs:element name="termsAndConditionsUnderstood" type="alwaysTrue">
+				<xs:annotation
+					i:label="I acknowledge the &lt;a href=''&gt;Terms and Conditions&gt;" />
+			</xs:element>
 		</xs:sequence>
-		<xs:attribute name="nationality" type="country" />
 	</xs:complexType>
 
-	<xs:simpleType name="email">
-		<xs:restriction base="xs:string">
-			<xs:pattern value="[A-Za-z0-9_]+([-+.'][A-Za-z0-9_]+)*@[A-Za-z0-9_]+([-.][A-Za-z0-9_]+)*\.[A-Za-z0-9_]+([-.][A-Za-z0-9_]+)*" />
+	<xs:simpleType name="alwaysTrue">
+		<xs:restriction base="xs:boolean">
+			<xs:enumeration value="true" />
 		</xs:restriction>
 	</xs:simpleType>
 
@@ -81,7 +84,9 @@
 			<xs:enumeration value="Antigua &amp; Deps" />
 			<xs:enumeration value="Argentina" />
 			<xs:enumeration value="Armenia" />
-			<xs:enumeration value="Australia" />
+			<xs:enumeration value="Australia">
+				<xs:annotation i:label="Van Diemen's Land" />
+			</xs:enumeration>
 			<xs:enumeration value="Austria" />
 			<xs:enumeration value="Azerbaijan" />
 			<xs:enumeration value="Bahamas" />
