@@ -21,6 +21,7 @@ import org.moten.david.util.xsd.simplified.Restriction;
 import org.moten.david.util.xsd.simplified.Schema;
 import org.moten.david.util.xsd.simplified.Sequence;
 import org.moten.david.util.xsd.simplified.SimpleType;
+import org.moten.david.util.xsd.simplified.XsdBoolean;
 import org.moten.david.util.xsd.simplified.XsdDateTime;
 import org.moten.david.util.xsd.simplified.XsdDecimal;
 import org.moten.david.util.xsd.simplified.XsdInteger;
@@ -156,6 +157,9 @@ public class Convertor {
 				throw new RuntimeException(e);
 			}
 
+		} else if ("{http://www.w3.org/2001/XMLSchema}boolean".equals(base
+				.toString())) {
+			return new XsdBoolean("true".equals(f.getValue()));
 		} else
 			throw new RuntimeException("base not supported:" + base);
 	}

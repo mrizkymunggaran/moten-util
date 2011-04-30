@@ -49,6 +49,16 @@ import com.google.gwt.user.datepicker.client.DatePicker;
 
 public class SchemaPanel extends VerticalPanel {
 
+	// TODO add option label, group options together and selection makes lower
+	// panel visible
+	// TODO create separate number panel
+	// TODO support boolean restriction to false
+	// TODO customisable text box sizes
+	// TODO fix invisible checkbox
+	// TODO use i:label for ListBoxes enumerations
+	// TODO use html in any label inc checkboxes
+	// TODO handle validation of repeating elements
+	// TODO handle anonymous types in schema
 	private int depth = 1;
 
 	private final Schema schema;
@@ -130,9 +140,9 @@ public class SchemaPanel extends VerticalPanel {
 		p.addStyleName("simpleType");
 		if (t.getRestriction() != null) {
 			addRestrictionWidget(p, t, name, description, validation,
-					validators, before, after);
+					validators, before, after, minOccurs);
 		} else if (isStandardType(t.getQName(), "boolean")) {
-			p.add(createCheckBox(name, description));
+			p.add(createCheckBox(name, description, t.getRestriction()));
 		} else if (isStandardType(t.getQName(), "date")) {
 			p.add(createDateWidget(name));
 		} else if (isStandardType(t.getQName(), "dateTime")) {
@@ -151,12 +161,37 @@ public class SchemaPanel extends VerticalPanel {
 		return decorate(p);
 	}
 
-	private Widget createCheckBox(String name, String description) {
-		CheckBox c = new CheckBox(number(name));
+	private Widget createCheckBox(String name, String description,
+			Restriction restriction) {
+		boolean mustBeChecked = false;
+		if (restriction != null
+				&& restriction.getEnumerations().size() == 1
+				&& "true".equals(restriction.getEnumerations().get(0)
+						.getValue()))
+			mustBeChecked = true;
+		return createCheckBox(name, description, mustBeChecked);
+	}
+
+	private Widget createCheckBox(String name, String description,
+			final boolean mustBeChecked) {
+		final CheckBox c = new CheckBox(number(name));
 		c.addStyleName("item");
 		VerticalPanel p = new VerticalPanel();
+		final Label validation = new Label("this must be selected to continue");
+		validation.addStyleName("validation");
+		validation.setVisible(false);
+		p.add(c);
+		p.add(validation);
 		p.add(addDescription(c, description));
 		p.addStyleName("itemGroup");
+		if (mustBeChecked) {
+			c.addClickHandler(new ClickHandler() {
+
+				public void onClick(ClickEvent event) {
+					validation.setVisible(mustBeChecked && !c.getValue());
+				}
+			});
+		}
 		return p;
 	}
 
@@ -178,8 +213,16 @@ public class SchemaPanel extends VerticalPanel {
 			text = new TextBox();
 			text.addStyleName("item");
 		}
+		ChangeHandlerFactory factory = createChangeHandlerFactory(text,
+				minOccurs);
 
-		ChangeHandlerFactory factory = new ChangeHandlerFactory() {
+		return layout(name, text, "You must put an answer here", description,
+				null, null, factory);
+	}
+
+	public ChangeHandlerFactory createChangeHandlerFactory(
+			final TextBoxBase text, final int minOccurs) {
+		return new ChangeHandlerFactory() {
 
 			public ChangeHandler create(HasChangeHandlers item,
 					final Label validation) {
@@ -199,8 +242,6 @@ public class SchemaPanel extends VerticalPanel {
 			}
 		};
 
-		return layout(name, text, "You must put an answer here", description,
-				null, null, factory);
 	}
 
 	private Widget createDateWidget(String name) {
@@ -348,12 +389,16 @@ public class SchemaPanel extends VerticalPanel {
 
 	private void addRestrictionWidget(HorizontalPanel p, SimpleType t,
 			String name, String description, String validationMessage,
-			List<Runnable> validators, String before, String after) {
-		if (isEnumeration(t.getRestriction())) {
+			List<Runnable> validators, String before, String after,
+			int minOccurs) {
+		// TODO use isBoolean instead of isStandardType
+		if (isEnumeration(t.getRestriction())
+				&& isStandardType(t.getRestriction().getBase(), "string")) {
 			// list boxes
 			ListBox listBox = createListBox(t.getRestriction());
+			ChangeHandlerFactory factory = createListBoxChangeHandlerFactory(minOccurs);
 			p.add(layout(name, listBox, validationMessage, description, null,
-					null, null));
+					null, factory));
 		} else if (t.getRestriction().getPattern() != null) {
 			// patterns
 			p.add(createPatternWidget(name, t.getRestriction().getPattern(),
@@ -366,6 +411,9 @@ public class SchemaPanel extends VerticalPanel {
 			// decimal
 			p.add(createNumericWidget(name, t.getRestriction(), description,
 					validationMessage, before, after, false));
+
+		} else if (isStandardType(t.getRestriction().getBase(), "boolean")) {
+			p.add(createCheckBox(name, description, t.getRestriction()));
 		} else {
 			// plain text box
 			TextBox text = new TextBox();
@@ -375,9 +423,35 @@ public class SchemaPanel extends VerticalPanel {
 
 	}
 
+	private ChangeHandlerFactory createListBoxChangeHandlerFactory(
+			final int minOccurs) {
+		return new ChangeHandlerFactory() {
+
+			public ChangeHandler create(final HasChangeHandlers item,
+					final Label validation) {
+				return new ChangeHandler() {
+
+					public void onChange(ChangeEvent event) {
+						ListBox listBox = (ListBox) item;
+						boolean isValid = true;
+						if (minOccurs >= 1
+								&& "".equals(listBox.getValue(listBox
+										.getSelectedIndex()))) {
+							isValid = false;
+						}
+						updateValidation(isValid, listBox, validation,
+								"select an item in the list");
+					}
+				};
+			}
+		};
+	}
+
 	private ListBox createListBox(Restriction restriction) {
+		// TODO add validator for mandatory items
 		List<XsdType<?>> xsdTypes = restriction.getEnumerations();
 		ListBox listBox = new ListBox();
+		listBox.addItem("");
 		for (XsdType<?> x : xsdTypes) {
 			listBox.addItem(x.getValue().toString());
 		}
