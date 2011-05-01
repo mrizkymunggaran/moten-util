@@ -37,7 +37,6 @@ import org.w3._2001.xmlschema.TopLevelComplexType;
 import org.w3._2001.xmlschema.TopLevelElement;
 import org.w3._2001.xmlschema.TopLevelSimpleType;
 
-@SuppressWarnings("restriction")
 public class Convertor {
 
 	private static Logger log = Logger.getLogger(Convertor.class.getName());
