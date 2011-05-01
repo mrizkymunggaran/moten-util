@@ -4,7 +4,9 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.moten.david.util.xsd.simplified.Choice;
 import org.moten.david.util.xsd.simplified.ComplexType;
@@ -71,7 +73,7 @@ public class SchemaPanel extends VerticalPanel {
 		this.schema = schema;
 		List<Runnable> list = new ArrayList<Runnable>();
 		for (Element element : schema.getElements()) {
-			add(createElementPanel(element, list));
+			add(createElementPanel("/", element, list));
 		}
 		Button submit = new Button("Submit");
 		add(submit);
@@ -79,24 +81,29 @@ public class SchemaPanel extends VerticalPanel {
 		style = Window.Location.getParameter("style");
 	}
 
-	private Widget createElementPanel(Element element, List<Runnable> validators) {
+	private Widget createElementPanel(String path, Element element,
+			List<Runnable> validators) {
 		// use a parent so we can add multiple elements if required
 		final VerticalPanel parent = new VerticalPanel();
-		parent.add(createElementPanel(parent, element, validators));
+		parent.add(createElementPanel(path, parent, element, validators));
 		return decorate(parent);
 	}
 
-	private Widget createElementPanel(final VerticalPanel parent,
-			final Element element, final List<Runnable> validators) {
+	private final Map<Element, Integer> elementNumbers = new HashMap<Element, Integer>();
+
+	private Widget createElementPanel(final String path,
+			final VerticalPanel parent, final Element element,
+			final List<Runnable> validators) {
 		final VerticalPanel p = new VerticalPanel();
 
 		Type t = getType(schema, element);
 		if (t instanceof ComplexType) {
-			p.add(createComplexTypePanel(element.getDisplayName(),
-					(ComplexType) t, element.getBefore(), element.getAfter(),
-					validators));
+			p.add(createComplexTypePanel(path + "/" + element.getName(),
+					element.getDisplayName(), (ComplexType) t,
+					element.getBefore(), element.getAfter(), validators));
 		} else if (t instanceof SimpleType)
-			p.add(createSimpleType(element.getDisplayName(),
+			p.add(createSimpleType(path + "/" + element.getName(),
+					getElementNumber(element), element.getDisplayName(),
 					element.getDescription(), element.getValidation(),
 					element.getLines(), element.getCols(), (SimpleType) t,
 					element.getMinOccurs(), element.getBefore(),
@@ -118,7 +125,8 @@ public class SchemaPanel extends VerticalPanel {
 
 				public void onClick(ClickEvent event) {
 					// h.setVisible(false);
-					parent.add(createElementPanel(parent, element, validators));
+					parent.add(createElementPanel(path, parent, element,
+							validators));
 				}
 			});
 			remove.addClickHandler(new ClickHandler() {
@@ -131,50 +139,67 @@ public class SchemaPanel extends VerticalPanel {
 		return decorate(p);
 	}
 
-	private Widget createSimpleType(String name, String description,
-			final String validation, Integer lines, Integer cols,
-			final SimpleType t, final int minOccurs, String before,
-			String after, List<Runnable> validators) {
+	private synchronized Integer getElementNumber(Element element) {
+		if (elementNumbers.get(element) == null) {
+			elementNumbers.put(element, number());
+		}
+		return elementNumbers.get(element);
+	}
+
+	private Widget createSimpleType(String path, Integer number, String name,
+			String description, final String validation, Integer lines,
+			Integer cols, final SimpleType t, final int minOccurs,
+			String before, String after, List<Runnable> validators) {
 
 		HorizontalPanel p = new HorizontalPanel();
 		p.addStyleName("simpleType");
 		if (t.getRestriction() != null) {
-			addRestrictionWidget(p, t, name, description, validation,
+			addRestrictionWidget(number(), p, t, name, description, validation,
 					validators, before, after, minOccurs);
 		} else if (isStandardType(t.getQName(), "boolean")) {
-			p.add(createCheckBox(name, description, t.getRestriction()));
+			p.add(createCheckBox(number, name, description, t.getRestriction()));
 		} else if (isStandardType(t.getQName(), "date")) {
-			p.add(createDateWidget(name));
+			p.add(createDateWidget(number, name));
 		} else if (isStandardType(t.getQName(), "dateTime")) {
-			p.add(createTextWidget(name, description + "TODO dateTime", lines,
-					cols, minOccurs, validators));
+			p.add(createTextWidget(number, name, description + "TODO dateTime",
+					lines, cols, minOccurs, validators));
 		} else if (isStandardType(t.getQName(), "integer")) {
-			p.add(createNumericWidget(name, t.getRestriction(), description,
-					validation, before, after, true));
+			p.add(createNumericWidget(number, name, t.getRestriction(),
+					description, validation, before, after, true));
 		} else if (isStandardType(t.getQName(), "decimal")) {
-			p.add(createNumericWidget(name, t.getRestriction(), description,
-					validation, before, after, false));
+			p.add(createNumericWidget(number, name, t.getRestriction(),
+					description, validation, before, after, false));
 		} else {
-			p.add(createTextWidget(name, description, lines, cols, minOccurs,
-					validators));
+			p.add(createTextWidget(number, name, description, lines, cols,
+					minOccurs, validators));
 		}
 		return decorate(p);
 	}
 
-	private Widget createCheckBox(String name, String description,
-			Restriction restriction) {
+	private Integer number() {
+		if (schema.getNumberItems()) {
+			itemNumber++;
+			return itemNumber;
+		} else
+			return null;
+	}
+
+	private Widget createCheckBox(Integer number, String name,
+			String description, Restriction restriction) {
 		boolean mustBeChecked = false;
 		if (restriction != null
 				&& restriction.getEnumerations().size() == 1
 				&& "true".equals(restriction.getEnumerations().get(0)
 						.getValue()))
 			mustBeChecked = true;
-		return createCheckBox(name, description, mustBeChecked);
+		return createCheckBox(number, name, description, mustBeChecked);
 	}
 
-	private Widget createCheckBox(String name, String description,
-			final boolean mustBeChecked) {
-		final CheckBox c = new CheckBox(number(name));
+	private Widget createCheckBox(Integer number, String name,
+			String description, final boolean mustBeChecked) {
+		Panel hp = new HorizontalPanel();
+		hp.add(createNumberWidget(number));
+		final CheckBox c = new CheckBox(name);
 		c.addStyleName("item");
 		VerticalPanel p = new VerticalPanel();
 		final Label validation = new Label("this must be selected to continue");
@@ -192,12 +217,13 @@ public class SchemaPanel extends VerticalPanel {
 				}
 			});
 		}
-		return p;
+		hp.add(p);
+		return hp;
 	}
 
-	private Widget createTextWidget(String name, String description,
-			Integer lines, Integer cols, final int minOccurs,
-			List<Runnable> validators) {
+	private Widget createTextWidget(Integer number, String name,
+			String description, Integer lines, Integer cols,
+			final int minOccurs, List<Runnable> validators) {
 		// plain text box
 		final TextBoxBase text;
 		if (lines != null && lines > 1) {
@@ -216,8 +242,8 @@ public class SchemaPanel extends VerticalPanel {
 		ChangeHandlerFactory factory = createChangeHandlerFactory(text,
 				minOccurs);
 
-		return layout(name, text, "You must put an answer here", description,
-				null, null, factory);
+		return layout(number, name, text, "You must put an answer here",
+				description, null, null, factory);
 	}
 
 	public ChangeHandlerFactory createChangeHandlerFactory(
@@ -244,7 +270,7 @@ public class SchemaPanel extends VerticalPanel {
 
 	}
 
-	private Widget createDateWidget(String name) {
+	private Widget createDateWidget(Integer number, String name) {
 
 		Panel p;
 		if (isInline())
@@ -252,6 +278,7 @@ public class SchemaPanel extends VerticalPanel {
 		else
 			p = new VerticalPanel();
 		p.addStyleName("itemGroup");
+		p.add(createNumberWidget(number));
 		p.add(createLabelWidget(name));
 
 		HorizontalPanel hp = new HorizontalPanel();
@@ -299,8 +326,8 @@ public class SchemaPanel extends VerticalPanel {
 	 * @param after
 	 * @return
 	 */
-	private Widget layout(String label, Widget item, String validation,
-			String description, String before, String after,
+	private Widget layout(Integer number, String label, Widget item,
+			String validation, String description, String before, String after,
 			ChangeHandlerFactory factory) {
 
 		Panel vp = new FlowPanel();
@@ -309,6 +336,7 @@ public class SchemaPanel extends VerticalPanel {
 		vp.add(createBeforeWidget(before));
 		if (isInline()) {
 			HorizontalPanel hp = new HorizontalPanel();
+			hp.add(createNumberWidget(number));
 			hp.add(createLabelWidget(label));
 			hp.add(item);
 			vp.add(hp);
@@ -328,13 +356,16 @@ public class SchemaPanel extends VerticalPanel {
 		return vp;
 	}
 
-	private String number(String s) {
-		String result = s;
-		if (schema.getNumberItems()) {
-			itemNumber++;
-			result = itemNumber + ". " + s;
+	private Widget createNumberWidget(Integer number) {
+		Label label = new Label();
+		if (number == null) {
+			label.setText("");
+			label.setVisible(false);
+		} else {
+			label.setText(number + ".");
 		}
-		return result;
+		label.addStyleName("number");
+		return label;
 	}
 
 	private Label createLabel(String message, String styleName) {
@@ -356,7 +387,7 @@ public class SchemaPanel extends VerticalPanel {
 	}
 
 	private Widget createLabelWidget(String label) {
-		Label widget = new Label(number(label));
+		Label widget = new Label(label);
 		widget.addStyleName("label");
 		return widget;
 	}
@@ -387,38 +418,39 @@ public class SchemaPanel extends VerticalPanel {
 				&& localPart.equals(qName.getLocalPart());
 	}
 
-	private void addRestrictionWidget(HorizontalPanel p, SimpleType t,
-			String name, String description, String validationMessage,
-			List<Runnable> validators, String before, String after,
-			int minOccurs) {
+	private void addRestrictionWidget(Integer number, HorizontalPanel p,
+			SimpleType t, String name, String description,
+			String validationMessage, List<Runnable> validators, String before,
+			String after, int minOccurs) {
 		// TODO use isBoolean instead of isStandardType
 		if (isEnumeration(t.getRestriction())
 				&& isStandardType(t.getRestriction().getBase(), "string")) {
 			// list boxes
 			ListBox listBox = createListBox(t.getRestriction());
 			ChangeHandlerFactory factory = createListBoxChangeHandlerFactory(minOccurs);
-			p.add(layout(name, listBox, validationMessage, description, null,
-					null, factory));
+			p.add(layout(number, name, listBox, validationMessage, description,
+					null, null, factory));
 		} else if (t.getRestriction().getPattern() != null) {
 			// patterns
-			p.add(createPatternWidget(name, t.getRestriction().getPattern(),
-					description, validationMessage, before, after));
+			p.add(createPatternWidget(number, name, t.getRestriction()
+					.getPattern(), description, validationMessage, before,
+					after));
 		} else if (isStandardType(t.getRestriction().getBase(), "integer")) {
 			// integers
-			p.add(createNumericWidget(name, t.getRestriction(), description,
-					validationMessage, before, after, true));
+			p.add(createNumericWidget(number, name, t.getRestriction(),
+					description, validationMessage, before, after, true));
 		} else if (isStandardType(t.getRestriction().getBase(), "decimal")) {
 			// decimal
-			p.add(createNumericWidget(name, t.getRestriction(), description,
-					validationMessage, before, after, false));
+			p.add(createNumericWidget(number, name, t.getRestriction(),
+					description, validationMessage, before, after, false));
 
 		} else if (isStandardType(t.getRestriction().getBase(), "boolean")) {
-			p.add(createCheckBox(name, description, t.getRestriction()));
+			p.add(createCheckBox(number, name, description, t.getRestriction()));
 		} else {
 			// plain text box
 			TextBox text = new TextBox();
-			p.add(layout(name, text, validationMessage, description, before,
-					after, null));
+			p.add(layout(number, name, text, validationMessage, description,
+					before, after, null));
 		}
 
 	}
@@ -458,9 +490,9 @@ public class SchemaPanel extends VerticalPanel {
 		return listBox;
 	}
 
-	private Widget createPatternWidget(String name, final String pattern,
-			final String description, final String validationMessage,
-			String before, String after) {
+	private Widget createPatternWidget(Integer number, String name,
+			final String pattern, final String description,
+			final String validationMessage, String before, String after) {
 
 		ChangeHandlerFactory factory = new ChangeHandlerFactory() {
 
@@ -470,11 +502,11 @@ public class SchemaPanel extends VerticalPanel {
 			}
 		};
 
-		return layout(name, new TextBox(), validationMessage, description,
-				before, after, factory);
+		return layout(number, name, new TextBox(), validationMessage,
+				description, before, after, factory);
 	}
 
-	private Widget createNumericWidget(String name,
+	private Widget createNumericWidget(Integer number, String name,
 			final Restriction restriction, final String description,
 			final String validation, String before, String after,
 			final boolean isInteger) {
@@ -487,8 +519,8 @@ public class SchemaPanel extends VerticalPanel {
 			}
 		};
 		TextBox text = new TextBox();
-		return layout(name, text, validation, description, before, after,
-				factory);
+		return layout(number, name, text, validation, description, before,
+				after, factory);
 	}
 
 	private ChangeHandler createNumericChangeHandler(
@@ -568,28 +600,30 @@ public class SchemaPanel extends VerticalPanel {
 		return vp;
 	}
 
-	private Widget createComplexTypePanel(String displayName, ComplexType t,
-			String before, String after, List<Runnable> validators) {
+	private Widget createComplexTypePanel(String path, String displayName,
+			ComplexType t, String before, String after,
+			List<Runnable> validators) {
 		VerticalPanel p = new VerticalPanel();
 		depth++;
 		p.add(new HTML("<h" + depth + ">" + displayName + "</h" + depth + ">"));
 		for (Particle particle : t.getParticles()) {
-			p.add(createParticle(particle, validators));
+			p.add(createParticle(path, particle, validators));
 		}
 		depth--;
 		return decorate(p);
 	}
 
-	private Widget createParticle(Particle particle, List<Runnable> validators) {
+	private Widget createParticle(String path, Particle particle,
+			List<Runnable> validators) {
 		VerticalPanel p = new VerticalPanel();
 		if (particle instanceof Element)
-			p.add(createElementPanel((Element) particle, validators));
+			p.add(createElementPanel(path, (Element) particle, validators));
 		else if (particle instanceof SimpleType)
-			p.add(createSimpleType(particle.getClass().getName(), null, null,
-					null, null, (SimpleType) particle, 1, null, null,
-					validators));
+			p.add(createSimpleType(path, number(), particle.getClass()
+					.getName(), null, null, null, null, (SimpleType) particle,
+					1, null, null, validators));
 		else if (particle instanceof Group)
-			p.add(createGroup((Group) particle, validators));
+			p.add(createGroup(path, (Group) particle, validators));
 		else
 			throw new RuntimeException("unknown particle:" + particle);
 		return decorate(p);
@@ -608,7 +642,8 @@ public class SchemaPanel extends VerticalPanel {
 		return groupCount++;
 	}
 
-	private Widget createGroup(Group group, List<Runnable> validators) {
+	private Widget createGroup(String path, Group group,
+			List<Runnable> validators) {
 		VerticalPanel p = new VerticalPanel();
 		if (group instanceof Choice) {
 			String groupName = "group" + nextGroup();
@@ -619,7 +654,7 @@ public class SchemaPanel extends VerticalPanel {
 				RadioButton rb = new RadioButton(groupName, "option " + count);
 				count++;
 				p.add(rb);
-				final Widget particlePanel = createParticle(particle,
+				final Widget particlePanel = createParticle(path, particle,
 						validators);
 				particlePanel.addStyleName("uncheckedRadioButtonContent");
 				rb.addClickHandler(new ClickHandler() {
@@ -645,7 +680,7 @@ public class SchemaPanel extends VerticalPanel {
 		} else if (group instanceof Sequence) {
 			p.add(new Label("sequence"));
 			for (Particle particle : group.getParticles()) {
-				final Widget particlePanel = createParticle(particle,
+				final Widget particlePanel = createParticle(path, particle,
 						validators);
 				p.add(particlePanel);
 			}

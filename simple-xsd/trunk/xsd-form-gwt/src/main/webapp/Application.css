@@ -76,6 +76,10 @@ h1 {
 	width: 100%;
 }
 
+.number {
+	padding-right:5px;	
+}
+
 .label { 
 	padding-right: 2em; 
 	min-width: 150px;
