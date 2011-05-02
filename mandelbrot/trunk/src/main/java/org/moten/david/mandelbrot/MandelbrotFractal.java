@@ -27,6 +27,8 @@ public class MandelbrotFractal extends JPanel {
 	BigDecimal ya = valueOf(-1.5);
 	BigDecimal yb = valueOf(1.5);
 
+	private Image image = null;
+
 	public MandelbrotFractal() {
 		setPreferredSize(new Dimension(1000, 700));
 		addMouseListener(new MouseAdapter() {
@@ -51,6 +53,7 @@ public class MandelbrotFractal extends JPanel {
 							.subtract(newDiffY.divide(valueOf(2)));
 					yb = ya.add(newDiffY);
 				}
+				image = null;
 				repaint();
 			}
 
@@ -69,9 +72,9 @@ public class MandelbrotFractal extends JPanel {
 	@Override
 	public void paintComponent(Graphics g) {
 		System.out.println("painting component " + getSize());
-		g.clearRect(0, 0, getSize().width, getSize().height);
-		Image img = createFractalImage(getSize().width, getSize().height);
-		g.drawImage(img, 0, 0, this);
+		if (image == null)
+			image = createFractalImage(getSize().width, getSize().height);
+		g.drawImage(image, 0, 0, this);
 	}
 
 	public void paintFractal(int maxThr, int[] pix, int w, int h,
@@ -79,7 +82,7 @@ public class MandelbrotFractal extends JPanel {
 			int alpha) {
 		long startTime = System.currentTimeMillis();
 
-		MandelbrotFractalThread[] m = new MandelbrotFractalThread[maxThr];
+		Thread[] m = new Thread[maxThr];
 		for (int i = 0; i < maxThr; i++) {
 			m[i] = new MandelbrotFractalThread(i, maxThr, pix, w, h, xa, ya,
 					xb, yb, alpha);
