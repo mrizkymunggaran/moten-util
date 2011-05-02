@@ -78,9 +78,13 @@ public class MandelbrotFractal extends JPanel {
 	@Override
 	public void paintComponent(Graphics g) {
 		System.out.println("painting component " + getSize());
-		if (image == null)
+		if (image == null) {
+			image = createFractalImage(resolutionFactor * getSize().width / 10,
+					resolutionFactor * getSize().height / 10);
+			g.drawImage(image, 0, 0, getSize().width, getSize().height, this);
 			image = createFractalImage(resolutionFactor * getSize().width,
 					resolutionFactor * getSize().height);
+		}
 		g.drawImage(image, 0, 0, getSize().width, getSize().height, this);
 	}
 
