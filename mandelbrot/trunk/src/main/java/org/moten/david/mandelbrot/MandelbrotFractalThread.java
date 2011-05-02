@@ -14,7 +14,7 @@ public class MandelbrotFractalThread extends Thread {
 	private final BigDecimal xb;
 	private final BigDecimal yb;
 	private final int alpha;
-	private final int maxIterations = 1024;
+	private final int maxIterations = 256;
 
 	MandelbrotFractalThread(int k, int maxThr, int[] pix, int w, int h,
 			BigDecimal xa, BigDecimal ya, BigDecimal xb, BigDecimal yb,
