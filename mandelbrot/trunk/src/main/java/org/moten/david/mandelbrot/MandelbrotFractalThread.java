@@ -14,11 +14,11 @@ public class MandelbrotFractalThread extends Thread {
 	private final BigDecimal xb;
 	private final BigDecimal yb;
 	private final int alpha;
-	private final int maxIterations = 256;
+	private final int maxIterations = 1024;
 
-	MandelbrotFractalThread(int k, int maxThr, int[] pix, int w, int h,
-			BigDecimal xa, BigDecimal ya, BigDecimal xb, BigDecimal yb,
-			int alpha) {
+	MandelbrotFractalThread(int maxIterations, int k, int maxThr, int[] pix,
+			int w, int h, BigDecimal xa, BigDecimal ya, BigDecimal xb,
+			BigDecimal yb, int alpha) {
 		this.k = k;
 		this.maxThr = maxThr;
 		this.pix = pix;

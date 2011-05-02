@@ -10,7 +10,7 @@ public class Main {
 		frame.setSize(740, 740);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(new GridLayout(1, 1));
-		MandelbrotFractal fractal = new MandelbrotFractal();
+		MandelbrotFractal fractal = new MandelbrotFractal(1024, 1);
 		frame.getContentPane().add(fractal);
 		// frame.pack();
 		frame.setVisible(true);
