@@ -98,7 +98,6 @@ public class MandelbrotFractalThread extends Thread {
 		float red = 0;
 		float green = 0;
 		float blue = 0;
-		float alpha = 1;
 		float step = 0.25f;
 		int numSteps = 4;
 		if (p < step) {
