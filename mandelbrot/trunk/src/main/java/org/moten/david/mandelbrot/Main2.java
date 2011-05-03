@@ -22,7 +22,7 @@ public class Main2 {
 	public static void main(String[] args) throws IOException {
 		int h = 700;
 		int w = h;
-		int numFrames = 1000;
+		int numFrames = 100;
 		BigDecimal startxa = d("-3.5");
 		BigDecimal startya = d("-2.5");
 		BigDecimal startxb = d("1.5");
@@ -32,23 +32,31 @@ public class Main2 {
 		// BigDecimal endya = d("-0.028175339779211048");
 		// BigDecimal endxb = d("-1.740062382579339906");
 		// BigDecimal endyb = d("-0.028175339779211048");
-		BigDecimal endxa = d("-4.4700725");
-		BigDecimal endya = d("-0.6217725");
-		BigDecimal endxb = d("-0.4700675");
-		BigDecimal endyb = d("-0.6217675");
+		BigDecimal endxa = d("-0.4700");
+		BigDecimal endya = d("-0.6210");
+		BigDecimal endxb = d("-0.4701");
+		BigDecimal endyb = d("-0.6211");
+		BigDecimal endSizeX = endxb.subtract(endxa);
+		BigDecimal endSizeY = endyb.subtract(endya);
 		paintImage(4096, w, h, endxa, endya, endxb, endyb, 0);
 		BigDecimal xa = startxa;
 		BigDecimal ya = startya;
 		BigDecimal xb = startxb;
 		BigDecimal yb = startyb;
-		BigDecimal change = BigDecimal.valueOf(0.1);
+		BigDecimal change = BigDecimal.valueOf(0.9);
 		for (int i = 1; i <= numFrames; i++) {
-			System.out.println("writing image " + i);
-			xa = endxa.subtract(xa).multiply(change).add(xa);
-			ya = endya.subtract(ya).multiply(change).add(ya);
-			xb = endxb.subtract(xb).multiply(change).add(xb);
-			yb = endyb.subtract(yb).multiply(change).add(yb);
+			System.out.println("(" + xa + "," + ya + ")-(" + xb + "," + yb
+					+ ")");
 			paintImage(4096, w, h, xa, ya, xb, yb, i);
+			System.out.println("writing image " + i);
+			BigDecimal sizeX = xb.subtract(xa);
+			BigDecimal sizeY = yb.subtract(ya);
+
+			xa = xa.subtract(endxa).multiply(change).add(endxa);
+			ya = ya.subtract(endya).multiply(change).add(endya);
+			xb = xa.add(endSizeX.add(sizeX.subtract(endSizeX).multiply(change)));
+			yb = ya.add(endSizeY.add(sizeY.subtract(endSizeY).multiply(change)));
+
 		}
 		// (-0.718250000,-0.286750000)-(-0.713250000,-0.281750000)
 
