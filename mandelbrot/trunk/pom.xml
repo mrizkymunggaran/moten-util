@@ -12,7 +12,7 @@
 				<artifactId>exec-maven-plugin</artifactId>
 				<version>1.1</version>
 				<configuration>
-					<mainClass>org.moten.david.mandelbrot.Main</mainClass>
+					<mainClass>org.moten.david.mandelbrot.Main2</mainClass>
 				</configuration>
 			</plugin>
 			<plugin>
