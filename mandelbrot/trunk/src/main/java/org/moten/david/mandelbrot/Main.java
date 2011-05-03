@@ -41,7 +41,7 @@ public class Main {
 		final MandelbrotFractal fractal = new MandelbrotFractal(256, 1,
 				wikipedia, new BigDecimal("-3.5"), new BigDecimal("-2.5"),
 				new BigDecimal("1.5"), new BigDecimal("2.5"));
-		fractal.setPreferredSize(new Dimension(200, 200));
+		fractal.setPreferredSize(new Dimension(500, 500));
 		Runnable onRedraw = new Runnable() {
 			int number = 0;
 

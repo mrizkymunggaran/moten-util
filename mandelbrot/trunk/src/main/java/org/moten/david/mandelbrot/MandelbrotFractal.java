@@ -80,7 +80,7 @@ public class MandelbrotFractal extends JPanel {
 
 				double propX = (double) e.getPoint().x / getSize().width;
 				double propY = (double) e.getPoint().y / getSize().height;
-				double zoomFactor = 10;
+				double zoomFactor = 1000;
 				{
 					BigDecimal newDiffX = xb.subtract(xa).divide(
 							valueOf(zoomFactor));
