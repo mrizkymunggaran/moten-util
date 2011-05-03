@@ -101,10 +101,10 @@ public class MandelbrotFractalThread extends Thread {
 		for (int j = 0; j < palette.length; j++)
 			palette[j] = getColor(j);
 
-		DoubleDouble xb = new DoubleDouble(this.xb.doubleValue());
-		DoubleDouble xa = new DoubleDouble(this.xa.doubleValue());
-		DoubleDouble ya = new DoubleDouble(this.ya.doubleValue());
-		DoubleDouble yb = new DoubleDouble(this.yb.doubleValue());
+		DoubleDouble xb = new DoubleDouble(this.xb.toPlainString());
+		DoubleDouble xa = new DoubleDouble(this.xa.toPlainString());
+		DoubleDouble ya = new DoubleDouble(this.ya.toPlainString());
+		DoubleDouble yb = new DoubleDouble(this.yb.toPlainString());
 		// Each thread only calculates its own share of pixels!
 		for (int i = k; i < imax && keepGoing; i += maxThr) {
 			int kx = i % w;
