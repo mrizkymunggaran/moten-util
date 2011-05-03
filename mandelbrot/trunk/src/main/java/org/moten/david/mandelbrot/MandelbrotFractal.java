@@ -7,6 +7,7 @@ package org.moten.david.mandelbrot;
 
 import static java.math.BigDecimal.valueOf;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
@@ -37,9 +38,13 @@ public class MandelbrotFractal extends JPanel {
 
 	private final List<MandelbrotFractalThread> threads = new ArrayList<MandelbrotFractalThread>();
 
-	public MandelbrotFractal(int maxIterations, int resolutionFactor) {
+	private final List<Color> colors;
+
+	public MandelbrotFractal(int maxIterations, int resolutionFactor,
+			List<Color> colors) {
 		this.maxIterations = maxIterations;
 		this.resolutionFactor = resolutionFactor;
+		this.colors = colors;
 		setPreferredSize(new Dimension(1000, 700));
 		addMouseListener(new MouseAdapter() {
 
@@ -114,7 +119,7 @@ public class MandelbrotFractal extends JPanel {
 		for (int i = 0; i < numThreads; i++) {
 			MandelbrotFractalThread thread = new MandelbrotFractalThread(
 					maxIterations, i, numThreads, pix, w, h, xa, ya, xb, yb,
-					alpha);
+					alpha, colors);
 			threads.add(thread);
 			thread.start();
 		}

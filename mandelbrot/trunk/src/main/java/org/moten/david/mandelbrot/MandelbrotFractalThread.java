@@ -2,8 +2,11 @@ package org.moten.david.mandelbrot;
 
 import java.awt.Color;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MandelbrotFractalThread extends Thread {
+	private static final double MODULUS_THRESHOLD = 4;
 	int k; // id number of this thread
 	private final int maxThr;
 	private final int[] pix;
@@ -16,10 +19,11 @@ public class MandelbrotFractalThread extends Thread {
 	private final int alpha;
 	private final int maxIterations = 1024;
 	private boolean keepGoing = true;
+	private final List<RGB> colors = new ArrayList<RGB>();;
 
 	MandelbrotFractalThread(int maxIterations, int k, int maxThr, int[] pix,
 			int w, int h, BigDecimal xa, BigDecimal ya, BigDecimal xb,
-			BigDecimal yb, int alpha) {
+			BigDecimal yb, int alpha, List<Color> colors) {
 		this.k = k;
 		this.maxThr = maxThr;
 		this.pix = pix;
@@ -30,11 +34,19 @@ public class MandelbrotFractalThread extends Thread {
 		this.xb = xb;
 		this.yb = yb;
 		this.alpha = alpha;
+		for (Color c : colors) {
+			float[] f = c.getRGBColorComponents(null);
+			this.colors.add(new RGB(f[0], f[1], f[2]));
+		}
+		this.numSteps = colors.size();
+		this.step = 1f / numSteps;
+
 	}
 
-	public void cancel() {
-		System.out.println("cancelling");
+	@Override
+	public void interrupt() {
 		keepGoing = false;
+		super.interrupt();
 	}
 
 	@Override
@@ -56,13 +68,7 @@ public class MandelbrotFractalThread extends Thread {
 			int kx = i % w;
 			int ky = (i - kx) / w;
 			double a = (double) kx / w * (xb - xa) + xa;
-			// BigDecimal a = valueOf(kx)
-			// .divide(valueOf(w), SCALE, RoundingMode.HALF_UP)
-			// .multiply(diffX).add(xa);
 			double b = (double) ky / h * (yb - ya) + ya;
-			// BigDecimal b = valueOf(ky)
-			// .divide(valueOf(h), SCALE, RoundingMode.HALF_UP)
-			// .multiply(diffY).add(ya);
 			double x = a;
 			double y = b;
 			int v = 0;
@@ -72,13 +78,11 @@ public class MandelbrotFractalThread extends Thread {
 				double x2 = x * x;
 				double y2 = y * y;
 				double x0 = x2 - y2 + a;
-				// BigDecimal x0 = x.pow(2).subtract(y.pow(2)).add(a);
 				y = 2 * x * y + b;
-				// y = valueOf(2).multiply(x).multiply(y).add(b);
 				x = x0;
-
-				if (x2 + y2 > 4) {
-					pix[w * ky + kx] = getColor(kc, x2 + y2);
+				double modulus = x2 + y2;
+				if (modulus > MODULUS_THRESHOLD) {
+					pix[w * ky + kx] = getColor(kc, modulus);
 					break;
 				}
 			}
@@ -86,6 +90,57 @@ public class MandelbrotFractalThread extends Thread {
 		if (!keepGoing)
 			System.out.println("cancelled");
 	}
+
+	private static class RGB {
+		static ThreadLocal<RGB> threadLocal = new ThreadLocal<RGB>() {
+
+			@Override
+			protected RGB initialValue() {
+				return new RGB(0, 0, 0);
+			}
+		};
+
+		static RGB get() {
+			return threadLocal.get();
+		}
+
+		void move(float fromRed, float fromGreen, float fromBlue, float toRed,
+				float toGreen, float toBlue, float proportion) {
+			red = fromRed + (toRed - fromRed) * proportion;
+			green = fromGreen + (toGreen - fromGreen) * proportion;
+			blue = fromBlue + (toBlue - fromBlue) * proportion;
+		}
+
+		void move(RGB a, RGB b, float proportion) {
+			red = a.red + (b.red - a.red) * proportion;
+			green = a.green + (b.green - a.green) * proportion;
+			blue = a.blue + (b.blue - a.blue) * proportion;
+		}
+
+		float red;
+		float green;
+		float blue;
+
+		public RGB(float red, float green, float blue) {
+			super();
+			this.red = red;
+			this.green = green;
+			this.blue = blue;
+		}
+	}
+
+	private static RGB blue = new RGB(0, 0, 1);
+	private static RGB red = new RGB(1, 0, 0);
+	private static RGB green = new RGB(0, 1, 0);
+	private static RGB yellow = new RGB(1, 1, 0);
+	private static RGB white = new RGB(1, 1, 1);
+	private static RGB black = new RGB(0, 0, 0);
+
+	// make sure first color and last color is same so you end up with a cyclic
+	// spectrum
+
+	private final float numSteps;
+	private final float step;
 
 	/**
 	 * From http://linas.org/art-gallery/escape/escape.html, corrected using
@@ -103,29 +158,25 @@ public class MandelbrotFractalThread extends Thread {
 		if (v < 0)
 			v = 0;
 		float p = v / maxIterations;
-		float red = 0;
-		float green = 0;
-		float blue = 0;
-		float step = 0.25f;
-		int numSteps = 4;
-		if (p < step) {
-			// blue to white
-			blue = 1;
-			red = green = p * numSteps;
-		} else if (p < 2 * step) {
-			// white to yellow
-			blue = 1f;
 
-			green = red = 1f - (p - step) * numSteps;
-		} else if (p < 3 * step) {
-			// yellow to black
-			red = green = 1 - (p - 2 * step) * numSteps;
-		} else {
-			// black to blue
-			blue = (p - 3 * step) * numSteps;
+		RGB color = RGB.get();
+		float threshold = step;
+
+		for (int i = 0; i < numSteps; i++) {
+			if (p <= threshold) {
+				RGB toColor;
+				if (i == numSteps - 1)
+					toColor = colors.get(0);
+				else
+					toColor = colors.get(i + 1);
+				color.move(colors.get(i), toColor, (p - threshold + step)
+						* numSteps);
+				return new Color(color.red, color.green, color.blue).getRGB();
+			}
+			threshold += step;
 		}
+		throw new RuntimeException("should not get to here");
 
-		return new Color(red, green, blue).getRGB();
 	}
 
 	private int getColor(int iteration) {
