@@ -12,6 +12,7 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -21,13 +22,13 @@ import javax.swing.JPanel;
 
 public class MandelbrotFractal extends JPanel {
 
-	final int maxThr = 10; // number of threads to run
+	final int numThreads = 10; // number of threads to run
 
 	// drawing area (must be xa<xb and ya<yb)
-	BigDecimal xa = valueOf(-2.0);
-	BigDecimal xb = valueOf(1.0);
-	BigDecimal ya = valueOf(-1.5);
-	BigDecimal yb = valueOf(1.5);
+	// private BigDecimal xa = valueOf(-2.0);
+	// BigDecimal xb = valueOf(1.0);
+	// BigDecimal ya = valueOf(-1.5);
+	// BigDecimal yb = valueOf(1.5);
 
 	private BufferedImage image = null;
 
@@ -41,6 +42,14 @@ public class MandelbrotFractal extends JPanel {
 
 	private Runnable onImageRedraw;
 
+	private BigDecimal xa;
+
+	private BigDecimal ya;
+
+	private BigDecimal xb;
+
+	private BigDecimal yb;
+
 	public void setOnImageRedraw(Runnable onImageRedraw) {
 		this.onImageRedraw = onImageRedraw;
 	}
@@ -50,19 +59,28 @@ public class MandelbrotFractal extends JPanel {
 	}
 
 	public MandelbrotFractal(int maxIterations, int resolutionFactor,
-			List<Color> colors) {
+			List<Color> colors, BigDecimal xa, BigDecimal ya, BigDecimal xb,
+			BigDecimal yb) {
 		this.maxIterations = maxIterations;
 		this.resolutionFactor = resolutionFactor;
 		this.colors = colors;
+		this.xa = xa;
+		this.ya = ya;
+		this.xb = xb;
+		this.yb = yb;
 		setPreferredSize(new Dimension(1000, 700));
-		addMouseListener(new MouseAdapter() {
+		addMouseListener(createMouseListener());
+	}
+
+	private MouseListener createMouseListener() {
+		return new MouseAdapter() {
 
 			@Override
 			public void mouseClicked(MouseEvent e) {
 
 				double propX = (double) e.getPoint().x / getSize().width;
 				double propY = (double) e.getPoint().y / getSize().height;
-				double zoomFactor = 1000;
+				double zoomFactor = 10;
 				{
 					BigDecimal newDiffX = xb.subtract(xa).divide(
 							valueOf(zoomFactor));
@@ -79,30 +97,28 @@ public class MandelbrotFractal extends JPanel {
 				}
 				redraw();
 			}
-		});
+		};
 	}
 
 	private void redraw() {
-		// paintFractal(getSize().width / 10, getSize().height / 10);
-		// repaint();
-		// try {
-		// Thread.sleep(0);
-		// } catch (InterruptedException e) {
-		// throw new RuntimeException(e);
-		// }
-		this.image = paintFractal(resolutionFactor * getSize().width,
-				resolutionFactor * getSize().height);
+		this.image = paintFractal(numThreads, maxIterations, resolutionFactor
+				* getSize().width, resolutionFactor * getSize().height, xa, ya,
+				xb, yb, colors);
 		repaint();
 		if (onImageRedraw != null)
 			onImageRedraw.run();
 	}
 
-	private BufferedImage paintFractal(int w, int h) {
+	public static BufferedImage paintFractal(int numThreads, int maxIterations,
+			int w, int h, BigDecimal xa, BigDecimal ya, BigDecimal xb,
+			BigDecimal yb, List<Color> colors) {
 		int alpha = 255;
 		int[] pix = new int[w * h];
+		System.out.println("painting (" + xa + "," + ya + ")-(" + xb + "," + yb
+				+ ")");
 
-		FractalMonitorThread monitor = paintFractal(maxThr, pix, w, h, xa, ya,
-				xb, yb, alpha);
+		FractalMonitorThread monitor = paintFractal(numThreads, maxIterations,
+				pix, w, h, xa, ya, xb, yb, alpha, colors);
 		try {
 			monitor.join();
 		} catch (InterruptedException e) {
@@ -124,9 +140,10 @@ public class MandelbrotFractal extends JPanel {
 			g.drawImage(image, 0, 0, getSize().width, getSize().height, this);
 	}
 
-	public FractalMonitorThread paintFractal(int numThreads, final int[] pix,
-			final int w, final int h, BigDecimal xa, BigDecimal ya,
-			BigDecimal xb, BigDecimal yb, int alpha) {
+	private static FractalMonitorThread paintFractal(int numThreads,
+			int maxIterations, final int[] pix, final int w, final int h,
+			BigDecimal xa, BigDecimal ya, BigDecimal xb, BigDecimal yb,
+			int alpha, List<Color> colors) {
 
 		long startTime = System.currentTimeMillis();
 		List<MandelbrotFractalThread> threads = new ArrayList<MandelbrotFractalThread>();

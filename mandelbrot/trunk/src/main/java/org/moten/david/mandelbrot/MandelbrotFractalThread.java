@@ -12,7 +12,7 @@ import md.math.DoubleDouble;
 public class MandelbrotFractalThread extends Thread {
 	private static final double MODULUS_THRESHOLD = 4;
 	int k; // id number of this thread
-	private final int maxThr;
+	private final int numThreads;
 	private final int[] pix;
 	private final int w;
 	private final int h;
@@ -29,7 +29,7 @@ public class MandelbrotFractalThread extends Thread {
 			int w, int h, BigDecimal xa, BigDecimal ya, BigDecimal xb,
 			BigDecimal yb, int alpha, List<Color> colors) {
 		this.k = k;
-		this.maxThr = maxThr;
+		this.numThreads = maxThr;
 		this.pix = pix;
 		this.w = w;
 		this.h = h;
@@ -54,19 +54,15 @@ public class MandelbrotFractalThread extends Thread {
 	}
 
 	// @Override
-	public void runOld() {
+	public void runFast() {
 		int imax = w * h;
-
-		int[] palette = new int[maxIterations];
-		for (int j = 0; j < palette.length; j++)
-			palette[j] = getColor(j);
 
 		double xb = this.xb.doubleValue();
 		double xa = this.xa.doubleValue();
 		double ya = this.ya.doubleValue();
 		double yb = this.yb.doubleValue();
 		// Each thread only calculates its own share of pixels!
-		for (int i = k; i < imax && keepGoing; i += maxThr) {
+		for (int i = k; i < imax && keepGoing; i += numThreads) {
 			int kx = i % w;
 			int ky = (i - kx) / w;
 			double a = (double) kx / w * (xb - xa) + xa;
@@ -95,18 +91,18 @@ public class MandelbrotFractalThread extends Thread {
 
 	@Override
 	public void run() {
+		runAccurate();
+	}
+
+	public void runAccurate() {
 		int imax = w * h;
 
-		int[] palette = new int[maxIterations];
-		for (int j = 0; j < palette.length; j++)
-			palette[j] = getColor(j);
-
-		DoubleDouble xb = new DoubleDouble(this.xb.toPlainString());
 		DoubleDouble xa = new DoubleDouble(this.xa.toPlainString());
+		DoubleDouble xb = new DoubleDouble(this.xb.toPlainString());
 		DoubleDouble ya = new DoubleDouble(this.ya.toPlainString());
 		DoubleDouble yb = new DoubleDouble(this.yb.toPlainString());
 		// Each thread only calculates its own share of pixels!
-		for (int i = k; i < imax && keepGoing; i += maxThr) {
+		for (int i = k; i < imax && keepGoing; i += numThreads) {
 			int kx = i % w;
 			int ky = (i - kx) / w;
 			// double a = (double) kx / w * (xb - xa) + xa;
@@ -132,7 +128,7 @@ public class MandelbrotFractalThread extends Thread {
 				// x = x0;
 				x = x0;
 				// double modulus = x2 + y2;
-				double modulus = x2.doubleValue() + y.doubleValue();
+				double modulus = x2.doubleValue() + y2.doubleValue();
 				if (modulus > MODULUS_THRESHOLD) {
 					pix[w * ky + kx] = getColor(kc, modulus);
 					break;
@@ -156,13 +152,6 @@ public class MandelbrotFractalThread extends Thread {
 			return threadLocal.get();
 		}
 
-		void move(float fromRed, float fromGreen, float fromBlue, float toRed,
-				float toGreen, float toBlue, float proportion) {
-			red = fromRed + (toRed - fromRed) * proportion;
-			green = fromGreen + (toGreen - fromGreen) * proportion;
-			blue = fromBlue + (toBlue - fromBlue) * proportion;
-		}
-
 		void move(RGB a, RGB b, float proportion) {
 			red = a.red + (b.red - a.red) * proportion;
 			green = a.green + (b.green - a.green) * proportion;
@@ -180,16 +169,6 @@ public class MandelbrotFractalThread extends Thread {
 			this.blue = blue;
 		}
 	}
-
-	private static RGB blue = new RGB(0, 0, 1);
-	private static RGB red = new RGB(1, 0, 0);
-	private static RGB green = new RGB(0, 1, 0);
-	private static RGB yellow = new RGB(1, 1, 0);
-	private static RGB white = new RGB(1, 1, 1);
-	private static RGB black = new RGB(0, 0, 0);
-
-	// make sure first color and last color is same so you end up with a cyclic
-	// spectrum
 
 	private final float numSteps;
 	private final float step;

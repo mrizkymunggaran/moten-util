@@ -1,11 +1,13 @@
 package org.moten.david.mandelbrot;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.image.BufferedImage;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,7 +17,6 @@ import javax.swing.JFrame;
 public class Main {
 	public static void main(String[] args) {
 		JFrame frame = new JFrame();
-		frame.setSize(740, 740);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(new GridLayout(1, 1));
 		final Color brown = new Color(205, 183, 158);
@@ -36,8 +37,11 @@ public class Main {
 				add(Color.black);
 			}
 		};
-		final MandelbrotFractal fractal = new MandelbrotFractal(512, 1,
-				wikipedia);
+
+		final MandelbrotFractal fractal = new MandelbrotFractal(256, 1,
+				wikipedia, new BigDecimal("-3.5"), new BigDecimal("-2.5"),
+				new BigDecimal("1.5"), new BigDecimal("2.5"));
+		fractal.setPreferredSize(new Dimension(200, 200));
 		Runnable onRedraw = new Runnable() {
 			int number = 0;
 
@@ -56,7 +60,7 @@ public class Main {
 		};
 		fractal.setOnImageRedraw(onRedraw);
 		frame.getContentPane().add(fractal);
-		// frame.pack();
+		frame.pack();
 		frame.setVisible(true);
 
 		// http://fractaljourney.blogspot.com/2010/01/mandelbrot-ultra-zoom-5-21e275.html
