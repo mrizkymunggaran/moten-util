@@ -14,6 +14,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.MemoryImageSource;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JPanel;
 
@@ -32,6 +34,8 @@ public class MandelbrotFractal extends JPanel {
 	private final int maxIterations;
 
 	private final int resolutionFactor;
+
+	private final List<MandelbrotFractalThread> threads = new ArrayList<MandelbrotFractalThread>();
 
 	public MandelbrotFractal(int maxIterations, int resolutionFactor) {
 		this.maxIterations = maxIterations;
@@ -59,18 +63,35 @@ public class MandelbrotFractal extends JPanel {
 							.subtract(newDiffY.divide(valueOf(2)));
 					yb = ya.add(newDiffY);
 				}
-				image = null;
-				repaint();
+				redraw();
 			}
-
 		});
 	}
 
-	private Image createFractalImage(int w, int h) {
+	private void redraw() {
+		paintFractal(getSize().width / 10, getSize().height / 10);
+		repaint();
+		try {
+			Thread.sleep(0);
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
+		}
+		paintFractal(resolutionFactor * getSize().width, resolutionFactor
+				* getSize().height);
+		repaint();
+	}
+
+	private Image paintFractal(int w, int h) {
 		int alpha = 255;
 		int[] pix = new int[w * h];
 
-		paintFractal(maxThr, pix, w, h, xa, ya, xb, yb, alpha);
+		FractalMonitorThread monitor = paintFractal(maxThr, pix, w, h, xa, ya,
+				xb, yb, alpha);
+		try {
+			monitor.join();
+		} catch (InterruptedException e) {
+			// do nothing
+		}
 
 		return createImage(new MemoryImageSource(w, h, pix, 0, w));
 	}
@@ -78,42 +99,35 @@ public class MandelbrotFractal extends JPanel {
 	@Override
 	public void paintComponent(Graphics g) {
 		System.out.println("painting component " + getSize());
-		if (image == null) {
-			image = createFractalImage(resolutionFactor * getSize().width / 10,
-					resolutionFactor * getSize().height / 10);
+		if (image == null)
+			redraw();
+		else
 			g.drawImage(image, 0, 0, getSize().width, getSize().height, this);
-			image = createFractalImage(resolutionFactor * getSize().width,
-					resolutionFactor * getSize().height);
-		}
-		g.drawImage(image, 0, 0, getSize().width, getSize().height, this);
 	}
 
-	public void paintFractal(int maxThr, int[] pix, int w, int h,
-			BigDecimal xa, BigDecimal ya, BigDecimal xb, BigDecimal yb,
-			int alpha) {
-		long startTime = System.currentTimeMillis();
+	public FractalMonitorThread paintFractal(int numThreads, final int[] pix,
+			final int w, final int h, BigDecimal xa, BigDecimal ya,
+			BigDecimal xb, BigDecimal yb, int alpha) {
 
-		Thread[] m = new Thread[maxThr];
-		for (int i = 0; i < maxThr; i++) {
-			m[i] = new MandelbrotFractalThread(maxIterations, i, maxThr, pix,
-					w, h, xa, ya, xb, yb, alpha);
-			m[i].start();
+		long startTime = System.currentTimeMillis();
+		List<MandelbrotFractalThread> threads = new ArrayList<MandelbrotFractalThread>();
+		for (int i = 0; i < numThreads; i++) {
+			MandelbrotFractalThread thread = new MandelbrotFractalThread(
+					maxIterations, i, numThreads, pix, w, h, xa, ya, xb, yb,
+					alpha);
+			threads.add(thread);
+			thread.start();
 		}
 
-		// wait until all threads finished
-		boolean stop;
-		do {
-			stop = true;
-			for (int j = 0; j < maxThr; j++) {
-				if (m[j].isAlive()) {
-					stop = false;
-				}
+		Runnable onFinish = new Runnable() {
+			public void run() {
+				image = createImage(new MemoryImageSource(w, h, pix, 0, w));
 			}
-		} while (!stop);
-
-		System.out.println("Number of threads: " + maxThr);
-		long timeInMillis = System.currentTimeMillis() - startTime;
-		System.out.println("Run Time in Millis: " + timeInMillis);
+		};
+		FractalMonitorThread monitor = new FractalMonitorThread(startTime,
+				threads, onFinish);
+		monitor.start();
+		return monitor;
 	}
 
 }

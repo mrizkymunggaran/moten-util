@@ -15,6 +15,7 @@ public class MandelbrotFractalThread extends Thread {
 	private final BigDecimal yb;
 	private final int alpha;
 	private final int maxIterations = 1024;
+	private boolean keepGoing = true;
 
 	MandelbrotFractalThread(int maxIterations, int k, int maxThr, int[] pix,
 			int w, int h, BigDecimal xa, BigDecimal ya, BigDecimal xb,
@@ -29,6 +30,11 @@ public class MandelbrotFractalThread extends Thread {
 		this.xb = xb;
 		this.yb = yb;
 		this.alpha = alpha;
+	}
+
+	public void cancel() {
+		System.out.println("cancelling");
+		keepGoing = false;
 	}
 
 	@Override
@@ -46,7 +52,7 @@ public class MandelbrotFractalThread extends Thread {
 		double ya = this.ya.doubleValue();
 		double yb = this.yb.doubleValue();
 		// Each thread only calculates its own share of pixels!
-		for (int i = k; i < imax; i += maxThr) {
+		for (int i = k; i < imax && keepGoing; i += maxThr) {
 			int kx = i % w;
 			int ky = (i - kx) / w;
 			double a = (double) kx / w * (xb - xa) + xa;
@@ -62,7 +68,7 @@ public class MandelbrotFractalThread extends Thread {
 			int v = 0;
 			pix[w * ky + kx] = (alpha << 24) | (v << 16) | (v << 8) | v;
 
-			for (int kc = 0; kc < maxIterations; kc++) {
+			for (int kc = 0; kc < maxIterations && keepGoing; kc++) {
 				double x2 = x * x;
 				double y2 = y * y;
 				double x0 = x2 - y2 + a;
@@ -77,6 +83,8 @@ public class MandelbrotFractalThread extends Thread {
 				}
 			}
 		}
+		if (!keepGoing)
+			System.out.println("cancelled");
 	}
 
 	/**
