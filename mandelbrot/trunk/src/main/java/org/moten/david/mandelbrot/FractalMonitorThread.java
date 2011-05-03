@@ -6,14 +6,12 @@ public class FractalMonitorThread extends Thread {
 
 	private final List<MandelbrotFractalThread> threads;
 	private final long startTime;
-	private final Runnable onFinish;
 
 	public FractalMonitorThread(long startTime,
-			List<MandelbrotFractalThread> threads, Runnable onFinish) {
+			List<MandelbrotFractalThread> threads) {
 		super();
 		this.startTime = startTime;
 		this.threads = threads;
-		this.onFinish = onFinish;
 	}
 
 	@Override
@@ -38,6 +36,5 @@ public class FractalMonitorThread extends Thread {
 		System.out.println("Number of threads: " + threads.size());
 		long timeInMillis = System.currentTimeMillis() - startTime;
 		System.out.println("Run Time in Millis: " + timeInMillis);
-		onFinish.run();
 	}
 }

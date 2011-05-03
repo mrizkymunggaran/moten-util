@@ -10,10 +10,9 @@ import static java.math.BigDecimal.valueOf;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.Image;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.image.MemoryImageSource;
+import java.awt.image.BufferedImage;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +29,7 @@ public class MandelbrotFractal extends JPanel {
 	BigDecimal ya = valueOf(-1.5);
 	BigDecimal yb = valueOf(1.5);
 
-	private Image image = null;
+	private BufferedImage image = null;
 
 	private final int maxIterations;
 
@@ -39,6 +38,16 @@ public class MandelbrotFractal extends JPanel {
 	private final List<MandelbrotFractalThread> threads = new ArrayList<MandelbrotFractalThread>();
 
 	private final List<Color> colors;
+
+	private Runnable onImageRedraw;
+
+	public void setOnImageRedraw(Runnable onImageRedraw) {
+		this.onImageRedraw = onImageRedraw;
+	}
+
+	public BufferedImage getImage() {
+		return image;
+	}
 
 	public MandelbrotFractal(int maxIterations, int resolutionFactor,
 			List<Color> colors) {
@@ -74,19 +83,21 @@ public class MandelbrotFractal extends JPanel {
 	}
 
 	private void redraw() {
-		paintFractal(getSize().width / 10, getSize().height / 10);
+		// paintFractal(getSize().width / 10, getSize().height / 10);
+		// repaint();
+		// try {
+		// Thread.sleep(0);
+		// } catch (InterruptedException e) {
+		// throw new RuntimeException(e);
+		// }
+		this.image = paintFractal(resolutionFactor * getSize().width,
+				resolutionFactor * getSize().height);
 		repaint();
-		try {
-			Thread.sleep(0);
-		} catch (InterruptedException e) {
-			throw new RuntimeException(e);
-		}
-		paintFractal(resolutionFactor * getSize().width, resolutionFactor
-				* getSize().height);
-		repaint();
+		if (onImageRedraw != null)
+			onImageRedraw.run();
 	}
 
-	private Image paintFractal(int w, int h) {
+	private BufferedImage paintFractal(int w, int h) {
 		int alpha = 255;
 		int[] pix = new int[w * h];
 
@@ -97,8 +108,11 @@ public class MandelbrotFractal extends JPanel {
 		} catch (InterruptedException e) {
 			// do nothing
 		}
-
-		return createImage(new MemoryImageSource(w, h, pix, 0, w));
+		BufferedImage image = new BufferedImage(w, h,
+				BufferedImage.TYPE_INT_RGB);
+		image.setRGB(0, 0, w, h, pix, 0, w);
+		return image;
+		// return createImage(new MemoryImageSource(w, h, pix, 0, w));
 	}
 
 	@Override
@@ -123,14 +137,8 @@ public class MandelbrotFractal extends JPanel {
 			threads.add(thread);
 			thread.start();
 		}
-
-		Runnable onFinish = new Runnable() {
-			public void run() {
-				image = createImage(new MemoryImageSource(w, h, pix, 0, w));
-			}
-		};
 		FractalMonitorThread monitor = new FractalMonitorThread(startTime,
-				threads, onFinish);
+				threads);
 		monitor.start();
 		return monitor;
 	}
