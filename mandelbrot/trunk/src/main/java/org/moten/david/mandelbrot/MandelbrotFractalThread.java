@@ -1,9 +1,13 @@
 package org.moten.david.mandelbrot;
 
+import static md.math.DoubleDouble.valueOf;
+
 import java.awt.Color;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+
+import md.math.DoubleDouble;
 
 public class MandelbrotFractalThread extends Thread {
 	private static final double MODULUS_THRESHOLD = 4;
@@ -49,16 +53,14 @@ public class MandelbrotFractalThread extends Thread {
 		super.interrupt();
 	}
 
-	@Override
-	public void run() {
+	// @Override
+	public void runOld() {
 		int imax = w * h;
 
 		int[] palette = new int[maxIterations];
 		for (int j = 0; j < palette.length; j++)
 			palette[j] = getColor(j);
 
-		double diffX = xb.subtract(xa).doubleValue();
-		double diffY = yb.subtract(ya).doubleValue();
 		double xb = this.xb.doubleValue();
 		double xa = this.xa.doubleValue();
 		double ya = this.ya.doubleValue();
@@ -81,6 +83,56 @@ public class MandelbrotFractalThread extends Thread {
 				y = 2 * x * y + b;
 				x = x0;
 				double modulus = x2 + y2;
+				if (modulus > MODULUS_THRESHOLD) {
+					pix[w * ky + kx] = getColor(kc, modulus);
+					break;
+				}
+			}
+		}
+		if (!keepGoing)
+			System.out.println("cancelled");
+	}
+
+	@Override
+	public void run() {
+		int imax = w * h;
+
+		int[] palette = new int[maxIterations];
+		for (int j = 0; j < palette.length; j++)
+			palette[j] = getColor(j);
+
+		DoubleDouble xb = new DoubleDouble(this.xb.doubleValue());
+		DoubleDouble xa = new DoubleDouble(this.xa.doubleValue());
+		DoubleDouble ya = new DoubleDouble(this.ya.doubleValue());
+		DoubleDouble yb = new DoubleDouble(this.yb.doubleValue());
+		// Each thread only calculates its own share of pixels!
+		for (int i = k; i < imax && keepGoing; i += maxThr) {
+			int kx = i % w;
+			int ky = (i - kx) / w;
+			// double a = (double) kx / w * (xb - xa) + xa;
+			DoubleDouble a = valueOf(kx).divide(valueOf(w))
+					.multiply(xb.subtract(xa)).add(xa);
+			// double b = (double) ky / h * (yb - ya) + ya;
+			DoubleDouble b = valueOf(ky).divide(valueOf(h))
+					.multiply(yb.subtract(ya)).add(ya);
+			DoubleDouble x = a;
+			DoubleDouble y = b;
+			int v = 0;
+			pix[w * ky + kx] = (alpha << 24) | (v << 16) | (v << 8) | v;
+
+			for (int kc = 0; kc < maxIterations && keepGoing; kc++) {
+				// double x2 = x * x;
+				DoubleDouble x2 = x.multiply(x);
+				// double y2 = y * y;
+				DoubleDouble y2 = y.multiply(y);
+				// double x0 = x2 - y2 + a;
+				DoubleDouble x0 = x2.subtract(y2).add(a);
+				// y = 2 * x * y + b;
+				y = valueOf(2).multiply(x).multiply(y).add(b);
+				// x = x0;
+				x = x0;
+				// double modulus = x2 + y2;
+				double modulus = x2.doubleValue() + y.doubleValue();
 				if (modulus > MODULUS_THRESHOLD) {
 					pix[w * ky + kx] = getColor(kc, modulus);
 					break;
