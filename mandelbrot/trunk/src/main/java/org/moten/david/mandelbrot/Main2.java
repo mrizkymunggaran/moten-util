@@ -11,8 +11,8 @@ import javax.imageio.ImageIO;
 
 public class Main2 {
 	public static void main(String[] args) throws IOException {
-		int h = 768;
-		int w = 1366;
+		int h = 200;
+		int w = 200;
 		int numFrames = 260;
 		BigDecimal startxa = d("-3.5");
 		BigDecimal startya = d("-2.5");
@@ -30,9 +30,9 @@ public class Main2 {
 		BigDecimal endxa = d(arr[0]);
 		BigDecimal endya = d(arr[1]);
 		BigDecimal endxb = d(arr[2]);
-		BigDecimal endyb = endxb.subtract(endxa)
+		BigDecimal endyb = endya.add(endxb.subtract(endxa)
 				.multiply(BigDecimal.valueOf(h))
-				.divide(BigDecimal.valueOf(w), 100, RoundingMode.HALF_UP);
+				.divide(BigDecimal.valueOf(w), 100, RoundingMode.HALF_UP));
 		BigDecimal endSizeX = endxb.subtract(endxa);
 		BigDecimal endSizeY = endyb.subtract(endya);
 		// paintImage(4096, w, h, endxa, endya, endxb, endyb, 0);
@@ -63,7 +63,7 @@ public class Main2 {
 		DecimalFormat df = new DecimalFormat("000000");
 		BufferedImage image = MandelbrotFractal.paintFractal(Runtime
 				.getRuntime().availableProcessors(), maxIterations, w, h, xa,
-				ya, xb, yb, Scheme.wikipedia);
+				ya, xb, yb, Scheme.buzzsaw);
 		try {
 			ImageIO.write(image, "png",
 					new File("target/p" + df.format(imageNo) + ".png"));
