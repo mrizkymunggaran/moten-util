@@ -22,20 +22,23 @@ public class Main2 {
 	public static void main(String[] args) throws IOException {
 		int h = 700;
 		int w = h;
-		int numFrames = 100;
+		int numFrames = 1000;
 		BigDecimal startxa = d("-3.5");
 		BigDecimal startya = d("-2.5");
 		BigDecimal startxb = d("1.5");
 		BigDecimal startyb = d("2.5");
 		// (-0.4700725,-0.6217725)-(-0.4700675,-0.6217675)
-		// BigDecimal endxa = d("-1.740062382579339905");
-		// BigDecimal endya = d("-0.028175339779211048");
-		// BigDecimal endxb = d("-1.740062382579339906");
-		// BigDecimal endyb = d("-0.028175339779211048");
-		BigDecimal endxa = d("-0.4700");
-		BigDecimal endya = d("-0.6210");
-		BigDecimal endxb = d("-0.4701");
-		BigDecimal endyb = d("-0.6211");
+		// (-0.7621019625,-0.0880306125)-(-0.7621019575,-0.0880306075)
+		String[] arr = new String[] { "-0.7621019625", "-0.0880306125",
+				"-0.7621019575", "-0.0880306075" };
+		BigDecimal endxa = d(arr[0]);
+		BigDecimal endya = d(arr[1]);
+		BigDecimal endxb = d(arr[2]);
+		BigDecimal endyb = d(arr[3]);
+		// BigDecimal endxa = d("-0.4700");
+		// BigDecimal endya = d("-0.6210");
+		// BigDecimal endxb = d("-0.4701");
+		// BigDecimal endyb = d("-0.6211");
 		BigDecimal endSizeX = endxb.subtract(endxa);
 		BigDecimal endSizeY = endyb.subtract(endya);
 		// paintImage(4096, w, h, endxa, endya, endxb, endyb, 0);
