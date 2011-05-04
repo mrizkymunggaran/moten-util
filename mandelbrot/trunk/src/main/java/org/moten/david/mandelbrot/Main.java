@@ -38,8 +38,21 @@ public class Main {
 			}
 		};
 
+		// from
+		// http://upload.wikimedia.org/wikipedia/commons/5/55/Fractal-zoom-1-03-Mandelbrot_Buzzsaw.ogg
+		List<Color> buzzsaw = new ArrayList<Color>() {
+			{
+				add(Color.red);
+				add(Color.yellow);
+				add(Color.black);
+				add(Color.white);
+				add(Color.black);
+				add(Color.yellow);
+			}
+		};
+
 		final MandelbrotFractal fractal = new MandelbrotFractal(256, 1,
-				wikipedia, new BigDecimal("-3.5"), new BigDecimal("-2.5"),
+				buzzsaw, new BigDecimal("-3.5"), new BigDecimal("-2.5"),
 				new BigDecimal("1.5"), new BigDecimal("2.5"));
 		fractal.setPreferredSize(new Dimension(500, 500));
 		Runnable onRedraw = new Runnable() {
