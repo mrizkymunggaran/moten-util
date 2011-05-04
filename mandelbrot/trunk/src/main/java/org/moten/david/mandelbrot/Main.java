@@ -1,6 +1,5 @@
 package org.moten.david.mandelbrot;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.image.BufferedImage;
@@ -8,8 +7,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
@@ -19,40 +16,9 @@ public class Main {
 		JFrame frame = new JFrame();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(new GridLayout(1, 1));
-		final Color brown = new Color(205, 183, 158);
-		final Color salmon = new Color(250, 128, 114);
-		List<Color> browny = new ArrayList<Color>() {
-			{
-				add(brown);
-				add(Color.white);
-				add(salmon);
-				add(Color.black);
-			}
-		};
-		List<Color> wikipedia = new ArrayList<Color>() {
-			{
-				add(Color.blue);
-				add(Color.white);
-				add(Color.yellow);
-				add(Color.black);
-			}
-		};
-
-		// from
-		// http://upload.wikimedia.org/wikipedia/commons/5/55/Fractal-zoom-1-03-Mandelbrot_Buzzsaw.ogg
-		List<Color> buzzsaw = new ArrayList<Color>() {
-			{
-				add(Color.red);
-				add(Color.yellow);
-				add(Color.black);
-				add(Color.white);
-				add(Color.black);
-				add(Color.yellow);
-			}
-		};
 
 		final MandelbrotFractal fractal = new MandelbrotFractal(256, 1,
-				buzzsaw, new BigDecimal("-3.5"), new BigDecimal("-2.5"),
+				Scheme.buzzsaw, new BigDecimal("-3.5"), new BigDecimal("-2.5"),
 				new BigDecimal("1.5"), new BigDecimal("2.5"));
 		fractal.setPreferredSize(new Dimension(500, 500));
 		Runnable onRedraw = new Runnable() {
