@@ -114,7 +114,7 @@ public class MandelbrotFractal extends JPanel {
 			BigDecimal yb, List<Color> colors) {
 		int alpha = 255;
 		int[] pix = new int[w * h];
-		System.out.println("painting (" + xa + "," + ya + ")-(" + xb + "," + yb
+		System.out.println("painting (" + xa + "," + ya + "," + xb + "," + yb
 				+ ")");
 
 		FractalMonitorThread monitor = paintFractal(numThreads, maxIterations,
