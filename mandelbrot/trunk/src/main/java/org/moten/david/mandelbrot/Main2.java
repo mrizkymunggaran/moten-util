@@ -38,7 +38,7 @@ public class Main2 {
 		BigDecimal endyb = d("-0.6211");
 		BigDecimal endSizeX = endxb.subtract(endxa);
 		BigDecimal endSizeY = endyb.subtract(endya);
-		paintImage(4096, w, h, endxa, endya, endxb, endyb, 0);
+		// paintImage(4096, w, h, endxa, endya, endxb, endyb, 0);
 		BigDecimal xa = startxa;
 		BigDecimal ya = startya;
 		BigDecimal xb = startxb;
