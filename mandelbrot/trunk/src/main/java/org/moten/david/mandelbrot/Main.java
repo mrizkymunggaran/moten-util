@@ -10,10 +10,11 @@ import java.math.BigDecimal;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
 
 public class Main {
 	public static void main(String[] args) {
-		JFrame frame = new JFrame();
+		final JFrame frame = new JFrame();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(new GridLayout(1, 1));
 
@@ -40,7 +41,13 @@ public class Main {
 		fractal.setOnImageRedraw(onRedraw);
 		frame.getContentPane().add(fractal);
 		frame.pack();
-		frame.setVisible(true);
+		SwingUtilities.invokeLater(new Runnable() {
+
+			public void run() {
+				frame.setVisible(true);
+
+			}
+		});
 
 		// http://fractaljourney.blogspot.com/2010/01/mandelbrot-ultra-zoom-5-21e275.html
 	}
