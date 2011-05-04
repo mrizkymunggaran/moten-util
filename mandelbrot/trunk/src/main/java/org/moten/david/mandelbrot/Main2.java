@@ -11,9 +11,10 @@ import javax.imageio.ImageIO;
 
 public class Main2 {
 	public static void main(String[] args) throws IOException {
-		int h = 200;
-		int w = 200;
+		int h = 500;
+		int w = 500;
 		int numFrames = 260;
+		int maxIterations = 1000000;
 		BigDecimal startxa = d("-3.5");
 		BigDecimal startya = d("-2.5");
 		BigDecimal startxb = d("1.5");
@@ -44,7 +45,7 @@ public class Main2 {
 		for (int i = 1; i <= numFrames; i++) {
 			System.out.println("(" + xa + "," + ya + ")-(" + xb + "," + yb
 					+ ")");
-			paintImage(4096, w, h, xa, ya, xb, yb, i);
+			paintImage(maxIterations, w, h, xa, ya, xb, yb, i);
 			System.out.println("writing image " + i);
 			BigDecimal sizeX = xb.subtract(xa);
 			BigDecimal sizeY = yb.subtract(ya);
