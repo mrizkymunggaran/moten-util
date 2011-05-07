@@ -9,7 +9,7 @@ import java.text.DecimalFormat;
 
 import javax.imageio.ImageIO;
 
-public class Main2 {
+public class GeneratorMain {
 	public static void main(String[] args) throws IOException {
 		int h = 500;
 		int w = 500;
