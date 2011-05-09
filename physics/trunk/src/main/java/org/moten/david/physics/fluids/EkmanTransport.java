@@ -59,10 +59,11 @@ public class EkmanTransport {
 	}
 
 	private void calculateEkmanTransport(double latitudeDegrees,
-			double windSpeedAt10Metres, double waterDensity, double z,
-			double[] result) {
+			double windSpeedAt10Metres, double z, double[] result) {
 		double ekmanDepth = getEkmanDepth(latitudeDegrees);
 		double f = getCoriolisParameter(latitudeDegrees);
+		// approximation based on depth
+		double waterDensity = (z > 20 ? 1.05 : 0.95) * 1025;// in kg/m2
 		calculateEkmanTransport(ekmanDepth, f, windSpeedAt10Metres,
 				latitudeDegrees > 0, waterDensity, z, result);
 	}
