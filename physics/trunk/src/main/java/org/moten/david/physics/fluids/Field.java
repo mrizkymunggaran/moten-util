@@ -1,10 +1,15 @@
 package org.moten.david.physics.fluids;
 
+import org.moten.david.physics.fluids.Vector.Direction;
+
 public interface Field {
 
-	public static enum FieldType {
-		U, V, W, P;
+	public static enum Pressure implements Item {
+		PRESSURE;
 	}
+
+	public static Item[] items = new Item[] { Direction.X, Direction.Y,
+			Direction.Z, Pressure.PRESSURE };
 
 	/**
 	 * Returns current in x direction.
@@ -47,7 +52,7 @@ public interface Field {
 	 * @param type
 	 * @return
 	 */
-	Function<Vector, Double> getField(Vector.Direction type);
+	Function<Vector, Double> getField(Item item);
 
 	/**
 	 * Starting at <code>position</code>, finds the closest wall up to
