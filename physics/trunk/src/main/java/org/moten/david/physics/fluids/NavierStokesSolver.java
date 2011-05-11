@@ -9,7 +9,8 @@ public class NavierStokesSolver {
 	/**
 	 * Returns the value of the field of given type after time
 	 * <code>timeDelta</code> using given stepHints for differentiation if
-	 * required.
+	 * required. Uses Finite Difference Method for solution of Navier-Stokes
+	 * equations in cartesian coordinates.
 	 * 
 	 * @param timeDelta
 	 * @param maxDelta
@@ -17,35 +18,47 @@ public class NavierStokesSolver {
 	 * @param position
 	 * @return
 	 */
-	public double getValueInTime(double timeDelta, Vector.Direction direction,
-			Differentiator differentiator, Field field, Vector position,
+	public double getValueInTime(Vector position, Vector.Direction direction,
+			double timeDelta, Differentiator differentiator, Field field,
 			Vector stepHint) {
 
-		Function<Vector, Double> element = field.getField(direction);
-		double eValue = element.apply(position);
-
+		// evaluate fields at position
 		double u = field.u().apply(position);
 		double v = field.v().apply(position);
 		double w = field.w().apply(position);
 		double p = field.p().apply(position);
 		double rho = field.rho().apply(position);
 
+		// element refers to a specific field selection
+		Function<Vector, Double> element = field.getField(direction);
+		double eValue = element.apply(position);
+
+		// wrt = with respect to
+
+		// differentiate p wrt the direction
 		double pDiff = differentiate(differentiator, field.p(), direction,
 				position, p, stepHint);
+		// differentiate element wrt x
 		double ex = differentiate(differentiator, element, Direction.X,
 				position, eValue, stepHint);
+		// differentiate element wrt y
 		double ey = differentiate(differentiator, element, Direction.Y,
 				position, eValue, stepHint);
 
-		// now exert the Continuous condition of Navier-Stokes
+		// differentiate element wrt z
+		// exert the Continuous condition of Navier-Stokes
 		double ez = -ex - ey;
 
+		// 2nd derivative of element at position wrt x
 		double exx = differentiate2(differentiator, element, Direction.X,
 				position, u, stepHint);
+		// 2nd derivative of element at position wrt y
 		double eyy = differentiate2(differentiator, element, Direction.Y,
 				position, v, stepHint);
+		// 2nd derivative of element at position wrt z
 		double ezz = differentiate2(differentiator, element, Direction.Z,
 				position, w, stepHint);
+
 		double et = (-pDiff + u * (exx + eyy + ezz) + rho * g.get(direction) - (u
 				* ex + v * ey + w * ez))
 				/ rho;
