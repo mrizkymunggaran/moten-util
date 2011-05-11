@@ -59,6 +59,7 @@ public class NavierStokesSolver {
 		double ezz = differentiate2(differentiator, element, Direction.Z,
 				position, w, stepHint);
 
+		// calculate derivative of element wrt t using Navier-Stokes
 		double et = (-pDiff + u * (exx + eyy + ezz) + rho * g.get(direction) - (u
 				* ex + v * ey + w * ez))
 				/ rho;
