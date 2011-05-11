@@ -14,50 +14,53 @@ public class NavierStokesSolver {
 	 * 
 	 * @param timeDelta
 	 * @param maxDelta
-	 * @param field
+	 * @param data
 	 * @param position
 	 * @return
 	 */
-	public double getValueInTime(Vector position, Vector.Direction direction,
-			double timeDelta, Differentiator differentiator, Field field,
+	private double getValueInTime(Vector position, Vector.Direction direction,
+			double timeDelta, Differentiator differentiator, Data data,
 			Vector stepHint) {
 
 		// evaluate fields at position
-		double u = field.u().apply(position);
-		double v = field.v().apply(position);
-		double w = field.w().apply(position);
-		double p = field.p().apply(position);
-		double rho = field.rho().apply(position);
+		double u = data.getField(Direction.X).apply(position);
+		double v = data.getField(Direction.Y).apply(position);
+		double w = data.getField(Direction.Z).apply(position);
+		Function<Vector, Double> pressureField = data.getPressure();
+		double p = pressureField.apply(position);
+		double rho = data.rho().apply(position);
 
 		// element refers to a specific field selection
-		Function<Vector, Double> element = field.getField(direction);
+		Function<Vector, Double> element = data.getField(direction);
 		double eValue = element.apply(position);
+		WallFinder wallFinder = data.getWallFinder(direction);
+		WallFinder pressureWallFinder = data.getWallFinder(Direction.Z);
 
 		// wrt = with respect to
 
 		// differentiate p wrt the direction
-		double pDiff = differentiate(differentiator, field.p(), direction,
-				position, p, stepHint);
+		double pDiff = differentiate(differentiator, pressureWallFinder,
+				pressureField, direction, position, p, stepHint);
 		// differentiate element wrt x
-		double ex = differentiate(differentiator, element, Direction.X,
-				position, eValue, stepHint);
+		double ex = differentiate(differentiator, wallFinder, element,
+				Direction.X, position, eValue, stepHint);
 		// differentiate element wrt y
-		double ey = differentiate(differentiator, element, Direction.Y,
-				position, eValue, stepHint);
+		double ey = differentiate(differentiator, wallFinder, element,
+				Direction.Y, position, eValue, stepHint);
 
 		// differentiate element wrt z
 		// exert the Continuous condition of Navier-Stokes
 		double ez = -ex - ey;
 
 		// 2nd derivative of element at position wrt x
-		double exx = differentiate2(differentiator, element, Direction.X,
-				position, u, stepHint);
+		double exx = differentiate2(differentiator, wallFinder, element,
+				Direction.X, position, u, stepHint);
 		// 2nd derivative of element at position wrt y
-		double eyy = differentiate2(differentiator, element, Direction.Y,
-				position, v, stepHint);
+		double eyy = differentiate2(differentiator, wallFinder, element,
+				Direction.Y, position, v, stepHint);
 		// 2nd derivative of element at position wrt z
-		double ezz = differentiate2(differentiator, element, Direction.Z,
-				position, w, stepHint);
+		double ezz = differentiate2(differentiator, wallFinder, element,
+				Direction.Z, position, w, stepHint);
 
 		// calculate derivative of element wrt t using Navier-Stokes
 		double et = (-pDiff + u * (exx + eyy + ezz) + rho * g.get(direction) - (u
@@ -67,16 +70,30 @@ public class NavierStokesSolver {
 	}
 
 	private double differentiate(Differentiator differentiator,
-			Function<Vector, Double> f, Direction t, Vector position,
-			double value, Vector stepHint) {
-		return differentiator.differentiate(f, t, position, value,
+			WallFinder wallFinder, Function<Vector, Double> f, Direction t,
+			Vector position, double value, Vector stepHint) {
+		return differentiator.differentiate(wallFinder, f, t, position, value,
 				stepHint.get(t));
 	}
 
 	private double differentiate2(Differentiator differentiator,
-			Function<Vector, Double> f, Direction t, Vector position,
-			double value, Vector stepHint) {
-		return differentiator.differentiate2(f, t, position, value,
+			WallFinder wallFinder, Function<Vector, Double> f, Direction t,
+			Vector position, double value, Vector stepHint) {
+		return differentiator.differentiate2(wallFinder, f, t, position, value,
 				stepHint.get(t));
+	}
+
+	public FieldValue getValueInTime(Vector position, double timeDelta,
+			Differentiator differentiator, Data data, Vector stepHint) {
+		FieldValue f = new FieldValue();
+		f.u = getValueInTime(position, Direction.X, timeDelta, differentiator,
+				data, stepHint);
+		f.v = getValueInTime(position, Direction.Y, timeDelta, differentiator,
+				data, stepHint);
+		f.w = getValueInTime(position, Direction.Z, timeDelta, differentiator,
+				data, stepHint);
+		// TODO extract p
+		f.p = 0;
+		return f;
 	}
 }

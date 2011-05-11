@@ -2,7 +2,7 @@ package org.moten.david.physics.fluids;
 
 public class Vector {
 
-	public static enum Direction implements Item {
+	public static enum Direction {
 		X(1), Y(2), Z(3);
 
 		private int number;
