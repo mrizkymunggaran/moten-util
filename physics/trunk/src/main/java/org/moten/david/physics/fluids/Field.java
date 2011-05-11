@@ -41,6 +41,12 @@ public interface Field {
 	 */
 	Function<Vector, Double> rho();
 
+	/**
+	 * Returns u, v, w for Direction X,Y,Z.
+	 * 
+	 * @param type
+	 * @return
+	 */
 	Function<Vector, Double> getField(Vector.Direction type);
 
 	/**
