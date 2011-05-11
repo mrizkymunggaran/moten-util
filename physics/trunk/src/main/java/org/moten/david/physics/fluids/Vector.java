@@ -41,4 +41,15 @@ public class Vector {
 		else
 			throw new IndexOutOfBoundsException("" + i);
 	}
+
+	public Vector modify(Direction direction, double value) {
+		if (Direction.X.equals(direction))
+			return new Vector(value, y, z);
+		else if (Direction.Y.equals(direction))
+			return new Vector(x, value, z);
+		else if (Direction.Z.equals(direction))
+			return new Vector(x, y, value);
+		else
+			throw new RuntimeException("unhandled Direction: " + direction);
+	}
 }
