@@ -9,7 +9,7 @@ public interface Data {
 	 * 
 	 * @return
 	 */
-	Function<Vector, Double> rho();
+	Function<Vector, Double> density();
 
 	/**
 	 * Returns u, v, w for Direction X,Y,Z.

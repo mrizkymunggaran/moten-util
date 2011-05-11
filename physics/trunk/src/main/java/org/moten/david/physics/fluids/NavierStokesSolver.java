@@ -35,7 +35,7 @@ public class NavierStokesSolver {
 		double w = data.getField(Direction.Z).apply(position);
 		Function<Vector, Double> pressureField = data.getPressure();
 		double p = pressureField.apply(position);
-		double rho = data.rho().apply(position);
+		double rho = data.density().apply(position);
 		double mu = data.dynamicViscosity().apply(position);
 
 		// element refers to a specific field selection
@@ -55,10 +55,9 @@ public class NavierStokesSolver {
 		// differentiate element wrt y
 		double ey = differentiate(differentiator, wallFinder, element,
 				Direction.Y, position, eValue, stepHint);
-
 		// differentiate element wrt z
-		// exert the Continuous condition of Navier-Stokes
-		double ez = -ex - ey;
+		double ez = differentiate(differentiator, wallFinder, element,
+				Direction.Z, position, eValue, stepHint);
 
 		// 2nd derivative of element at position wrt x
 		double exx = differentiate2(differentiator, wallFinder, element,
