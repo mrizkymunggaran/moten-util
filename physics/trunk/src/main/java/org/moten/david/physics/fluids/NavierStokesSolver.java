@@ -36,6 +36,7 @@ public class NavierStokesSolver {
 		Function<Vector, Double> pressureField = data.getPressure();
 		double p = pressureField.apply(position);
 		double rho = data.rho().apply(position);
+		double mu = data.dynamicViscosity().apply(position);
 
 		// element refers to a specific field selection
 		Function<Vector, Double> element = data.getField(direction);
@@ -70,7 +71,7 @@ public class NavierStokesSolver {
 				Direction.Z, position, w, stepHint);
 
 		// calculate derivative of element wrt t using Navier-Stokes
-		double et = (-pDiff + u * (exx + eyy + ezz) + rho * g.get(direction) - (u
+		double et = (-pDiff + mu * (exx + eyy + ezz) + rho * g.get(direction) - (u
 				* ex + v * ey + w * ez))
 				/ rho;
 		return eValue + timeDelta * et;

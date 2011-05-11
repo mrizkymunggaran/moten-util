@@ -23,4 +23,6 @@ public interface Data {
 
 	WallFinder getWallFinder(Direction direction);
 
+	Function<Vector, Double> dynamicViscosity();
+
 }
