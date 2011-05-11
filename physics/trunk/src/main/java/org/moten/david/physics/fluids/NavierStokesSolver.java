@@ -2,6 +2,13 @@ package org.moten.david.physics.fluids;
 
 import org.moten.david.physics.fluids.Vector.Direction;
 
+/**
+ * Based on <a
+ * href="http://en.wikipedia.org/wiki/Navier%E2%80%93Stokes_equations">this</a>.
+ * 
+ * @author dxm
+ * 
+ */
 public class NavierStokesSolver {
 
 	private static Vector g = new Vector(0, 0, -9.8);
@@ -83,9 +90,9 @@ public class NavierStokesSolver {
 				stepHint.get(t));
 	}
 
-	public FieldValue getValueInTime(Vector position, double timeDelta,
+	public Value getValueInTime(Vector position, double timeDelta,
 			Differentiator differentiator, Data data, Vector stepHint) {
-		FieldValue f = new FieldValue();
+		Value f = new Value();
 		f.u = getValueInTime(position, Direction.X, timeDelta, differentiator,
 				data, stepHint);
 		f.v = getValueInTime(position, Direction.Y, timeDelta, differentiator,

@@ -1,6 +1,6 @@
 package org.moten.david.physics.fluids;
 
-public class FieldValue {
+public class Value {
 	public double u;
 	public double v;
 	public double w;
