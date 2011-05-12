@@ -58,7 +58,7 @@ public class EkmanTransport {
 		result[1] = v;
 	}
 
-	private void calculateEkmanTransport(double latitudeDegrees,
+	public void calculateEkmanTransport(double latitudeDegrees,
 			double windSpeedAt10Metres, double z, double[] result) {
 		double ekmanDepth = getEkmanDepth(latitudeDegrees);
 		double f = getCoriolisParameter(latitudeDegrees);

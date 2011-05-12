@@ -2,27 +2,50 @@ package org.moten.david.physics.fluids;
 
 import org.moten.david.physics.fluids.Vector.Direction;
 
+/**
+ * Returns data access functions about a specific region.
+ * 
+ * @author dxm
+ * 
+ */
 public interface Data {
 
 	/**
-	 * Returns density
+	 * Returns density function in SI units.
 	 * 
 	 * @return
 	 */
-	Function<Vector, Double> density();
+	Function<Vector, Double> getDensity();
 
 	/**
-	 * Returns u, v, w for Direction X,Y,Z.
+	 * Returns u, v, w functions for Direction X,Y,Z.
 	 * 
 	 * @param type
 	 * @return
 	 */
 	Function<Vector, Double> getField(Direction direction);
 
+	/**
+	 * Returns pressure function in SI units.
+	 * 
+	 * @return
+	 */
 	Function<Vector, Double> getPressure();
 
+	/**
+	 * Returns {@link WallFinder} for the given direction. Pressure should use
+	 * the wallFinder for {@link Direction}.Z.
+	 * 
+	 * @param direction
+	 * @return
+	 */
 	WallFinder getWallFinder(Direction direction);
 
-	Function<Vector, Double> dynamicViscosity();
+	/**
+	 * Returns the dynamic viscosity in SI units.
+	 * 
+	 * @return
+	 */
+	Function<Vector, Double> getDynamicViscosity();
 
 }
