@@ -3,7 +3,8 @@ package org.moten.david.physics.fluids;
 import org.moten.david.physics.fluids.Vector.Direction;
 
 /**
- * Based on <a
+ * Solver for Newtonian incompressible fluids, in particular seawater. Based on
+ * <a
  * href="http://en.wikipedia.org/wiki/Navier%E2%80%93Stokes_equations">this</a>.
  * 
  * @author dxm
@@ -35,8 +36,8 @@ public class NavierStokesSolver {
 		double w = data.getField(Direction.Z).apply(position);
 		Function<Vector, Double> pressureField = data.getPressure();
 		double p = pressureField.apply(position);
-		double rho = data.density().apply(position);
-		double mu = data.dynamicViscosity().apply(position);
+		double rho = data.getDensity().apply(position);
+		double mu = data.getDynamicViscosity().apply(position);
 
 		// element refers to a specific field selection
 		Function<Vector, Double> element = data.getField(direction);
@@ -70,9 +71,8 @@ public class NavierStokesSolver {
 				Direction.Z, position, w, stepHint);
 
 		// calculate derivative of element wrt t using Navier-Stokes
-		double et = (-pDiff + mu * (exx + eyy + ezz) + rho * g.get(direction) - (u
-				* ex + v * ey + w * ez))
-				/ rho;
+		double et = (-pDiff + mu * (exx + eyy + ezz)) / rho + g.get(direction)
+				- (u * ex + v * ey + w * ez);
 		return eValue + timeDelta * et;
 	}
 
