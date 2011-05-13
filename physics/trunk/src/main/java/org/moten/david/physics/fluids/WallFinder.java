@@ -1,5 +1,7 @@
 package org.moten.david.physics.fluids;
 
+import org.moten.david.util.math.Vector;
+
 public interface WallFinder {
 	/**
 	 * Starting at <code>position</code>, finds the closest wall up to

@@ -1,5 +1,11 @@
 package org.moten.david.util.math;
 
+/**
+ * Solves zeros of a univariate function using Newton's Method.
+ * 
+ * @author dave
+ * 
+ */
 public class NewtonsMethodSolver {
 	/**
 	 * Returns a value of x that solves f=0 such that |f(x)|<=precision. Returns

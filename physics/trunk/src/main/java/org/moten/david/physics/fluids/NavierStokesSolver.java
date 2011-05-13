@@ -3,9 +3,10 @@ package org.moten.david.physics.fluids;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.moten.david.physics.fluids.Vector.Direction;
 import org.moten.david.util.math.Function;
 import org.moten.david.util.math.NewtonsMethodSolver;
+import org.moten.david.util.math.Vector;
+import org.moten.david.util.math.Vector.Direction;
 
 /**
  * Solver for Newtonian incompressible fluids, in particular seawater. Based on
