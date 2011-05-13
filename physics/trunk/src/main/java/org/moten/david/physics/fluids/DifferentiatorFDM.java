@@ -1,7 +1,8 @@
 package org.moten.david.physics.fluids;
 
-import org.moten.david.physics.fluids.Vector.Direction;
 import org.moten.david.util.math.Function;
+import org.moten.david.util.math.Vector;
+import org.moten.david.util.math.Vector.Direction;
 
 public class DifferentiatorFDM implements Differentiator {
 
