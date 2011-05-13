@@ -1,5 +1,7 @@
 package org.moten.david.physics.fluids;
 
+import java.util.List;
+
 public class Vector {
 
 	public static enum Direction {
@@ -25,6 +27,10 @@ public class Vector {
 		this.x = x;
 		this.y = y;
 		this.z = z;
+	}
+
+	public Vector(List<Double> list) {
+		this(list.get(0), list.get(1), list.get(2));
 	}
 
 	public double get(Direction t) {
