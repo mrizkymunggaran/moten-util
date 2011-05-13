@@ -18,7 +18,8 @@ import org.moten.david.util.math.NewtonsMethodSolver;
 public class NavierStokesSolver {
 
 	private static final long MAX_NEWTONS_ITERATIONS = 20;
-	private static Vector g = new Vector(0, 0, -9.8);
+	private static Vector g = new Vector(0, 0, -9.8); // in metres/second
+														// squared
 
 	/**
 	 * Returns the value of the field of given type after time
