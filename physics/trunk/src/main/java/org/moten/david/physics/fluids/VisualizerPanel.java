@@ -58,4 +58,6 @@ public class VisualizerPanel extends JPanel {
 			}
 		});
 	}
+
+	private static final long serialVersionUID = 9063097305399942528L;
 }
