@@ -26,6 +26,13 @@ public interface Data {
 	Function<Vector, Double> getField(Direction direction);
 
 	/**
+	 * Return the velocity field.
+	 * 
+	 * @return
+	 */
+	Function<Vector, Vector> getVelocityField();
+
+	/**
 	 * Returns pressure function in SI units.
 	 * 
 	 * @return

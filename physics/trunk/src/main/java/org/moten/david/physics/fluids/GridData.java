@@ -34,4 +34,10 @@ public class GridData implements Data {
 		return null;
 	}
 
+	@Override
+	public Function<Vector, Vector> getVelocityField() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

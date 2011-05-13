@@ -1,8 +1,12 @@
 package org.moten.david.physics.fluids;
 
 public class Value {
-	public double u;
-	public double v;
-	public double w;
-	public double p;
+	public Value(Vector velocity, double pressure) {
+		super();
+		this.velocity = velocity;
+		this.pressure = pressure;
+	}
+
+	public Vector velocity;
+	public double pressure;
 }
