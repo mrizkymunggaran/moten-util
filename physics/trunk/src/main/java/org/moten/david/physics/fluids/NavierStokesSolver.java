@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.moten.david.physics.fluids.Vector.Direction;
+import org.moten.david.util.math.Function;
+import org.moten.david.util.math.NewtonsMethodSolver;
 
 /**
  * Solver for Newtonian incompressible fluids, in particular seawater. Based on
@@ -15,21 +17,26 @@ import org.moten.david.physics.fluids.Vector.Direction;
  */
 public class NavierStokesSolver {
 
+	private static final long MAX_NEWTONS_ITERATIONS = 20;
 	private static Vector g = new Vector(0, 0, -9.8);
 
 	/**
 	 * Returns the value of the field of given type after time
 	 * <code>timeDelta</code> using given stepHints for differentiation if
 	 * required. Uses Finite Difference Method for solution of Navier-Stokes
-	 * equations in cartesian coordinates.
+	 * equations in cartesian coordinates (3D).
 	 * 
-	 * @param timeDelta
-	 * @param maxDelta
-	 * @param data
 	 * @param position
+	 * @param velocity
+	 * @param pressure
+	 * @param direction
+	 * @param timeDelta
+	 * @param differentiator
+	 * @param data
+	 * @param stepHint
 	 * @return
 	 */
-	private double getValueInTime(Vector position, Vector velocity,
+	private double getValueAfterTime(Vector position, Vector velocity,
 			double pressure, Vector.Direction direction, double timeDelta,
 			Differentiator differentiator, Data data, Vector stepHint) {
 
@@ -72,11 +79,25 @@ public class NavierStokesSolver {
 				Direction.Z, position, w, stepHint);
 
 		// calculate derivative of element wrt t using Navier-Stokes
+		// see http://en.wikipedia.org/wiki/Navier%E2%80%93Stokes_equations
 		double et = (-pDiff + mu * (exx + eyy + ezz)) / rho + g.get(direction)
 				- (u * ex + v * ey + w * ez);
 		return eValue + timeDelta * et;
 	}
 
+	/**
+	 * Returns the first derivative of f using a {@link WallFinder} to probe for
+	 * domain boundaries.
+	 * 
+	 * @param differentiator
+	 * @param wallFinder
+	 * @param f
+	 * @param t
+	 * @param position
+	 * @param value
+	 * @param stepHint
+	 * @return
+	 */
 	private static double differentiate(Differentiator differentiator,
 			WallFinder wallFinder, Function<Vector, Double> f, Direction t,
 			Vector position, double value, Vector stepHint) {
@@ -84,6 +105,19 @@ public class NavierStokesSolver {
 				stepHint.get(t));
 	}
 
+	/**
+	 * Returns the second derivative of f using a {@link WallFinder} to probe
+	 * for domain boundaries.
+	 * 
+	 * @param differentiator
+	 * @param wallFinder
+	 * @param f
+	 * @param t
+	 * @param position
+	 * @param value
+	 * @param stepHint
+	 * @return
+	 */
 	private static double differentiate2(Differentiator differentiator,
 			WallFinder wallFinder, Function<Vector, Double> f, Direction t,
 			Vector position, double value, Vector stepHint) {
@@ -91,30 +125,60 @@ public class NavierStokesSolver {
 				stepHint.get(t));
 	}
 
-	public Value getValueInTime(Vector position, double timeDelta,
+	/**
+	 * Calculate velocity and pressure after timeDelta has passed.
+	 * 
+	 * @param position
+	 * @param timeDelta
+	 * @param differentiator
+	 * @param data
+	 * @param stepHint
+	 * @return
+	 */
+	public Value getValueAfterTime(Vector position, double timeDelta,
 			Differentiator differentiator, Data data, Vector stepHint) {
 		Vector v0 = data.getVelocityField().apply(position);
 		double p0 = data.getPressure().apply(position);
 
-		Vector v1 = getVelocityInTime(position, v0, p0, timeDelta,
+		Vector v1 = getVelocityAfterTime(position, v0, p0, timeDelta,
 				differentiator, data, stepHint);
 		// if stopped now then continuity (conservation of mass) equation might
-		// not be satisfied
-
+		// not be satisfied.
+		//
+		// Perform pressure correction as per
+		// http://en.wikipedia.org/wiki/Pressure-correction_method
+		//
 		// i.e. solve f = 0 for pressure p where f is defined:
+		//
+		// Take the value of velocity v1 just created and find pressure s.t
+		// du/dx + dv/dy + dw/dz = 0
 		Function<Double, Double> f = createContinuityFunction(position, v1,
 				timeDelta, differentiator, data, stepHint);
 
-		double pressure = solve(f, p0);
+		// TODO best value for precision?
+		double precision = 0.001;
+		// TODO best value for step size?
+		double pressureStepSize = 1; // in Pa
+		Double pressure = NewtonsMethodSolver.solve(f, p0, pressureStepSize,
+				precision, MAX_NEWTONS_ITERATIONS);
+		if (pressure == null)
+			pressure = p0;
 
 		return new Value(v1, pressure);
 	}
 
-	private static double solve(Function<Double, Double> f, double p0) {
-		// TODO implement
-		return 0;
-	}
-
+	/**
+	 * Returns the Conservation of Mass (Continuity) Equation described by the
+	 * Navier-Stokes equations.
+	 * 
+	 * @param position
+	 * @param velocity
+	 * @param timeDelta
+	 * @param differentiator
+	 * @param data
+	 * @param stepHint
+	 * @return
+	 */
 	private Function<Double, Double> createContinuityFunction(
 			final Vector position, final Vector velocity,
 			final double timeDelta, final Differentiator differentiator,
@@ -122,14 +186,52 @@ public class NavierStokesSolver {
 		return new Function<Double, Double>() {
 			@Override
 			public Double apply(Double p) {
-				Vector velocityNext = getVelocityInTime(position, velocity, p,
-						timeDelta, differentiator, data, stepHint);
-				return div(position, velocityNext, differentiator, data,
+				Vector velocityNext = getVelocityAfterTime(position, velocity,
+						p, timeDelta, differentiator, data, stepHint);
+				return divergence(position, velocityNext, differentiator, data,
 						stepHint);
 			}
 		};
 	}
 
+	/**
+	 * Returns the velocity vector estimate after time <code>timeDelta</code>.
+	 * The returned vector may not satisfy the Continuity equation and so may
+	 * require pressure correction and recalculation of velocity for an
+	 * acceptable result.
+	 * 
+	 * @param position
+	 * @param velocity
+	 * @param pressure
+	 * @param timeDelta
+	 * @param differentiator
+	 * @param data
+	 * @param stepHint
+	 * @return
+	 */
+	private Vector getVelocityAfterTime(Vector position, Vector velocity,
+			double pressure, double timeDelta, Differentiator differentiator,
+			Data data, Vector stepHint) {
+		double u = getValueAfterTime(position, velocity, pressure, Direction.X,
+				timeDelta, differentiator, data, stepHint);
+		double v = getValueAfterTime(position, velocity, pressure, Direction.Y,
+				timeDelta, differentiator, data, stepHint);
+		double w = getValueAfterTime(position, velocity, pressure, Direction.Z,
+				timeDelta, differentiator, data, stepHint);
+		return new Vector(u, v, w);
+	}
+
+	/**
+	 * Returns the value of the Gradient operator at the given position. See <a
+	 * href="http://en.wikipedia.org/wiki/Del">here</a>.
+	 * 
+	 * @param position
+	 * @param velocity
+	 * @param differentiator
+	 * @param data
+	 * @param stepHint
+	 * @return
+	 */
 	private static Vector gradient(Vector position, Vector velocity,
 			Differentiator differentiator, Data data, Vector stepHint) {
 		// differentiate element wrt all directions x,y,z
@@ -144,22 +246,21 @@ public class NavierStokesSolver {
 		return new Vector(list);
 	}
 
-	private static double div(Vector position, Vector velocity,
+	/**
+	 * Returns the value of the Divergence operator at the given position. See
+	 * <a href="http://en.wikipedia.org/wiki/Del">here</a>.
+	 * 
+	 * @param position
+	 * @param velocity
+	 * @param differentiator
+	 * @param data
+	 * @param stepHint
+	 * @return
+	 */
+	private static double divergence(Vector position, Vector velocity,
 			Differentiator differentiator, Data data, Vector stepHint) {
 		Vector gradient = gradient(position, velocity, differentiator, data,
 				stepHint);
 		return gradient.x + gradient.y + gradient.z;
-	}
-
-	private Vector getVelocityInTime(Vector position, Vector velocity,
-			double pressure, double timeDelta, Differentiator differentiator,
-			Data data, Vector stepHint) {
-		double u = getValueInTime(position, velocity, pressure, Direction.X,
-				timeDelta, differentiator, data, stepHint);
-		double v = getValueInTime(position, velocity, pressure, Direction.Y,
-				timeDelta, differentiator, data, stepHint);
-		double w = getValueInTime(position, velocity, pressure, Direction.Z,
-				timeDelta, differentiator, data, stepHint);
-		return new Vector(u, v, w);
 	}
 }
