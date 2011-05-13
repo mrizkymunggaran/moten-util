@@ -4,4 +4,12 @@
   <artifactId>physics</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <name>${project.artifactId}</name>
+  <dependencies>
+  	<dependency>
+  		<groupId>junit</groupId>
+  		<artifactId>junit</artifactId>
+  		<version>4.8.2</version>
+  		<scope>test</scope>
+  	</dependency>
+  </dependencies>
 </project>
