@@ -8,8 +8,6 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-import org.moten.david.util.math.Vector;
-
 public class VisualizerPanel extends JPanel {
 
 	private final VisualizerData data;
@@ -42,8 +40,6 @@ public class VisualizerPanel extends JPanel {
 	}
 
 	public static void main(String[] args) {
-		Vector v1 = new Vector(1, 1, 1);
-		Vector v2 = new Vector(1, 1, 1);
 		VisualizerPanel p = new VisualizerPanel(new VisualizerData() {
 			@Override
 			public float getValue(float x, float y) {
