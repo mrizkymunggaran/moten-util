@@ -40,11 +40,6 @@ public class DataOverride implements Data {
 	}
 
 	@Override
-	public Data copy() {
-		return data.copy();
-	}
-
-	@Override
 	public Iterable<Pair<Vector, Value>> getValues() {
 		return data.getValues();
 	}
