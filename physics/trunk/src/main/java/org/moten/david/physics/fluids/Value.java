@@ -20,4 +20,8 @@ public class Value {
 	public final double density;
 	public final double viscosity;
 
+	public boolean isWall() {
+		return pressure == 0;
+	}
+
 }

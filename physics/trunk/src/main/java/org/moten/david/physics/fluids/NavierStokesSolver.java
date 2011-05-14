@@ -102,7 +102,6 @@ public class NavierStokesSolver {
 	 */
 	private Value getValueAfterTime(Data data, Vector position, double timeDelta) {
 		Value value0 = data.getValue(position);
-		Vector v0 = value0.velocity;
 		double p0 = value0.pressure;
 
 		Vector v1 = getVelocityAfterTime(data, position, timeDelta);
@@ -120,7 +119,7 @@ public class NavierStokesSolver {
 				precision, MAX_NEWTONS_ITERATIONS);
 		if (pressure == null)
 			pressure = p0;
-
+		// TODO calculate new ssh?
 		return new Value(v1, pressure, value0.depth, value0.density,
 				value0.viscosity);
 	}

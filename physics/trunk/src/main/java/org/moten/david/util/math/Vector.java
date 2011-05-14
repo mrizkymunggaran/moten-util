@@ -4,20 +4,6 @@ import java.util.List;
 
 public class Vector {
 
-	public static enum Direction {
-		X(1), Y(2), Z(3);
-
-		private int number;
-
-		private Direction(int number) {
-			this.number = number;
-		}
-
-		public int getNumber() {
-			return number;
-		}
-	}
-
 	public double x;
 	public double y;
 	public double z;
