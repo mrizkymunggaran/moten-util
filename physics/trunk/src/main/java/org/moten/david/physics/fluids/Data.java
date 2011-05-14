@@ -1,8 +1,8 @@
 package org.moten.david.physics.fluids;
 
-import org.moten.david.util.math.Function;
+import org.moten.david.util.math.Matrix;
+import org.moten.david.util.math.Pair;
 import org.moten.david.util.math.Vector;
-import org.moten.david.util.math.Vector.Direction;
 
 /**
  * Returns data access functions about a specific region.
@@ -12,49 +12,18 @@ import org.moten.david.util.math.Vector.Direction;
  */
 public interface Data {
 
-	/**
-	 * Returns density function in SI units.
-	 * 
-	 * @return
-	 */
-	Function<Vector, Double> getDensity();
+	Value getValue(Vector position);
 
-	/**
-	 * Returns u, v, w functions for Direction X,Y,Z.
-	 * 
-	 * @param type
-	 * @return
-	 */
-	Function<Vector, Double> getField(Direction direction);
+	Vector getPressureGradient(Vector position);
 
-	/**
-	 * Return the velocity field.
-	 * 
-	 * @return
-	 */
-	Function<Vector, Vector> getVelocityField();
+	Matrix getVelocityJacobian(Vector position);
 
-	/**
-	 * Returns pressure function in SI units.
-	 * 
-	 * @return
-	 */
-	Function<Vector, Double> getPressure();
+	Vector getVelocityLaplacian(Vector position);
 
-	/**
-	 * Returns {@link WallFinder} for the given direction. Pressure should use
-	 * the wallFinder for {@link Direction}.Z.
-	 * 
-	 * @param direction
-	 * @return
-	 */
-	WallFinder getWallFinder(Direction direction);
+	Data copy();
 
-	/**
-	 * Returns the dynamic viscosity in SI units.
-	 * 
-	 * @return
-	 */
-	Function<Vector, Double> getDynamicViscosity();
+	void setValue(Vector position, Value value);
+
+	Iterable<Pair<Vector, Value>> getValues();
 
 }
