@@ -110,4 +110,8 @@ public class Vector {
 	public double dot(Vector v) {
 		return x * v.x + y * v.y + z * v.z;
 	}
+
+	public static Vector vector(double x, double y, double z) {
+		return new Vector(x, y, z);
+	}
 }

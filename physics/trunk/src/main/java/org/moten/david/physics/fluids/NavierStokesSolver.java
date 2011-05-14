@@ -1,5 +1,7 @@
 package org.moten.david.physics.fluids;
 
+import static org.moten.david.util.math.Vector.vector;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,8 +21,8 @@ import org.moten.david.util.math.Vector;
 public class NavierStokesSolver {
 
 	private static final long MAX_NEWTONS_ITERATIONS = 20;
-	private static Vector g = new Vector(0, 0, -9.8); // in metres/second
-														// squared
+	private static Vector g = vector(0, 0, -9.8); // in metres/second
+													// squared
 
 	/**
 	 * Returns a copy of {@link Data} after timeDelta.
@@ -82,7 +84,14 @@ public class NavierStokesSolver {
 	}
 
 	/**
-	 * Calculate velocity and pressure after timeDelta has passed.
+	 * Returns velocity and pressure after timeDelta has passed. Obtains an
+	 * initial estimate of velocity by solving the Navier-Stokes momentum
+	 * equation. Then solves the continuity equation for a value of pressure
+	 * which is then used to calculate the velocity and iterates similarly till
+	 * the Continuity equation is satisfied to an acceptable degree of
+	 * precision. See <a
+	 * href="http://en.wikipedia.org/wiki/Pressure-correction_method">here</a>
+	 * for details of the pressure correction method.
 	 * 
 	 * @param position
 	 * @param timeDelta
@@ -98,18 +107,11 @@ public class NavierStokesSolver {
 
 		Vector v1 = getVelocityAfterTime(data, position, timeDelta);
 		// if stopped now then continuity (conservation of mass) equation might
-		// not be satisfied.
-		//
-		// Perform pressure correction as per
-		// http://en.wikipedia.org/wiki/Pressure-correction_method
-		//
-		// i.e. solve f = 0Value for pressure p where f is defined:
-		//
-		// Take the value of velocity v1 just created and find pressure s.t
-		// du/dx + dv/dy + dw/dz = 0
+		// not be satisfied. Perform pressure correction:
 		Function<Double, Double> f = createContinuityFunction(data, position,
 				v1, timeDelta);
 
+		// solve f = 0 for pressure p where f is defined:
 		// TODO best value for precision?
 		double precision = 0.001;
 		// TODO best value for step size?
