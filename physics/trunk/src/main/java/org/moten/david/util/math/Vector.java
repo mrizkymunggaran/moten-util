@@ -22,6 +22,38 @@ public class Vector {
 	public double y;
 	public double z;
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		long temp;
+		temp = Double.doubleToLongBits(x);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		temp = Double.doubleToLongBits(y);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		temp = Double.doubleToLongBits(z);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Vector other = (Vector) obj;
+		if (Double.doubleToLongBits(x) != Double.doubleToLongBits(other.x))
+			return false;
+		if (Double.doubleToLongBits(y) != Double.doubleToLongBits(other.y))
+			return false;
+		if (Double.doubleToLongBits(z) != Double.doubleToLongBits(other.z))
+			return false;
+		return true;
+	}
+
 	public Vector(double x, double y, double z) {
 		super();
 		this.x = x;
@@ -57,5 +89,25 @@ public class Vector {
 			return new Vector(x, y, value);
 		else
 			throw new RuntimeException("unhandled Direction: " + direction);
+	}
+
+	public Vector add(Vector v) {
+		return new Vector(x + v.x, y + v.y, z + v.z);
+	}
+
+	public Vector minus(Vector v) {
+		return new Vector(x - v.x, y - v.y, z - v.z);
+	}
+
+	public Vector multiply(double scalar) {
+		return new Vector(x * scalar, y * scalar, z * scalar);
+	}
+
+	public Vector divide(double scalar) {
+		return new Vector(x / scalar, y / scalar, z / scalar);
+	}
+
+	public double dot(Vector v) {
+		return x * v.x + y * v.y + z * v.z;
 	}
 }

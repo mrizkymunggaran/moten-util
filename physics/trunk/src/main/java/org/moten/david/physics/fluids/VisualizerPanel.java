@@ -43,7 +43,8 @@ public class VisualizerPanel extends JPanel {
 		VisualizerPanel p = new VisualizerPanel(new VisualizerData() {
 			@Override
 			public float getValue(float x, float y) {
-				return x * y;
+				return (float) (Math.sin(4 * Math.PI * x) + Math.cos(4
+						* Math.PI * y + Math.PI / 4));
 			}
 		});
 		final JFrame frame = new JFrame("Data Visualizer");

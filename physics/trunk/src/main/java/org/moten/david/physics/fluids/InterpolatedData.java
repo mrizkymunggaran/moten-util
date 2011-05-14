@@ -2,11 +2,9 @@ package org.moten.david.physics.fluids;
 
 import java.util.List;
 
-import org.moten.david.util.math.Function;
 import org.moten.david.util.math.Vector;
-import org.moten.david.util.math.Vector.Direction;
 
-public class InterpolatedData extends AbstractData {
+public abstract class InterpolatedData extends AbstractData {
 
 	private final List<Value> values;
 	private final Value min;
@@ -23,6 +21,9 @@ public class InterpolatedData extends AbstractData {
 		Double v = null;
 		Double w = null;
 		Double p = null;
+		Double depth = null;
+		Double density = null;
+		Double viscosity = null;
 		int sign;
 		if (minimum)
 			sign = -1;
@@ -37,38 +38,15 @@ public class InterpolatedData extends AbstractData {
 				w = value.velocity.z;
 			if (p == null || Math.signum(value.pressure - p) == sign)
 				p = value.pressure;
+			if (depth == null || Math.signum(value.depth - depth) == sign)
+				depth = value.depth;
+			if (density == null || Math.signum(value.density - density) == sign)
+				density = value.density;
+			if (viscosity == null
+					|| Math.signum(value.viscosity - viscosity) == sign)
+				viscosity = value.viscosity;
 		}
-		return new Value(new Vector(u, v, w), p);
-	}
-
-	@Override
-	public Function<Vector, Double> getField(Direction direction) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Function<Vector, Double> getPressure() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public WallFinder getWallFinder(Direction direction) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Function<Vector, Double> getDensity() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Function<Vector, Double> getDynamicViscosity() {
-		// TODO Auto-generated method stub
-		return null;
+		return new Value(new Vector(u, v, w), p, depth, density, viscosity);
 	}
 
 }
