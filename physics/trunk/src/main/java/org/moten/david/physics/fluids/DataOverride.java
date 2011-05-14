@@ -45,11 +45,6 @@ public class DataOverride implements Data {
 	}
 
 	@Override
-	public void setValue(Vector position, Value value) {
-		data.setValue(position, value);
-	}
-
-	@Override
 	public Iterable<Pair<Vector, Value>> getValues() {
 		return data.getValues();
 	}

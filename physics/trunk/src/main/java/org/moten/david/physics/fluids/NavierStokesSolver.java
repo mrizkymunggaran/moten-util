@@ -1,5 +1,8 @@
 package org.moten.david.physics.fluids;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.moten.david.util.math.Function;
 import org.moten.david.util.math.NewtonsMethodSolver;
 import org.moten.david.util.math.Pair;
@@ -27,12 +30,13 @@ public class NavierStokesSolver {
 	 * @return
 	 */
 	public Data getDataAfterTime(Data data, double timeDelta) {
-		Data data2 = data.copy();
+		List<Pair<Vector, Value>> list = new ArrayList<Pair<Vector, Value>>();
 		for (Pair<Vector, Value> pair : data.getValues()) {
 			Value value = getValueAfterTime(data, pair.getA(), timeDelta);
-			data2.setValue(pair.getA(), value);
+			list.add(new Pair<Vector, Value>(pair.getA(), value));
 		}
-		return data2;
+		// TODO create new Data from list
+		return null;
 	}
 
 	/**
