@@ -22,8 +22,6 @@ public interface Data {
 
 	Data copy();
 
-	void setValue(Vector position, Value value);
-
 	Iterable<Pair<Vector, Value>> getValues();
 
 }
