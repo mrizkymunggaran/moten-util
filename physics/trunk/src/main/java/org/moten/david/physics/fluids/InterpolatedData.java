@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.moten.david.util.math.Vector;
 
-public abstract class InterpolatedData extends AbstractData {
+public abstract class InterpolatedData implements Data {
 
 	private final List<Value> values;
 	private final Value min;
