@@ -20,4 +20,8 @@ public class Matrix {
 		return row1.x + row2.y + row3.z;
 	}
 
+	public Vector sumColumnVectors() {
+		return row1.add(row2).add(row3);
+	}
+
 }
