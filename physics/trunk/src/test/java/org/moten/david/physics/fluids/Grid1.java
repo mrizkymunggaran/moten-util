@@ -9,26 +9,26 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.moten.david.physics.fluids.Grid;
+import org.moten.david.physics.fluids.Value;
 import org.moten.david.util.math.Direction;
 import org.moten.david.util.math.Pair;
 import org.moten.david.util.math.Vector;
 
 public class Grid1 implements Grid<Value> {
 
-	private final Value[] values;
-
-	public Grid1(Value... values) {
-		this.values = values;
-		map.put(vector(0, 0, 0), values[0]);
-		map.put(vector(-1, 0, 0), values[1]);
-		map.put(vector(1, 0, 0), values[2]);
-		map.put(vector(0, -1, 0), values[3]);
-		map.put(vector(0, 1, 0), values[4]);
-		map.put(vector(0, 0, -1), values[5]);
-		map.put(vector(0, 0, 1), values[6]);
-	}
-
 	private final Map<Vector, Value> map = new HashMap<Vector, Value>();
+
+	public Grid1(Value v, Value x1, Value x2, Value y1, Value y2, Value z1,
+			Value z2) {
+		map.put(vector(0, 0, 0), v);
+		map.put(vector(-1, 0, 0), x1);
+		map.put(vector(1, 0, 0), x2);
+		map.put(vector(0, -1, 0), y1);
+		map.put(vector(0, 1, 0), y2);
+		map.put(vector(0, 0, -1), z1);
+		map.put(vector(0, 0, 1), z2);
+	}
 
 	@Override
 	public Value get(Vector position) {
