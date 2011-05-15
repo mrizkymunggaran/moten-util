@@ -16,6 +16,11 @@ public class GridData implements Data {
 		return grid.get(position);
 	}
 
+	@Override
+	public Iterable<Pair<Vector, Value>> entries() {
+		return grid.entries();
+	}
+
 	private Vector getNeighbour(Vector position, Direction direction,
 			boolean positive) {
 		return grid.getNeighbour(position, direction, positive);
@@ -124,12 +129,6 @@ public class GridData implements Data {
 		Vector dvdz = getVelocity2ndDerivative(position, Direction.Z);
 		Matrix m = new Matrix(dvdx, dvdy, dvdz);
 		return m.sumColumnVectors();
-	}
-
-	@Override
-	public Iterable<Pair<Vector, Value>> getValues() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 }

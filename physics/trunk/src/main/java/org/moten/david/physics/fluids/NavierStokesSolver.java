@@ -33,7 +33,7 @@ public class NavierStokesSolver {
 	 */
 	public Data getDataAfterTime(Data data, double timeDelta) {
 		List<Pair<Vector, Value>> list = new ArrayList<Pair<Vector, Value>>();
-		for (Pair<Vector, Value> pair : data.getValues()) {
+		for (Pair<Vector, Value> pair : data.entries()) {
 			Value value = getValueAfterTime(data, pair.getA(), timeDelta);
 			list.add(new Pair<Vector, Value>(pair.getA(), value));
 		}
@@ -119,7 +119,6 @@ public class NavierStokesSolver {
 				precision, MAX_NEWTONS_ITERATIONS);
 		if (pressure == null)
 			pressure = p0;
-		// TODO calculate new ssh?
 		return new Value(v1, pressure, value0.depth, value0.density,
 				value0.viscosity);
 	}
