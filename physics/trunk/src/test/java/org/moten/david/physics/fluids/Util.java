@@ -2,7 +2,8 @@ package org.moten.david.physics.fluids;
 
 import org.moten.david.util.math.Vector;
 
-public class Testing {
+public class Util {
+
 	public static Value val(double xSpeed, double ySpeed, double zSpeed,
 			double pressure) {
 		Value value = new Value(new Vector(xSpeed, ySpeed, zSpeed), pressure,

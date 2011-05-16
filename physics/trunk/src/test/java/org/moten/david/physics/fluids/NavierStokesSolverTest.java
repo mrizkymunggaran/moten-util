@@ -1,6 +1,6 @@
 package org.moten.david.physics.fluids;
 
-import static org.moten.david.physics.fluids.Testing.val;
+import static org.moten.david.physics.fluids.Util.val;
 
 import org.junit.Test;
 import org.moten.david.util.math.Vector;

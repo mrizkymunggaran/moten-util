@@ -1,7 +1,7 @@
 package org.moten.david.physics.fluids;
 
 import static org.junit.Assert.assertEquals;
-import static org.moten.david.physics.fluids.Testing.val;
+import static org.moten.david.physics.fluids.Util.val;
 import static org.moten.david.util.math.Direction.X;
 import static org.moten.david.util.math.Direction.Y;
 import static org.moten.david.util.math.Direction.Z;
@@ -81,6 +81,9 @@ public class GridDataTest {
 				val(200, 200, 200), val(1000, 1100, 1200),
 				val(2000, 2000, 2000)));
 		Vector v = data.getVelocityLaplacian(origin);
+		assertEquals(-126.75, v.x, PRECISION);
+		assertEquals(82.5, v.y, PRECISION);
+		assertEquals(2175, v.z, PRECISION);
 		System.out.println("laplacian=" + v);
 	}
 
