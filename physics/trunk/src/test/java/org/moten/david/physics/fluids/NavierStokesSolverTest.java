@@ -7,12 +7,15 @@ import org.moten.david.util.math.Vector;
 
 public class NavierStokesSolverTest {
 
+	private static Vector origin = new Vector(0, 0, 0);
+
 	@Test
 	public void test1() {
 		NavierStokesSolver s = new NavierStokesSolver();
 		Data data = new GridData(new Grid1(val(1000), val(1000), val(1000),
 				val(1000), val(1000), val(1000), val(1000)));
-		Value val = s.getValueAfterTime(data, new Vector(0, 0, 0), 30 * 60);
+		System.out.println("laplacian=" + data.getVelocityLaplacian(origin));
+		Value val = s.getValueAfterTime(data, origin, 30 * 60);
 		System.out.println(val);
 	}
 

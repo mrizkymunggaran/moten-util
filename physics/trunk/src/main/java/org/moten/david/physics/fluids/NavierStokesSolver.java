@@ -84,7 +84,7 @@ public class NavierStokesSolver {
 			double timeDelta) {
 		Vector dVdt = getVelocityDerivativeWithTime(data, position);
 		Value value = data.getValue(position);
-		return value.velocity.add(dVdt.multiply(timeDelta)).add(value.velocity);
+		return value.velocity.add(dVdt.multiply(timeDelta));
 	}
 
 	/**
