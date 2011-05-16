@@ -100,7 +100,7 @@ public class NavierStokesSolver {
 	 * @param stepHint
 	 * @return
 	 */
-	private Value getValueAfterTime(Data data, Vector position, double timeDelta) {
+	Value getValueAfterTime(Data data, Vector position, double timeDelta) {
 		Value value0 = data.getValue(position);
 		double p0 = value0.pressure;
 
