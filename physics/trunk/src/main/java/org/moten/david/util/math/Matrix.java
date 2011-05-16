@@ -24,4 +24,9 @@ public class Matrix {
 		return row1.add(row2).add(row3);
 	}
 
+	@Override
+	public String toString() {
+		return "[" + row1 + ",\n" + row2 + "\n," + row3 + "]";
+	}
+
 }

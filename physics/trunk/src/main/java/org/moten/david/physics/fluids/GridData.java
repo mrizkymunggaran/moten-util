@@ -2,12 +2,16 @@ package org.moten.david.physics.fluids;
 
 import static org.moten.david.util.math.Vector.vector;
 
+import java.util.logging.Logger;
+
 import org.moten.david.util.math.Direction;
 import org.moten.david.util.math.Matrix;
 import org.moten.david.util.math.Pair;
 import org.moten.david.util.math.Vector;
 
 public class GridData implements Data {
+
+	private static Logger log = Logger.getLogger(GridData.class.getName());
 
 	public GridData(Grid<Value> grid) {
 		this.grid = grid;
@@ -33,6 +37,15 @@ public class GridData implements Data {
 	private static class Neighbours {
 		Vector x1, x2, y1, y2, z1, z2;
 		public Value valueX1, valueX2, valueY1, valueY2, valueZ1, valueZ2;
+
+		@Override
+		public String toString() {
+			return "Neighbours [x1=" + x1 + ", x2=" + x2 + ", y1=" + y1
+					+ ", y2=" + y2 + ", z1=" + z1 + ", z2=" + z2 + ", valueX1="
+					+ valueX1 + ", valueX2=" + valueX2 + ", valueY1=" + valueY1
+					+ ", valueY2=" + valueY2 + ", valueZ1=" + valueZ1
+					+ ", valueZ2=" + valueZ2 + "]";
+		}
 	}
 
 	private Neighbours getNeighbours(Vector position, Value wallValue) {
@@ -59,9 +72,9 @@ public class GridData implements Data {
 		double gradX = (n.valueX2.pressure - n.valueX1.pressure)
 				/ (n.x2.x - n.x1.x);
 		double gradY = (n.valueY2.pressure - n.valueY1.pressure)
-				/ (n.x2.y - n.x1.y);
+				/ (n.y2.y - n.y1.y);
 		double gradZ = (n.valueZ2.pressure - n.valueZ1.pressure)
-				/ (n.z2.x - n.z1.x);
+				/ (n.z2.z - n.z1.z);
 		return vector(gradX, gradY, gradZ);
 	}
 
@@ -90,9 +103,9 @@ public class GridData implements Data {
 		double gradX = (n.valueX2.velocity.get(direction) - n.valueX1.velocity
 				.get(direction)) / (n.x2.x - n.x1.x);
 		double gradY = (n.valueY2.velocity.get(direction) - n.valueY1.velocity
-				.get(direction)) / (n.x2.y - n.x1.y);
+				.get(direction)) / (n.y2.y - n.y1.y);
 		double gradZ = (n.valueZ2.velocity.get(direction) - n.valueZ1.velocity
-				.get(direction)) / (n.z2.x - n.z1.x);
+				.get(direction)) / (n.z2.z - n.z1.z);
 		return vector(gradX, gradY, gradZ);
 	}
 
@@ -110,16 +123,16 @@ public class GridData implements Data {
 		Value wallValue = new Value(new Vector(0, 0, 0), value.pressure,
 				value.depth, value.density, value.viscosity);
 		Neighbours n = getNeighbours(position, wallValue);
-		double gradX = (n.valueX2.velocity.get(direction)
+		double d2X = (n.valueX2.velocity.get(direction)
 				+ n.valueX1.velocity.get(direction) - 2 * value.velocity
 				.get(direction)) / sqr(n.x2.x - n.x1.x);
-		double gradY = (n.valueY2.velocity.get(direction)
+		double d2Y = (n.valueY2.velocity.get(direction)
 				+ n.valueY1.velocity.get(direction) - 2 * value.velocity
-				.get(direction)) / sqr(n.y2.x - n.y1.x);
-		double gradZ = (n.valueZ2.velocity.get(direction)
+				.get(direction)) / sqr(n.y2.y - n.y1.y);
+		double d2Z = (n.valueZ2.velocity.get(direction)
 				+ n.valueZ1.velocity.get(direction) - 2 * value.velocity
-				.get(direction)) / sqr(n.z2.x - n.z1.x);
-		return vector(gradX, gradY, gradZ);
+				.get(direction)) / sqr(n.z2.z - n.z1.z);
+		return vector(d2X, d2Y, d2Z);
 	}
 
 	private static double sqr(double d) {

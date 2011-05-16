@@ -4,6 +4,11 @@ import java.util.List;
 
 public class Vector {
 
+	@Override
+	public String toString() {
+		return "Vector [x=" + x + ", y=" + y + ", z=" + z + "]";
+	}
+
 	public double x;
 	public double y;
 	public double z;
@@ -90,6 +95,8 @@ public class Vector {
 	}
 
 	public Vector divide(double scalar) {
+		if (scalar == 0)
+			throw new RuntimeException("division by zero");
 		return new Vector(x / scalar, y / scalar, z / scalar);
 	}
 
@@ -98,6 +105,15 @@ public class Vector {
 	}
 
 	public static Vector vector(double x, double y, double z) {
+		if (Double.isNaN(x))
+			throw new RuntimeException(
+					"NaN cannot be a parameter to a Vector - x");
+		if (Double.isNaN(y))
+			throw new RuntimeException(
+					"NaN cannot be a parameter to a Vector - y");
+		if (Double.isNaN(z))
+			throw new RuntimeException(
+					"NaN cannot be a parameter to a Vector - z");
 		return new Vector(x, y, z);
 	}
 }

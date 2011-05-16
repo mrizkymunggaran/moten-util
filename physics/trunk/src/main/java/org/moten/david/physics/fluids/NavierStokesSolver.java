@@ -4,6 +4,7 @@ import static org.moten.david.util.math.Vector.vector;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import org.moten.david.util.math.Function;
 import org.moten.david.util.math.NewtonsMethodSolver;
@@ -19,6 +20,9 @@ import org.moten.david.util.math.Vector;
  * 
  */
 public class NavierStokesSolver {
+
+	private static Logger log = Logger.getLogger(NavierStokesSolver.class
+			.getName());
 
 	private static final long MAX_NEWTONS_ITERATIONS = 20;
 	private static Vector g = vector(0, 0, -9.8); // in metres/second
@@ -101,10 +105,13 @@ public class NavierStokesSolver {
 	 * @return
 	 */
 	Value getValueAfterTime(Data data, Vector position, double timeDelta) {
+		log.info("getting value after time");
 		Value value0 = data.getValue(position);
 		double p0 = value0.pressure;
 
 		Vector v1 = getVelocityAfterTime(data, position, timeDelta);
+		log.info("first guess velocity=" + v1);
+
 		// if stopped now then continuity (conservation of mass) equation might
 		// not be satisfied. Perform pressure correction:
 		Function<Double, Double> f = createContinuityFunction(data, position,
