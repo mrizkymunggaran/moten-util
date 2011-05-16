@@ -20,7 +20,7 @@ public class NavierStokesSolverTest {
 		System.out.println("laplacian=" + data.getVelocityLaplacian(origin));
 		Value val = s.getValueAfterTime(data, origin, 60);
 		long t = System.currentTimeMillis();
-		long N = 100000;
+		long N = 1000;
 		for (int i = 0; i < N; i++) {
 			s.getValueAfterTime(data, origin, 60);
 		}
