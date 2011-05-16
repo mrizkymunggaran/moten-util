@@ -9,7 +9,11 @@ import org.moten.david.util.math.Vector;
 
 public class GridData implements Data {
 
-	private Grid<Value> grid;
+	public GridData(Grid<Value> grid) {
+		this.grid = grid;
+	}
+
+	private final Grid<Value> grid;
 
 	@Override
 	public Value getValue(Vector position) {
