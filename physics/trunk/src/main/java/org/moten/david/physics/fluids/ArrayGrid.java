@@ -3,6 +3,7 @@ package org.moten.david.physics.fluids;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.moten.david.util.math.Direction;
 import org.moten.david.util.math.Pair;
@@ -21,8 +22,21 @@ public class ArrayGrid implements Grid<Value> {
 
 	private void prepareNeighbours() {
 		for (Entry<Vector, Value> entry : map.entrySet()) {
-			// brute force
+			// brute force?
+			for (Direction direction : Direction.values()) {
+				Vector closestPositive = getClosest(map.entrySet(), entry,
+						direction, true);
+				Vector closestNegative = getClosest(map.entrySet(), entry,
+						direction, false);
+				// TODO
+			}
 		}
+	}
+
+	private Vector getClosest(Set<Entry<Vector, Value>> entrySet,
+			Entry<Vector, Value> entry, Direction direction, boolean b) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	@Override
