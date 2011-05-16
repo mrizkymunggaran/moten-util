@@ -118,7 +118,7 @@ public class GridData implements Data {
 		return m;
 	}
 
-	private Vector getVelocity2ndDerivative(Vector position, Direction direction) {
+	Vector getVelocity2ndDerivative(Vector position, Direction direction) {
 		Value value = getValue(position);
 		Value wallValue = new Value(new Vector(0, 0, 0), value.pressure,
 				value.depth, value.density, value.viscosity);
