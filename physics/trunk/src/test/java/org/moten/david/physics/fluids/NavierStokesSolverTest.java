@@ -2,6 +2,9 @@ package org.moten.david.physics.fluids;
 
 import static org.junit.Assert.assertEquals;
 import static org.moten.david.physics.fluids.Util.val;
+import static org.moten.david.util.math.Vector.vector;
+
+import java.util.HashMap;
 
 import org.junit.Test;
 import org.moten.david.util.math.Vector;
@@ -21,9 +24,9 @@ public class NavierStokesSolverTest {
 		Value val = s.getValueAfterTime(data, origin, 60);
 		long t = System.currentTimeMillis();
 		long N = 1000;
-		for (int i = 0; i < N; i++) {
-			s.getValueAfterTime(data, origin, 60);
-		}
+		// for (int i = 0; i < N; i++) {
+		// s.getValueAfterTime(data, origin, 60);
+		// }
 		t = System.currentTimeMillis() - t;
 		System.out.println(val);
 		assertEquals(1200, val.pressure, PRECISION);
@@ -33,4 +36,26 @@ public class NavierStokesSolverTest {
 		System.out.println(N + " calcs in " + t / 1000.0 + "s");
 	}
 
+	@Test
+	public void test2() {
+		NavierStokesSolver s = new NavierStokesSolver();
+		HashMap<Vector, Value> map = new HashMap<Vector, Value>();
+		final int N = 5;
+		for (int i = 1; i <= N; i++)
+			for (int j = 1; j <= N; j++)
+				for (int k = 1; k <= N; k++)
+					map.put(vector(i, j, k),
+							val(0,
+									0,
+									0,
+									1000 * (k + Math.sin(i / N * 2 * Math.PI)) * 9.8));
+		Grid<Value> arrayGrid = new ArrayGrid(map);
+		Data data = new GridData(arrayGrid);
+		for (int i = 1; i <= N; i++)
+			for (int j = 1; j <= N; j++)
+				for (int k = 1; k <= N; k++) {
+					Value val = s.getValueAfterTime(data, vector(i, j, k), 60);
+					System.out.println(i + "," + j + "," + k);
+				}
+	}
 }
