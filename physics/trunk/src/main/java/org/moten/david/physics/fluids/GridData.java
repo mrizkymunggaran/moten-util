@@ -48,7 +48,10 @@ public class GridData implements Data {
 		}
 	}
 
-	private Neighbours getNeighbours(Vector position, Value wallValue) {
+	private Neighbours getNeighbours(Vector position, Value value) {
+		Value wallValue = new Value(new Vector(0, 0, 0), value.pressure,
+				value.depth, value.density, value.viscosity);
+
 		Neighbours n = new Neighbours();
 		n.x1 = getNeighbour(position, Direction.X, false);
 		n.x2 = getNeighbour(position, Direction.X, true);
@@ -56,21 +59,25 @@ public class GridData implements Data {
 		n.y2 = getNeighbour(position, Direction.Y, true);
 		n.z1 = getNeighbour(position, Direction.Z, false);
 		n.z2 = getNeighbour(position, Direction.Z, true);
+		Value wallValueZ1 = new Value(new Vector(0, 0, 0), value.pressure
+				+ value.density * (position.z - n.z1.z), value.depth,
+				value.density, value.viscosity);
+		Value wallValueZ2 = new Value(new Vector(0, 0, 0), value.pressure
+				- value.density * (n.z2.z - position.z), value.depth,
+				value.density, value.viscosity);
 		n.valueX1 = getValue(n.x1, wallValue);
 		n.valueX2 = getValue(n.x2, wallValue);
 		n.valueY1 = getValue(n.y1, wallValue);
 		n.valueY2 = getValue(n.y2, wallValue);
-		n.valueZ1 = getValue(n.z1, wallValue);
-		n.valueZ2 = getValue(n.z2, wallValue);
+		n.valueZ1 = getValue(n.z1, wallValueZ1);
+		n.valueZ2 = getValue(n.z2, wallValueZ2);
 		return n;
 	}
 
 	@Override
 	public Vector getPressureGradient(Vector position) {
 		Value value = getValue(position);
-		Value wallValue = new Value(Vector.ORIGIN, value.pressure, value.depth,
-				value.density, value.viscosity);
-		Neighbours n = getNeighbours(position, wallValue);
+		Neighbours n = getNeighbours(position, value);
 		double gradX = (n.valueX2.pressure - n.valueX1.pressure)
 				/ (n.x2.x - n.x1.x);
 		double gradY = (n.valueY2.pressure - n.valueY1.pressure)
@@ -99,9 +106,8 @@ public class GridData implements Data {
 
 	private Vector getVelocityDerivative(Vector position, Direction direction) {
 		Value value = getValue(position);
-		Value wallValue = new Value(new Vector(0, 0, 0), value.pressure,
-				value.depth, value.density, value.viscosity);
-		Neighbours n = getNeighbours(position, wallValue);
+
+		Neighbours n = getNeighbours(position, value);
 		double gradX = (n.valueX2.velocity.get(direction) - n.valueX1.velocity
 				.get(direction)) / (n.x2.x - n.x1.x);
 		double gradY = (n.valueY2.velocity.get(direction) - n.valueY1.velocity
