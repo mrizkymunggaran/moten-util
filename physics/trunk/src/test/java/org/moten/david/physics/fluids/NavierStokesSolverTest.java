@@ -43,19 +43,21 @@ public class NavierStokesSolverTest {
 		final int N = 5;
 		for (int i = 1; i <= N; i++)
 			for (int j = 1; j <= N; j++)
-				for (int k = 1; k <= N; k++)
-					map.put(vector(i, j, k),
-							val(0,
-									0,
-									0,
-									1000 * (k + Math.sin(i / N * 2 * Math.PI)) * 9.8));
+				for (int k = 1; k <= N; k++) {
+					double pressure = 1000 * k * 9.8;
+					if (i == N || i == 1 || j == 1 || j == N || k == 1
+							|| k == N)
+						pressure = 0;
+					map.put(vector(i, j, -k), val(0, 0, 0, pressure));
+				}
 		Grid<Value> arrayGrid = new ArrayGrid(map);
 		Data data = new GridData(arrayGrid);
 		for (int i = 1; i <= N; i++)
 			for (int j = 1; j <= N; j++)
 				for (int k = 1; k <= N; k++) {
-					Value val = s.getValueAfterTime(data, vector(i, j, k), 60);
-					System.out.println(i + "," + j + "," + k);
+					Vector v = vector(i, j, -k);
+					Value val = s.getValueAfterTime(data, v, 1);
+					System.out.println(i + "," + j + "," + -k + ": " + val);
 				}
 	}
 }
