@@ -18,6 +18,10 @@ public class Triple<S, T, U> {
 		this.value3 = value3;
 	}
 
+	public static <A, B, C> Triple<A, B, C> triple(A a, B b, C c) {
+		return new Triple<A, B, C>(a, b, c);
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
