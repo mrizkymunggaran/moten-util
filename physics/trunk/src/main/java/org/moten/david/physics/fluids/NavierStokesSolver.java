@@ -46,7 +46,9 @@ public class NavierStokesSolver {
 	}
 
 	/**
-	 * Returns the derivative of the velocity vector with time.
+	 * Returns the derivative of the velocity vector with time. See <a
+	 * href="http://en.wikipedia.org/wiki/Navier%E2%80%93Stokes_equations"
+	 * >wikipedia article</a>.
 	 * 
 	 * @param data
 	 * @param position
@@ -79,12 +81,11 @@ public class NavierStokesSolver {
 	 * @param stepHint
 	 * @return
 	 */
-
 	private Vector getVelocityAfterTime(Data data, Vector position,
 			double timeDelta) {
-		Vector dVdt = getVelocityDerivativeWithTime(data, position);
+		Vector dvdt = getVelocityDerivativeWithTime(data, position);
 		Value value = data.getValue(position);
-		return value.velocity.add(dVdt.multiply(timeDelta));
+		return value.velocity.add(dvdt.multiply(timeDelta));
 	}
 
 	/**
@@ -105,8 +106,12 @@ public class NavierStokesSolver {
 	 * @return
 	 */
 	Value getValueAfterTime(Data data, Vector position, double timeDelta) {
+
 		log.info("getting value after time");
 		Value value0 = data.getValue(position);
+		if (value0.isWall())
+			return value0;
+
 		log.info("initial value:" + value0);
 		double p0 = value0.pressure;
 

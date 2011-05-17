@@ -7,7 +7,7 @@ public class Util {
 	public static Value val(double xSpeed, double ySpeed, double zSpeed,
 			double pressure) {
 		Value value = new Value(new Vector(xSpeed, ySpeed, zSpeed), pressure,
-				-10, 1000.0, 0.00188);
+				-10, 1000.0, 0.00108);
 		return value;
 	}
 

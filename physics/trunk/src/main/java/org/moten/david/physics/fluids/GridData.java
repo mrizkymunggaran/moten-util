@@ -68,7 +68,9 @@ public class GridData implements Data {
 	@Override
 	public Vector getPressureGradient(Vector position) {
 		Value value = getValue(position);
-		Neighbours n = getNeighbours(position, value);
+		Value wallValue = new Value(Vector.ORIGIN, value.pressure, value.depth,
+				value.density, value.viscosity);
+		Neighbours n = getNeighbours(position, wallValue);
 		double gradX = (n.valueX2.pressure - n.valueX1.pressure)
 				/ (n.x2.x - n.x1.x);
 		double gradY = (n.valueY2.pressure - n.valueY1.pressure)
@@ -86,11 +88,12 @@ public class GridData implements Data {
 	 * @param defaultPressure
 	 * @return
 	 */
-	private Value getValue(Vector position, Value nullValue) {
-		if (position == null)
-			return nullValue;
+	private Value getValue(Vector position, Value wallValue) {
+		Value value = getValue(position);
+		if (value.isWall())
+			return wallValue;
 		else
-			return getValue(position);
+			return value;
 	}
 
 	private Vector getVelocityDerivative(Vector position, Direction direction) {
