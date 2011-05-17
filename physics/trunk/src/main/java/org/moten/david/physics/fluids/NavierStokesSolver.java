@@ -25,7 +25,7 @@ public class NavierStokesSolver {
 			.getName());
 
 	private static final long MAX_NEWTONS_ITERATIONS = 20;
-	private static Vector g = vector(0, 0, -9.8); // in metres/second
+	private static Vector g = vector(0, 0, 9.8); // in metres/second
 													// squared
 
 	/**
