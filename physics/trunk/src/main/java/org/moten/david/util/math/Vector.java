@@ -104,6 +104,8 @@ public class Vector {
 		return x * v.x + y * v.y + z * v.z;
 	}
 
+	public static Vector ORIGIN = new Vector(0, 0, 0);
+
 	public static Vector vector(double x, double y, double z) {
 		if (Double.isNaN(x))
 			throw new RuntimeException(
