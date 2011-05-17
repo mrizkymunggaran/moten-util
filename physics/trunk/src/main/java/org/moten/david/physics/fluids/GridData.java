@@ -77,7 +77,10 @@ public class GridData implements Data {
 				/ (n.y2.y - n.y1.y);
 		double gradZ = (n.valueZ2.pressure - n.valueZ1.pressure)
 				/ (n.z2.z - n.z1.z);
-		return vector(gradX, gradY, gradZ);
+		Vector result = vector(gradX, gradY, gradZ);
+		log.info("pressure gradient:" + result + "," + n.valueZ2.pressure + ","
+				+ n.valueZ1.pressure);
+		return result;
 	}
 
 	/**
