@@ -107,6 +107,7 @@ public class NavierStokesSolver {
 	Value getValueAfterTime(Data data, Vector position, double timeDelta) {
 		log.info("getting value after time");
 		Value value0 = data.getValue(position);
+		log.info("initial value:" + value0);
 		double p0 = value0.pressure;
 
 		Vector v1 = getVelocityAfterTime(data, position, timeDelta);
