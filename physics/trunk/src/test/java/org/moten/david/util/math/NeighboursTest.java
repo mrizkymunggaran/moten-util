@@ -1,4 +1,4 @@
-package org.moten.david.math;
+package org.moten.david.util.math;
 
 import static org.junit.Assert.assertEquals;
 import static org.moten.david.util.math.Vector.vector;
@@ -11,10 +11,6 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.junit.Test;
-import org.moten.david.util.math.Direction;
-import org.moten.david.util.math.Neighbours;
-import org.moten.david.util.math.Triple;
-import org.moten.david.util.math.Vector;
 
 public class NeighboursTest {
 
