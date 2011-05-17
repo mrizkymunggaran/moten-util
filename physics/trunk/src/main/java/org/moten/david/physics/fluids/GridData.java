@@ -79,20 +79,18 @@ public class GridData implements Data {
 	}
 
 	/**
-	 * Returns <code>wallValue</code> if there is a wall at
-	 * <code>position</code>. Otherwise returns {@link Value} at
-	 * <code>position</code>.
+	 * Returns <code>nullValue</code> if <code>position</code> is null.
+	 * Otherwise returns {@link Value} at <code>position</code>.
 	 * 
 	 * @param position
 	 * @param defaultPressure
 	 * @return
 	 */
-	private Value getValue(Vector position, Value wallValue) {
-		Value value = getValue(position);
-		if (value.isWall())
-			return wallValue;
+	private Value getValue(Vector position, Value nullValue) {
+		if (position == null)
+			return nullValue;
 		else
-			return value;
+			return getValue(position);
 	}
 
 	private Vector getVelocityDerivative(Vector position, Direction direction) {
