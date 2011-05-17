@@ -1,10 +1,8 @@
-package org.moten.david.math;
+package org.moten.david.util.math;
 
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
-import org.moten.david.util.math.Function;
-import org.moten.david.util.math.NewtonsMethodSolver;
 
 public class NewtonsMethodSolverTest {
 
