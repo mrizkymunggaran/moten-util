@@ -62,7 +62,7 @@ public class NavierStokesSolverTest {
 			for (int j = 1; j <= n; j++)
 				for (int k = 0; k <= n; k++) {
 					double pressure = 1000.0 * k * 9.8;
-					if ((i == 3 && j == 3) || (i == 2 && j == 2))
+					if ((i == 3 && j == 3) || (i == 2 && j == 3))
 						pressure += 1000;
 					if (i == n || i == 1 || j == 1 || j == n || k == 0
 							|| k == n)
@@ -109,7 +109,9 @@ public class NavierStokesSolverTest {
 			log.info("vector=" + vector);
 			log.info("value=" + data.getValue(vector));
 			Value val = s.getValueAfterTime(data, vector, elapsedTime);
-			assertEquals(0, val.velocity.x, 0.0001);
+			assertEquals(30.0, val.velocity.x, 0.01);
+			val = s.getValueAfterTime(data, vector(2, 3, -3), elapsedTime);
+			assertEquals(20, val.velocity.x, 0.01);
 		}
 		for (Pair<Vector, Value> pair : data.getEntries())
 			log.info(pair.getA() + "->" + pair.getB());
