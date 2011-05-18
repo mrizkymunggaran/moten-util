@@ -56,6 +56,22 @@ public class NavierStokesSolverTest {
 		return map;
 	}
 
+	private Map<Vector, Value> createMap2(int n) {
+		Map<Vector, Value> map = new HashMap<Vector, Value>();
+		for (int i = 1; i <= n; i++)
+			for (int j = 1; j <= n; j++)
+				for (int k = 0; k <= n; k++) {
+					double pressure = 1000.0 * k * 9.8;
+					if ((i == 3 && j == 3) || (i == 2 && j == 2))
+						pressure += 1000;
+					if (i == n || i == 1 || j == 1 || j == n || k == 0
+							|| k == n)
+						pressure = 0;
+					map.put(vector(i, j, -k), val(0, 0, 0, pressure));
+				}
+		return map;
+	}
+
 	@Test
 	public void testZeroAnomalousPressureAndVelocityStaysThatWayAfterTime() {
 		NavierStokesSolver s = new NavierStokesSolver();
@@ -84,27 +100,15 @@ public class NavierStokesSolverTest {
 	public void testZeroAnomalousPressureAndOneCellWithXVelocityHasAnEffectAfterTime() {
 		NavierStokesSolver s = new NavierStokesSolver();
 		final int N = 5;
-		Map<Vector, Value> map = createMap(N);
+		Map<Vector, Value> map = createMap2(N);
 		Grid<Value> arrayGrid = new ArrayGrid(map);
 		Data data = new GridData(arrayGrid);
-
-		// Give just one cell some X velocity
-		Vector v = vector(3, 3, -3);
-		double vPressure = data.getValue(v).pressure;
-
-		// modify map and recreate data
-		map.put(v, val(1, 0, 0, vPressure));
-		data = new GridData(new ArrayGrid(map));
-
+		Vector vector = new Vector(3, 3, -3);
 		double elapsedTime = 60;// second
 		{
-			Vector vector = arrayGrid.getNeighbour(v, Direction.X, false);
-			assertEquals(vPressure, data.getValue(v).pressure, 0.01);
 			log.info("vector=" + vector);
 			log.info("value=" + data.getValue(vector));
 			Value val = s.getValueAfterTime(data, vector, elapsedTime);
-			assertEquals(0, val.velocity.x, 0.0001);
-			val = s.getValueAfterTime(data, v, elapsedTime);
 			assertEquals(0, val.velocity.x, 0.0001);
 		}
 		for (Pair<Vector, Value> pair : data.getEntries())
