@@ -39,7 +39,7 @@ public class NavierStokesSolver {
 	 */
 	public Data getDataAfterTime(Data data, double timeDelta) {
 		List<Pair<Vector, Value>> list = new ArrayList<Pair<Vector, Value>>();
-		for (Pair<Vector, Value> pair : data.entries()) {
+		for (Pair<Vector, Value> pair : data.getEntries()) {
 			Value value = getValueAfterTime(data, pair.getA(), timeDelta);
 			list.add(new Pair<Vector, Value>(pair.getA(), value));
 		}

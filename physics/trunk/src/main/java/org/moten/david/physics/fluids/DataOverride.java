@@ -40,7 +40,7 @@ public class DataOverride implements Data {
 	}
 
 	@Override
-	public Iterable<Pair<Vector, Value>> entries() {
-		return data.entries();
+	public Iterable<Pair<Vector, Value>> getEntries() {
+		return data.getEntries();
 	}
 }
