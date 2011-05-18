@@ -59,11 +59,13 @@ public class GridData implements Data {
 		n.y2 = getNeighbour(position, Direction.Y, true);
 		n.z1 = getNeighbour(position, Direction.Z, false);
 		n.z2 = getNeighbour(position, Direction.Z, true);
-		Value wallValueZ1 = new Value(new Vector(0, 0, 0), value.pressure
-				+ value.density * (position.z - n.z1.z), value.depth,
+		Value wallValueZ1 = new Value(Vector.ORIGIN, value.pressure
+				+ value.density * Constants.FORCE_OF_GRAVITY
+				* (position.z - n.z1.z), value.depth + (position.z - n.z1.z),
 				value.density, value.viscosity);
-		Value wallValueZ2 = new Value(new Vector(0, 0, 0), value.pressure
-				- value.density * (n.z2.z - position.z), value.depth,
+		Value wallValueZ2 = new Value(Vector.ORIGIN, value.pressure
+				- value.density * Constants.FORCE_OF_GRAVITY
+				* (n.z2.z - position.z), value.depth + (n.z2.z - position.z),
 				value.density, value.viscosity);
 		n.valueX1 = getValue(n.x1, wallValue);
 		n.valueX2 = getValue(n.x2, wallValue);
@@ -76,6 +78,8 @@ public class GridData implements Data {
 
 	@Override
 	public Vector getPressureGradient(Vector position) {
+		if (position.equals(vector(4, 4, -4)))
+			System.out.println("debug point");
 		Value value = getValue(position);
 		Neighbours n = getNeighbours(position, value);
 		double gradX = (n.valueX2.pressure - n.valueX1.pressure)

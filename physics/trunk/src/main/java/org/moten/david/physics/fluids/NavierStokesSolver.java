@@ -1,12 +1,11 @@
 package org.moten.david.physics.fluids;
 
-import static org.moten.david.util.math.Vector.vector;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
 import org.moten.david.util.math.Function;
+import org.moten.david.util.math.Matrix;
 import org.moten.david.util.math.NewtonsMethodSolver;
 import org.moten.david.util.math.Pair;
 import org.moten.david.util.math.Vector;
@@ -25,8 +24,11 @@ public class NavierStokesSolver {
 			.getName());
 
 	private static final long MAX_NEWTONS_ITERATIONS = 20;
-	private static Vector g = vector(0, 0, -9.8); // in metres/second
-													// squared
+
+	// in
+	// metres/second
+
+	// squared
 
 	/**
 	 * Returns a copy of {@link Data} after timeDelta.
@@ -56,14 +58,14 @@ public class NavierStokesSolver {
 	 */
 	private Vector getVelocityDerivativeWithTime(Data data, Vector position) {
 		Value value = data.getValue(position);
-		return data
-				.getVelocityLaplacian(position)
-				.multiply(value.viscosity)
-				.minus(data.getPressureGradient(position))
-				.divide(value.density)
-				.add(g)
-				.minus(data.getVelocityJacobian(position).multiply(
-						value.velocity));
+		Vector velocityLaplacian = data.getVelocityLaplacian(position);
+		Vector pressureGradient = data.getPressureGradient(position);
+		Matrix velocityJacobian = data.getVelocityJacobian(position);
+		// From Navier-Stokes conservation of momentum equation
+		return velocityLaplacian.multiply(value.viscosity)
+				.minus(pressureGradient).divide(value.density)
+				.add(Constants.gravity)
+				.minus(velocityJacobian.multiply(value.velocity));
 	}
 
 	/**
@@ -107,22 +109,22 @@ public class NavierStokesSolver {
 	 */
 	Value getValueAfterTime(Data data, Vector position, double timeDelta) {
 
-		log.info("getting value after time");
+		log.fine("getting value after time=" + timeDelta);
 		Value value0 = data.getValue(position);
 		if (value0.isWall())
 			return value0;
 
-		log.info("initial value:" + value0);
-		double p0 = value0.pressure;
+		log.fine("initial value:" + value0);
 
 		Vector v1 = getVelocityAfterTime(data, position, timeDelta);
-		log.info("first guess velocity=" + v1);
+		log.fine("first guess velocity=" + v1);
 
 		// if stopped now then continuity (conservation of mass) equation might
 		// not be satisfied. Perform pressure correction:
 		Function<Double, Double> f = createContinuityFunction(data, position,
 				v1, timeDelta);
 
+		double p0 = value0.pressure;
 		// solve f = 0 for pressure p where f is defined:
 		// TODO best value for precision?
 		double precision = 0.001;
@@ -132,8 +134,10 @@ public class NavierStokesSolver {
 				precision, MAX_NEWTONS_ITERATIONS);
 		if (pressure == null)
 			pressure = p0;
-		return new Value(v1, pressure, value0.depth, value0.density,
+		Value result = new Value(v1, pressure, value0.depth, value0.density,
 				value0.viscosity);
+		log.fine("returning value=" + result);
+		return result;
 	}
 
 	/**
