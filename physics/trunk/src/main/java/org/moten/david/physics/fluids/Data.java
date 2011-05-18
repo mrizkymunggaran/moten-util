@@ -20,6 +20,6 @@ public interface Data {
 
 	Vector getVelocityLaplacian(Vector position);
 
-	Iterable<Pair<Vector, Value>> entries();
+	Iterable<Pair<Vector, Value>> getEntries();
 
 }

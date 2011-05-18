@@ -25,7 +25,7 @@ public class GridData implements Data {
 	}
 
 	@Override
-	public Iterable<Pair<Vector, Value>> entries() {
+	public Iterable<Pair<Vector, Value>> getEntries() {
 		return grid.entries();
 	}
 
