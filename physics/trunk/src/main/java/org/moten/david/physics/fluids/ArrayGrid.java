@@ -33,7 +33,7 @@ public class ArrayGrid implements Grid<Value> {
 	public Value get(Vector position) {
 		Value result = map.get(position);
 		if (result == null)
-			throw new RuntimeException("position not found!");
+			throw new RuntimeException("position not found: " + position);
 		return result;
 	}
 
