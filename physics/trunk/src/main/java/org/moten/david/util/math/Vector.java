@@ -129,4 +129,12 @@ public class Vector implements Comparable<Vector> {
 			return c;
 		return Double.compare(z, v.z);
 	}
+
+	public Vector divide(Vector v) {
+		return vector(x / v.x, y / v.y, z / v.z);
+	}
+
+	public double sum() {
+		return x + y + z;
+	}
 }

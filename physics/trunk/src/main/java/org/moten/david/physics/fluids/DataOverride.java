@@ -43,4 +43,10 @@ public class DataOverride implements Data {
 	public Iterable<Pair<Vector, Value>> getEntries() {
 		return data.getEntries();
 	}
+
+	@Override
+	public double getPressureCorrectiveFunction(Vector position) {
+		return data.getPressureCorrectiveFunction(position);
+	}
+
 }

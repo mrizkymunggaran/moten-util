@@ -139,7 +139,16 @@ public class NavierStokesSolver {
 				precision, MAX_NEWTONS_ITERATIONS);
 		if (pressure == null)
 			pressure = p0;
-		Value result = new Value(v1, pressure, value0.depth, value0.density,
+
+		// substitute the pressure back into the conservation of momentum eqn to
+		// solve for velocity again
+		Value v = data.getValue(position);
+		Value valueNext = new Value(v.velocity, pressure, v.depth, v.density,
+				v.viscosity);
+		Data data2 = new DataOverride(data, position, valueNext);
+		Vector v2 = getVelocityAfterTime(data2, position, timeDelta);
+
+		Value result = new Value(v2, pressure, value0.depth, value0.density,
 				value0.viscosity);
 		log.fine("returning value=" + result);
 		return result;
@@ -167,8 +176,8 @@ public class NavierStokesSolver {
 				Value v = data.getValue(position);
 				Value valueNext = new Value(velocityNext, v.pressure, v.depth,
 						v.density, v.viscosity);
-				return divergence(new DataOverride(data, position, valueNext),
-						position);
+				Data data2 = new DataOverride(data, position, valueNext);
+				return data2.getPressureCorrectiveFunction(position);
 			}
 		};
 	}
@@ -187,4 +196,5 @@ public class NavierStokesSolver {
 	private static double divergence(Data data, Vector position) {
 		return data.getVelocityJacobian(position).diagonalSum();
 	}
+
 }

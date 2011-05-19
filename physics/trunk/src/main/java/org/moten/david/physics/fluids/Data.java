@@ -22,4 +22,6 @@ public interface Data {
 
 	Iterable<Pair<Vector, Value>> getEntries();
 
+	double getPressureCorrectiveFunction(Vector position);
+
 }
