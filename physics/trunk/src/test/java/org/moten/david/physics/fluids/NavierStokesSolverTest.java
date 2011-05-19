@@ -6,6 +6,7 @@ import static org.moten.david.util.math.Vector.vector;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.logging.Logger;
 
 import org.junit.Test;
@@ -73,7 +74,7 @@ public class NavierStokesSolverTest {
 	}
 
 	private Map<Vector, Value> createMap3(int n) {
-		Map<Vector, Value> map = new HashMap<Vector, Value>();
+		Map<Vector, Value> map = new TreeMap<Vector, Value>();
 		for (int i = 1; i <= n; i++)
 			for (int j = 1; j <= n; j++)
 				for (int k = 0; k <= n; k++) {
