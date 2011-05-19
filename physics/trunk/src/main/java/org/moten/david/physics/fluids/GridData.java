@@ -182,17 +182,20 @@ public class GridData implements Data {
 		Neighbours n = getNeighbours(position, wallValue);
 		double pressureLaplacian = getPressureLaplacian(position);
 
-		Vector resultX = f(n.x1, n.x2, n.valueX1.velocity, n.valueX2.velocity);
-		Vector resultY = f(n.y1, n.y2, n.valueY1.velocity, n.valueY2.velocity);
-		Vector resultZ = f(n.z1, n.z2, n.valueZ1.velocity, n.valueZ2.velocity);
-
-		return pressureLaplacian + resultX.add(resultY).add(resultZ).sum();
+		double resultX = f(n.x1, n.x2, n.valueX1.velocity, n.valueX2.velocity,
+				Direction.X);
+		double resultY = f(n.y1, n.y2, n.valueY1.velocity, n.valueY2.velocity,
+				Direction.Y);
+		double resultZ = f(n.z1, n.z2, n.valueZ1.velocity, n.valueZ2.velocity,
+				Direction.Z);
+		return pressureLaplacian + resultX + resultY + resultZ;
 	}
 
-	private Vector f(Vector v1, Vector v2, Vector velocity1, Vector velocity2) {
-		Vector f2 = getVelocityJacobian(v2).multiply(velocity2);
-		Vector f1 = getVelocityJacobian(v1).multiply(velocity1);
-		Vector result = f2.minus(f1).divide(v2.minus(v1));
+	private double f(Vector v1, Vector v2, Vector velocity1, Vector velocity2,
+			Direction direction) {
+		double f2 = getVelocityJacobian(v2).multiply(velocity2).get(direction);
+		double f1 = getVelocityJacobian(v1).multiply(velocity1).get(direction);
+		double result = (f2 - f1) / (v2.get(direction) - v1.get(direction));
 		return result;
 	}
 
