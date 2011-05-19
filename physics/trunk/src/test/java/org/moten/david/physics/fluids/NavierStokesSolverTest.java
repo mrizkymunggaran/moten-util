@@ -63,7 +63,24 @@ public class NavierStokesSolverTest {
 				for (int k = 0; k <= n; k++) {
 					double pressure = 1000.0 * k * 9.8;
 					if ((i == 3 && j == 3) || (i == 2 && j == 3))
-						pressure += 1000;
+						pressure += 1000.5;
+					if (i == n || i == 1 || j == 1 || j == n || k == 0
+							|| k == n)
+						pressure = 0;
+					map.put(vector(i, j, -k), val(0, 0, 0, pressure));
+				}
+		return map;
+	}
+
+	private Map<Vector, Value> createMap3(int n) {
+		Map<Vector, Value> map = new HashMap<Vector, Value>();
+		for (int i = 1; i <= n; i++)
+			for (int j = 1; j <= n; j++)
+				for (int k = 0; k <= n; k++) {
+					double pressure = 1000.0 * k * 9.8;
+					if ((i >= 3 && i <= 5 && j >= 3 && j <= 5))
+						pressure += 100.5;// 10cm of anomalous sea surface
+											// height
 					if (i == n || i == 1 || j == 1 || j == n || k == 0
 							|| k == n)
 						pressure = 0;
@@ -93,7 +110,7 @@ public class NavierStokesSolverTest {
 			assertEquals(0, val.velocity.z, 0.0001);
 		}
 		for (Pair<Vector, Value> pair : data.getEntries())
-			log.info(pair.getA() + "->" + pair.getB());
+			log.info(pair.get1() + "->" + pair.get2());
 	}
 
 	@Test
@@ -109,11 +126,48 @@ public class NavierStokesSolverTest {
 			log.info("vector=" + vector);
 			log.info("value=" + data.getValue(vector));
 			Value val = s.getValueAfterTime(data, vector, elapsedTime);
-			assertEquals(30.0, val.velocity.x, 0.01);
+			assertEquals(30.015, val.velocity.x, 0.01);
 			val = s.getValueAfterTime(data, vector(2, 3, -3), elapsedTime);
-			assertEquals(20, val.velocity.x, 0.01);
+			assertEquals(0, val.velocity.x, 0.01);
 		}
-		for (Pair<Vector, Value> pair : data.getEntries())
-			log.info(pair.getA() + "->" + pair.getB());
+		log.info("\n" + toString(data, true));
+
+	}
+
+	@Test
+	public void testRun() {
+		NavierStokesSolver s = new NavierStokesSolver();
+		final int N = 10;
+		Map<Vector, Value> map = createMap3(N);
+		Grid<Value> arrayGrid = new ArrayGrid(map);
+		Data data = new GridData(arrayGrid);
+		double timeStep = 1;// second
+		int numSteps = 25;
+		Run run = new Run(data, timeStep, numSteps, createDataLogger());
+		run.start();
+	}
+
+	private RunListener createDataLogger() {
+		return new RunListener() {
+
+			@Override
+			public void stepFinished(Data data) {
+				log.info("\n------------------------------------------------------------------------\n"
+						+ NavierStokesSolverTest.toString(data, true));
+			}
+		};
+	}
+
+	private static String toString(Data data, boolean trimZeroPressure) {
+		StringBuilder s = new StringBuilder();
+		for (Pair<Vector, Value> pair : data.getEntries()) {
+			if (!trimZeroPressure || pair.get2().pressure != 0) {
+				s.append(pair.get1());
+				s.append("->");
+				s.append(pair.get2());
+				s.append('\n');
+			}
+		}
+		return s.toString();
 	}
 }

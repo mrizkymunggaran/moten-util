@@ -10,5 +10,5 @@ public interface Grid<T> {
 
 	Vector getNeighbour(Vector position, Direction direction, boolean positive);
 
-	Iterable<Pair<Vector, Value>> entries();
+	Iterable<Pair<Vector, Value>> getEntries();
 }

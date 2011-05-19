@@ -45,7 +45,7 @@ public class ArrayGrid implements Grid<Value> {
 	}
 
 	@Override
-	public Iterable<Pair<Vector, Value>> entries() {
+	public Iterable<Pair<Vector, Value>> getEntries() {
 		return new Iterable<Pair<Vector, Value>>() {
 
 			@Override

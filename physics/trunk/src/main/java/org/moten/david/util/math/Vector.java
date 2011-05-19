@@ -2,7 +2,7 @@ package org.moten.david.util.math;
 
 import java.util.List;
 
-public class Vector {
+public class Vector implements Comparable<Vector> {
 
 	@Override
 	public String toString() {
@@ -117,5 +117,16 @@ public class Vector {
 			throw new RuntimeException(
 					"NaN cannot be a parameter to a Vector - z");
 		return new Vector(x, y, z);
+	}
+
+	@Override
+	public int compareTo(Vector v) {
+		int c = Double.compare(x, v.x);
+		if (c != 0)
+			return c;
+		c = Double.compare(y, v.y);
+		if (c != 0)
+			return c;
+		return Double.compare(z, v.z);
 	}
 }
