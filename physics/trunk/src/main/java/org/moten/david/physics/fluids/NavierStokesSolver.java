@@ -1,9 +1,9 @@
 package org.moten.david.physics.fluids;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.logging.Logger;
 
 import org.moten.david.util.math.Function;
@@ -41,7 +41,7 @@ public class NavierStokesSolver {
 	 */
 	public Data getDataAfterTime(Data data, double timeDelta) {
 		List<Pair<Vector, Value>> list = new ArrayList<Pair<Vector, Value>>();
-		Map<Vector, Value> map = new HashMap<Vector, Value>();
+		Map<Vector, Value> map = new TreeMap<Vector, Value>();
 		for (Pair<Vector, Value> pair : data.getEntries()) {
 			Value value = getValueAfterTime(data, pair.get1(), timeDelta);
 			list.add(new Pair<Vector, Value>(pair.get1(), value));
