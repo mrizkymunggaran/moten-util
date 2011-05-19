@@ -78,8 +78,6 @@ public class GridData implements Data {
 
 	@Override
 	public Vector getPressureGradient(Vector position) {
-		if (position.equals(vector(2, 3, -3)))
-			System.out.println("debug point");
 		Value value = getValue(position);
 		Neighbours n = getNeighbours(position, value);
 		double gradX = (n.valueX2.pressure - n.valueX1.pressure)
@@ -147,6 +145,20 @@ public class GridData implements Data {
 		return vector(d2X, d2Y, d2Z);
 	}
 
+	private Vector getPressure2ndDerivative(Vector position) {
+		Value value = getValue(position);
+		Value wallValue = new Value(new Vector(0, 0, 0), value.pressure,
+				value.depth, value.density, value.viscosity);
+		Neighbours n = getNeighbours(position, wallValue);
+		double d2X = (n.valueX2.pressure + n.valueX1.pressure - 2 * value.pressure)
+				/ sqr(n.x2.x - n.x1.x);
+		double d2Y = (n.valueY2.pressure + n.valueY1.pressure - 2 * value.pressure)
+				/ sqr(n.y2.y - n.y1.y);
+		double d2Z = (n.valueZ2.pressure + n.valueZ1.pressure - 2 * value.pressure)
+				/ sqr(n.z2.z - n.z1.z);
+		return vector(d2X, d2Y, d2Z);
+	}
+
 	private static double sqr(double d) {
 		return d * d;
 	}
@@ -158,6 +170,35 @@ public class GridData implements Data {
 		Vector dvdz = getVelocity2ndDerivative(position, Direction.Z);
 		Matrix m = new Matrix(dvdx, dvdy, dvdz);
 		return m.sumColumnVectors();
+	}
+
+	@Override
+	public double getPressureCorrectiveFunction(Vector position) {
+		// solve del2 p + del.(v.del)v=0
+		// i.e del2 p + div (J(v)v) = 0
+		Value value = getValue(position);
+		Value wallValue = new Value(new Vector(0, 0, 0), value.pressure,
+				value.depth, value.density, value.viscosity);
+		Neighbours n = getNeighbours(position, wallValue);
+		double pressureLaplacian = getPressureLaplacian(position);
+
+		Vector resultX = f(n.x1, n.x2, n.valueX1.velocity, n.valueX2.velocity);
+		Vector resultY = f(n.y1, n.y2, n.valueY1.velocity, n.valueY2.velocity);
+		Vector resultZ = f(n.z1, n.z2, n.valueZ1.velocity, n.valueZ2.velocity);
+
+		return pressureLaplacian + resultX.add(resultY).add(resultZ).sum();
+	}
+
+	private Vector f(Vector v1, Vector v2, Vector velocity1, Vector velocity2) {
+		Vector f2 = getVelocityJacobian(v2).multiply(velocity2);
+		Vector f1 = getVelocityJacobian(v1).multiply(velocity1);
+		Vector result = f2.minus(f1).divide(v2.minus(v1));
+		return result;
+	}
+
+	private double getPressureLaplacian(Vector position) {
+		Vector d = getPressure2ndDerivative(position);
+		return d.sum();
 	}
 
 }

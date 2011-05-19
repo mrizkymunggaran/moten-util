@@ -21,16 +21,18 @@ public class NewtonsMethodSolver {
 			double h, double precision, long maxIterations) {
 		// perform maxIterations iterations of Newton's method
 		double x = xInitial;
-		for (int i = 1; i <= maxIterations; i++) {
-			double derivative = (f.apply(x + h) - f.apply(x)) / h;
+		double fx = f.apply(x);
+		int i = 1;
+		while (i <= maxIterations && Math.abs(fx) > precision) {
+			double derivative = (f.apply(x + h) - fx) / h;
 			if (derivative == 0)
 				return null;
 			// Newton's method
-			x = x - f.apply(x) / derivative;
-			if (Math.abs(f.apply(x)) <= precision)
-				return x;
+			x = x - fx / derivative;
+			fx = f.apply(x);
+			i++;
 		}
-		if (Math.abs(f.apply(x)) <= precision)
+		if (Math.abs(fx) <= precision)
 			return x;
 		else
 			// not found
