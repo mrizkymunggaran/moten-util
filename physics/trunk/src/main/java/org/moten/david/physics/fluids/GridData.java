@@ -26,7 +26,7 @@ public class GridData implements Data {
 
 	@Override
 	public Iterable<Pair<Vector, Value>> getEntries() {
-		return grid.entries();
+		return grid.getEntries();
 	}
 
 	private Vector getNeighbour(Vector position, Direction direction,
@@ -78,7 +78,7 @@ public class GridData implements Data {
 
 	@Override
 	public Vector getPressureGradient(Vector position) {
-		if (position.equals(vector(4, 4, -4)))
+		if (position.equals(vector(2, 3, -3)))
 			System.out.println("debug point");
 		Value value = getValue(position);
 		Neighbours n = getNeighbours(position, value);
