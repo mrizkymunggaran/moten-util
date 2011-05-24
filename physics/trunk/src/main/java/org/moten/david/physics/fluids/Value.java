@@ -19,6 +19,7 @@ public class Value {
 		this.depth = depth;
 		this.density = density;
 		this.viscosity = viscosity;
+		this.isBoundary = false;
 	}
 
 	public Vector velocity;
@@ -26,9 +27,14 @@ public class Value {
 	public double depth;
 	public final double density;
 	public final double viscosity;
+	private final boolean isBoundary;
 
 	public boolean isWall() {
 		return pressure == 0;
+	}
+
+	public boolean isBoundary() {
+		return isBoundary;
 	}
 
 	@Override
