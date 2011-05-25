@@ -84,4 +84,14 @@ public class Value {
 		return true;
 	}
 
+	public Value copy() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public void setBoundary(boolean b) {
+		// TODO Auto-generated method stub
+
+	}
+
 }
