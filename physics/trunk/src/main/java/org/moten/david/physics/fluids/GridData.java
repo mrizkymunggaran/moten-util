@@ -100,7 +100,7 @@ public class GridData implements Data {
 	 */
 	private Value getValue(Vector position, Value wallValue) {
 		Value value = getValue(position);
-		if (value.isWall())
+		if (value == null || value.isWall())
 			return wallValue;
 		else
 			return value;
@@ -109,7 +109,7 @@ public class GridData implements Data {
 	private Vector getVelocityDerivative(Vector position, Direction direction) {
 		Value value = getValue(position);
 		Vector result;
-		if (value.isBoundary())
+		if (value == null || value.isBoundary())
 			// boundary decision on the velocity derivative
 			result = vector(0, 0, 0);
 		else {
