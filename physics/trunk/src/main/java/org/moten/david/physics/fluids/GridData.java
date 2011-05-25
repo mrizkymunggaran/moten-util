@@ -108,15 +108,21 @@ public class GridData implements Data {
 
 	private Vector getVelocityDerivative(Vector position, Direction direction) {
 		Value value = getValue(position);
-
-		Neighbours n = getNeighbours(position, value);
-		double gradX = (n.valueX2.velocity.get(direction) - n.valueX1.velocity
-				.get(direction)) / (n.x2.x - n.x1.x);
-		double gradY = (n.valueY2.velocity.get(direction) - n.valueY1.velocity
-				.get(direction)) / (n.y2.y - n.y1.y);
-		double gradZ = (n.valueZ2.velocity.get(direction) - n.valueZ1.velocity
-				.get(direction)) / (n.z2.z - n.z1.z);
-		return vector(gradX, gradY, gradZ);
+		Vector result;
+		if (value.isBoundary())
+			// boundary decision on the velocity derivative
+			result = vector(0, 0, 0);
+		else {
+			Neighbours n = getNeighbours(position, value);
+			double gradX = (n.valueX2.velocity.get(direction) - n.valueX1.velocity
+					.get(direction)) / (n.x2.x - n.x1.x);
+			double gradY = (n.valueY2.velocity.get(direction) - n.valueY1.velocity
+					.get(direction)) / (n.y2.y - n.y1.y);
+			double gradZ = (n.valueZ2.velocity.get(direction) - n.valueZ1.velocity
+					.get(direction)) / (n.z2.z - n.z1.z);
+			result = vector(gradX, gradY, gradZ);
+		}
+		return result;
 	}
 
 	@Override

@@ -1,8 +1,12 @@
 package org.moten.david.physics.fluids;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.moten.david.util.math.Direction;
 import org.moten.david.util.math.Neighbours;
@@ -25,8 +29,24 @@ public class ArrayGrid implements Grid<Value> {
 	 * @param map
 	 */
 	public ArrayGrid(Map<Vector, Value> map) {
-		this.map = map;
+		// make a defensive copy because we are going to modify it
+		this.map = new HashMap<Vector, Value>(map);
 		this.n = Neighbours.findNeighbours(map.keySet());
+
+		HashMap<Vector, TreeSet<Double>> lookups = Neighbours.getLookups(map
+				.keySet());
+		Set<Vector> boundary = new HashSet<Vector>();
+		for (Vector vector : lookups.keySet()) {
+			for (Direction d : Direction.values())
+				if (Double.isInfinite(vector.get(d))) {
+					TreeSet<Double> values = lookups.get(vector);
+					boundary.add(vector.modify(d, values.first()));
+					boundary.add(vector.modify(d, values.last()));
+				}
+		}
+		for (Vector vector : boundary) {
+			map.get(vector).copy().setBoundary(true);
+		}
 	}
 
 	@Override
