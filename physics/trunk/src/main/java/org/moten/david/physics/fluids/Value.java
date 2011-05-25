@@ -13,13 +13,7 @@ public class Value {
 
 	public Value(Vector velocity, double pressure, double depth,
 			double density, double viscosity) {
-		super();
-		this.velocity = velocity;
-		this.pressure = pressure;
-		this.depth = depth;
-		this.density = density;
-		this.viscosity = viscosity;
-		this.isBoundary = false;
+		this(velocity, pressure, depth, density, viscosity, false, false);
 	}
 
 	public Vector velocity;
@@ -27,7 +21,20 @@ public class Value {
 	public double depth;
 	public final double density;
 	public final double viscosity;
-	private final boolean isBoundary;
+	private boolean isBoundary;
+	private final boolean isWall;
+
+	public Value(Vector velocity, double pressure, double depth,
+			double density, double viscosity, boolean isBoundary, boolean isWall) {
+		super();
+		this.velocity = velocity;
+		this.pressure = pressure;
+		this.depth = depth;
+		this.density = density;
+		this.viscosity = viscosity;
+		this.isBoundary = isBoundary;
+		this.isWall = isWall;
+	}
 
 	public boolean isWall() {
 		return pressure == 0;
@@ -85,13 +92,12 @@ public class Value {
 	}
 
 	public Value copy() {
-		// TODO Auto-generated method stub
-		return null;
+		return new Value(velocity, pressure, depth, density, viscosity,
+				isBoundary, isWall);
 	}
 
 	public void setBoundary(boolean b) {
-		// TODO Auto-generated method stub
-
+		this.isBoundary = b;
 	}
 
 }

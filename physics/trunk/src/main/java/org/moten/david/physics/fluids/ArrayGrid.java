@@ -45,15 +45,13 @@ public class ArrayGrid implements Grid<Value> {
 				}
 		}
 		for (Vector vector : boundary) {
-			map.get(vector).copy().setBoundary(true);
+			this.map.get(vector).copy().setBoundary(true);
 		}
 	}
 
 	@Override
 	public Value get(Vector position) {
 		Value result = map.get(position);
-		if (result == null)
-			throw new RuntimeException("position not found: " + position);
 		return result;
 	}
 
