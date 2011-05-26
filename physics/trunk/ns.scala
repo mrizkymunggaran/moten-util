@@ -31,7 +31,9 @@ case class Value (
 case class Entry (position:Vector, value:Value)
 
 trait Data {
-  def value(vector:Vector)
+  def pressure:Vector=>Double = {v:Vector=>value(v).pressure} 
+  def velocity:Vector=>Vector = {v:Vector=>value(v).velocity}
+  def value(vector:Vector):Value
   def gradient(f:Vector=>Double, position:Vector):Vector
   def gradient2nd(f:Vector=>Double, position:Vector):Vector
   def laplacian(f:Vector=>Double, position:Vector)
