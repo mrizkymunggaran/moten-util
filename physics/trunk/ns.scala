@@ -56,8 +56,8 @@ trait Data {
       = Matrix(gradient(velocity(X),position),
                gradient(velocity(Y),position),
                gradient(velocity(Z),position))
-
-  def dvdt(data:Data,position:Vector)={
+  
+  def dvdt(position:Vector)={
     val v:Value = value(position)
     val vLaplacian:Vector = velocityLaplacian(position)
     val pressureGradient:Vector = gradient(pressure,position)
@@ -68,14 +68,15 @@ trait Data {
       add (gravity).
       minus (vJacobian * v.velocity)
   }
+
+  def valueAfterTime(position:Vector,time:Double) 
+       =  value(position).velocity.add(dvdt(position)*time)
 }
 
-case class Neighbour( 
-    data:Data,entry:Entry,
-    x1:Entry,x2:Entry,y1:Entry,y2:Entry,z1:Entry,z2:Entry){
-   
-      
-}
+case class Neighbours( 
+    x1:Entry,x2:Entry,
+    y1:Entry,y2:Entry,
+    z1:Entry,z2:Entry)
 
 class NavierStokes {
   def step(data:Data,timestep:Double):Data = data 
