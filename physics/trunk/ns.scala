@@ -16,8 +16,8 @@ case class Vector(x:Double, y:Double, z:Double) {
   }
   def *(v:Vector) = x*v.x + y*v.y + z*v.z
   def *(d:Double) = Vector(x*d,y*d,z*d)
-  def -(v:Vector) = Vector(x-v.x,y-v.y,z-v.z)
-  def +(v:Vector) = Vector(x+v.x,y+v.y,z+v.z)
+  def minus(v:Vector) = Vector(x-v.x,y-v.y,z-v.z)
+  def add(v:Vector) = Vector(x+v.x,y+v.y,z+v.z)
   def /(d:Double) = Vector(x/d,y/d,z/d)
   def sum = x + y + z
 }
@@ -56,16 +56,25 @@ trait Data {
       = Matrix(gradient(velocity(X),position),
                gradient(velocity(Y),position),
                gradient(velocity(Z),position))
+
   def dvdt(data:Data,position:Vector)={
-    val v = value(position)
-    val vLaplacian = velocityLaplacian(position)
-    val pressureGradient = gradient(pressure,position)
-    val vJacobian = velocityJacobian(position)
-    
-   (((vLaplacian*v.viscosity - pressureGradient)/v.density)
-      + Vector(0,0,9.8))
-      // - (vJacobian * v.velocity)
+    val v:Value = value(position)
+    val vLaplacian:Vector = velocityLaplacian(position)
+    val pressureGradient:Vector = gradient(pressure,position)
+    val vJacobian:Matrix = velocityJacobian(position)
+    val gravity = Vector(0,0,9.8)
+
+   ((vLaplacian*v.viscosity minus pressureGradient)/v.density).
+      add (gravity).
+      minus (vJacobian * v.velocity)
   }
+}
+
+case class Neighbour( 
+    data:Data,entry:Entry,
+    x1:Entry,x2:Entry,y1:Entry,y2:Entry,z1:Entry,z2:Entry){
+   
+      
 }
 
 class NavierStokes {
