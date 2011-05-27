@@ -35,13 +35,17 @@ case class Value (
 case class Entry (position:Vector, value:Value)
 
 trait Data {
+  //implement these!
+  def value(vector:Vector):Value
+  def gradient(f:Vector=>Double, position:Vector):Vector
+  def gradient2nd(f:Vector=>Double, position:Vector):Vector  
+
+  //these methods are implemented
   def pressure:Vector=>Double = value(_).pressure 
   def velocity:Vector=>Vector = value(_).velocity
   def velocity(direction:Direction):Vector=>Double 
       = value(_).velocity.get(direction)
-  def value(vector:Vector):Value
-  def gradient(f:Vector=>Double, position:Vector):Vector
-  def gradient2nd(f:Vector=>Double, position:Vector):Vector
+  
   def laplacian(f:Vector=>Double, position:Vector)
       = gradient2nd(f,position).sum
   def velocityLaplacian(position:Vector):Vector  
@@ -52,7 +56,7 @@ trait Data {
       = Matrix(gradient(velocity(X),position),
                gradient(velocity(Y),position),
                gradient(velocity(Z),position))
-  def getVelocityDerivativeWithTime(data:Data,position:Vector)={
+  def dvdt(data:Data,position:Vector)={
     val v = value(position)
     val vLaplacian = velocityLaplacian(position)
     val pressureGradient = gradient(pressure,position)
