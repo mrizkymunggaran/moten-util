@@ -21,7 +21,8 @@
     <scala.version>2.9.0</scala.version>
   </properties>
 
-<!--
+
+<!-- 
   <repositories>
     <repository>
       <id>scala-tools.org</id>
@@ -29,7 +30,6 @@
       <url>http://scala-tools.org/repo-releases</url>
     </repository>
   </repositories>
-
   <pluginRepositories>
     <pluginRepository>
       <id>scala-tools.org</id>
@@ -52,18 +52,19 @@
       <version>4.8.1</version>
       <scope>test</scope>
     </dependency>
+    <!-- 
     <dependency>
       <groupId>org.scala-tools.testing</groupId>
-      <artifactId>specs_2.8.0</artifactId>
-      <version>1.6.5</version>
+      <artifactId>specs_${scala.version}</artifactId>
+      <version>1.6.8</version> 
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.scalatest</groupId>
-      <artifactId>scalatest</artifactId>
-      <version>1.2</version>
+      <artifactId>scalatest_${scala.version}</artifactId>
+      <version>1.4.1</version>
       <scope>test</scope>
-    </dependency>
+    </dependency>-->
   </dependencies>
 
   <build>
