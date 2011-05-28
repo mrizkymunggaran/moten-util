@@ -78,8 +78,8 @@ trait Data {
       minus (vJacobian * v.velocity)
   }
 
-  def valueAfterTime(position:Vector,time:Double) 
-       =  value(position).velocity.add(dvdt(position)*time)
+  def valueAfterTimeStep(position:Vector,timeStep:Double) 
+       =  value(position).velocity.add(dvdt(position)*timeStep)
 }
 
 class IrregularGridData(map:Map[Vector,Value]) extends Data {
@@ -87,7 +87,7 @@ class IrregularGridData(map:Map[Vector,Value]) extends Data {
       val v = map.get(vector)
       v match {
         case s:Some[Value] => s.get
-        case None => null 
+        case None => throw new RuntimeException("no value exists for position")
       }
   }
   
