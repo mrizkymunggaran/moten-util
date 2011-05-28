@@ -1,3 +1,4 @@
+package org.moten.david.ns
 
 object Direction extends Enumeration {
   type Direction = Value
