@@ -87,7 +87,7 @@ class IrregularGridData(map:Map[Vector,Value]) extends Data {
       val v = map.get(vector)
       v match {
         case s:Some[Value] => s.get
-        case s:None[Value] => null 
+        case None => null 
       }
   }
   
