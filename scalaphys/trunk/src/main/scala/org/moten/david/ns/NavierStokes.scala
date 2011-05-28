@@ -80,6 +80,7 @@ trait Data {
 }
 
 class IrregularGridData(map: Map[Vector, Value]) extends Data {
+
   def getValue(vector: Vector): Value = {
     map.get(vector) match {
       case s: Some[Value] => s.get
