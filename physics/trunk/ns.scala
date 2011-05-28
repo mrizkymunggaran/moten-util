@@ -43,8 +43,10 @@ case class Entry (position:Vector, value:Value)
 trait Data {
   //implement these!
   def value(vector:Vector):Value
-  def gradient(f:Vector=>Double, position:Vector):Vector
-  def gradient2nd(f:Vector=>Double, position:Vector):Vector  
+  def velocityGradient(position:Vector,direction:Direction):Vector
+  def pressureGradient(position:Vector):Vector
+  def velocityGradient2nd(position:Vector,direction:Direction):Vector
+  def pressureGradient2nd(position:Vector):Vector
 
   //these methods are implemented
   def pressure:Vector=>Double = value(_).pressure 
@@ -52,25 +54,26 @@ trait Data {
   def velocity(direction:Direction):Vector=>Double 
       = value(_).velocity.get(direction)
   
-  def laplacian(f:Vector=>Double, position:Vector)
-      = gradient2nd(f,position).sum
+  def velocityLaplacian(position:Vector,direction:Direction)
+      = velocityGradient2nd(position,direction).sum
   def velocityLaplacian(position:Vector):Vector  
-      = Vector(laplacian(velocity(_).x,position),
-               laplacian(velocity(_).y,position),
-               laplacian(velocity(_).z,position))   
+      = Vector(velocityLaplacian(position,X),
+               velocityLaplacian(position,Y),
+               velocityLaplacian(position,Z)
+               )   
   def velocityJacobian(position:Vector)
-      = Matrix(gradient(velocity(X),position),
-               gradient(velocity(Y),position),
-               gradient(velocity(Z),position))
+      = Matrix(velocityGradient(position,X),
+               velocityGradient(position,Y),
+               velocityGradient(position,Z))
   
   def dvdt(position:Vector)={
     val v:Value = value(position)
     val vLaplacian:Vector = velocityLaplacian(position)
-    val pressureGradient:Vector = gradient(pressure,position)
+    val pGradient:Vector = pressureGradient(position)
     val vJacobian:Matrix = velocityJacobian(position)
     val gravity = Vector(0,0,9.8)
 
-   ((vLaplacian*v.viscosity minus pressureGradient)/v.density).
+   ((vLaplacian*v.viscosity minus pGradient)/v.density).
       add (gravity).
       minus (vJacobian * v.velocity)
   }
@@ -79,14 +82,19 @@ trait Data {
        =  value(position).velocity.add(dvdt(position)*time)
 }
 
-class IrregularGridData(map:Map[Vector,Data]) extends Data {
-  def value(vector:Vector):Value = map.get(vector).getOrElse(null)
-  def gradient(f:Vector=>Double, position:Vector):Vector = {
-      position	  
+class IrregularGridData(map:Map[Vector,Value]) extends Data {
+  def value(vector:Vector):Value = { 
+      val v = map.get(vector)
+      v match {
+        case s:Some[Value] => s.get
+        case s:None[Value] => null 
+      }
   }
-  def gradient2nd(f:Vector=>Double, position:Vector):Vector = {
-       position
-  } 
+  
+  def velocityGradient(position:Vector,direction:Direction):Vector = position
+  def pressureGradient(position:Vector):Vector = position
+  def velocityGradient2nd(position:Vector,direction:Direction):Vector = position
+  def pressureGradient2nd(position:Vector):Vector = position
 }
 
 case class Neighbours( 
