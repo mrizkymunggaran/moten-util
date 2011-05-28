@@ -22,6 +22,12 @@ case class Vector(x:Double, y:Double, z:Double) {
   def sum = x + y + z
 }
 
+object VectorUtil {
+  def zero = Vector(0,0,0)
+}
+
+import VectorUtil._
+
 case class Matrix(row1:Vector,row2:Vector,row3:Vector){
   def *(v:Vector) = Vector(row1*v, row2*v, row3*v)
 }
@@ -71,6 +77,16 @@ trait Data {
 
   def valueAfterTime(position:Vector,time:Double) 
        =  value(position).velocity.add(dvdt(position)*time)
+}
+
+class IrregularGridData(map:Map[Vector,Data]) extends Data {
+  def value(vector:Vector):Value = map.get(vector).getOrElse(null)
+  def gradient(f:Vector=>Double, position:Vector):Vector = {
+      position	  
+  }
+  def gradient2nd(f:Vector=>Double, position:Vector):Vector = {
+       position
+  } 
 }
 
 case class Neighbours( 
