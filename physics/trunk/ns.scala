@@ -42,35 +42,35 @@ case class Entry (position:Vector, value:Value)
 
 trait Data {
   //implement these!
-  def value(vector:Vector):Value
-  def velocityGradient(position:Vector,direction:Direction):Vector
-  def pressureGradient(position:Vector):Vector
-  def velocityGradient2nd(position:Vector,direction:Direction):Vector
-  def pressureGradient2nd(position:Vector):Vector
+  def getValue(vector:Vector):Value
+  def getVelocityGradient(position:Vector,direction:Direction):Vector
+  def getPressureGradient(position:Vector):Vector
+  def getVelocityGradient2nd(position:Vector,direction:Direction):Vector
+  def getPressureGradient2nd(position:Vector):Vector
 
   //these methods are implemented
-  def pressure:Vector=>Double = value(_).pressure 
-  def velocity:Vector=>Vector = value(_).velocity
-  def velocity(direction:Direction):Vector=>Double 
-      = value(_).velocity.get(direction)
+  //def pressure:Vector=>Double = getValue(_).pressure 
+  //def velocity:Vector=>Vector = getValue(_).velocity
+  //def velocity(direction:Direction):Vector=>Double 
+  //    = getValue(_).velocity.get(direction)
   
-  def velocityLaplacian(position:Vector,direction:Direction)
-      = velocityGradient2nd(position,direction).sum
-  def velocityLaplacian(position:Vector):Vector  
-      = Vector(velocityLaplacian(position,X),
-               velocityLaplacian(position,Y),
-               velocityLaplacian(position,Z)
+  def getVelocityLaplacian(position:Vector,direction:Direction)
+      = getVelocityGradient2nd(position,direction).sum
+  def getVelocityLaplacian(position:Vector):Vector  
+      = Vector(getVelocityLaplacian(position,X),
+               getVelocityLaplacian(position,Y),
+               getVelocityLaplacian(position,Z)
                )   
-  def velocityJacobian(position:Vector)
-      = Matrix(velocityGradient(position,X),
-               velocityGradient(position,Y),
-               velocityGradient(position,Z))
+  def getVelocityJacobian(position:Vector)
+      = Matrix(getVelocityGradient(position,X),
+               getVelocityGradient(position,Y),
+               getVelocityGradient(position,Z))
   
   def dvdt(position:Vector)={
-    val v:Value = value(position)
-    val vLaplacian:Vector = velocityLaplacian(position)
-    val pGradient:Vector = pressureGradient(position)
-    val vJacobian:Matrix = velocityJacobian(position)
+    val v:Value = getValue(position)
+    val vLaplacian:Vector = getVelocityLaplacian(position)
+    val pGradient:Vector = getPressureGradient(position)
+    val vJacobian:Matrix = getVelocityJacobian(position)
     val gravity = Vector(0,0,9.8)
 
    ((vLaplacian*v.viscosity minus pGradient)/v.density).
@@ -79,22 +79,39 @@ trait Data {
   }
 
   def valueAfterTimeStep(position:Vector,timeStep:Double) 
-       =  value(position).velocity.add(dvdt(position)*timeStep)
+       =  getValue(position).velocity.add(dvdt(position)*timeStep)
 }
 
 class IrregularGridData(map:Map[Vector,Value]) extends Data {
-  def value(vector:Vector):Value = { 
-      val v = map.get(vector)
-      v match {
+  def getValue(vector:Vector):Value = { 
+      map.get(vector) match {
         case s:Some[Value] => s.get
         case None => throw new RuntimeException("no value exists for position")
       }
   }
   
-  def velocityGradient(position:Vector,direction:Direction):Vector = position
-  def pressureGradient(position:Vector):Vector = position
-  def velocityGradient2nd(position:Vector,direction:Direction):Vector = position
-  def pressureGradient2nd(position:Vector):Vector = position
+  def getVelocityGradient(position:Vector,direction:Direction):Vector = {
+      val value = getValue(position)
+      if (value.isWall) 
+        zero
+      else if (value.isBoundary.get(direction) match { case v:Some[Boolean] => v.get; case None => throw new RuntimeException("boundary info not found") }) 
+        zero
+      else {
+        val n = getNeighbours(position);
+        getVelocityGradient(position,n)
+      }
+  }
+
+  def getNeighbours(position:Vector):Neighbours = {
+      null
+  }
+
+  def getVelocityGradient(position:Vector, n:Neighbours):Vector = {
+    position
+  }
+  def getPressureGradient(position:Vector):Vector = position
+  def getVelocityGradient2nd(position:Vector,direction:Direction):Vector = position
+  def getPressureGradient2nd(position:Vector):Vector = position
 }
 
 case class Neighbours( 
