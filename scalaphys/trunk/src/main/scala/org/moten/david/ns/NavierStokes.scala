@@ -1,4 +1,6 @@
 package org.moten.david.ns
+import VectorUtil._
+import scala.collection.immutable.TreeSet
 
 object Direction extends Enumeration {
   type Direction = Value
@@ -26,8 +28,6 @@ case class Vector(x: Double, y: Double, z: Double) {
 object VectorUtil {
   def zero = Vector(0, 0, 0)
 }
-
-import VectorUtil._
 
 case class Matrix(row1: Vector, row2: Vector, row3: Vector) {
   def *(v: Vector) = Vector(row1 * v, row2 * v, row3 * v)
@@ -80,6 +80,9 @@ trait Data {
 }
 
 class IrregularGridData(map: Map[Vector, Value]) extends Data {
+
+  val ordinates = Direction.values.map(d => (d, map.keys.map(_.get(d)).toSet.toList.sorted))
+  println(ordinates)
 
   def getValue(vector: Vector): Value = {
     map.get(vector) match {
