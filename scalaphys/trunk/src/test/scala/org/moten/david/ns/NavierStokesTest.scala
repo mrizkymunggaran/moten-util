@@ -9,8 +9,5 @@ class PhysicsTest {
   @Test
   def testOK() = assertTrue(true)
 
-  //    @Test
-  //    def testKO() = assertTrue(false)
-
 }
 
