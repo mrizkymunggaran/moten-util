@@ -127,7 +127,8 @@ class IrregularGridData(map: Map[Vector, Value]) extends Data {
     Direction.values.map(d => (d, ordinates.getOrElse(d, null).get(position.get(d))))
       .map(t => {
         val d = t._1; val pair = t._2;
-        (d, (position.modify(d, pair._1), position.modify(d, pair._2)))
+        (d, (position.modify(d, pair.getOrElse(null)._1),
+          position.modify(d, pair.getOrElse(null)._2)))
       })
     null
   }
