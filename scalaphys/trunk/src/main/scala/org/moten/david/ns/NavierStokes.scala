@@ -79,9 +79,19 @@ trait Data {
   }
 }
 
+object IrregularGridData {
+  //TODO unit test this
+  def getDirectionalNeighbours(vectors: Set[Vector]) = {
+    //produce a map of Direction to a map of ordinate values with their 
+    //negative and positive direction neighbour ordinate values
+    Direction.values.map(d => (d, vectors.map(_.get(d))
+      .toSet.toList.sorted.sliding(3).toList.map(x => (x(1), (x(0), x(2)))).toMap)).toMap
+  }
+}
+
 class IrregularGridData(map: Map[Vector, Value]) extends Data {
 
-  val ordinates = Direction.values.map(d => (d, map.keys.map(_.get(d)).toSet.toList.sorted))
+  val ordinates = IrregularGridData.getDirectionalNeighbours(map.keySet)
   println(ordinates)
 
   def getValue(vector: Vector): Value = {
@@ -107,10 +117,12 @@ class IrregularGridData(map: Map[Vector, Value]) extends Data {
   }
 
   def getNeighbours(position: Vector): Neighbours = {
+    //TODO
     null
   }
 
   def getVelocityGradient(position: Vector, n: Neighbours): Vector = {
+    //TODO
     position
   }
   def getPressureGradient(position: Vector): Vector = position
@@ -119,9 +131,7 @@ class IrregularGridData(map: Map[Vector, Value]) extends Data {
 }
 
 case class Neighbours(
-  x1: Entry, x2: Entry,
-  y1: Entry, y2: Entry,
-  z1: Entry, z2: Entry)
+  entries: Map[Direction, Tuple2[Option[Entry], Option[Entry]]])
 
 class NavierStokes {
   def step(data: Data, timestep: Double): Data = data
