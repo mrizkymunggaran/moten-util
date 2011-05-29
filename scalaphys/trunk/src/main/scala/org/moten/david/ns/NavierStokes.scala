@@ -124,13 +124,13 @@ class IrregularGridData(map: Map[Vector, Value]) extends Data {
   }
 
   def getNeighbours(position: Vector): Neighbours = {
-    Direction.values.map(d => (d, ordinates.getOrElse(d, null).get(position.get(d))))
+    val entries = Direction.values.map(d => (d, ordinates.getOrElse(d, null).get(position.get(d))))
       .map(t => {
         val d = t._1; val pair = t._2;
         (d, (position.modify(d, pair.getOrElse(null)._1),
           position.modify(d, pair.getOrElse(null)._2)))
-      })
-    null
+      }).toMap
+    return Neighbours(entries)
   }
 
   def getVelocityGradient(position: Vector, n: Neighbours): Vector = {
@@ -143,7 +143,7 @@ class IrregularGridData(map: Map[Vector, Value]) extends Data {
 }
 
 case class Neighbours(
-  entries: Map[Direction, Tuple2[Option[Entry], Option[Entry]]])
+  entries: Map[Direction, Tuple2[Vector, Vector]])
 
 class NavierStokes {
   def step(data: Data, timestep: Double): Data = data
