@@ -20,8 +20,11 @@ case class Vector(x: Double, y: Double, z: Double) {
   def *(v: Vector) = x * v.x + y * v.y + z * v.z
   def *(d: Double) = Vector(x * d, y * d, z * d)
   def minus(v: Vector) = Vector(x - v.x, y - v.y, z - v.z)
+  def -(v: Vector) = minus(v)
+  def +(v: Vector) = add(v)
   def add(v: Vector) = Vector(x + v.x, y + v.y, z + v.z)
   def /(d: Double) = Vector(x / d, y / d, z / d)
+  def /(v: Vector) = Vector(x / v.x, y / v.y, z / v.z)
   def sum = x + y + z
   def modify(direction: Direction, d: Double) = {
     Vector(if (direction equals X) d else x,
@@ -118,32 +121,44 @@ class IrregularGridData(map: Map[Vector, Value]) extends Data {
     })
       zero
     else {
-      val n = getNeighbours(position);
+      val n = getNeighbours(position, direction);
       getVelocityGradient(position, n)
     }
   }
 
-  def getNeighbours(position: Vector): Neighbours = {
-    val entries = Direction.values.map(d => (d, ordinates.getOrElse(d, null).get(position.get(d))))
-      .map(t => {
-        val d = t._1; val pair = t._2;
-        (d, (position.modify(d, pair.getOrElse(null)._1),
-          position.modify(d, pair.getOrElse(null)._2)))
-      }).toMap
-    return Neighbours(entries)
+  def getNeighbours(position: Vector, d: Direction): Tuple2[Vector, Vector] = {
+    val t = ordinates.getOrElse(d, null).get(position.get(d)).getOrElse(null)
+    (position.modify(d, t._1),
+      position.modify(d, t._2))
   }
 
-  def getVelocityGradient(position: Vector, n: Neighbours): Vector = {
-    //TODO
-    position
+  private def getVelocityGradient(position: Vector, n: Tuple2[Vector, Vector]): Vector = {
+    val a1 = n._1
+    val a2 = n._2
+    val v1 = getValue(a1)
+    val v2 = getValue(a2)
+    (v2.velocity - v1.velocity) / (a2 - a1)
   }
-  def getPressureGradient(position: Vector): Vector = position
+
+  def getPressureGradient(position: Vector): Vector = {
+        val value = getValue(position)
+    if (value.isWall)
+      zero
+    else if (value.isBoundary.get(direction) match {
+      case v: Some[Boolean] => v.get
+      case None => throw new RuntimeException("boundary info not found")
+    })
+      zero
+    else {
+      val n = getNeighbours(position, direction);
+      getVelocityGradient(position, n)
+    }
+  }
+
+  }
   def getVelocityGradient2nd(position: Vector, direction: Direction): Vector = position
   def getPressureGradient2nd(position: Vector): Vector = position
 }
-
-case class Neighbours(
-  entries: Map[Direction, Tuple2[Vector, Vector]])
 
 class NavierStokes {
   def step(data: Data, timestep: Double): Data = data
