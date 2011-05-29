@@ -5,11 +5,15 @@ import scala.collection.immutable.TreeSet
 object Direction extends Enumeration {
   type Direction = Value
   val X, Y, Z = Value
+  def ordered = List(X, Y, Z)
 }
 
 import Direction._
 
 case class Vector(x: Double, y: Double, z: Double) {
+  def this(seq: List[Double]) {
+    this(seq(0), seq(1), seq(2))
+  }
   def get(direction: Direction): Double = {
     direction match {
       case X => x
@@ -140,22 +144,34 @@ class IrregularGridData(map: Map[Vector, Value]) extends Data {
     (v2.velocity - v1.velocity) / (a2 - a1)
   }
 
-  def getPressureGradient(position: Vector): Vector = {
-        val value = getValue(position)
+  def getPressureGradient(position: Vector) = {
+    val list: List[Double] = Direction.ordered.map(getPressureGradient(position, _))
+    new Vector(list)
+  }
+
+  private def getPressureGradient(position: Vector, direction: Direction): Double = {
+    val value = getValue(position)
     if (value.isWall)
-      zero
+      0
     else if (value.isBoundary.get(direction) match {
       case v: Some[Boolean] => v.get
       case None => throw new RuntimeException("boundary info not found")
     })
-      zero
+      0
     else {
       val n = getNeighbours(position, direction);
-      getVelocityGradient(position, n)
+      getPressureGradient(position, n)
     }
   }
 
+  private def getPressureGradient(position: Vector, n: Tuple2[Vector, Vector]) = {
+    val a1 = n._1
+    val a2 = n._2
+    val v1 = getValue(a1)
+    val v2 = getValue(a2)
+    (v2.pressure - v1.pressure) / (a2 - a1).sum
   }
+
   def getVelocityGradient2nd(position: Vector, direction: Direction): Vector = position
   def getPressureGradient2nd(position: Vector): Vector = position
 }
