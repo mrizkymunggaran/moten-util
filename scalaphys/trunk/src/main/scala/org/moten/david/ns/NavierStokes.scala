@@ -23,10 +23,17 @@ case class Vector(x: Double, y: Double, z: Double) {
   def add(v: Vector) = Vector(x + v.x, y + v.y, z + v.z)
   def /(d: Double) = Vector(x / d, y / d, z / d)
   def sum = x + y + z
+  def modify(direction: Direction, d: Double) = {
+    Vector(if (direction equals X) d else x,
+      if (direction equals Y) d else y,
+      if (direction equals Z) d else z)
+  }
 }
 
 object VectorUtil {
+  import Double._
   def zero = Vector(0, 0, 0)
+  def nan = Vector(NaN, NaN, NaN)
 }
 
 case class Matrix(row1: Vector, row2: Vector, row3: Vector) {
@@ -117,7 +124,11 @@ class IrregularGridData(map: Map[Vector, Value]) extends Data {
   }
 
   def getNeighbours(position: Vector): Neighbours = {
-    //TODO
+    Direction.values.map(d => (d, ordinates.getOrElse(d, null).get(position.get(d))))
+      .map(t => {
+        val d = t._1; val pair = t._2;
+        (d, (position.modify(d, pair._1), position.modify(d, pair._2)))
+      })
     null
   }
 
