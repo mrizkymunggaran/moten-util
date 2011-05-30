@@ -121,17 +121,12 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
   }
 
   def getVelocityGradient(position: Vector, direction: Direction): Vector = {
-    val value = getValue(position)
-    if (value.isWall)
-      zero
-    else if (value.isBoundary.get(direction) match {
-      case v: Some[Boolean] => v.get
-      case None => throw new RuntimeException("boundary info not found")
-    })
-      zero
-    else {
-      val n = getNeighbours(position, direction);
-      getVelocityGradient(position, n)
+    getGradient[Vector](position, direction, zero, zero) match {
+      case d: Some[Vector] => return d.get
+      case None => {
+        val n = getNeighbours(position, direction)
+        getVelocityGradient(position, n)
+      }
     }
   }
 
@@ -165,21 +160,18 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
   }
 
   private def getPressureGradient(position: Vector, direction: Direction): Double = {
-    val value = getValue(position)
-    if (value.isWall)
-      return gravity.get(direction) * value.density
-    else if (value.isBoundary.get(direction) match {
-      case v: Some[Boolean] => v.get
-      case None => throw new RuntimeException("boundary info not found")
-    })
-      return 0
-    else {
-      val n = getNeighbours(position, direction);
-      getPressureGradient(position, n, direction)
+    val value = getValue(position);
+    val force = gravity.get(direction) * value.density
+    getGradient[Double](position, direction, force, 0) match {
+      case d: Some[Double] => return d.get
+      case None => {
+        val n = getNeighbours(position, direction)
+        getPressureGradient(position, n, direction)
+      }
     }
   }
 
-  private def getVelocityGradient2nd(position: Vector, n: Tuple2[Vector, Vector]): Vector = {
+  private def getVelocityGradient2nd(position: Vector, n: Tuple2[Vector, Vector], dummy: Direction): Vector = {
     val a1 = n._1
     val a2 = n._2
     val v1 = getValue(a1)
@@ -199,33 +191,26 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
   }
 
   def getVelocityGradient2nd(position: Vector, direction: Direction): Vector = {
+    getGradient[Vector](position, direction, zero, zero, getVelocityGradient2nd)
+  }
+
+  private def getGradient[T](position: Vector, direction: Direction, wallGradient: T, boundaryGradient: T): Option[T] = {
     val value = getValue(position)
     if (value.isWall)
-      return zero
+      return Some(wallGradient)
     else if (value.isBoundary.get(direction) match {
       case v: Some[Boolean] => v.get
       case None => throw new RuntimeException("boundary info not found")
     })
-      return zero
+      return Some(boundaryGradient)
     else {
       val n = getNeighbours(position, direction);
-      return getVelocityGradient2nd(position, n)
+      f(position, n, direction)
     }
   }
 
   private def getPressureGradient2nd(position: Vector, direction: Direction): Double = {
-    val value = getValue(position)
-    if (value.isWall)
-      return gravity.get(direction) * value.density
-    else if (value.isBoundary.get(direction) match {
-      case v: Some[Boolean] => v.get
-      case None => throw new RuntimeException("boundary info not found")
-    })
-      return 0
-    else {
-      val n = getNeighbours(position, direction);
-      getPressureGradient(position, n, direction)
-    }
+    getGradient[Double](position, direction, 0, 0, getPressureGradient2nd)
   }
 
   def getPressureGradient2nd(position: Vector): Vector = {
