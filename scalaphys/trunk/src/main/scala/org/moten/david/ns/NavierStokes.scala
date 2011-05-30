@@ -43,6 +43,10 @@ object VectorUtil {
   def nan = Vector(NaN, NaN, NaN)
 }
 
+object Data {
+  val gravity = Vector(0, 0, -9.8)
+}
+
 case class Matrix(row1: Vector, row2: Vector, row3: Vector) {
   def *(v: Vector) = Vector(row1 * v, row2 * v, row3 * v)
 }
@@ -55,6 +59,8 @@ case class Value(
 case class Entry(position: Vector, value: Value)
 
 trait Data {
+  import Data._
+
   //implement these!
   def getValue(vector: Vector): Value
   def getVelocityGradient(position: Vector, direction: Direction): Vector
@@ -81,10 +87,9 @@ trait Data {
     val velocityLaplacian: Vector = getVelocityLaplacian(position)
     val pressureGradient: Vector = getPressureGradient(position)
     val velocityJacobian: Matrix = getVelocityJacobian(position)
-    val gravity = Vector(0, 0, 9.8)
 
     ((velocityLaplacian * value.viscosity minus pressureGradient) / value.density)
-      .add(gravity)
+      .minus(gravity)
       .minus(velocityJacobian * value.velocity)
   }
 
@@ -93,7 +98,7 @@ trait Data {
   }
 }
 
-object IrregularGridData {
+object RegularGridData {
   //TODO unit test this
   def getDirectionalNeighbours(vectors: Set[Vector]) = {
     //produce a map of Direction to a map of ordinate values with their 
@@ -103,9 +108,9 @@ object IrregularGridData {
   }
 }
 
-class IrregularGridData(map: Map[Vector, Value]) extends Data {
-
-  val ordinates = IrregularGridData.getDirectionalNeighbours(map.keySet)
+class RegularGridData(map: Map[Vector, Value]) extends Data {
+  import Data._
+  val ordinates = RegularGridData.getDirectionalNeighbours(map.keySet)
   println(ordinates)
 
   def getValue(vector: Vector): Value = {
@@ -141,7 +146,17 @@ class IrregularGridData(map: Map[Vector, Value]) extends Data {
     val a2 = n._2
     val v1 = getValue(a1)
     val v2 = getValue(a2)
+    //TODO calculate for irregular grid spacing
     (v2.velocity - v1.velocity) / (a2 - a1)
+  }
+
+  private def getPressureGradient(position: Vector, n: Tuple2[Vector, Vector], direction: Direction) = {
+    val a1 = n._1
+    val a2 = n._2
+    val v1 = getValue(a1)
+    val v2 = getValue(a2)
+    //TODO calculate for irregular grid spacing
+    (v2.pressure - v1.pressure) / (a2 - a1).get(direction)
   }
 
   def getPressureGradient(position: Vector) = {
@@ -152,31 +167,74 @@ class IrregularGridData(map: Map[Vector, Value]) extends Data {
   private def getPressureGradient(position: Vector, direction: Direction): Double = {
     val value = getValue(position)
     if (value.isWall)
-      0
+      return gravity.get(direction) * value.density
     else if (value.isBoundary.get(direction) match {
       case v: Some[Boolean] => v.get
       case None => throw new RuntimeException("boundary info not found")
     })
-      0
+      return 0
     else {
       val n = getNeighbours(position, direction);
-      getPressureGradient(position, n)
+      getPressureGradient(position, n, direction)
     }
   }
 
-  private def getPressureGradient(position: Vector, n: Tuple2[Vector, Vector]) = {
+  private def getVelocityGradient2nd(position: Vector, n: Tuple2[Vector, Vector]): Vector = {
     val a1 = n._1
     val a2 = n._2
     val v1 = getValue(a1)
     val v2 = getValue(a2)
-    (v2.pressure - v1.pressure) / (a2 - a1).sum
+    val v = getValue(position)
+    //TODO calculate for irregular grid spacing
+    (v2.velocity + v1.velocity - v.velocity * 2) / (a2 - a1)
   }
 
-  def getVelocityGradient2nd(position: Vector, direction: Direction): Vector = position
-  def getPressureGradient2nd(position: Vector): Vector = position
+  private def getPressureGradient2nd(position: Vector, n: Tuple2[Vector, Vector], direction: Direction): Double = {
+    val a1 = n._1
+    val a2 = n._2
+    val v1 = getValue(a1)
+    val v2 = getValue(a2)
+    //TODO calculate for irregular grid spacing
+    (v2.pressure - v1.pressure) / (a2 - a1).get(direction)
+  }
+
+  def getVelocityGradient2nd(position: Vector, direction: Direction): Vector = {
+    val value = getValue(position)
+    if (value.isWall)
+      return zero
+    else if (value.isBoundary.get(direction) match {
+      case v: Some[Boolean] => v.get
+      case None => throw new RuntimeException("boundary info not found")
+    })
+      return zero
+    else {
+      val n = getNeighbours(position, direction);
+      return getVelocityGradient2nd(position, n)
+    }
+  }
+
+  private def getPressureGradient2nd(position: Vector, direction: Direction): Double = {
+    val value = getValue(position)
+    if (value.isWall)
+      return gravity.get(direction) * value.density
+    else if (value.isBoundary.get(direction) match {
+      case v: Some[Boolean] => v.get
+      case None => throw new RuntimeException("boundary info not found")
+    })
+      return 0
+    else {
+      val n = getNeighbours(position, direction);
+      getPressureGradient(position, n, direction)
+    }
+  }
+
+  def getPressureGradient2nd(position: Vector): Vector = {
+    val list: List[Double] = Direction.ordered.map(getPressureGradient2nd(position, _))
+    new Vector(list)
+  }
+
 }
 
 class NavierStokes {
   def step(data: Data, timestep: Double): Data = data
 }
-
