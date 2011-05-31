@@ -65,8 +65,6 @@ case class Value(
   density: Double, viscosity: Double, isWall: Boolean,
   isBoundary: Map[Direction, Boolean])
 
-case class Entry(position: Vector, value: Value)
-
 object Data {
   val gravity = Vector(0, 0, -9.8)
 }
@@ -220,11 +218,12 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
 }
 
 object NewtonsMethod {
+  import scala.math._
 
   def solve(f: Double => Double, x: Double, h: Double,
     precision: Double, maxIterations: Long): Option[Double] = {
     val fx = f(x)
-    if (fx <= precision) Some(x)
+    if (abs(fx) <= precision) Some(x)
     else if (maxIterations == 0) None
     else {
       val gradient = (f(x + h) - fx) / h
