@@ -254,8 +254,8 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
       val n = getNeighbours(position,direction)
       return getGradient(
 		(n._1.get(direction),f(n._1)),
-		(n._2.get(direction),f(n._2)),
-		(n._3.get(direction),f(n._3)))
+		(position.get(direction),f(position))
+		(n._2.get(direction),f(n._2)))
     }
   }
 
