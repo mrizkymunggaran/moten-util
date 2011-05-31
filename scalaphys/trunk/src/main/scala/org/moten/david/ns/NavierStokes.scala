@@ -1,14 +1,14 @@
 /**
-* Provides a clear and concise solver for the 
-* Navier Stokes equations over a rectangular 
-* grid domain (regularly gridded) for an 
-* incompressible liquid (sea water). Concise 
-* and clear code is considered more important
-* than performance/optimisation because 
-* concurrent/distributed running of the 
-* routines will be used to provide performance
-* scalability.
-**/
+ * Provides a clear and concise solver for the
+ * Navier Stokes equations over a rectangular
+ * grid domain (regularly gridded) for an
+ * incompressible liquid (sea water). Concise
+ * and clear code is considered more important
+ * than performance/optimisation because
+ * concurrent/distributed running of the
+ * routines will be used to provide performance
+ * scalability.
+ */
 package org.moten.david.ns
 import scala.collection.immutable.TreeSet
 
@@ -45,7 +45,7 @@ case class Vector(x: Double, y: Double, z: Double) {
       if (direction equals Y) d else y,
       if (direction equals Z) d else z)
   }
-  def list = List(x,y,z)
+  def list = List(x, y, z)
 }
 
 object VectorUtil {
@@ -124,24 +124,15 @@ object RegularGridData {
 class RegularGridData(map: Map[Vector, Value]) extends Data {
   import Data._
   import RegularGridData._
+  val FIRST = true
+  val SECOND = false
 
   val ordinates = getDirectionalNeighbours(map.keySet)
-  println(ordinates)
 
   def getValue(vector: Vector): Value = {
     map.get(vector) match {
       case s: Some[Value] => s.get
       case None => throw new RuntimeException("no value exists for position")
-    }
-  }
-
-  def getVelocityGradient(position: Vector, direction: Direction): Vector = {
-    getGradient[Vector](position, direction, zero, zero) match {
-      case d: Some[Vector] => return d.get
-      case None => {
-        val n = getNeighbours(position, direction)
-        getVelocityGradient(position, n)
-      }
     }
   }
 
@@ -151,97 +142,43 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
       position.modify(d, t._2))
   }
 
-  private def getVelocityGradient(position: Vector, n: Tuple2[Vector, Vector]): Vector = {
-    val a1 = n._1
-    val a2 = n._2
-    val v1 = getValue(a1)
-    val v2 = getValue(a2)
-    //TODO calculate for irregular grid spacing
-    (v2.velocity - v1.velocity) / (a2 - a1)
-  }
-
-  private def getPressureGradient(position: Vector, n: Tuple2[Vector, Vector], direction: Direction) = {
-    val a1 = n._1
-    val a2 = n._2
-    val v1 = getValue(a1)
-    val v2 = getValue(a2)
-    //TODO calculate for irregular grid spacing
-    (v2.pressure - v1.pressure) / (a2 - a1).get(direction)
-  }
-
   def getPressureGradient(position: Vector) = {
-    val list: List[Double] = Direction.ordered.map(getPressureGradient(position, _))
-    new Vector(list)
+    new Vector(Direction.ordered.map(getPressureGradient(position, _)))
   }
 
   private def getPressureGradient(position: Vector, direction: Direction): Double = {
     val value = getValue(position);
     val force = gravity.get(direction) * value.density
-    getGradient[Double](position, direction, force, 0) match {
-      case d: Some[Double] => return d.get
-      case None => {
-        val n = getNeighbours(position, direction)
-        getPressureGradient(position, n, direction)
-      }
-    }
+    getGradient(position, direction, force, 0, getValue(_).pressure, FIRST)
+  }
+
+  def getVelocityGradient(position: Vector, direction: Direction): Vector = {
+    new Vector(Direction.ordered.map(d => getGradient(position, direction, 0, 0, getValue(_).velocity.get(d), FIRST)))
   }
 
   def getVelocityGradient2nd(position: Vector, direction: Direction): Vector = {
-    getGradient[Vector](position, direction, zero, zero) match {
-      case d: Some[Vector] => return d.get
-      case None => {
-        val n = getNeighbours(position, direction)
-        getVelocityGradient2nd(position, n)
-      }
-    }
+    new Vector(Direction.ordered.map(d => getGradient(position, direction, 0, 0, getValue(_).velocity.get(d), SECOND)))
   }
 
   def getPressureGradient2nd(position: Vector): Vector = {
-    val list: List[Double] = Direction.ordered.map(getPressureGradient2nd(position, _))
-    new Vector(list)
+    new Vector(Direction.ordered.map(getPressureGradient2nd(position, _)))
   }
 
- private def getPressureGradient2nd(position: Vector, direction: Direction): Double = {
-    getGradient[Double](position, direction, 0, 0) match {
-      case d: Some[Double] => return d.get
-      case None => {
-        val n = getNeighbours(position, direction)
-        getPressureGradient2nd(position, n, direction)
-      }
-    }
+  private def getPressureGradient2nd(position: Vector, direction: Direction): Double = {
+    getGradient(position, direction, 0, 0, getValue(_).pressure, SECOND)
   }
 
-  private type Pair = Tuple2[Double,Double]
+  private type Pair = Tuple2[Double, Double]
 
-  private def getGradient(a1:Pair,a:Pair,a2:Pair):Double = {
-    (a2._2-a1._2)/(a2._1-a1._1)
+  private def getGradient(a1: Pair, a: Pair, a2: Pair, isFirstDerivative: Boolean): Double = {
+    if (isFirstDerivative)
+      (a2._2 - a1._2) / (a2._1 - a1._1)
+    else
+      (a2._2 + a1._2 - 2 * a._2) / (a2._1 - a1._1)
   }
 
-  private def getGradient2nd(a1:Pair,a:Pair,a2:Pair):Double = {
-    (a2._2 + a1._2 - 2 * a._2)/(a2._1-a1._1)
-  }
-
-  private def getVelocityGradient2nd(position: Vector, n: Tuple2[Vector, Vector]): Vector = {
-    val a1 = n._1
-    val a2 = n._2
-    val v1 = getValue(a1)
-    val v2 = getValue(a2)
-    val v = getValue(position)
-    //TODO calculate for irregular grid spacing
-    (v2.velocity + v1.velocity - v.velocity * 2) / (a2 - a1)
-  }
-
-  private def getPressureGradient2nd(position: Vector, n: Tuple2[Vector, Vector], direction: Direction): Double = {
-    val a1 = n._1
-    val a2 = n._2
-    val v1 = getValue(a1)
-    val v2 = getValue(a2)
-    val v = getValue(position)
-    //TODO calculate for irregular grid spacing
-    (v2.pressure + v1.pressure - 2 * v.pressure ) / (a2 - a1).get(direction)
-  }
-
-  private def getGradient(position: Vector, direction: Direction, wallGradient: Double, boundaryGradient: Double, f:Vector=>Double):Double = {
+  private def getGradient(position: Vector, direction: Direction,
+    wallGradient: Double, boundaryGradient: Double, f: Vector => Double, isFirstDerivative: Boolean): Double = {
     val value = getValue(position)
     if (value.isWall)
       return wallGradient
@@ -251,14 +188,14 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
     })
       return boundaryGradient
     else {
-      val n = getNeighbours(position,direction)
+      val n = getNeighbours(position, direction)
       return getGradient(
-		(n._1.get(direction),f(n._1)),
-		(position.get(direction),f(position))
-		(n._2.get(direction),f(n._2)))
+        (n._1.get(direction), f(n._1)),
+        (position.get(direction), f(position)),
+        (n._2.get(direction), f(n._2)),
+        isFirstDerivative)
     }
   }
-
 }
 
 class NavierStokes {
