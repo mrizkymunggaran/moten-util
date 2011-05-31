@@ -1,5 +1,15 @@
+/**
+* Provides a clear and concise solver for the 
+* Navier Stokes equations over a rectangular 
+* grid domain (regularly gridded) for an 
+* incompressible liquid (sea water). Concise 
+* and clear code is considered more important
+* than performance/optimisation because 
+* concurrent/distributed running of the 
+* routines will be used to provide performance
+* scalability.
+**/
 package org.moten.david.ns
-
 import scala.collection.immutable.TreeSet
 
 object Direction extends Enumeration {
@@ -11,8 +21,8 @@ object Direction extends Enumeration {
 import Direction._
 
 case class Vector(x: Double, y: Double, z: Double) {
-  def this(seq: List[Double]) {
-    this(seq(0), seq(1), seq(2))
+  def this(list: List[Double]) {
+    this(list(0), list(1), list(2))
   }
   def get(direction: Direction): Double = {
     direction match {
@@ -35,6 +45,7 @@ case class Vector(x: Double, y: Double, z: Double) {
       if (direction equals Y) d else y,
       if (direction equals Z) d else z)
   }
+  def list = List(x,y,z)
 }
 
 object VectorUtil {
@@ -112,7 +123,9 @@ object RegularGridData {
 
 class RegularGridData(map: Map[Vector, Value]) extends Data {
   import Data._
-  val ordinates = RegularGridData.getDirectionalNeighbours(map.keySet)
+  import RegularGridData._
+
+  val ordinates = getDirectionalNeighbours(map.keySet)
   println(ordinates)
 
   def getValue(vector: Vector): Value = {
@@ -198,6 +211,15 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
     }
   }
 
+  private type Pair = Tuple2[Double,Double]
+
+  private def getGradient(a1:Pair,a:Pair,a2:Pair):Double = {
+    (a2._2-a1._2)/(a2._1-a1._1)
+  }
+
+  private def getGradient2nd(a1:Pair,a:Pair,a2:Pair):Double = {
+    (a2._2 + a1._2 - 2 * a._2)/(a2._1-a1._1)
+  }
 
   private def getVelocityGradient2nd(position: Vector, n: Tuple2[Vector, Vector]): Vector = {
     val a1 = n._1
@@ -214,25 +236,28 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
     val a2 = n._2
     val v1 = getValue(a1)
     val v2 = getValue(a2)
+    val v = getValue(position)
     //TODO calculate for irregular grid spacing
-    (v2.pressure - v1.pressure) / (a2 - a1).get(direction)
+    (v2.pressure + v1.pressure - 2 * v.pressure ) / (a2 - a1).get(direction)
   }
 
-  
-  private def getGradient[T](position: Vector, direction: Direction, wallGradient: T, boundaryGradient: T): Option[T] = {
+  private def getGradient(position: Vector, direction: Direction, wallGradient: Double, boundaryGradient: Double, f:Vector=>Double):Double = {
     val value = getValue(position)
     if (value.isWall)
-      return Some(wallGradient)
+      return wallGradient
     else if (value.isBoundary.get(direction) match {
       case v: Some[Boolean] => v.get
       case None => throw new RuntimeException("boundary info not found")
     })
-      return Some(boundaryGradient)
+      return boundaryGradient
     else {
-      return None
+      val n = getNeighbours(position,direction)
+      return getGradient(
+		(n._1.get(direction),f(n._1)),
+		(n._2.get(direction),f(n._2)),
+		(n._3.get(direction),f(n._3)))
     }
   }
-
 
 }
 
