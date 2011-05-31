@@ -103,7 +103,9 @@ trait Data {
       .minus(gravity)
       .minus(velocityJacobian * value.velocity)
   }
-
+  def getPressureLaplacian(position: Vector) = {
+    getPressureGradient2nd(position).sum
+  }
   def valueAfterTimeStep(position: Vector, timeStep: Double) = {
     getValue(position).velocity.add(dvdt(position) * timeStep)
   }
@@ -124,6 +126,8 @@ trait Data {
   //TODO implement
   def getPressureCorrectionEquation(position: Vector): Double = {
     val value = getValue(position)
+    val pressureLaplacian = getPressureLaplacian(position)
+
     0
   }
 
@@ -257,7 +261,7 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
   def getVelocityGradient2nd(position: Vector, direction: Direction): Vector = {
     new Vector(Direction.ordered.map(d => getGradient(position, direction, 0, 0, getValue(_).velocity.get(d), SECOND)))
   }
-
+  
   private type Pair = Tuple2[Double, Double]
 
   private def getGradient(a1: Pair, a: Pair, a2: Pair, isFirstDerivative: Boolean): Double = {
