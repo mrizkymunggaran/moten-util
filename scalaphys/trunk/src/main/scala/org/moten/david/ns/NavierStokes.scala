@@ -132,7 +132,7 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
   def getValue(vector: Vector): Value = {
     map.get(vector) match {
       case s: Some[Value] => s.get
-      case None => throw new RuntimeException("no value exists for position")
+      case None => throw new RuntimeException("no value exists for position " + vector)
     }
   }
 
@@ -152,20 +152,16 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
     getGradient(position, direction, force, 0, getValue(_).pressure, FIRST)
   }
 
+  def getPressureGradient2nd(position: Vector): Vector = {
+    new Vector(Direction.ordered.map(d => getGradient(position, d, 0, 0, getValue(_).pressure, SECOND)))
+  }
+
   def getVelocityGradient(position: Vector, direction: Direction): Vector = {
     new Vector(Direction.ordered.map(d => getGradient(position, direction, 0, 0, getValue(_).velocity.get(d), FIRST)))
   }
 
   def getVelocityGradient2nd(position: Vector, direction: Direction): Vector = {
     new Vector(Direction.ordered.map(d => getGradient(position, direction, 0, 0, getValue(_).velocity.get(d), SECOND)))
-  }
-
-  def getPressureGradient2nd(position: Vector): Vector = {
-    new Vector(Direction.ordered.map(getPressureGradient2nd(position, _)))
-  }
-
-  private def getPressureGradient2nd(position: Vector, direction: Direction): Double = {
-    getGradient(position, direction, 0, 0, getValue(_).pressure, SECOND)
   }
 
   private type Pair = Tuple2[Double, Double]
