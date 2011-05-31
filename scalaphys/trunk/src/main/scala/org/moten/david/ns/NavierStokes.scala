@@ -109,6 +109,31 @@ trait Data {
   def valueAfterTimeStep(position: Vector, timeStep: Double) = {
     getValue(position).velocity.add(dvdt(position) * timeStep)
   }
+
+  //TODO implement
+  def getPressureCorrectionEquation(position: Vector): Double = 0
+
+  /**
+   * Returns the Conservation of Mass (Continuity) Equation described by the
+   * Navier-Stokes equations.
+   */
+  private def continuityFunction(position: Vector, v1: Vector, timeDelta: Double): Double = {
+    val velocityNext = valueAfterTimeStep(position, timeDelta)
+    val v = getValue(position)
+    //assume not wall or boundary
+    val valueNext = Value(velocityNext, v.pressure, v.depth, v.density, v.viscosity, true, Map(X -> false, Y -> false, Z -> false))
+    val data2 = new DataOverride(this, position, valueNext)
+    data2.getPressureCorrectionEquation(position)
+  }
+
+}
+
+private class DataOverride(data: Data, position: Vector, value: Value) extends Data {
+  def getValue(vector: Vector): Value = if (vector equals position) value else data.getValue(vector)
+  def getVelocityGradient(position: Vector, direction: Direction): Vector = data.getVelocityGradient(position, direction)
+  def getPressureGradient(position: Vector): Vector = data.getPressureGradient(position)
+  def getVelocityGradient2nd(position: Vector, direction: Direction): Vector = data.getVelocityGradient(position, direction)
+  def getPressureGradient2nd(position: Vector): Vector = data.getPressureGradient2nd(position)
 }
 
 object RegularGridData {
@@ -190,6 +215,21 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
         (position.get(direction), f(position)),
         (n._2.get(direction), f(n._2)),
         isFirstDerivative)
+    }
+  }
+}
+
+object NewtonsMethod {
+
+  def solve(f: Double => Double, x: Double, h: Double,
+    precision: Double, maxIterations: Long): Option[Double] = {
+    val fx = f(x)
+    if (fx <= precision) Some(x)
+    else if (maxIterations == 0) None
+    else {
+      val gradient = (f(x + h) - fx) / h
+      if (gradient == 0) None
+      else solve(f, x - fx / gradient, h, precision, maxIterations - 1)
     }
   }
 }
