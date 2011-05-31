@@ -108,9 +108,6 @@ trait Data {
     getValue(position).velocity.add(dvdt(position) * timeStep)
   }
 
-  //TODO implement
-  def getPressureCorrectionEquation(position: Vector): Double = 0
-
   /**
    * Returns the Conservation of Mass (Continuity) Equation described by the
    * Navier-Stokes equations.
@@ -123,6 +120,80 @@ trait Data {
     val data2 = new DataOverride(this, position, valueNext)
     data2.getPressureCorrectionEquation(position)
   }
+
+  //TODO implement
+  def getPressureCorrectionEquation(position: Vector): Double = {
+    val value = getValue(position)
+    0
+  }
+
+  //  private double f(Vector v1, Vector v2, Vector velocity1, Vector velocity2,
+  //			Direction direction) {
+  //		double f2 = getVelocityJacobian(v2).multiply(velocity2).get(direction);
+  //		double f1 = getVelocityJacobian(v1).multiply(velocity1).get(direction);
+  //		double result = (f2 - f1) / (v2.get(direction) - v1.get(direction));
+  //		return result;
+  //	}
+
+  //  public double getPressureCorrectiveFunction(Vector position) {
+  //		// solve del2 p + del.(v.del)v=0
+  //		// i.e del2 p + div (J(v)v) = 0
+  //		Value value = getValue(position);
+  //		Value wallValue = new Value(new Vector(0, 0, 0), value.pressure,
+  //				value.depth, value.density, value.viscosity);
+  //		Neighbours n = getNeighbours(position, wallValue);
+  //		double pressureLaplacian = getPressureLaplacian(position);
+  //
+  //		double resultX = f(n.x1, n.x2, n.valueX1.velocity, n.valueX2.velocity,
+  //				Direction.X);
+  //		double resultY = f(n.y1, n.y2, n.valueY1.velocity, n.valueY2.velocity,
+  //				Direction.Y);
+  //		double resultZ = f(n.z1, n.z2, n.valueZ1.velocity, n.valueZ2.velocity,
+  //				Direction.Z);
+  //		return pressureLaplacian + resultX + resultY + resultZ;
+  //	}
+
+  //  Value getValueAfterTime(Data data, Vector position, double timeDelta) {
+  //
+  //		log.fine("getting value after time=" + timeDelta);
+  //		Value value0 = data.getValue(position);
+  //		if (value0.isWall())
+  //			return value0;
+  //
+  //		log.fine("initial value:" + value0);
+  //
+  //		Vector v1 = getVelocityAfterTime(data, position, timeDelta);
+  //		log.fine("first guess velocity=" + v1);
+  //
+  //		// if stopped now then continuity (conservation of mass) equation might
+  //		// not be satisfied. Perform pressure correction:
+  //		Function<Double, Double> f = createContinuityFunction(data, position,
+  //				v1, timeDelta);
+  //
+  //		double p0 = value0.pressure;
+  //		// solve f = 0 for pressure p where f is defined:
+  //		// TODO best value for precision?
+  //		double precision = 0.001;
+  //		// TODO best value for step size?
+  //		double pressureStepSize = 1; // in Pa
+  //		Double pressure = NewtonsMethodSolver.solve(f, p0, pressureStepSize,
+  //				precision, MAX_NEWTONS_ITERATIONS);
+  //		if (pressure == null)
+  //			pressure = p0;
+  //
+  //		// substitute the pressure back into the conservation of momentum eqn to
+  //		// solve for velocity again
+  //		Value v = data.getValue(position);
+  //		Value valueNext = new Value(v.velocity, pressure, v.depth, v.density,
+  //				v.viscosity);
+  //		Data data2 = new DataOverride(data, position, valueNext);
+  //		Vector v2 = getVelocityAfterTime(data2, position, timeDelta);
+  //
+  //		Value result = new Value(v2, pressure, value0.depth, value0.density,
+  //				value0.viscosity);
+  //		log.fine("returning value=" + result);
+  //		return result;
+  //	}
 
 }
 
@@ -236,3 +307,4 @@ object NewtonsMethod {
     }
   }
 }
+
