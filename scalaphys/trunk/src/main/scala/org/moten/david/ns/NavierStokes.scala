@@ -1,5 +1,5 @@
 package org.moten.david.ns
-import VectorUtil._
+
 import scala.collection.immutable.TreeSet
 
 object Direction extends Enumeration {
@@ -43,9 +43,7 @@ object VectorUtil {
   def nan = Vector(NaN, NaN, NaN)
 }
 
-object Data {
-  val gravity = Vector(0, 0, -9.8)
-}
+import VectorUtil._
 
 case class Matrix(row1: Vector, row2: Vector, row3: Vector) {
   def *(v: Vector) = Vector(row1 * v, row2 * v, row3 * v)
@@ -57,6 +55,10 @@ case class Value(
   isBoundary: Map[Direction, Boolean])
 
 case class Entry(position: Vector, value: Value)
+
+object Data {
+  val gravity = Vector(0, 0, -9.8)
+}
 
 trait Data {
   import Data._
@@ -171,7 +173,33 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
     }
   }
 
-  private def getVelocityGradient2nd(position: Vector, n: Tuple2[Vector, Vector], dummy: Direction): Vector = {
+  def getVelocityGradient2nd(position: Vector, direction: Direction): Vector = {
+    getGradient[Vector](position, direction, zero, zero) match {
+      case d: Some[Vector] => return d.get
+      case None => {
+        val n = getNeighbours(position, direction)
+        getVelocityGradient2nd(position, n)
+      }
+    }
+  }
+
+  def getPressureGradient2nd(position: Vector): Vector = {
+    val list: List[Double] = Direction.ordered.map(getPressureGradient2nd(position, _))
+    new Vector(list)
+  }
+
+ private def getPressureGradient2nd(position: Vector, direction: Direction): Double = {
+    getGradient[Double](position, direction, 0, 0) match {
+      case d: Some[Double] => return d.get
+      case None => {
+        val n = getNeighbours(position, direction)
+        getPressureGradient2nd(position, n, direction)
+      }
+    }
+  }
+
+
+  private def getVelocityGradient2nd(position: Vector, n: Tuple2[Vector, Vector]): Vector = {
     val a1 = n._1
     val a2 = n._2
     val v1 = getValue(a1)
@@ -190,10 +218,7 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
     (v2.pressure - v1.pressure) / (a2 - a1).get(direction)
   }
 
-  def getVelocityGradient2nd(position: Vector, direction: Direction): Vector = {
-    getGradient[Vector](position, direction, zero, zero, getVelocityGradient2nd)
-  }
-
+  
   private def getGradient[T](position: Vector, direction: Direction, wallGradient: T, boundaryGradient: T): Option[T] = {
     val value = getValue(position)
     if (value.isWall)
@@ -204,19 +229,10 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
     })
       return Some(boundaryGradient)
     else {
-      val n = getNeighbours(position, direction);
-      f(position, n, direction)
+      return None
     }
   }
 
-  private def getPressureGradient2nd(position: Vector, direction: Direction): Double = {
-    getGradient[Double](position, direction, 0, 0, getPressureGradient2nd)
-  }
-
-  def getPressureGradient2nd(position: Vector): Vector = {
-    val list: List[Double] = Direction.ordered.map(getPressureGradient2nd(position, _))
-    new Vector(list)
-  }
 
 }
 
