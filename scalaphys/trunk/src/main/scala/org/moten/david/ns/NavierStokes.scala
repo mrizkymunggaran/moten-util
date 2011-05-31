@@ -217,6 +217,10 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
   }
 }
 
+class NavierStokes {
+  def step(data: Data, timestep: Double): Data = data
+}
+
 object NewtonsMethod {
   import scala.math._
 
@@ -231,8 +235,4 @@ object NewtonsMethod {
       else solve(f, x - fx / gradient, h, precision, maxIterations - 1)
     }
   }
-}
-
-class NavierStokes {
-  def step(data: Data, timestep: Double): Data = data
 }
