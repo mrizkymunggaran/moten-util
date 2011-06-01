@@ -145,7 +145,7 @@ trait Data {
   /**
    * See http://en.wikipedia.org/wiki/Pressure-correction_method
    */
-  private def getValueAfterTime(position: Vector, timeDelta: Double): Value = {
+  def getValueAfterTime(position: Vector, timeDelta: Double): Value = {
     val value0 = getValue(position)
     if (value0.isWall) return value0
     val v1 = getVelocityAfterTimeStep(position, timeDelta)
@@ -253,10 +253,17 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
     else
       (a2._2 + a1._2 - 2 * a._2) / (a2._1 - a1._1)
   }
+
+  def step(timestep: Double): Data = {
+    val newMap = map.keySet.map(v => (v, getValueAfterTime(v, timestep))).toMap
+    return new RegularGridData(newMap)
+  }
 }
 
 class NavierStokes {
-  def step(data: Data, timestep: Double): Data = data
+  def step(map: Map[Vector, Value], timestep: Double, numSteps: Int): Data = {
+    return new RegularGridData(map)
+  }
 }
 
 /**
