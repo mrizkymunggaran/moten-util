@@ -189,6 +189,7 @@ private class DataOverride(data: Data, position: Vector, value: Value) extends D
   def getGradient(position: Vector, direction: Direction,
     wallGradient: Double, boundaryGradient: Double,
     f: Vector => Double, isFirstDerivative: Boolean): Double = 0
+  def step(timestep: Double): Data = data.step(timestep)
 }
 
 object RegularGridData {
@@ -280,7 +281,7 @@ object NewtonsMethod {
    * if no solution found within maxIterations.
    *
    * @param f
-   * @param x inital guess at the solution.
+   * @param x initial guess at the solution.
    * @param h the delta for calculation of derivative
    * @param precision the desired maximum absolute value of f(x) at an
    *        acceptable solution
