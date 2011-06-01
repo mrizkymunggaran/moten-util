@@ -88,6 +88,7 @@ trait Data {
   def getValue(vector: Vector): Value
   def getGradient(position: Vector, direction: Direction,
     wallGradient: Double, boundaryGradient: Double, f: Vector => Double, isFirstDerivative: Boolean): Double
+  def step(timestep: Double): Data
 
   //implemented for you
   private def getVelocityLaplacian(position: Vector, direction: Direction) = {
@@ -254,15 +255,16 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
       (a2._2 + a1._2 - 2 * a._2) / (a2._1 - a1._1)
   }
 
-  def step(timestep: Double): Data = {
+  override def step(timestep: Double): Data = {
     val newMap = map.keySet.map(v => (v, getValueAfterTime(v, timestep))).toMap
     return new RegularGridData(newMap)
   }
 }
 
 class NavierStokes {
-  def step(map: Map[Vector, Value], timestep: Double, numSteps: Int): Data = {
-    return new RegularGridData(map)
+  def step(data: Data, timestep: Double, numSteps: Int): Data = {
+    if (numSteps == 0) return data
+    else return step(data.step(timestep), timestep, numSteps - 1)
   }
 }
 
