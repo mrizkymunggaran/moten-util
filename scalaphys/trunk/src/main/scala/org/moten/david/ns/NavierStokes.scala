@@ -12,6 +12,12 @@
 package org.moten.david.ns
 import scala.collection.immutable.TreeSet
 
+/**
+ * X,Y horizontal coordinates (arbitrary coordinate system).
+ * Z is height above sea level in m (all calculations
+ * assume SI units).
+ *
+ */
 object Direction extends Enumeration {
   type Direction = Value
   val X, Y, Z = Value
@@ -71,6 +77,8 @@ case class Value(
 
 object Data {
   val gravity = Vector(0, 0, -9.8)
+  val FIRST = true
+  val SECOND = false
 }
 
 trait Data {
@@ -78,28 +86,24 @@ trait Data {
 
   //implement these!
   def getValue(vector: Vector): Value
-  def getVelocityGradient(position: Vector, direction: Direction): Vector
-  def getPressureGradient(position: Vector): Vector
-  def getVelocityGradient2nd(position: Vector, direction: Direction): Vector
-  def getPressureGradient2nd(position: Vector): Vector
   def getGradient(position: Vector, direction: Direction,
     wallGradient: Double, boundaryGradient: Double, f: Vector => Double, isFirstDerivative: Boolean): Double
 
   //implemented for you
-  def getVelocityLaplacian(position: Vector, direction: Direction) = {
+  private def getVelocityLaplacian(position: Vector, direction: Direction) = {
     getVelocityGradient2nd(position, direction).sum
   }
-  def getVelocityLaplacian(position: Vector): Vector = {
+  private def getVelocityLaplacian(position: Vector): Vector = {
     Vector(getVelocityLaplacian(position, X),
       getVelocityLaplacian(position, Y),
       getVelocityLaplacian(position, Z))
   }
-  def getVelocityJacobian(position: Vector) = {
+  private def getVelocityJacobian(position: Vector) = {
     Matrix(getVelocityGradient(position, X),
       getVelocityGradient(position, Y),
       getVelocityGradient(position, Z))
   }
-  def dvdt(position: Vector) = {
+  private def dvdt(position: Vector) = {
     val value = getValue(position)
     val velocityLaplacian: Vector = getVelocityLaplacian(position)
     val pressureGradient: Vector = getPressureGradient(position)
@@ -109,10 +113,10 @@ trait Data {
       .minus(gravity)
       .minus(velocityJacobian * value.velocity)
   }
-  def getPressureLaplacian(position: Vector) = {
+  private def getPressureLaplacian(position: Vector) = {
     getPressureGradient2nd(position).sum
   }
-  def getVelocityAfterTimeStep(position: Vector, timeStep: Double) = {
+  private def getVelocityAfterTimeStep(position: Vector, timeStep: Double) = {
     getValue(position).velocity.add(dvdt(position) * timeStep)
   }
 
@@ -125,11 +129,11 @@ trait Data {
     val v = getValue(position)
     //assume not wall or boundary
     val valueNext = Value(velocityNext, pressure, v.depth, v.density, v.viscosity, true, Map(X -> false, Y -> false, Z -> false))
-    val data2 = new DataOverride(this, position, valueNext)
-    data2.getPressureCorrection(position)
+    val dataWithOverridenPressureAtPosition = new DataOverride(this, position, valueNext)
+    dataWithOverridenPressureAtPosition.getPressureCorrection(position)
   }
 
-  def getPressureCorrection(position: Vector): Double = {
+  private def getPressureCorrection(position: Vector): Double = {
     val value = getValue(position)
     val pressureLaplacian = getPressureLaplacian(position)
     def f(v: Vector, direction: Direction) =
@@ -141,7 +145,7 @@ trait Data {
   /**
    * See http://en.wikipedia.org/wiki/Pressure-correction_method
    */
-  def getValueAfterTime(position: Vector, timeDelta: Double): Value = {
+  private def getValueAfterTime(position: Vector, timeDelta: Double): Value = {
     val value0 = getValue(position)
     if (value0.isWall) return value0
     val v1 = getVelocityAfterTimeStep(position, timeDelta)
@@ -155,14 +159,32 @@ trait Data {
     }
     return value0.modifyPressure(newPressure)
   }
+
+  private def getPressureGradient(position: Vector): Vector = {
+    new Vector(Direction.ordered.map(getPressureGradient(position, _)))
+  }
+
+  private def getPressureGradient(position: Vector, direction: Direction): Double = {
+    val value = getValue(position);
+    val force = gravity.get(direction) * value.density
+    getGradient(position, direction, force, 0, getValue(_).pressure, FIRST)
+  }
+
+  private def getPressureGradient2nd(position: Vector): Vector = {
+    new Vector(Direction.ordered.map(d => getGradient(position, d, 0, 0, getValue(_).pressure, SECOND)))
+  }
+
+  private def getVelocityGradient(position: Vector, direction: Direction): Vector = {
+    new Vector(Direction.ordered.map(d => getGradient(position, direction, 0, 0, getValue(_).velocity.get(d), FIRST)))
+  }
+
+  def getVelocityGradient2nd(position: Vector, direction: Direction): Vector = {
+    new Vector(Direction.ordered.map(d => getGradient(position, direction, 0, 0, getValue(_).velocity.get(d), SECOND)))
+  }
 }
 
 private class DataOverride(data: Data, position: Vector, value: Value) extends Data {
   def getValue(vector: Vector): Value = if (vector equals position) value else data.getValue(vector)
-  def getVelocityGradient(position: Vector, direction: Direction): Vector = data.getVelocityGradient(position, direction)
-  def getPressureGradient(position: Vector): Vector = data.getPressureGradient(position)
-  def getVelocityGradient2nd(position: Vector, direction: Direction): Vector = data.getVelocityGradient(position, direction)
-  def getPressureGradient2nd(position: Vector): Vector = data.getPressureGradient2nd(position)
   def getGradient(position: Vector, direction: Direction,
     wallGradient: Double, boundaryGradient: Double,
     f: Vector => Double, isFirstDerivative: Boolean): Double = 0
@@ -179,59 +201,25 @@ object RegularGridData {
   }
 }
 
+/**
+ * Implements gradient calculation for a regular grid. Every position
+ * on the grid has nominated neighbours to be used in gradient
+ * calculations (both first and second derivatives).
+ */
 class RegularGridData(map: Map[Vector, Value]) extends Data {
   import Data._
   import RegularGridData._
-  val FIRST = true
-  val SECOND = false
 
   val ordinates = getDirectionalNeighbours(map.keySet)
 
-  def getValue(vector: Vector): Value = {
+  override def getValue(vector: Vector): Value = {
     map.get(vector) match {
       case s: Some[Value] => s.get
       case None => throw new RuntimeException("no value exists for position " + vector)
     }
   }
 
-  def getNeighbours(position: Vector, d: Direction): Tuple2[Vector, Vector] = {
-    val t = ordinates.getOrElse(d, null).get(position.get(d)).getOrElse(null)
-    (position.modify(d, t._1),
-      position.modify(d, t._2))
-  }
-
-  def getPressureGradient(position: Vector) = {
-    new Vector(Direction.ordered.map(getPressureGradient(position, _)))
-  }
-
-  private def getPressureGradient(position: Vector, direction: Direction): Double = {
-    val value = getValue(position);
-    val force = gravity.get(direction) * value.density
-    getGradient(position, direction, force, 0, getValue(_).pressure, FIRST)
-  }
-
-  def getPressureGradient2nd(position: Vector): Vector = {
-    new Vector(Direction.ordered.map(d => getGradient(position, d, 0, 0, getValue(_).pressure, SECOND)))
-  }
-
-  def getVelocityGradient(position: Vector, direction: Direction): Vector = {
-    new Vector(Direction.ordered.map(d => getGradient(position, direction, 0, 0, getValue(_).velocity.get(d), FIRST)))
-  }
-
-  def getVelocityGradient2nd(position: Vector, direction: Direction): Vector = {
-    new Vector(Direction.ordered.map(d => getGradient(position, direction, 0, 0, getValue(_).velocity.get(d), SECOND)))
-  }
-
-  private type Pair = Tuple2[Double, Double]
-
-  private def getGradient(a1: Pair, a: Pair, a2: Pair, isFirstDerivative: Boolean): Double = {
-    if (isFirstDerivative)
-      (a2._2 - a1._2) / (a2._1 - a1._1)
-    else
-      (a2._2 + a1._2 - 2 * a._2) / (a2._1 - a1._1)
-  }
-
-  def getGradient(position: Vector, direction: Direction,
+  override def getGradient(position: Vector, direction: Direction,
     wallGradient: Double, boundaryGradient: Double, f: Vector => Double, isFirstDerivative: Boolean): Double = {
     val value = getValue(position)
     if (value.isWall)
@@ -250,15 +238,47 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
         isFirstDerivative)
     }
   }
+
+  private def getNeighbours(position: Vector, d: Direction): Tuple2[Vector, Vector] = {
+    val t = ordinates.getOrElse(d, null).get(position.get(d)).getOrElse(null)
+    (position.modify(d, t._1),
+      position.modify(d, t._2))
+  }
+
+  private type Pair = Tuple2[Double, Double]
+
+  private def getGradient(a1: Pair, a: Pair, a2: Pair, isFirstDerivative: Boolean): Double = {
+    if (isFirstDerivative)
+      (a2._2 - a1._2) / (a2._1 - a1._1)
+    else
+      (a2._2 + a1._2 - 2 * a._2) / (a2._1 - a1._1)
+  }
 }
 
 class NavierStokes {
   def step(data: Data, timestep: Double): Data = data
 }
 
+/**
+ * Newton's Method solver for one dimensional equations in the real numbers.
+ *
+ */
 object NewtonsMethod {
   import scala.math._
 
+  /**
+   * Uses Newton's Method to solve f(x) = 0 for x. Returns None
+   * if no solution found within maxIterations.
+   *
+   * @param f
+   * @param x inital guess at the solution.
+   * @param h the delta for calculation of derivative
+   * @param precision the desired maximum absolute value of f(x) at an
+   *        acceptable solution
+   * @param maxIterations the maximum number of iterations to perform.
+   *        If maxIterations is reached then returns
+   * @return optional solution
+   */
   def solve(f: Double => Double, x: Double, h: Double,
     precision: Double, maxIterations: Long): Option[Double] = {
     val fx = f(x)
@@ -271,4 +291,3 @@ object NewtonsMethod {
     }
   }
 }
-
