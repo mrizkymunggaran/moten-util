@@ -7,9 +7,6 @@ import scala.math._
 class NavierStokesTest {
 
   @Test
-  def testOK() = assertTrue(true)
-
-  @Test
   def testNewtonsMethod() {
     def f(x: Double) = sqrt(x) - 3
     NewtonsMethod.solve(f, 2, 0.1, 0.0001, 5) match {
