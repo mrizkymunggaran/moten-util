@@ -71,7 +71,11 @@ class NavierStokesTest {
 
   private def vectors(size: Int) = {
     val range = Range(1, size + 1)
-    (for (i <- range; j <- range; k <- range) yield (i, j, k))
+    (for (
+      i <- range;
+      j <- range;
+      k <- range
+    ) yield (i, j, k))
       .map(t => Vector(t._1, t._2, -t._3))
   }
 
