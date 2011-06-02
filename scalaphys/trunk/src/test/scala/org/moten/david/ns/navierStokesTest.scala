@@ -8,7 +8,7 @@ import scala.util.Random._
 import Logger._
 
 @Test
-class NavierStokesTest {
+class NewtonsMethodTest {
 
   @Test
   def testNewtonsMethod() {
@@ -18,6 +18,11 @@ class NavierStokesTest {
       case x: Some[Double] => assertEquals(9.0, x.get, 0.001)
     }
   }
+}
+
+@Test
+class NavierStokesTest {
+  import Util._
 
   @Test
   def testNavierStokesStepDoesNothingToDataInEquilibrium() {
@@ -69,7 +74,10 @@ class NavierStokesTest {
     //    println(data2)
   }
 
-  private def vectors(size: Int) = {
+}
+
+object Util {
+  def vectors(size: Int) = {
     val range = Range(1, size + 1)
     (for (
       i <- range;
@@ -78,6 +86,11 @@ class NavierStokesTest {
     ) yield (i, j, k))
       .map(t => Vector(t._1, t._2, -t._3))
   }
+}
+
+@Test
+class GridDataTest {
+  import Util._
 
   @Test
   def testGetDirectionalNeighbours() {
@@ -86,6 +99,4 @@ class NavierStokesTest {
     println(map)
     assertEquals((1.0, 3.0), map.getOrElse(X, null).getOrElse(2.0, null))
   }
-
 }
-
