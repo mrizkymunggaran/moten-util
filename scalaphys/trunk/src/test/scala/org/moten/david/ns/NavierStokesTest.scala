@@ -4,6 +4,9 @@ import _root_.org.junit._
 import Direction._
 import Assert._
 import scala.math._
+import scala.util.Random._
+import Logger._
+
 @Test
 class NavierStokesTest {
 
@@ -18,27 +21,52 @@ class NavierStokesTest {
 
   @Test
   def testNavierStokesStepDoesNothingToDataInEquilibrium() {
+    info("equilibrium run")
     //create a 5x5x5 regular grid with no movement and 0 surface pressure, 
     //seawater kinematic viscosity is for 20 degrees C
     val size = 50
-
-    val map = vectors(size)
+    info("creating map")
+    val map = vectors(size).par
       .map(v => (v, Value(
-        velocity = VectorUtil.zero,
+        velocity = Vector.zero,
         pressure = abs(v.z * 1000 * 9.8),
         depth = size,
         density = 1000,
         viscosity = 0.00000105,
         isWall = v.z == -size,
         isBoundary = Direction.values.map(d => (d, abs(v.get(d)) == 1 || v.get(d) == size)).toMap)))
-      .toMap
-
+      .seq.toMap
+    info("creating Data")
     val data = new RegularGridData(map)
     //    println(data)
     val data2 = data.step(30)
     //    println(data2)
     //should be no change in any value after 30 seconds
     data.getPositions.foreach(v => assertEquals(data.getValue(v), data2.getValue(v)))
+  }
+
+  @Test
+  def testNavierStokesStepDoesSomethingWhenNotInEquilibrium() {
+    info("real try at solving")
+    //create a 5x5x5 regular grid with no movement and 0 surface pressure, 
+    //seawater kinematic viscosity is for 20 degrees C
+    val size = 50
+    info("creating map")
+    val map = vectors(size).par
+      .map(v => (v, Value(
+        velocity = Vector.zero + Vector(nextDouble, nextDouble, nextDouble),
+        pressure = abs(v.z * 1000 * 9.8) + 20 * nextDouble,
+        depth = size,
+        density = 1000,
+        viscosity = 0.00000105,
+        isWall = v.z == -size,
+        isBoundary = Direction.values.map(d => (d, abs(v.get(d)) == 1 || v.get(d) == size)).toMap)))
+      .seq.toMap
+    info("creating Data")
+    val data = new RegularGridData(map)
+    //    println(data)
+    val data2 = data.step(30)
+    //    println(data2)
   }
 
   private def vectors(size: Int) = {
