@@ -11,12 +11,15 @@
  */
 package org.moten.david.ns
 import scala.collection.immutable.TreeSet
+import java.util.Date
+import java.text.SimpleDateFormat
 
 object Logger {
+  val df = new SimpleDateFormat("HH:mm:ss.SSS")
   var infoEnabled = true
   var debugEnabled = false
-  def info(msg: => AnyRef) = if (infoEnabled) println(msg)
-  def debug(msg: => AnyRef) = if (debugEnabled) println(msg)
+  def info(msg: => AnyRef) = if (infoEnabled) println(df.format(new Date()) + " " + msg)
+  def debug(msg: => AnyRef) = if (debugEnabled) println(df.format(new Date()) + " " + msg)
 }
 import Logger._
 
@@ -306,7 +309,15 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
   }
 
   override def step(timestep: Double): Data = {
-    val newMap = map.keySet.par.map(v => (v, getValueAfterTime(v, timestep))).seq.toMap
+    info("creating parallel collections")
+    val par = map.keySet.par
+    info("solving timestep")
+    val par2 = par.map(v => (v, getValueAfterTime(v, timestep)))
+    info("converting to sequential collection")
+    val seq = par2.seq
+    info("converting to map")
+    val newMap = seq.toMap
+    info("creating new Data")
     return new RegularGridData(newMap)
   }
 
