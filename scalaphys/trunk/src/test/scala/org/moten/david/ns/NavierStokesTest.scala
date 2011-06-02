@@ -17,10 +17,10 @@ class NavierStokesTest {
   }
 
   @Test
-  def testNavierStokes() {
+  def testNavierStokesStepDoesNothingToDataInEquilibrium() {
     //create a 5x5x5 regular grid with no movement and 0 surface pressure, 
     //seawater kinematic viscosity is for 20 degrees C
-    val size = 5
+    val size = 50
 
     val map = vectors(size)
       .map(v => (v, Value(
@@ -34,9 +34,11 @@ class NavierStokesTest {
       .toMap
 
     val data = new RegularGridData(map)
-    println(data)
+    //    println(data)
     val data2 = data.step(30)
-    println(data2)
+    //    println(data2)
+    //should be no change in any value after 30 seconds
+    data.getPositions.foreach(v => assertEquals(data.getValue(v), data2.getValue(v)))
   }
 
   private def vectors(size: Int) = {

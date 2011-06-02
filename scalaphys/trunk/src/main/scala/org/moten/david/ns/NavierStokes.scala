@@ -12,6 +12,14 @@
 package org.moten.david.ns
 import scala.collection.immutable.TreeSet
 
+object Logger {
+  var infoEnabled = true
+  var debugEnabled = false
+  def info(msg: => AnyRef) = if (infoEnabled) println(msg)
+  def debug(msg: => AnyRef) = if (debugEnabled) println(msg)
+}
+import Logger._
+
 /**
  * X,Y horizontal coordinates (arbitrary coordinate system).
  * Z is height above sea level in m (all calculations
@@ -25,14 +33,6 @@ object Direction extends Enumeration {
 }
 
 import Direction._
-
-object Logger {
-  var infoEnabled = true
-  var debugEnabled = true
-  def info(msg: => AnyRef) = if (infoEnabled) println(msg)
-  def debug(msg: => AnyRef) = if (debugEnabled) println(msg)
-}
-import Logger._
 
 case class Vector(x: Double, y: Double, z: Double) {
   def this(list: List[Double]) {
@@ -306,7 +306,7 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
   }
 
   override def step(timestep: Double): Data = {
-    val newMap = map.keySet.map(v => (v, getValueAfterTime(v, timestep))).toMap
+    val newMap = map.keySet.par.map(v => (v, getValueAfterTime(v, timestep))).seq.toMap
     return new RegularGridData(newMap)
   }
 
