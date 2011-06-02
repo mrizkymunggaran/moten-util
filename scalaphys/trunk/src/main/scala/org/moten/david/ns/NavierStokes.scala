@@ -230,7 +230,7 @@ trait Data {
   private def getVelocityGradient(position: Vector, direction: Direction): Vector =
     new Vector(Direction.ordered.map(d => getGradient(position, direction, 0, 0, getValue(_).velocity.get(d), FIRST)))
 
-  def getVelocityGradient2nd(position: Vector, direction: Direction): Vector =
+  private def getVelocityGradient2nd(position: Vector, direction: Direction): Vector =
     new Vector(Direction.ordered.map(d => getGradient(position, direction, 0, 0, getValue(_).velocity.get(d), SECOND)))
 
   private def step(data: Data, timestep: Double, numSteps: Int): Data = {
@@ -275,7 +275,7 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
   import Data._
   import GridData._
 
-  val ordinates = getDirectionalNeighbours(map.keySet)
+  private val ordinates = getDirectionalNeighbours(map.keySet)
 
   override def getValue(vector: Vector): Value = {
     map.get(vector) match {

@@ -19,6 +19,7 @@
     <maven.compiler.target>1.5</maven.compiler.target>
     <encoding>UTF-8</encoding>
     <scala.version>2.9.0</scala.version>
+    <scala.plugin.version>2.15.0</scala.plugin.version>
   </properties>
 
 
@@ -74,7 +75,7 @@
       <plugin>
         <groupId>org.scala-tools</groupId>
         <artifactId>maven-scala-plugin</artifactId>
-        <version>2.15.0</version>
+        <version>${scala.plugin.version}</version>
         <executions>
           <execution>
             <goals>
@@ -108,4 +109,13 @@
       </plugin>
     </plugins>
   </build>
+<reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.scala-tools</groupId>
+        <artifactId>maven-scala-plugin</artifactId>
+	<version>${scala.plugin.version}</version>
+      </plugin>
+    </plugins>
+  </reporting>
 </project>
