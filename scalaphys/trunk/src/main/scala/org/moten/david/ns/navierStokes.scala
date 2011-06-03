@@ -179,12 +179,15 @@ trait Data {
    * Returns the Conservation of Mass (Continuity) Equation described by the
    * Navier-Stokes equations.
    */
-  private def getPressureCorrection(position: Vector, v1: Vector, timeDelta: Double)(pressure: Double): Double = {
+  private def getPressureCorrection(position: Vector, v1: Vector,
+    timeDelta: Double)(pressure: Double): Double = {
     val velocityNext = getVelocityAfterTimeStep(position, timeDelta)
     val v = getValue(position)
     //assume not wall or boundary
-    val valueNext = Value(velocityNext, pressure, v.depth, v.density, v.viscosity, true, Map(X -> false, Y -> false, Z -> false))
-    val dataWithOverridenPressureAtPosition = new DataOverride(this, position, valueNext)
+    val valueNext = Value(velocityNext, pressure, v.depth, v.density,
+      v.viscosity, true, Map(X -> false, Y -> false, Z -> false))
+    val dataWithOverridenPressureAtPosition =
+      new DataOverride(this, position, valueNext)
     dataWithOverridenPressureAtPosition.getPressureCorrection(position)
   }
 
@@ -211,10 +214,11 @@ trait Data {
     val h = 0.1
     val precision = 0.0001
     val maxIterations = 15
-    val newPressure = NewtonsMethod.solve(f, value0.pressure, h, precision, maxIterations) match {
-      case None => value0.pressure
-      case a: Some[Double] => a.get
-    }
+    val newPressure = NewtonsMethod.solve(f, value0.pressure, h,
+      precision, maxIterations) match {
+        case None => value0.pressure
+        case a: Some[Double] => a.get
+      }
     debug("newPressure=" + newPressure + "old=" + value0.pressure)
     return value0.modifyPressure(newPressure)
   }
@@ -225,17 +229,23 @@ trait Data {
   private def getPressureGradient(position: Vector, direction: Direction): Double = {
     val value = getValue(position);
     val force = gravity.get(direction) * value.density
-    getGradient(position, direction, force, force, getValue(_).pressure, FirstDerivative)
+    getGradient(position, direction, force, force,
+      getValue(_).pressure, FirstDerivative)
   }
 
   private def getPressureGradient2nd(position: Vector): Vector =
-    new Vector(directions.map(d => getGradient(position, d, 0, 0, getValue(_).pressure, SecondDerivative)))
+    new Vector(directions.map(d =>
+      getGradient(position, d, 0, 0, getValue(_).pressure, SecondDerivative)))
 
   private def getVelocityGradient(position: Vector, direction: Direction): Vector =
-    new Vector(directions.map(d => getGradient(position, direction, 0, 0, getValue(_).velocity.get(d), FirstDerivative)))
+    new Vector(directions.map(d =>
+      getGradient(position, direction, 0, 0,
+        getValue(_).velocity.get(d), FirstDerivative)))
 
   private def getVelocityGradient2nd(position: Vector, direction: Direction): Vector =
-    new Vector(directions.map(d => getGradient(position, direction, 0, 0, getValue(_).velocity.get(d), SecondDerivative)))
+    new Vector(directions.map(d =>
+      getGradient(position, direction, 0, 0,
+        getValue(_).velocity.get(d), SecondDerivative)))
 
   private def step(data: Data, timestep: Double, numSteps: Int): Data = {
     if (numSteps == 0) return data
@@ -249,13 +259,16 @@ trait Data {
     .map(v => (v, getValue(v)).toString + "\n").toString
 }
 
-private class DataOverride(data: Data, position: Vector, value: Value) extends Data {
+private class DataOverride(data: Data, position: Vector,
+  value: Value) extends Data {
   override def getPositions(): Set[Vector] = data.getPositions
-  override def getValue(vector: Vector): Value = if (vector equals position) value else data.getValue(vector)
+  override def getValue(vector: Vector): Value =
+    if (vector equals position) value else data.getValue(vector)
   override def getGradient(position: Vector, direction: Direction,
     wallGradient: Double, boundaryGradient: Double,
     f: Vector => Double, derivativeType: Derivative): Double =
-    data.getGradient(position, direction, wallGradient, boundaryGradient, f, derivativeType)
+    data.getGradient(position, direction, wallGradient,
+      boundaryGradient, f, derivativeType)
   override def step(timestep: Double): Data = data.step(timestep)
 }
 
@@ -292,7 +305,8 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
   override def getPositions = map.keySet
 
   override def getGradient(position: Vector, direction: Direction,
-    wallGradient: Double, boundaryGradient: Double, f: Vector => Double, derivativeType: Derivative): Double = {
+    wallGradient: Double, boundaryGradient: Double,
+    f: Vector => Double, derivativeType: Derivative): Double = {
     val value = getValue(position)
     if (value.isWall)
       return wallGradient
@@ -318,7 +332,8 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
 
   private type Pair = Tuple2[Double, Double]
 
-  private def getGradient(a1: Pair, a: Pair, a2: Pair, derivativeType: Derivative): Double = {
+  private def getGradient(a1: Pair, a: Pair, a2: Pair,
+    derivativeType: Derivative): Double = {
     if (derivativeType equals FirstDerivative)
       (a2._2 - a1._2) / (a2._1 - a1._1)
     else
