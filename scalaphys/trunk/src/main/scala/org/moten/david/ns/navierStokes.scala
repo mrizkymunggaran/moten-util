@@ -146,6 +146,11 @@ trait Data {
       getVelocityGradient(position, Y),
       getVelocityGradient(position, Z))
 
+  /**
+   * See http://en.wikipedia.org/wiki/Navier%E2%80%93Stokes_equations#Cartesian_coordinates.
+   * @param position
+   * @return
+   */
   private def dvdt(position: Vector) = {
     val value = getValue(position)
     val velocityLaplacian: Vector = getVelocityLaplacian(position)
@@ -161,7 +166,6 @@ trait Data {
       .add(gravity)
       .minus(velocityJacobian * value.velocity)
     debug("dvdt=" + result)
-
     result
   }
 
