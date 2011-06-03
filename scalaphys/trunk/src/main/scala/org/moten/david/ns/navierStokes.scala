@@ -10,6 +10,7 @@
  * scalability.
  */
 package org.moten.david.ns
+
 import scala.collection.immutable.TreeSet
 import java.util.Date
 import java.text.SimpleDateFormat
