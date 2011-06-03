@@ -255,7 +255,7 @@ private class DataOverride(data: Data, position: Vector, value: Value) extends D
   override def step(timestep: Double): Data = data.step(timestep)
 }
 
-object GridData {
+object Grid {
   //TODO unit test this
   def getDirectionalNeighbours(vectors: Set[Vector]) = {
     //produce a map of Direction to a map of ordinate values with their 
@@ -274,7 +274,7 @@ object GridData {
  */
 class RegularGridData(map: Map[Vector, Value]) extends Data {
   import Data._
-  import GridData._
+  import Grid._
 
   private val ordinates = getDirectionalNeighbours(map.keySet)
 

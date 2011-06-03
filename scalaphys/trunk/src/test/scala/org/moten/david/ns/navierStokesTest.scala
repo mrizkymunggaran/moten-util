@@ -94,7 +94,7 @@ class GridDataTest {
 
   @Test
   def testGetDirectionalNeighbours() {
-    import GridData._
+    import Grid._
     val map = getDirectionalNeighbours(vectors(5).toSet)
     println(map)
     assertEquals((1.0, 3.0), map.getOrElse(X, null).getOrElse(2.0, null))
