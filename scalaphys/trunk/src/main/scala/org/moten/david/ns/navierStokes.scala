@@ -32,18 +32,18 @@ import Logger._
 object Direction extends Enumeration {
   type Direction = Value
   val X, Y, Z = Value
-  def ordered = List(X, Y, Z)
+  def directions = List(X, Y, Z)
 }
 import Direction._
 
 /**
  * The derivative type.
  */
-object Derivative extends Enumeration {
+object DerivativeType extends Enumeration {
   type Derivative = Value
-  val FIRST, SECOND = Value
+  val FirstDerivative, SecondDerivative = Value
 }
-import Derivative._
+import DerivativeType._
 
 /**
  * A mathematical vector in X,Y,Z space.
@@ -129,7 +129,7 @@ trait Data {
   def getValue(vector: Vector): Value
   def getGradient(position: Vector, direction: Direction,
     wallGradient: Double, boundaryGradient: Double,
-    f: Vector => Double, derivative: Derivative): Double
+    f: Vector => Double, derivativeType: Derivative): Double
   def step(timestep: Double): Data
 
   //implemented for you
@@ -190,7 +190,7 @@ trait Data {
     def f(v: Vector, direction: Direction) =
       getVelocityGradient(v, direction) * v
     return pressureLaplacian +
-      Direction.ordered.map(d => getGradient(position, d, 0, 0, f(_, d), FIRST)).sum
+      directions.map(d => getGradient(position, d, 0, 0, f(_, d), FirstDerivative)).sum
   }
 
   /**
@@ -216,22 +216,22 @@ trait Data {
   }
 
   private def getPressureGradient(position: Vector): Vector =
-    new Vector(Direction.ordered.map(getPressureGradient(position, _)))
+    new Vector(directions.map(getPressureGradient(position, _)))
 
   private def getPressureGradient(position: Vector, direction: Direction): Double = {
     val value = getValue(position);
     val force = gravity.get(direction) * value.density
-    getGradient(position, direction, force, force, getValue(_).pressure, FIRST)
+    getGradient(position, direction, force, force, getValue(_).pressure, FirstDerivative)
   }
 
   private def getPressureGradient2nd(position: Vector): Vector =
-    new Vector(Direction.ordered.map(d => getGradient(position, d, 0, 0, getValue(_).pressure, SECOND)))
+    new Vector(directions.map(d => getGradient(position, d, 0, 0, getValue(_).pressure, SecondDerivative)))
 
   private def getVelocityGradient(position: Vector, direction: Direction): Vector =
-    new Vector(Direction.ordered.map(d => getGradient(position, direction, 0, 0, getValue(_).velocity.get(d), FIRST)))
+    new Vector(directions.map(d => getGradient(position, direction, 0, 0, getValue(_).velocity.get(d), FirstDerivative)))
 
   private def getVelocityGradient2nd(position: Vector, direction: Direction): Vector =
-    new Vector(Direction.ordered.map(d => getGradient(position, direction, 0, 0, getValue(_).velocity.get(d), SECOND)))
+    new Vector(directions.map(d => getGradient(position, direction, 0, 0, getValue(_).velocity.get(d), SecondDerivative)))
 
   private def step(data: Data, timestep: Double, numSteps: Int): Data = {
     if (numSteps == 0) return data
@@ -250,8 +250,8 @@ private class DataOverride(data: Data, position: Vector, value: Value) extends D
   override def getValue(vector: Vector): Value = if (vector equals position) value else data.getValue(vector)
   override def getGradient(position: Vector, direction: Direction,
     wallGradient: Double, boundaryGradient: Double,
-    f: Vector => Double, derivative: Derivative): Double =
-    data.getGradient(position, direction, wallGradient, boundaryGradient, f, derivative)
+    f: Vector => Double, derivativeType: Derivative): Double =
+    data.getGradient(position, direction, wallGradient, boundaryGradient, f, derivativeType)
   override def step(timestep: Double): Data = data.step(timestep)
 }
 
@@ -259,7 +259,8 @@ object GridData {
   //TODO unit test this
   def getDirectionalNeighbours(vectors: Set[Vector]) = {
     //produce a map of Direction to a map of ordinate values with their 
-    //negative and positive direction neighbour ordinate values
+    //negative and positive direction neighbour ordinate values. This 
+    //map will return None for all elements on the boundary.
     Direction.values.map(d => (d, vectors.map(_.get(d))
       .toSet.toList.sorted.sliding(3)
       .toList.map(x => (x(1), (x(0), x(2)))).toMap)).toMap
@@ -287,7 +288,7 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
   override def getPositions = map.keySet
 
   override def getGradient(position: Vector, direction: Direction,
-    wallGradient: Double, boundaryGradient: Double, f: Vector => Double, derivative: Derivative): Double = {
+    wallGradient: Double, boundaryGradient: Double, f: Vector => Double, derivativeType: Derivative): Double = {
     val value = getValue(position)
     if (value.isWall)
       return wallGradient
@@ -302,7 +303,7 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
         (n._1.get(direction), f(n._1)),
         (position.get(direction), f(position)),
         (n._2.get(direction), f(n._2)),
-        derivative)
+        derivativeType)
     }
   }
 
@@ -313,8 +314,8 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
 
   private type Pair = Tuple2[Double, Double]
 
-  private def getGradient(a1: Pair, a: Pair, a2: Pair, derivative: Derivative): Double = {
-    if (derivative equals FIRST)
+  private def getGradient(a1: Pair, a: Pair, a2: Pair, derivativeType: Derivative): Double = {
+    if (derivativeType equals FirstDerivative)
       (a2._2 - a1._2) / (a2._1 - a1._1)
     else
       (a2._2 + a1._2 - 2 * a._2) / (a2._1 - a1._1)
@@ -322,11 +323,11 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
 
   override def step(timestep: Double): Data = {
     info("creating parallel collection")
-    val par = map.keySet.par
+    val vectors = map.keySet.par
     info("solving timestep")
-    val par2 = par.map(v => (v, getValueAfterTime(v, timestep)))
+    val stepped = vectors.map(v => (v, getValueAfterTime(v, timestep)))
     info("converting to sequential collection")
-    val seq = par2.seq
+    val seq = stepped.seq
     info("converting to map")
     val newMap = seq.toMap
     info("creating new Data")

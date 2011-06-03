@@ -29,7 +29,7 @@ class NavierStokesTest {
     info("equilibrium run")
     //create a 5x5x5 regular grid with no movement and 0 surface pressure, 
     //seawater kinematic viscosity is for 20 degrees C
-    val size = 50
+    val size = 20
     info("creating map")
     val map = vectors(size).par
       .map(v => (v, Value(
@@ -55,7 +55,7 @@ class NavierStokesTest {
     info("real try at solving")
     //create a 5x5x5 regular grid with no movement and 0 surface pressure, 
     //seawater kinematic viscosity is for 20 degrees C
-    val size = 50
+    val size = 20
     info("creating map")
     val map = vectors(size).par
       .map(v => (v, Value(
@@ -98,5 +98,6 @@ class GridDataTest {
     val map = getDirectionalNeighbours(vectors(5).toSet)
     println(map)
     assertEquals((1.0, 3.0), map.getOrElse(X, null).getOrElse(2.0, null))
+    assertEquals(None, map.getOrElse(X, null).get(5.0))
   }
 }
