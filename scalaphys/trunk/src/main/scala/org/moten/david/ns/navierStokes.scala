@@ -119,6 +119,11 @@ case class Value(
 }
 
 object Data {
+  /**
+   * Acceleration due to gravity. Note that this vector
+   * determines the meaning of the Z direction (positive Z
+   * direction is decrease in depth).
+   */
   val gravity = Vector(0, 0, -9.8)
 }
 
