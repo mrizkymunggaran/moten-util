@@ -310,6 +310,16 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
 
   override def getPositions = map.keySet
 
+  //TODO test this
+  private def getGradient(position: Vector, direction: Direction,
+    n: Tuple2[Vector, Vector], f: Vector => Double, derivativeType: Derivative): Double = {
+    getGradient(
+      (n._1.get(direction), f(n._1)),
+      (position.get(direction), f(position)),
+      (n._2.get(direction), f(n._2)),
+      derivativeType)
+  }
+
   override def getGradient(position: Vector, direction: Direction,
     wallGradient: Double, boundaryGradient: Double,
     f: Vector => Double, derivativeType: Derivative): Double = {
@@ -323,11 +333,7 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
       return boundaryGradient
     else {
       val n = getNeighbours(position, direction)
-      getGradient(
-        (n._1.get(direction), f(n._1)),
-        (position.get(direction), f(position)),
-        (n._2.get(direction), f(n._2)),
-        derivativeType)
+      getGradient(position, direction, n, f, derivativeType)
     }
   }
 
