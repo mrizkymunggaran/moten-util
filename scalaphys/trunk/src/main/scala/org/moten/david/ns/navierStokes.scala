@@ -4,10 +4,9 @@
  * grid domain (regularly gridded) for an
  * incompressible liquid (sea water). Concise
  * and clear code is considered more important
- * than performance/optimisation because
- * concurrent/distributed running of the
- * routines will be used to provide performance
- * scalability.
+ * than performance because concurrent/
+ * distributed running of the routines will be
+ *  used to provide performance scalability.
  */
 package org.moten.david.ns
 
@@ -15,6 +14,9 @@ import scala.collection.immutable.TreeSet
 import java.util.Date
 import java.text.SimpleDateFormat
 
+/**
+ * Logs to System.out with a timestamp.
+ */
 object Logger {
   val df = new SimpleDateFormat("HH:mm:ss.SSS")
   var infoEnabled = true
@@ -92,7 +94,8 @@ object Vector {
 import Vector._
 
 /**
- * An ordering to help with readable String representations of Vector collections.
+ * An ordering to help with readable String
+ * representations of Vector collections.
  */
 object VectorOrdering extends Ordering[Vector] {
   def compare(a: Vector, b: Vector): Int = {
@@ -109,12 +112,16 @@ case class Matrix(row1: Vector, row2: Vector, row3: Vector) {
   def *(v: Vector) = Vector(row1 * v, row2 * v, row3 * v)
 }
 
+/**
+ * Measures the velocity and pressure field and water
+ * properties for a given position.
+ */
 case class Value(
-  velocity: Vector, pressure: Double, depth: Double,
+  velocity: Vector, pressure: Double,
   density: Double, viscosity: Double, isWall: Boolean,
   isBoundary: Map[Direction, Boolean]) {
   def modifyPressure(p: Double) = {
-    Value(velocity, p, depth, density, viscosity, isWall, isBoundary)
+    Value(velocity, p, density, viscosity, isWall, isBoundary)
   }
 }
 
@@ -162,7 +169,8 @@ trait Data {
     val velocityLaplacian: Vector = getVelocityLaplacian(position)
     val pressureGradient: Vector = getPressureGradient(position)
     val velocityJacobian: Matrix = getVelocityJacobian(position)
-    val divergenceOfStress = velocityLaplacian * value.viscosity minus pressureGradient
+    val divergenceOfStress =
+      velocityLaplacian * value.viscosity minus pressureGradient
     debug("velocityLaplacian" + velocityLaplacian)
     debug("pressureGradient=" + pressureGradient)
     debug("velocityJacobian=" + velocityJacobian)
@@ -190,20 +198,20 @@ trait Data {
     val velocityNext = getVelocityAfterTimeStep(position, timeDelta)
     val v = getValue(position)
     //assume not wall or boundary
-    val valueNext = Value(velocityNext, pressure, v.depth, v.density,
-      v.viscosity, true, Map(X -> false, Y -> false, Z -> false))
+    val valueNext = v.modifyPressure(pressure)
     val dataWithOverridenPressureAtPosition =
       new DataOverride(this, position, valueNext)
     dataWithOverridenPressureAtPosition.getPressureCorrection(position)
   }
 
+  private def gradientDot(direction: Direction)(v: Vector) =
+    getVelocityGradient(v, direction) * v
+
   private def getPressureCorrection(position: Vector): Double = {
     val value = getValue(position)
     val pressureLaplacian = getPressureLaplacian(position)
-    def f(v: Vector, direction: Direction) =
-      getVelocityGradient(v, direction) * v
     return pressureLaplacian +
-      directions.map(d => getGradient(position, d, 0, 0, f(_, d), FirstDerivative)).sum
+      directions.map(d => getGradient(position, d, 0, 0, gradientDot(d), FirstDerivative)).sum
   }
 
   /**
@@ -217,8 +225,9 @@ trait Data {
     val v1 = getVelocityAfterTimeStep(position, timeDelta)
     debug("v1=" + v1)
     val f = getPressureCorrection(position, v1, timeDelta)(_)
+    //TODO what values for h,precision?
     val h = 0.1
-    val precision = 0.0001
+    val precision = 0.000001
     val maxIterations = 15
     val newPressure = NewtonsMethod.solve(f, value0.pressure, h,
       precision, maxIterations) match {
@@ -280,7 +289,8 @@ private class DataOverride(data: Data, position: Vector,
 
 object Grid {
   //TODO unit test this
-  def getDirectionalNeighbours(vectors: Set[Vector]) = {
+  def getDirectionalNeighbours(vectors: Set[Vector]): Map[Direction, Map[Double, Tuple2[Double, Double]]] = {
+    info("getting directional neighbours")
     //produce a map of Direction to a map of ordinate values with their 
     //negative and positive direction neighbour ordinate values. This 
     //map will return None for all elements on the boundary.
