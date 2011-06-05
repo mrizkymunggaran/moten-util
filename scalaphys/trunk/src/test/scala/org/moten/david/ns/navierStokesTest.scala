@@ -124,7 +124,6 @@ class NavierStokesTest {
       .map(v => (v, Value(
         velocity = Vector.zero,
         pressure = abs(v.z * 1000 * 9.8),
-        depth = size,
         density = 1000,
         viscosity = 0.00000105,
         isWall = v.z == -size,
@@ -144,13 +143,12 @@ class NavierStokesTest {
     info("real try at solving")
     //create a 5x5x5 regular grid with no movement and 0 surface pressure, 
     //seawater kinematic viscosity is for 20 degrees C
-    val size = 20
+    val size = 50
     info("creating map")
     val map = vectors(size).par
       .map(v => (v, Value(
         velocity = Vector.zero + Vector(nextDouble, nextDouble, nextDouble),
         pressure = abs(v.z * 1000 * 9.8) + 20 * nextDouble,
-        depth = size,
         density = 1000,
         viscosity = 0.00000105,
         isWall = v.z == -size,
