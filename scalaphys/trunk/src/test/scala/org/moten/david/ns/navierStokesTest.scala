@@ -175,23 +175,25 @@ class NavierStokesTest {
     val size = 5
     val vectors = vectors2D(size)
     info("vectors=" + vectors)
-    val max = vectors.map(_.x).toSet.max
-    val min = vectors.map(_.x).toSet.min
+    val max = vectors.map(_.x).max
+    val min = vectors.map(_.x).min
+    val maxZ = vectors.map(_.z).max
+    val minZ = vectors.map(_.z).min
     info("max=" + max)
     val map = vectors.map(v => (v, Value(
       velocity = if (v.y == max) Vector(1, 0, 0) else Vector.zero,
-      pressure = 0,
+      pressure = abs(9.8 * 1000 * v.z),
       density = 1000,
       viscosity = 0.00000105,
-      isWall = v.x == 0 || v.x == max || v.y == 0,
+      isWall = v.x == 0 || v.x == max || v.y == 0 || v.z == maxZ,
       isBoundary = Direction.values.map(d =>
-        (d, (d equals Z) || abs(v.get(d)) == max || v.get(d) == size)).toMap))).toMap
+        (d, ((d equals Z) && (v.get(d) == minZ)) || abs(v.get(d)) == max || v.get(d) == size)).toMap))).toMap
     val data = new RegularGridData(map)
-    val v = Vector(0.2, 0.8, 0.0)
-    val next = data.getValueAfterTime(v, 1)
+    val v1 = Vector(0.2, 0.8, 0.0)
+    val v2 = data.getValueAfterTime(v1, 1)
 
     assertFalse("Velocity for position should have changed",
-      data.getValue(v).velocity equals next.velocity)
+      data.getValue(v1).velocity equals v2.velocity)
   }
 }
 
@@ -210,9 +212,10 @@ object Util {
     val range = Range(0, size + 1)
     (for (
       i <- range;
-      j <- range
-    ) yield (i, j))
-      .map(t => Vector(1.0 * t._1 / size, 1.0 * t._2 / size, 0))
+      j <- range;
+      k <- Range(0, 3)
+    ) yield (i, j, k))
+      .map(t => Vector(1.0 * t._1 / size, 1.0 * t._2 / size, -t._3))
   }
 }
 
