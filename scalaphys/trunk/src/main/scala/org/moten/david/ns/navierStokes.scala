@@ -294,9 +294,11 @@ object Grid {
     //produce a map of Direction to a map of ordinate values with their 
     //negative and positive direction neighbour ordinate values. This 
     //map will return None for all elements on the boundary.
-    Direction.values.map(d => (d, vectors.map(_.get(d))
+    directions.map(d => (d, vectors.map(_.get(d))
       .toSet.toList.sorted.sliding(3)
-      .toList.map(x => (x(1), (x(0), x(2)))).toMap)).toMap
+      .toList.flatMap(x =>
+        if (x.size < 3) List()
+        else List((x(1), (x(0), x(2))))).toMap)).toMap
   }
 }
 
