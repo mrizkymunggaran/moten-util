@@ -164,7 +164,7 @@ class NavierStokesTest {
   @Test
   def testNavierStokesWithOneMetreBoxAndOneSlipWallNoZComponentShouldCreateWhirlpool() {
     //from http://www.stanford.edu/class/me469b/handouts/incompressible.pdf
-    val size = 10
+    val size = 5
     val vectors = vectors2D(size)
     info("vectors=" + vectors)
     val max = vectors.map(_.x).toSet.max
@@ -179,12 +179,11 @@ class NavierStokesTest {
       isBoundary = Direction.values.map(d =>
         (d, (d equals Z) || abs(v.get(d)) == max || v.get(d) == size)).toMap))).toMap
     val data = new RegularGridData(map)
-    //    println(data)
-    val data2 = data.step(1)
-    println(data2)
     val v = Vector(0.2, 0.8, 0.0)
-    assertFalse("Value for position should have changed",
-      data.getValue(v) equals data2.getValue(v))
+    val next = data.getValueAfterTime(v, 1)
+
+    assertFalse("Velocity for position should have changed",
+      data.getValue(v).velocity equals next.velocity)
   }
 }
 

@@ -20,7 +20,7 @@ import java.text.SimpleDateFormat
 object Logger {
   val df = new SimpleDateFormat("HH:mm:ss.SSS")
   var infoEnabled = true
-  var debugEnabled = false
+  var debugEnabled = true
   def info(msg: => AnyRef) = if (infoEnabled) println(df.format(new Date()) + " " + msg)
   def debug(msg: => AnyRef) = if (debugEnabled) println(df.format(new Date()) + " " + msg)
 }
@@ -122,6 +122,9 @@ case class Value(
   isBoundary: Map[Direction, Boolean]) {
   def modifyPressure(p: Double) = {
     Value(velocity, p, density, viscosity, isWall, isBoundary)
+  }
+  def modifyVelocity(vel: Vector) = {
+    Value(vel, pressure, density, viscosity, isWall, isBoundary)
   }
 }
 
@@ -235,7 +238,7 @@ trait Data {
         case a: Some[Double] => a.get
       }
     debug("newPressure=" + newPressure + "old=" + value0.pressure)
-    return value0.modifyPressure(newPressure)
+    return value0.modifyPressure(newPressure).modifyVelocity(v1)
   }
 
   private def getPressureGradient(position: Vector): Vector =
