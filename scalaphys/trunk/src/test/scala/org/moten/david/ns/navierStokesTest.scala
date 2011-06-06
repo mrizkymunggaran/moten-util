@@ -143,7 +143,7 @@ class NavierStokesTest {
     info("real try at solving")
     //create a 5x5x5 regular grid with no movement and 0 surface pressure, 
     //seawater kinematic viscosity is for 20 degrees C
-    val size = 50
+    val size = 20
     info("creating map")
     val map = vectors(size).par
       .map(v => (v, Value(
@@ -160,6 +160,32 @@ class NavierStokesTest {
     val data2 = data.step(30)
     //    println(data2)
   }
+
+  @Test
+  def testNavierStokesWithOneMetreBoxAndOneSlipWallNoZComponentShouldCreateWhirlpool() {
+    //from http://www.stanford.edu/class/me469b/handouts/incompressible.pdf
+    val size = 5
+    val vectors = vectors2D(size)
+    info("vectors=" + vectors)
+    val max = vectors.map(_.x).toSet.max
+    val min = vectors.map(_.x).toSet.min
+    info("max=" + max)
+    val map = vectors.map(v => (v, Value(
+      velocity = if (v.y == max) Vector(1, 0, 0) else Vector.zero,
+      pressure = 0,
+      density = 1000,
+      viscosity = 0.00000105,
+      isWall = v.x == 0 || v.x == max || v.y == 0,
+      isBoundary = Direction.values.map(d =>
+        (d, (d equals Z) || abs(v.get(d)) == max || v.get(d) == size)).toMap))).toMap
+    val data = new RegularGridData(map)
+    //    println(data)
+    val data2 = data.step(1)
+    println(data2)
+    val v = Vector(0.2, 0.8, 0.0)
+    assertFalse("Value for position should have changed",
+      data.getValue(v) equals data2.getValue(v))
+  }
 }
 
 object Util {
@@ -172,18 +198,44 @@ object Util {
     ) yield (i, j, k))
       .map(t => Vector(t._1, t._2, -t._3))
   }
+
+  def vectors2D(size: Int) = {
+    val range = Range(0, size + 1)
+    (for (
+      i <- range;
+      j <- range
+    ) yield (i, j))
+      .map(t => Vector(1.0 * t._1 / size, 1.0 * t._2 / size, 0))
+  }
 }
 
 @Test
 class GridDataTest {
   import Util._
+  import Vector._
+  import Grid._
 
   @Test
   def testGetDirectionalNeighbours() {
-    import Grid._
     val map = getDirectionalNeighbours(vectors(5).toSet)
     println(map)
     assertEquals((1.0, 3.0), map.getOrElse(X, null).getOrElse(2.0, null))
     assertEquals(None, map.getOrElse(X, null).get(5.0))
+  }
+
+  @Test
+  def testDirectionalNeighboursWithOneZLayerOnly() {
+    val vectors = vectors2D(size = 5)
+    getDirectionalNeighbours(vectors.toSet)
+  }
+
+  @Test
+  def checkDirectionalNeighboursReturnsEmptyMapOnGivenEmptySet() {
+    assertEquals(Map(X -> Map(), Y -> Map(), Z -> Map()), getDirectionalNeighbours(Set()))
+  }
+
+  @Test
+  def checkDirectionalNeighboursReturnsEmptyMapOnGivenOnePointSet() {
+    assertEquals(Map(X -> Map(), Y -> Map(), Z -> Map()), getDirectionalNeighbours(Set(zero)))
   }
 }
