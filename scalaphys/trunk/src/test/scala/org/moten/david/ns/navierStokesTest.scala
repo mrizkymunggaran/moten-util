@@ -164,7 +164,7 @@ class NavierStokesTest {
   @Test
   def testNavierStokesWithOneMetreBoxAndOneSlipWallNoZComponentShouldCreateWhirlpool() {
     //from http://www.stanford.edu/class/me469b/handouts/incompressible.pdf
-    val size = 5
+    val size = 10
     val vectors = vectors2D(size)
     info("vectors=" + vectors)
     val max = vectors.map(_.x).toSet.max
