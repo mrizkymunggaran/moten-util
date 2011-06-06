@@ -20,7 +20,7 @@ import java.text.SimpleDateFormat
 object Logger {
   val df = new SimpleDateFormat("HH:mm:ss.SSS")
   var infoEnabled = true
-  var debugEnabled = true
+  var debugEnabled = false
   def info(msg: => AnyRef) = if (infoEnabled) println(df.format(new Date()) + " " + msg)
   def debug(msg: => AnyRef) = if (debugEnabled) println(df.format(new Date()) + " " + msg)
 }

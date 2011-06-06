@@ -135,7 +135,15 @@ class NavierStokesTest {
     val data2 = data.step(30)
     //    println(data2)
     //should be no change in any value after 30 seconds
-    data.getPositions.foreach(v => assertEquals(data.getValue(v), data2.getValue(v)))
+    data.getPositions.foreach(v => assertTrue(equals(data.getValue(v), data2.getValue(v), 0.0001)))
+  }
+
+  private def equals(v1: Value, v2: Value, precision: Double): Boolean = {
+    abs(v1.pressure - v2.pressure) <= precision && equals(v1.velocity, v2.velocity, precision)
+  }
+
+  private def equals(v1: Vector, v2: Vector, precision: Double) = {
+    abs(v1.x - v2.x) <= precision && abs(v1.y - v2.y) <= precision && abs(v1.z - v2.z) <= precision
   }
 
   @Test
