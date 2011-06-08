@@ -229,13 +229,13 @@ trait Data {
     debug("v1=" + v1)
     val f = getPressureCorrection(position, v1, timeDelta)(_)
     //TODO what values for h,precision?
-    val h = 0.1
+    val h = 1
     val precision = 0.000001
     val maxIterations = 15
     val newPressure = NewtonsMethod.solve(f, value0.pressure, h,
       precision, maxIterations) match {
         case None => value0.pressure
-        case a: Some[Double] => a.get
+        case a: Some[Double] => if (a.get < 0) value0.pressure else a.get
       }
     debug("newPressure=" + newPressure + "old=" + value0.pressure)
     return value0.modifyPressure(newPressure).modifyVelocity(v1)
@@ -267,7 +267,7 @@ trait Data {
 
   private def step(data: Data, timestep: Double, numSteps: Int): Data = {
     if (numSteps == 0) return data
-    else return step(step(timestep), timestep, numSteps - 1)
+    else return step(data.step(timestep), timestep, numSteps - 1)
   }
 
   def step(timestep: Double, numSteps: Int): Data =
@@ -328,6 +328,7 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
   //TODO test this
   private def getGradient(position: Vector, direction: Direction,
     n: Tuple2[Vector, Vector], f: Vector => Double, derivativeType: Derivative): Double = {
+    //TODO deal with wall case
     getGradient(
       (n._1.get(direction), f(n._1)),
       (position.get(direction), f(position)),
