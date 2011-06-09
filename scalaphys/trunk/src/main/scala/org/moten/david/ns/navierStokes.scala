@@ -62,6 +62,12 @@ case class Vector(x: Double, y: Double, z: Double) {
   def this(t: Tuple3[Double, Double, Double]) {
     this(t._1, t._2, t._3)
   }
+  /**
+   * Returns the value of the vector for the given direction.
+   *
+   * @param direction
+   * @return
+   */
   def get(direction: Direction): Double = {
     direction match {
       case X => x
@@ -69,10 +75,39 @@ case class Vector(x: Double, y: Double, z: Double) {
       case Z => z
     }
   }
+  /**
+   * Returns the dot product with another `Vector`.
+   * @param v
+   * @return
+   */
   def *(v: Vector) = x * v.x + y * v.y + z * v.z
+
+  /**
+   * Returns the scalar product of this with a `Double` value.
+   * @param d
+   * @return
+   */
   def *(d: Double) = Vector(x * d, y * d, z * d)
+
+  /**
+   * Returns difference of this with the given `Vector`.
+   * @param v
+   * @return
+   */
   def minus(v: Vector) = Vector(x - v.x, y - v.y, z - v.z)
+
+  /**
+   * Returns difference of this with the given `Vector`.
+   * @param v
+   * @return
+   */
   def -(v: Vector) = minus(v)
+
+  /**
+   * Returns the sum of this and the given `Vector`.
+   * @param v
+   * @return
+   */
   def +(v: Vector) = add(v)
   def add(v: Vector) = Vector(x + v.x, y + v.y, z + v.z)
   def /(d: Double) = Vector(x / d, y / d, z / d)
@@ -86,6 +121,9 @@ case class Vector(x: Double, y: Double, z: Double) {
   def list = List(x, y, z)
 }
 
+/**
+ * Companion object for Vector}.
+ */
 object Vector {
   import Double._
   def zero = Vector(0, 0, 0)
@@ -120,14 +158,27 @@ case class Value(
   velocity: Vector, pressure: Double,
   density: Double, viscosity: Double, isWall: Boolean,
   isBoundary: Map[Direction, Boolean]) {
+  /**
+   * Returns a copy of this with pressure modified.
+   * @param p
+   * @return
+   */
   def modifyPressure(p: Double) = {
     Value(velocity, p, density, viscosity, isWall, isBoundary)
   }
+  /**
+   * Returns a copy of this with velocity modified.
+   * @param vel
+   * @return
+   */
   def modifyVelocity(vel: Vector) = {
     Value(vel, pressure, density, viscosity, isWall, isBoundary)
   }
 }
 
+/**
+ * Companion object for `Data`.
+ */
 object Data {
   /**
    * Acceleration due to gravity. Note that this vector
@@ -137,15 +188,42 @@ object Data {
   val gravity = Vector(0, 0, -9.8)
 }
 
+/**
+ * Positions, values and methods for the numerical Navier Stokes equation solver.
+ */
 trait Data {
   import Data._
 
-  //implement these!
+  //implement these abstract methods!
+  /**
+   * Returns all positions.
+   * @return
+   */
   def getPositions: Set[Vector]
-  def getValue(vector: Vector): Value
+  /**
+   * Returns `Value` at a position.
+   * @param vector
+   * @return
+   */
+  def getValue(position: Vector): Value
+  /**
+   * Returns the gradient of the function f with respect to direction at the given position.
+   * @param position
+   * @param direction
+   * @param wallGradient
+   * @param boundaryGradient
+   * @param f
+   * @param derivativeType
+   * @return
+   */
   def getGradient(position: Vector, direction: Direction,
     wallGradient: Double, boundaryGradient: Double,
     f: Vector => Double, derivativeType: Derivative): Double
+  /**
+   * Returns calculated `Data` after timestep seconds.
+   * @param timestep
+   * @return
+   */
   def step(timestep: Double): Data
 
   //implemented for you
@@ -163,7 +241,8 @@ trait Data {
       getVelocityGradient(position, Z))
 
   /**
-   * See http://en.wikipedia.org/wiki/Navier%E2%80%93Stokes_equations#Cartesian_coordinates.
+   * Returns the derivative of velocity over time using this
+   * {http://en.wikipedia.org/wiki/Navier%E2%80%93Stokes_equations#Cartesian_coordinates formula}.
    * @param position
    * @return
    */
@@ -218,7 +297,9 @@ trait Data {
   }
 
   /**
-   * See http://en.wikipedia.org/wiki/Pressure-correction_method
+   * Returns the` Value` at the given position after `timeDelta` in seconds by solving <a href="http://en.wikipedia.org/wiki/Navier%E2%80%93Stokes_equations#Cartesian_coordinates">a 3D formulation of
+   * the Navier-Stokes equations</a>.  After the velocity calculation a pressure correction is performed according to this
+   * <a href="http://en.wikipedia.org/wiki/Pressure-correction_method">method</a>.
    */
   def getValueAfterTime(position: Vector, timeDelta: Double): Value = {
     debug("getting value after time at " + position)
@@ -277,6 +358,9 @@ trait Data {
     .map(v => (v, getValue(v)).toString + "\n").toString
 }
 
+/**
+ * Returns a copy of {{data}} with the value at position overriden. Uses facade pattern.
+ */
 private class DataOverride(data: Data, position: Vector,
   value: Value) extends Data {
   override def getPositions(): Set[Vector] = data.getPositions
@@ -314,7 +398,7 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
   import Data._
   import Grid._
 
-  private val ordinates = getDirectionalNeighbours(map.keySet)
+  private final val ordinates = getDirectionalNeighbours(map.keySet)
 
   override def getValue(vector: Vector): Value = {
     map.get(vector) match {
