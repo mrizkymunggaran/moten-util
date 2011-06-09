@@ -180,21 +180,27 @@ class NavierStokesTest {
     val maxZ = vectors.map(_.z).max
     val minZ = vectors.map(_.z).min
     info("max=" + max)
-    val map = vectors.map(v => (v, Value(
-      velocity = if (v.y == max) Vector(1, 0, 0) else Vector.zero,
-      pressure = abs(9.8 * 1000 * v.z),
-      density = 1000,
-      viscosity = 0.00000105,
-      isWall = v.x == 0 || v.x == max || v.y == 0,
-      isBoundary = Direction.values.map(d =>
-        (d, ((d equals Z) && (v.get(d) == minZ || v.get(d) == maxZ)) || abs(v.get(d)) == max)).toMap))).toMap
+    val map = vectors.map(v => {
+      val obstacle = v.x == 0 || v.x == max || v.y == 0
+      def isZBoundary(d: Direction, v: Vector) =
+        (d equals Z) && (v.get(d) == minZ || v.get(d) == maxZ)
+      (v, Value(
+        velocity = if (v.y == max) Vector(1, 0, 0) else Vector.zero,
+        pressure = abs(9.8 * 1000 * v.z),
+        density = 1000,
+        viscosity = 0.00000105,
+        isWall = obstacle,
+        isBoundary = Direction.values.map(d =>
+          (d, !obstacle && (isZBoundary(d, v)
+            || abs(v.get(d)) == max))).toMap))
+    }).toMap
     val data = new RegularGridData(map)
     val v1 = Vector(1.0 / size, (size - 1.0) / size, 0.0)
     val v2 = data.getValueAfterTime(v1, 1)
     info(v2)
     assertFalse("Velocity for position should have changed",
       data.getValue(v1).velocity equals v2.velocity)
-    println(data.step(1, 8))
+    println(data.step(1, 7))
     //    println(Range(0, 30).map(data.step(1, _).getValue(v1) + "\n"))
   }
 }
