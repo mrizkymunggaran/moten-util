@@ -473,6 +473,7 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
  */
 object NewtonsMethod {
   import scala.math._
+  import scala.annotation._
 
   /**
    * Uses Newton's Method to solve f(x) = 0 for x. Returns `None`
@@ -490,6 +491,7 @@ object NewtonsMethod {
    *        If maxIterations is reached then returns `None`
    * @return optional solution
    */
+  @tailrec
   def solve(f: Double => Double, x: Double, h: Double,
     precision: Double, maxIterations: Long): Option[Double] = {
     val fx = f(x)
