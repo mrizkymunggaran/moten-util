@@ -475,18 +475,19 @@ object NewtonsMethod {
   import scala.math._
 
   /**
-   * Uses Newton's Method to solve f(x) = 0 for x. Returns None
+   * Uses Newton's Method to solve f(x) = 0 for x. Returns `None`
    * if no solution found within maxIterations. This method uses
    * recursion so a large number of maxIterations could use a lot
-   * of stack space.
+   * of stack space. TODO establish whether tail recursion
+   * optimisation is performed by the scalac compiler.
    *
-   * @param f
+   * @param f function to find roots of (where f(x)=0)
    * @param x initial guess at the solution.
    * @param h the delta for calculation of derivative
    * @param precision the desired maximum absolute value of f(x) at an
    *        acceptable solution
    * @param maxIterations the maximum number of iterations to perform.
-   *        If maxIterations is reached then returns
+   *        If maxIterations is reached then returns `None`
    * @return optional solution
    */
   def solve(f: Double => Double, x: Double, h: Double,

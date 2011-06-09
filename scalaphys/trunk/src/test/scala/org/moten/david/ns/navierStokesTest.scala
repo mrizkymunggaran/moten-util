@@ -187,7 +187,7 @@ class NavierStokesTest {
       viscosity = 0.00000105,
       isWall = v.x == 0 || v.x == max || v.y == 0,
       isBoundary = Direction.values.map(d =>
-        (d, ((d equals Z) && (v.get(d) == minZ || v.get(d) == maxZ)) || abs(v.get(d)) == max || v.get(d) == size)).toMap))).toMap
+        (d, ((d equals Z) && (v.get(d) == minZ || v.get(d) == maxZ)) || abs(v.get(d)) == max)).toMap))).toMap
     val data = new RegularGridData(map)
     val v1 = Vector(1.0 / size, (size - 1.0) / size, 0.0)
     val v2 = data.getValueAfterTime(v1, 1)
