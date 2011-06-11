@@ -376,7 +376,7 @@ private class DataOverride(data: Data, position: Vector,
 }
 
 object Grid {
-  //TODO unit test this
+
   def getDirectionalNeighbours(vectors: Set[Vector]): Map[Direction, Map[Double, Tuple2[Double, Double]]] = {
     info("getting directional neighbours")
     //produce a map of Direction to a map of ordinate values with their 
