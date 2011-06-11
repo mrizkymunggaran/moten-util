@@ -156,7 +156,7 @@ case class Matrix(row1: Vector, row2: Vector, row3: Vector) {
  */
 case class Value(
   velocity: Vector, pressure: Double,
-  density: Double, viscosity: Double, isWall: Boolean,
+  density: Double, viscosity: Double, isObstacle: Boolean,
   boundary: Map[Direction, Boolean]) {
   /**
    * Returns a copy of this with pressure modified.
@@ -164,7 +164,7 @@ case class Value(
    * @return
    */
   def modifyPressure(p: Double) = {
-    Value(velocity, p, density, viscosity, isWall, boundary)
+    Value(velocity, p, density, viscosity, isObstacle, boundary)
   }
   /**
    * Returns a copy of this with velocity modified.
@@ -172,7 +172,7 @@ case class Value(
    * @return
    */
   def modifyVelocity(vel: Vector) = {
-    Value(vel, pressure, density, viscosity, isWall, boundary)
+    Value(vel, pressure, density, viscosity, isObstacle, boundary)
   }
 
   def isBoundary(direction: Direction): Boolean = {
@@ -217,14 +217,13 @@ trait Data {
    * Returns the gradient of the function f with respect to direction at the given position.
    * @param position
    * @param direction
-   * @param wallGradient
-   * @param boundaryGradient
    * @param f
    * @param derivativeType
    * @return
    */
   def getGradient(position: Vector, direction: Direction,
-    f: Vector => Double, relativeTo: Option[Vector], derivativeType: Derivative): Double
+    f: Vector => Double, relativeTo: Option[Vector],
+    derivativeType: Derivative): Double
   /**
    * Returns calculated `Data` after timestep seconds.
    * @param timestep
@@ -284,7 +283,7 @@ trait Data {
   private def getPressureCorrection(position: Vector, v1: Vector,
     timeDelta: Double)(pressure: Double): Double = {
     val v = getValue(position)
-    //assume not wall or boundary
+    //assume not obstacle or boundary
     val valueNext = v.modifyPressure(pressure)
     val dataWithOverridenPressureAtPosition =
       new DataOverride(this, position, valueNext)
@@ -309,7 +308,7 @@ trait Data {
     debug("getting value after time at " + position)
     val value0 = getValue(position)
     debug("value0=" + value0)
-    if (value0.isWall) return value0
+    if (value0.isObstacle) return value0
     val v1 = getVelocityAfterTimeStep(position, timeDelta)
     debug("v1=" + v1)
     val f = getPressureCorrection(position, v1, timeDelta)(_)
@@ -424,9 +423,9 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
   override def getGradient(position: Vector, direction: Direction,
     f: Vector => Double, relativeTo: Option[Vector], derivativeType: Derivative): Double = {
     val value = getValue(position)
-    if (value.isWall)
+    if (value.isObstacle)
       relativeTo match {
-        case None => throw new RuntimeException("relativeTo must be supplied as a non-empty parameter if wall gradient is being calculated")
+        case None => throw new RuntimeException("relativeTo must be supplied as a non-empty parameter if obstacle gradient is being calculated")
         case Some(x) => {
           //TODO
           //get the neighbour in direction closest to relativeTo
