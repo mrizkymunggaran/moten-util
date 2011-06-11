@@ -157,14 +157,14 @@ case class Matrix(row1: Vector, row2: Vector, row3: Vector) {
 case class Value(
   velocity: Vector, pressure: Double,
   density: Double, viscosity: Double, isWall: Boolean,
-  isBoundary: Map[Direction, Boolean]) {
+  boundary: Map[Direction, Boolean]) {
   /**
    * Returns a copy of this with pressure modified.
    * @param p
    * @return
    */
   def modifyPressure(p: Double) = {
-    Value(velocity, p, density, viscosity, isWall, isBoundary)
+    Value(velocity, p, density, viscosity, isWall, boundary)
   }
   /**
    * Returns a copy of this with velocity modified.
@@ -172,7 +172,14 @@ case class Value(
    * @return
    */
   def modifyVelocity(vel: Vector) = {
-    Value(vel, pressure, density, viscosity, isWall, isBoundary)
+    Value(vel, pressure, density, viscosity, isWall, boundary)
+  }
+
+  def isBoundary(direction: Direction): Boolean = {
+    boundary.get(direction) match {
+      case None => throw new RuntimeException("boundary info not found")
+      case Some(x) => x
+    }
   }
 }
 
@@ -217,8 +224,7 @@ trait Data {
    * @return
    */
   def getGradient(position: Vector, direction: Direction,
-    wallGradient: Double, boundaryGradient: Double,
-    f: Vector => Double, derivativeType: Derivative): Double
+    f: Vector => Double, relativeTo: Option[Vector], derivativeType: Derivative): Double
   /**
    * Returns calculated `Data` after timestep seconds.
    * @param timestep
@@ -236,9 +242,9 @@ trait Data {
       getVelocityLaplacian(position, Z))
 
   private def getVelocityJacobian(position: Vector) =
-    Matrix(getVelocityGradient(position, X),
-      getVelocityGradient(position, Y),
-      getVelocityGradient(position, Z))
+    Matrix(getVelocityGradient(position, X, None),
+      getVelocityGradient(position, Y, None),
+      getVelocityGradient(position, Z, None))
 
   /**
    * Returns the derivative of velocity over time using this
@@ -277,7 +283,6 @@ trait Data {
    */
   private def getPressureCorrection(position: Vector, v1: Vector,
     timeDelta: Double)(pressure: Double): Double = {
-    val velocityNext = getVelocityAfterTimeStep(position, timeDelta)
     val v = getValue(position)
     //assume not wall or boundary
     val valueNext = v.modifyPressure(pressure)
@@ -286,16 +291,15 @@ trait Data {
     dataWithOverridenPressureAtPosition.getPressureCorrection(position)
   }
 
-  private def gradientDot(direction: Direction)(v: Vector) =
-    getVelocityGradient(v, direction) * v
-
   private def getPressureCorrection(position: Vector): Double = {
     val value = getValue(position)
     val pressureLaplacian = getPressureLaplacian(position)
     return pressureLaplacian +
-      directions.map(d => getGradient(position, d, 0, 0, gradientDot(d), FirstDerivative)).sum
+      directions.map(d => getGradient(position, d, gradientDot(d, Some(position)), None, FirstDerivative)).sum
   }
 
+  private def gradientDot(direction: Direction, relativeTo: Option[Vector])(v: Vector) =
+    getVelocityGradient(v, direction, relativeTo) * v
   /**
    * Returns the` Value` at the given position after `timeDelta` in seconds by solving <a href="http://en.wikipedia.org/wiki/Navier%E2%80%93Stokes_equations#Cartesian_coordinates">a 3D formulation of
    * the Navier-Stokes equations</a>.  After the velocity calculation a pressure correction is performed according to this
@@ -328,23 +332,23 @@ trait Data {
   private def getPressureGradient(position: Vector, direction: Direction): Double = {
     val value = getValue(position);
     val force = gravity.get(direction) * value.density
-    getGradient(position, direction, force, force,
-      getValue(_).pressure, FirstDerivative)
+    getGradient(position, direction,
+      getValue(_).pressure, None, FirstDerivative)
   }
 
   private def getPressureGradient2nd(position: Vector): Vector =
     new Vector(directions.map(d =>
-      getGradient(position, d, 0, 0, getValue(_).pressure, SecondDerivative)))
+      getGradient(position, d, getValue(_).pressure, None, SecondDerivative)))
 
-  private def getVelocityGradient(position: Vector, direction: Direction): Vector =
+  private def getVelocityGradient(position: Vector, direction: Direction, relativeTo: Option[Vector]): Vector =
     new Vector(directions.map(d =>
-      getGradient(position, direction, 0, 0,
-        getValue(_).velocity.get(d), FirstDerivative)))
+      getGradient(position, direction,
+        getValue(_).velocity.get(d), relativeTo, FirstDerivative)))
 
   private def getVelocityGradient2nd(position: Vector, direction: Direction): Vector =
     new Vector(directions.map(d =>
-      getGradient(position, direction, 0, 0,
-        getValue(_).velocity.get(d), SecondDerivative)))
+      getGradient(position, direction,
+        getValue(_).velocity.get(d), None, SecondDerivative)))
 
   private def step(data: Data, timestep: Double, numSteps: Int): Data = {
     if (numSteps == 0) return data
@@ -367,10 +371,8 @@ private class DataOverride(data: Data, position: Vector,
   override def getValue(vector: Vector): Value =
     if (vector equals position) value else data.getValue(vector)
   override def getGradient(position: Vector, direction: Direction,
-    wallGradient: Double, boundaryGradient: Double,
-    f: Vector => Double, derivativeType: Derivative): Double =
-    data.getGradient(position, direction, wallGradient,
-      boundaryGradient, f, derivativeType)
+    f: Vector => Double, relativeTo: Option[Vector], derivativeType: Derivative): Double =
+    data.getGradient(position, direction, f, relativeTo, derivativeType)
   override def step(timestep: Double): Data = data.step(timestep)
 }
 
@@ -412,7 +414,6 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
   //TODO test this
   private def getGradient(position: Vector, direction: Direction,
     n: Tuple2[Vector, Vector], f: Vector => Double, derivativeType: Derivative): Double = {
-    //TODO deal with wall case
     getGradient(
       (n._1.get(direction), f(n._1)),
       (position.get(direction), f(position)),
@@ -421,16 +422,20 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
   }
 
   override def getGradient(position: Vector, direction: Direction,
-    wallGradient: Double, boundaryGradient: Double,
-    f: Vector => Double, derivativeType: Derivative): Double = {
+    f: Vector => Double, relativeTo: Option[Vector], derivativeType: Derivative): Double = {
     val value = getValue(position)
     if (value.isWall)
-      return wallGradient
-    else if (value.isBoundary.get(direction) match {
-      case v: Some[Boolean] => v.get
-      case None => throw new RuntimeException("boundary info not found")
-    })
-      return boundaryGradient
+      relativeTo match {
+        case None => throw new RuntimeException("relativeTo must be supplied as a non-empty parameter if wall gradient is being calculated")
+        case Some(x) => {
+          //TODO
+          //get the neighbour in direction closest to relativeTo
+          return 0
+        }
+      }
+    else if (value.isBoundary(direction))
+      //TODO
+      return 0
     else {
       val n = getNeighbours(position, direction)
       getGradient(position, direction, n, f, derivativeType)
