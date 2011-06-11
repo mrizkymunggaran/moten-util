@@ -127,7 +127,7 @@ class NavierStokesTest {
         density = 1000,
         viscosity = 0.00000105,
         isWall = v.z == -size,
-        isBoundary = Direction.values.map(d => (d, abs(v.get(d)) == 1 || v.get(d) == size)).toMap)))
+        boundary = Direction.values.map(d => (d, abs(v.get(d)) == 1 || v.get(d) == size)).toMap)))
       .seq.toMap
     info("creating Data")
     val data = new RegularGridData(map)
@@ -160,7 +160,7 @@ class NavierStokesTest {
         density = 1000,
         viscosity = 0.00000105,
         isWall = v.z == -size,
-        isBoundary = Direction.values.map(d => (d, abs(v.get(d)) == 1 || v.get(d) == size)).toMap)))
+        boundary = Direction.values.map(d => (d, abs(v.get(d)) == 1 || v.get(d) == size)).toMap)))
       .seq.toMap
     info("creating Data")
     val data = new RegularGridData(map)
@@ -190,7 +190,7 @@ class NavierStokesTest {
         density = 1000,
         viscosity = 0.00000105,
         isWall = obstacle,
-        isBoundary = Direction.values.map(d =>
+        boundary = Direction.values.map(d =>
           (d, !obstacle && (isZBoundary(d, v)
             || abs(v.get(d)) == max))).toMap))
     }).toMap
