@@ -207,12 +207,14 @@ trait Data {
    * @return
    */
   def getPositions: Set[Vector]
+
   /**
    * Returns `Value` at a position.
    * @param vector
    * @return
    */
   def getValue(position: Vector): Value
+
   /**
    * Returns the gradient of the function f with respect to direction at the given position.
    * @param position
@@ -224,6 +226,7 @@ trait Data {
   def getGradient(position: Vector, direction: Direction,
     f: Vector => Double, relativeTo: Option[Vector],
     derivativeType: Derivative): Double
+
   /**
    * Returns calculated `Data` after timestep seconds.
    * @param timestep
@@ -294,14 +297,19 @@ trait Data {
     val value = getValue(position)
     val pressureLaplacian = getPressureLaplacian(position)
     return pressureLaplacian +
-      directions.map(d => getGradient(position, d, gradientDot(d, Some(position)), None, FirstDerivative)).sum
+      directions.map(d => getGradient(position, d,
+        gradientDot(d, Some(position)), None, FirstDerivative)).sum
   }
 
-  private def gradientDot(direction: Direction, relativeTo: Option[Vector])(v: Vector) =
+  private def gradientDot(direction: Direction,
+    relativeTo: Option[Vector])(v: Vector) =
     getVelocityGradient(v, direction, relativeTo) * v
+
   /**
-   * Returns the` Value` at the given position after `timeDelta` in seconds by solving <a href="http://en.wikipedia.org/wiki/Navier%E2%80%93Stokes_equations#Cartesian_coordinates">a 3D formulation of
-   * the Navier-Stokes equations</a>.  After the velocity calculation a pressure correction is performed according to this
+   * Returns the` Value` at the given position after `timeDelta` in seconds
+   * by solving <a href="http://en.wikipedia.org/wiki/Navier%E2%80%93Stokes_equations#Cartesian_coordinates">
+   * a 3D formulation of the Navier-Stokes equations</a>.  After the velocity
+   *  calculation a pressure correction is performed according to this
    * <a href="http://en.wikipedia.org/wiki/Pressure-correction_method">method</a>.
    */
   def getValueAfterTime(position: Vector, timeDelta: Double): Value = {
@@ -412,7 +420,9 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
 
   //TODO test this
   private def getGradient(position: Vector, direction: Direction,
-    n: Tuple2[Vector, Vector], f: Vector => Double, derivativeType: Derivative): Double = {
+    n: Tuple2[Vector, Vector], f: Vector => Double,
+    derivativeType: Derivative): Double = {
+
     getGradient(
       (n._1.get(direction), f(n._1)),
       (position.get(direction), f(position)),
@@ -421,7 +431,9 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
   }
 
   override def getGradient(position: Vector, direction: Direction,
-    f: Vector => Double, relativeTo: Option[Vector], derivativeType: Derivative): Double = {
+    f: Vector => Double, relativeTo: Option[Vector],
+    derivativeType: Derivative): Double = {
+
     val value = getValue(position)
     if (value.isObstacle)
       relativeTo match {
