@@ -494,9 +494,8 @@ object NewtonsMethod {
   /**
    * Uses Newton's Method to solve f(x) = 0 for x. Returns `None`
    * if no solution found within maxIterations. This method uses
-   * recursion so a large number of maxIterations could use a lot
-   * of stack space. TODO establish whether tail recursion
-   * optimisation is performed by the scalac compiler.
+   * tail recursion optimisation so a large number of maxIterations
+   * will not cause a stack overflow.
    *
    * @param f function to find roots of (where f(x)=0)
    * @param x initial guess at the solution.
