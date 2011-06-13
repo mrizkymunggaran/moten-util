@@ -424,7 +424,8 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
   import Data._
   import Grid._
 
-  private final val ordinates = getDirectionalNeighbours(map.keySet)
+  private val ordinates = getDirectionalNeighbours(map.keySet)
+  private val neighbours = getDirectionalNeighbourOptions(map.keySet)
 
   override def getValue(vector: Vector): Value = {
     map.get(vector) match {
