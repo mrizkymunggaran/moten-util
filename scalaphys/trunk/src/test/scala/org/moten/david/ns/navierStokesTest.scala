@@ -126,7 +126,7 @@ class NavierStokesTest {
         pressure = abs(v.z * 1000 * 9.8),
         density = 1000,
         viscosity = 0.00000105,
-        isWall = v.z == -size,
+        isObstacle = v.z == -size,
         boundary = Direction.values.map(d => (d, abs(v.get(d)) == 1 || v.get(d) == size)).toMap)))
       .seq.toMap
     info("creating Data")
@@ -159,7 +159,7 @@ class NavierStokesTest {
         pressure = abs(v.z * 1000 * 9.8) + 20 * nextDouble,
         density = 1000,
         viscosity = 0.00000105,
-        isWall = v.z == -size,
+        isObstacle = v.z == -size,
         boundary = Direction.values.map(d => (d, abs(v.get(d)) == 1 || v.get(d) == size)).toMap)))
       .seq.toMap
     info("creating Data")
@@ -189,7 +189,7 @@ class NavierStokesTest {
         pressure = abs(9.8 * 1000 * v.z),
         density = 1000,
         viscosity = 0.00000105,
-        isWall = obstacle,
+        isObstacle = obstacle,
         boundary = Direction.values.map(d =>
           (d, !obstacle && (isZBoundary(d, v)
             || abs(v.get(d)) == max))).toMap))
@@ -239,6 +239,12 @@ class GridDataTest {
     println(map)
     assertEquals((1.0, 3.0), map.getOrElse(X, null).getOrElse(2.0, null))
     assertEquals(None, map.getOrElse(X, null).get(5.0))
+  }
+
+  @Test
+  def testGetDirectionalNeighbourOptions() {
+    val map = getDirectionalNeighbourOptions(vectors(5).toSet)
+    println("neighbourOptions=" + map)
   }
 
   @Test

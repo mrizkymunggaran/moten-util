@@ -385,16 +385,33 @@ private class DataOverride(data: Data, position: Vector,
 
 object Grid {
 
-  def getDirectionalNeighbours(vectors: Set[Vector]): Map[Direction, Map[Double, Tuple2[Double, Double]]] = {
+  def getDirectionalNeighbours(vectors: Set[Vector]): Map[Direction, Map[Double, (Double, Double)]] = {
     info("getting directional neighbours")
     //produce a map of Direction to a map of ordinate values with their 
     //negative and positive direction neighbour ordinate values. This 
     //map will return None for all elements on the boundary.
     directions.map(d => (d, vectors.map(_.get(d))
-      .toSet.toList.sorted.sliding(3)
-      .toList.flatMap(x =>
+      .toSet.toList.sorted.sliding(3).toList
+      .flatMap(x =>
         if (x.size < 3) List()
         else List((x(1), (x(0), x(2))))).toMap)).toMap
+  }
+
+  def getDirectionalNeighbourOptions(vectors: Set[Vector]): Map[(Direction, Double), (Option[Double], Option[Double])] = {
+    info("getting directional neighbours")
+    //produce a map of Direction to a map of ordinate values with their 
+    //negative and positive direction neighbour ordinate values. This 
+    //map will return None for all elements on the boundary.
+    directions.map(d => {
+      val b = vectors.map(_.get(d)).toSet.toList.sorted
+      if (b.size < 3)
+        List()
+      else
+        b.sliding(3).toList.map(
+          x => ((d, x(1)), (Some(x(0)), Some(x(2)))))
+          .++(List(((d, b(0)), (None, Some(b(1))))))
+          .++(List(((d, b(b.size - 1)), (Some(b(b.size - 2)), None))))
+    }).flatten.toMap
   }
 }
 
