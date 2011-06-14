@@ -438,14 +438,20 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
 
   //TODO test this
   private def getGradient(position: Vector, direction: Direction,
-    n: Tuple2[Vector, Vector], f: Vector => Double,
+    n: Tuple2[Option[Double], Option[Double]], f: Vector => Double,
     derivativeType: Derivative): Double = {
-
+    val t: Tuple2[Double, Double] = n match {
+      case (Some(n1), Some(n2)) => (n1, n2)
+      case (None, Some(n2)) => throw new RuntimeException("not implemented")
+      case (Some(n1), None) => throw new RuntimeException("not implemented")
+      case _ => throw new RuntimeException("no neighbours supplied!")
+    }
     getGradient(
-      (n._1.get(direction), f(n._1)),
+      (t._1, f(position.modify(direction, t._1))),
       (position.get(direction), f(position)),
-      (n._2.get(direction), f(n._2)),
+      (t._2, f(position.modify(direction, t._2))),
       derivativeType)
+
   }
 
   override def getGradient(position: Vector, direction: Direction,
@@ -466,7 +472,7 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
       //TODO
       return 0
     else {
-      val n = getNeighbours(position, direction)
+      val n = getNeighbours2(position, direction)
       getGradient(position, direction, n, f, derivativeType)
     }
   }
@@ -474,6 +480,10 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
   private def getNeighbours(position: Vector, d: Direction): Tuple2[Vector, Vector] = {
     val t = ordinates.getOrElse(d, null).get(position.get(d)).getOrElse(null)
     (position.modify(d, t._1), position.modify(d, t._2))
+  }
+
+  private def getNeighbours2(position: Vector, d: Direction): Tuple2[Option[Double], Option[Double]] = {
+    neighbours.getOrElse((d, position.get(d)), { throw new RuntimeException("neighbours not found for " + position) })
   }
 
   private type Pair = Tuple2[Double, Double]
