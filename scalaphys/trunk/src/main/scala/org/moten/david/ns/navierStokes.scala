@@ -181,6 +181,29 @@ case class Value(
   }
 }
 
+trait DataFunction {
+  def apply(data: Data, v: Vector): Double
+}
+
+object PressureFunction extends DataFunction {
+  def apply(data: Data, v: Vector): Double = {
+    data.getValue(v).pressure
+  }
+}
+
+class VelocityFunction(direction: Direction) extends DataFunction {
+  def apply(data: Data, v: Vector): Double = {
+    data.getValue(v).velocity.get(direction)
+  }
+}
+
+object VelocityFunction {
+  private val map = directions.map(d => (d, new VelocityFunction(d))).toMap
+
+  def get(direction: Direction) =
+    map.getOrElse(direction, null)
+}
+
 /**
  * Companion object for `Data`.
  */
@@ -323,8 +346,8 @@ trait Data {
    * @param v
    * @return
    */
-  private def gradientDot(direction: Direction,
-    relativeTo: Option[Vector])(v: Vector) =
+  def gradientDot(direction: Direction,
+    relativeTo: Option[Vector])(v: Vector): Double =
     getVelocityGradient(v, direction, relativeTo) * v
 
   /**
