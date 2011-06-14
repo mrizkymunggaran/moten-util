@@ -10,14 +10,12 @@
  */
 package org.moten.david.ns
 
-import scala.collection.immutable.TreeSet
-import java.util.Date
-import java.text.SimpleDateFormat
-
 /**
  * Logs to System.out with a timestamp.
  */
 object Logger {
+  import java.util.Date
+  import java.text.SimpleDateFormat
   val df = new SimpleDateFormat("HH:mm:ss.SSS")
   var infoEnabled = true
   var debugEnabled = false
@@ -462,9 +460,12 @@ private class DataOverride(data: Data, position: Vector,
   override def step(timestep: Double): Data = data.step(timestep)
 }
 
+/**
+ * Utility methods for a Grid of 3D points.
+ */
 object Grid {
 
-  def getDirectionalNeighbourOptions(vectors: Set[Vector]): Map[(Direction, Double), (Option[Double], Option[Double])] = {
+  def getDirectionalNeighbours(vectors: Set[Vector]): Map[(Direction, Double), (Option[Double], Option[Double])] = {
     info("getting directional neighbours")
     //produce a map of Direction to a map of ordinate values with their 
     //negative and positive direction neighbour ordinate values. This 
@@ -492,7 +493,7 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
   import Grid._
   import scala.math._
 
-  private val neighbours = getDirectionalNeighbourOptions(map.keySet)
+  private final val neighbours = getDirectionalNeighbours(map.keySet)
 
   override def getValue(vector: Vector): Value = {
     map.get(vector) match {

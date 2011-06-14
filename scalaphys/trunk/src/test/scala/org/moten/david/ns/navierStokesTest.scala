@@ -237,14 +237,9 @@ class GridDataTest {
   def testGetDirectionalNeighbours() {
     val map = getDirectionalNeighbours(vectors(5).toSet)
     println(map)
-    assertEquals((1.0, 3.0), map.getOrElse(X, null).getOrElse(2.0, null))
-    assertEquals(None, map.getOrElse(X, null).get(5.0))
-  }
-
-  @Test
-  def testGetDirectionalNeighbourOptions() {
-    val map = getDirectionalNeighbourOptions(vectors(5).toSet)
-    println("neighbourOptions=" + map)
+    assertEquals((Some(1.0), Some(3.0)), map.getOrElse((X, 2.0), null))
+    assertEquals((Some(4.0), None), map.getOrElse((X, 5.0), null))
+    assertEquals((None, Some(2.0)), map.getOrElse((X, 1.0), null))
   }
 
   @Test
@@ -255,11 +250,11 @@ class GridDataTest {
 
   @Test
   def checkDirectionalNeighboursReturnsEmptyMapOnGivenEmptySet() {
-    assertEquals(Map(X -> Map(), Y -> Map(), Z -> Map()), getDirectionalNeighbours(Set()))
+    assertEquals(Map(), getDirectionalNeighbours(Set()))
   }
 
   @Test
   def checkDirectionalNeighboursReturnsEmptyMapOnGivenOnePointSet() {
-    assertEquals(Map(X -> Map(), Y -> Map(), Z -> Map()), getDirectionalNeighbours(Set(zero)))
+    assertEquals(Map(), getDirectionalNeighbours(Set(zero)))
   }
 }
