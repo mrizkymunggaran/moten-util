@@ -273,11 +273,23 @@ trait Data {
     result
   }
 
+  /**
+   * Returns the Laplacian of pressure at position which in 3D is:
+   * dp2/d2x + dp2/d2y + dp2/d2z.
+   * @param position
+   * @return
+   */
   private def getPressureLaplacian(position: Vector) =
     getPressureGradient2nd(position).sum
 
-  private def getVelocityAfterTimeStep(position: Vector, timeStep: Double) =
-    getValue(position).velocity.add(dvdt(position) * timeStep)
+  /**
+   * Returns the velocity vector after time timeDelta seconds.
+   * @param position
+   * @param timeStep
+   * @return
+   */
+  private def getVelocityAfterTime(position: Vector, timeDelta: Double) =
+    getValue(position).velocity.add(dvdt(position) * timeDelta)
 
   /**
    * Returns the Conservation of Mass (Continuity) Equation described by the
@@ -293,6 +305,11 @@ trait Data {
     dataWithOverridenPressureAtPosition.getPressureCorrection(position)
   }
 
+  /**
+   * Returns the value of the pressure correction function at position.
+   * @param position
+   * @return
+   */
   private def getPressureCorrection(position: Vector): Double = {
     val value = getValue(position)
     val pressureLaplacian = getPressureLaplacian(position)
@@ -301,6 +318,13 @@ trait Data {
         gradientDot(d, Some(position)), None, FirstDerivative)).sum
   }
 
+  /**
+   * Returns the value of Del(Del dot v) for a given velocity vector v.
+   * @param direction
+   * @param relativeTo
+   * @param v
+   * @return
+   */
   private def gradientDot(direction: Direction,
     relativeTo: Option[Vector])(v: Vector) =
     getVelocityGradient(v, direction, relativeTo) * v
@@ -317,7 +341,7 @@ trait Data {
     val value0 = getValue(position)
     debug("value0=" + value0)
     if (value0.isObstacle) return value0
-    val v1 = getVelocityAfterTimeStep(position, timeDelta)
+    val v1 = getVelocityAfterTime(position, timeDelta)
     debug("v1=" + v1)
     val f = getPressureCorrection(position, v1, timeDelta)(_)
     //TODO what values for h,precision?
@@ -333,9 +357,20 @@ trait Data {
     return value0.modifyPressure(newPressure).modifyVelocity(v1)
   }
 
+  /**
+   * Returns the pressure gradient vector at position.
+   * @param position
+   * @return
+   */
   private def getPressureGradient(position: Vector): Vector =
     new Vector(directions.map(getPressureGradient(position, _)))
 
+  /**
+   * Returns the pressure gradient at position in a given direction.
+   * @param position
+   * @param direction
+   * @return
+   */
   private def getPressureGradient(position: Vector, direction: Direction): Double = {
     val value = getValue(position);
     val force = gravity.get(direction) * value.density
@@ -343,28 +378,72 @@ trait Data {
       getValue(_).pressure, None, FirstDerivative)
   }
 
+  /**
+   * Returns the second derivative pressure gradient at position.
+   * @param position
+   * @return
+   */
   private def getPressureGradient2nd(position: Vector): Vector =
     new Vector(directions.map(d =>
       getGradient(position, d, getValue(_).pressure, None, SecondDerivative)))
 
-  private def getVelocityGradient(position: Vector, direction: Direction, relativeTo: Option[Vector]): Vector =
+  /**
+   * Returns the gradient of the velocity vector at position in the given direction
+   * and for the purposes of obstacle gradient calculation includes the
+   * relativeTo position so a neighbour in the direction of relativeTo can be
+   * chosen paired with the position of the obstacle itself for the gradient
+   * calculation.
+   * @param position
+   * @param direction
+   * @param relativeTo
+   * @return
+   */
+  private def getVelocityGradient(position: Vector, direction: Direction,
+    relativeTo: Option[Vector]): Vector =
     new Vector(directions.map(d =>
       getGradient(position, direction,
         getValue(_).velocity.get(d), relativeTo, FirstDerivative)))
 
-  private def getVelocityGradient2nd(position: Vector, direction: Direction): Vector =
+  /**
+   * Returns the gradient of the pressure gradient at position in the
+   * given direction.
+   * @param position
+   * @param direction
+   * @return
+   */
+  private def getVelocityGradient2nd(position: Vector,
+    direction: Direction): Vector =
     new Vector(directions.map(d =>
       getGradient(position, direction,
         getValue(_).velocity.get(d), None, SecondDerivative)))
 
+  /**
+   * Returns a new immutable Data object representing the
+   * state of the system after `timestep` seconds.
+   * @param data
+   * @param timestep
+   * @param numSteps
+   * @return
+   */
   private def step(data: Data, timestep: Double, numSteps: Int): Data = {
     if (numSteps == 0) return data
     else return step(data.step(timestep), timestep, numSteps - 1)
   }
 
+  /**
+   * Returns a new immutable Data object after repeating the
+   *  timestep `numSteps` times.
+   * @param timestep
+   * @param numSteps
+   * @return
+   */
   def step(timestep: Double, numSteps: Int): Data =
     step(this, timestep, numSteps)
 
+  /**
+   * Returns a readable view of the positions and their values.
+   * @return
+   */
   override def toString = getPositions.toList.sorted(VectorOrdering)
     .map(v => (v, getValue(v)).toString + "\n").toString
 }
@@ -384,18 +463,6 @@ private class DataOverride(data: Data, position: Vector,
 }
 
 object Grid {
-
-  def getDirectionalNeighbours(vectors: Set[Vector]): Map[Direction, Map[Double, (Double, Double)]] = {
-    info("getting directional neighbours")
-    //produce a map of Direction to a map of ordinate values with their 
-    //negative and positive direction neighbour ordinate values. This 
-    //map will return None for all elements on the boundary.
-    directions.map(d => (d, vectors.map(_.get(d))
-      .toSet.toList.sorted.sliding(3).toList
-      .flatMap(x =>
-        if (x.size < 3) List()
-        else List((x(1), (x(0), x(2))))).toMap)).toMap
-  }
 
   def getDirectionalNeighbourOptions(vectors: Set[Vector]): Map[(Direction, Double), (Option[Double], Option[Double])] = {
     info("getting directional neighbours")
@@ -423,8 +490,8 @@ object Grid {
 class RegularGridData(map: Map[Vector, Value]) extends Data {
   import Data._
   import Grid._
+  import scala.math._
 
-  private val ordinates = getDirectionalNeighbours(map.keySet)
   private val neighbours = getDirectionalNeighbourOptions(map.keySet)
 
   override def getValue(vector: Vector): Value = {
@@ -440,11 +507,12 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
   private def getGradient(position: Vector, direction: Direction,
     n: Tuple2[Option[Double], Option[Double]], f: Vector => Double,
     derivativeType: Derivative): Double = {
+
     val t: Tuple2[Double, Double] = n match {
       case (Some(n1), Some(n2)) => (n1, n2)
-      case (None, Some(n2)) => throw new RuntimeException("not implemented")
-      case (Some(n1), None) => throw new RuntimeException("not implemented")
-      case _ => throw new RuntimeException("no neighbours supplied!")
+      case (None, Some(n2)) => unexpected
+      case (Some(n1), None) => unexpected
+      case _ => unexpected
     }
     getGradient(
       (t._1, f(position.modify(direction, t._1))),
@@ -454,6 +522,9 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
 
   }
 
+  private def unexpected =
+    throw new RuntimeException("program should not get to this point")
+
   override def getGradient(position: Vector, direction: Direction,
     f: Vector => Double, relativeTo: Option[Vector],
     derivativeType: Derivative): Double = {
@@ -461,29 +532,31 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
     val value = getValue(position)
     if (value.isObstacle)
       relativeTo match {
-        case None => throw new RuntimeException("relativeTo must be supplied as a non-empty parameter if obstacle gradient is being calculated")
+        case None => throw
+          new RuntimeException("""relativeTo must be supplied as a 
+ non-empty parameter if obstacle/boundary gradient is being calculated""")
         case Some(x) => {
-          //TODO
           //get the neighbour in direction closest to relativeTo
-          return 0
+          val n = getNeighbours2(position, direction)
+          val sign = signum(x.get(direction) - position.get(direction))
+          val nAdjusted = if (sign < 0)
+            (n._1, Some(position.get(direction)))
+          else
+            (Some(position.get(direction)), n._2)
+          return getGradient(position, direction, nAdjusted, f, derivativeType)
         }
       }
     else if (value.isBoundary(direction))
-      //TODO
-      return 0
+      //TODO boundary gradient is always 0? Don't think so, should do same as obstacle calculation
+      return 0;
     else {
       val n = getNeighbours2(position, direction)
       getGradient(position, direction, n, f, derivativeType)
     }
   }
 
-  private def getNeighbours(position: Vector, d: Direction): Tuple2[Vector, Vector] = {
-    val t = ordinates.getOrElse(d, null).get(position.get(d)).getOrElse(null)
-    (position.modify(d, t._1), position.modify(d, t._2))
-  }
-
   private def getNeighbours2(position: Vector, d: Direction): Tuple2[Option[Double], Option[Double]] = {
-    neighbours.getOrElse((d, position.get(d)), { throw new RuntimeException("neighbours not found for " + position) })
+    neighbours.getOrElse((d, position.get(d)), unexpected)
   }
 
   private type Pair = Tuple2[Double, Double]
