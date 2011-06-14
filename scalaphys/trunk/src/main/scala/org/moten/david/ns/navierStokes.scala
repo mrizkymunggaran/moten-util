@@ -563,15 +563,15 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
           //get the neighbour in direction closest to relativeTo
           val n = getNeighbours2(position, direction)
           val sign = signum(x.get(direction) - position.get(direction))
-          val nAdjusted = if (sign < 0)
+          val n2 = if (sign < 0)
             (n._1, Some(position.get(direction)))
           else
             (Some(position.get(direction)), n._2)
-          return getGradient(position, direction, nAdjusted, f, derivativeType)
+          return getGradient(position, direction, n2, f, derivativeType)
         }
       }
     else if (value.isBoundary(direction))
-      //TODO boundary gradient is always 0? Don't think so, should do same as obstacle calculation
+      //TODO boundary gradient is always 0 (yep for pressure, velocity nope
       return 0;
     else {
       val n = getNeighbours2(position, direction)
