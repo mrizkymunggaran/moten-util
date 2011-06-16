@@ -579,33 +579,45 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
   private def unexpected =
     throw new RuntimeException("program should not get to this point")
 
+  private def unexpected(message: String) =
+    throw new RuntimeException(message)
+
   override def getGradient(position: Vector, direction: Direction,
     f: Vector => Double, relativeTo: Option[Vector],
     derivativeType: Derivative): Double = {
 
     val value = getValue(position)
     if (value.isObstacle)
-      relativeTo match {
-        case None => throw
-          new RuntimeException("""relativeTo must be supplied as a 
- non-empty parameter if obstacle/boundary gradient is being calculated""")
-        case Some(x) => {
-          //get the neighbour in direction closest to relativeTo
-          val n = getNeighbours2(position, direction)
-          val sign = signum(x.get(direction) - position.get(direction))
-          val n2 = if (sign < 0)
-            (n._1, Some(position.get(direction)))
-          else
-            (Some(position.get(direction)), n._2)
-          return getGradient(position, direction, n2, f, derivativeType)
-        }
-      }
+      return getGradientAtObstacle(position, direction, f, relativeTo, derivativeType)
     else if (value.isBoundary(direction))
       //TODO boundary gradient is always 0 (yep for pressure, velocity nope
       return 0;
     else {
       val n = getNeighbours2(position, direction)
+      //if neighbours are obstacle or boundary then call getGradient on 
+      //same new Data which overrides the Values at the neighbour positions
+      //to indicate that they are not obstacles or boundaries and follow the
+      //following rules:
+      //
       getGradient(position, direction, n, f, derivativeType)
+    }
+  }
+  private def getGradientAtObstacle(position: Vector, direction: Direction,
+    f: Vector => Double, relativeTo: Option[Vector],
+    derivativeType: Derivative): Double = {
+    relativeTo match {
+      case None => unexpected("""relativeTo must be supplied as a 
+ non-empty parameter if obstacle/boundary gradient is being calculated""")
+      case Some(x) => {
+        //get the neighbour in direction closest to relativeTo
+        val n = getNeighbours2(position, direction)
+        val sign = signum(x.get(direction) - position.get(direction))
+        val n2 = if (sign < 0)
+          (n._1, Some(position.get(direction)))
+        else
+          (Some(position.get(direction)), n._2)
+        return getGradient(position, direction, n2, f, derivativeType)
+      }
     }
   }
 
@@ -635,7 +647,6 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
     info("creating new Data")
     return new RegularGridData(newMap)
   }
-
 }
 
 /**
