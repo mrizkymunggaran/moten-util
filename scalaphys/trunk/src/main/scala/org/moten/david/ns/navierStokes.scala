@@ -593,7 +593,7 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
       //TODO boundary gradient is always 0 (yep for pressure, velocity nope
       return 0;
     else {
-      val n = getNeighbours2(position, direction)
+      val n = getNeighbours(position, direction)
       //if one neighbour is obstacle or boundary then call getGradient on 
       //same new Data which overrides the Values at the neighbour positions
       //to indicate that they are NOT obstacles or boundaries (to terminate 
@@ -617,7 +617,7 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
  non-empty parameter if obstacle/boundary gradient is being calculated""")
       case Some(x) => {
         //get the neighbour in direction closest to relativeTo
-        val n = getNeighbours2(position, direction)
+        val n = getNeighbours(position, direction)
         val sign = signum(x.get(direction) - position.get(direction))
         val n2 = if (sign < 0)
           (n._1, Some(position.get(direction)))
@@ -628,7 +628,7 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
     }
   }
 
-  private def getNeighbours2(position: Vector, d: Direction): Tuple2[Option[Double], Option[Double]] = {
+  private def getNeighbours(position: Vector, d: Direction): Tuple2[Option[Double], Option[Double]] = {
     neighbours.getOrElse((d, position.get(d)), unexpected)
   }
 
