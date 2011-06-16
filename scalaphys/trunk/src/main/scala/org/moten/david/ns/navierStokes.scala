@@ -222,7 +222,12 @@ object Data {
 trait Data {
   import Data._
 
-  //implement these abstract methods!
+  /**
+   * ************************************************
+   * Implement these
+   * ************************************************
+   */
+
   /**
    * Returns all positions.
    * @return
@@ -237,7 +242,12 @@ trait Data {
   def getValue(position: Vector): Value
 
   /**
-   * Returns the gradient of the function f with respect to direction at the given position.
+   * Returns the gradient of the function f with respect to direction at the
+   * given position. `relativeTo` is used to calculate the gradient near and
+   *  on boundary and obstacle positions. In particular we need to handle
+   *  the case when the obstacle is of width one in a given direction and
+   *  thus has non-obstacle neighbours on both sides. The proxy field values
+   *  applied to the obstacle will depend the side of interest.
    * @param position
    * @param direction
    * @param f
@@ -255,10 +265,26 @@ trait Data {
    */
   def step(timestep: Double): Data
 
-  //implemented for you
+  /**
+   * ************************************************
+   * Implemented for you
+   * ************************************************
+   */
+
+  /**
+   * Returns the Laplacian of the velocity vector in the given direction.
+   * @param position
+   * @param direction
+   * @return
+   */
   private def getVelocityLaplacian(position: Vector, direction: Direction) =
     getVelocityGradient2nd(position, direction).sum
 
+  /**
+   * Returns the Laplacian of the velocity vector as a vector.
+   * @param position
+   * @return
+   */
   private def getVelocityLaplacian(position: Vector): Vector =
     Vector(getVelocityLaplacian(position, X),
       getVelocityLaplacian(position, Y),
@@ -372,7 +398,7 @@ trait Data {
     val newPressure = NewtonsMethod.solve(f, value0.pressure, h,
       precision, maxIterations) match {
         case None => value0.pressure
-        case a: Some[Double] => if (a.get < 0) value0.pressure else a.get
+        case Some(a) => if (a < 0) value0.pressure else a
       }
     debug("newPressure=" + newPressure + "old=" + value0.pressure)
     return value0.modifyPressure(newPressure).modifyVelocity(v1)
@@ -544,6 +570,10 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
       (t._2, f(position.modify(direction, t._2))),
       derivativeType)
 
+  }
+
+  trait EdgeFunction {
+    def apply(position: Vector, direction: Direction, neighbours: (Double, Double)): (Value, Value)
   }
 
   private def unexpected =
