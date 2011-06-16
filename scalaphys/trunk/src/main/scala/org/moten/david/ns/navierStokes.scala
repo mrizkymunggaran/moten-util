@@ -594,11 +594,18 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
       return 0;
     else {
       val n = getNeighbours2(position, direction)
-      //if neighbours are obstacle or boundary then call getGradient on 
+      //if one neighbour is obstacle or boundary then call getGradient on 
       //same new Data which overrides the Values at the neighbour positions
-      //to indicate that they are not obstacles or boundaries and follow the
-      //following rules:
+      //to indicate that they are NOT obstacles or boundaries (to terminate 
+      //the recursion) and follow the following rules:
       //
+      //if neighbour is obstacle then neighbour Value has zero velocity
+      //and equal pressure except for z direction which has pressure
+      //to give -9.8 derivative.
+      //
+      //if neighbour is boundary then neighbour Value has it's velocity
+      //and pressure except for the z direction which has pressure to 
+      //give -9.8 derivative
       getGradient(position, direction, n, f, derivativeType)
     }
   }
