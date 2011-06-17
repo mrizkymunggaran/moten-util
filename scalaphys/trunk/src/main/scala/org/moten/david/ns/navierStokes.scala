@@ -350,7 +350,7 @@ trait Data {
     //assume not obstacle or boundary
     val valueNext = v.modifyPressure(pressure)
     val dataWithOverridenPressureAtPosition =
-      new DataOverride(this, position, valueNext)
+      new DataOverride(this, x => if (x equals position) Some(valueNext) else None)
     dataWithOverridenPressureAtPosition.getPressureCorrection(position)
   }
 
@@ -500,11 +500,13 @@ trait Data {
 /**
  * Returns a copy of {{data}} with the value at position overriden. Uses facade pattern.
  */
-private class DataOverride(data: Data, position: Vector,
-  value: Value) extends Data {
+private class DataOverride(data: Data, f: Vector => Option[Value]) extends Data {
   override def getPositions(): Set[Vector] = data.getPositions
   override def getValue(vector: Vector): Value =
-    if (vector equals position) value else data.getValue(vector)
+    f(vector) match {
+      case Some(v) => v
+      case None => data.getValue(vector)
+    }
   override def getGradient(position: Vector, direction: Direction,
     f: Vector => Double, relativeTo: Option[Vector], derivativeType: Derivative): Double =
     data.getGradient(position, direction, f, relativeTo, derivativeType)
