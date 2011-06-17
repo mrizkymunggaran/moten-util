@@ -179,6 +179,8 @@ case class Value(
       case Some(x) => x
     }
   }
+  def isBoundaryOrObstacle(direction: Direction) =
+    isObstacle || isBoundary(direction)
 }
 
 trait DataFunction {
@@ -532,14 +534,24 @@ object Grid {
   }
 }
 
+class RichTuple2[A](t: Tuple2[A, A]) {
+  def map[B](f: A => B): Tuple2[B, B] = (f(t._1), f(t._2))
+  def exists(f: A => Boolean) = f(t._1) || f(t._2)
+}
+
+object RichTuple2 {
+  implicit def toRichTuple[A](t: Tuple2[A, A]) = new RichTuple2(t)
+}
+
 /**
- * Implements gradient calculation for a regular grid. Every position
+ * Implements gradient calculation for a regular grid. Every positionA,
  * on the grid has nominated neighbours to be used in gradient
  * calculations (both first and second derivatives).
  */
 class RegularGridData(map: Map[Vector, Value]) extends Data {
   import Data._
   import Grid._
+  import RichTuple2._
   import scala.math._
 
   private final val neighbours = getDirectionalNeighbours(map.keySet)
@@ -572,10 +584,6 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
 
   }
 
-  trait EdgeFunction {
-    def apply(position: Vector, direction: Direction, neighbours: (Double, Double)): (Value, Value)
-  }
-
   private def unexpected =
     throw new RuntimeException("program should not get to this point")
 
@@ -594,21 +602,32 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
       return 0;
     else {
       val n = getNeighbours(position, direction)
-      //if one neighbour is obstacle or boundary then call getGradient on 
-      //same new Data which overrides the Values at the neighbour positions
-      //to indicate that they are NOT obstacles or boundaries (to terminate 
-      //the recursion) and follow the following rules:
-      //
-      //if neighbour is obstacle then neighbour Value has zero velocity
-      //and equal pressure except for z direction which has pressure
-      //to give -9.8 derivative.
-      //
-      //if neighbour is boundary then neighbour Value has it's velocity
-      //and pressure except for the z direction which has pressure to 
-      //give -9.8 derivative
+      implicit def value(x: Option[Double]): Value =
+        getValue(position.modify(direction, x.getOrElse(unexpected)))
+      val v = n.map(value)
+      if (v.exists(_.isBoundaryOrObstacle(direction))) {
+
+        //if one neighbour is obstacle or boundary then call getGradient on 
+        //same new Data which overrides the Values at the neighbour positions
+        //to indicate that they are NOT obstacles or boundaries (to terminate 
+        //the recursion) and follow the following rules:
+        //
+        //if neighbour is obstacle then neighbour Value has zero velocity
+        //and equal pressure except for z direction which has pressure
+        //to give -9.8 derivative.
+        //
+        //if neighbour is boundary then neighbour Value has it's velocity
+        //and pressure except for the z direction which has pressure to 
+        //give -9.8 derivative
+      }
       getGradient(position, direction, n, f, derivativeType)
     }
   }
+
+  private implicit def toList[A](t: Tuple2[A, A]) = List(t._1, t._2)
+
+  private implicit def toTuple[A](list: List[A]) = (list(0), list(1))
+
   private def getGradientAtObstacle(position: Vector, direction: Direction,
     f: Vector => Double, relativeTo: Option[Vector],
     derivativeType: Derivative): Double = {
