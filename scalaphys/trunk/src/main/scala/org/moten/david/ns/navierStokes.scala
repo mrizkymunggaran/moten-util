@@ -164,6 +164,9 @@ case class Value(
   def modifyPressure(p: Double) = {
     Value(velocity, p, density, viscosity, isObstacle, boundary)
   }
+
+  def setNotBoundaryOrObstacle =
+    Value(velocity, pressure, density, viscosity, false, Value.NoBoundary)
   /**
    * Returns a copy of this with velocity modified.
    * @param vel
@@ -181,6 +184,10 @@ case class Value(
   }
   def isBoundaryOrObstacle(direction: Direction) =
     isObstacle || isBoundary(direction)
+}
+
+object Value {
+  val NoBoundary = Map(X -> false, Y -> false, Z -> false)
 }
 
 trait DataFunction {
@@ -607,6 +614,7 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
       implicit def value(x: Option[Double]): Value =
         getValue(position.modify(direction, x.getOrElse(unexpected)))
       val v = n.map(value)
+      val nv = n.map(x => (x.getOrElse(unexpected), value(x)))
       if (v.exists(_.isBoundaryOrObstacle(direction))) {
 
         //if one neighbour is obstacle or boundary then call getGradient on 
@@ -621,11 +629,35 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
         //if neighbour is boundary then neighbour Value has it's velocity
         //and pressure except for the z direction which has pressure to 
         //give -9.8 derivative
+        val nv2 = nv.map(convertNeighbourValueOf(position, direction, _))
       }
       getGradient(position, direction, n, f, derivativeType)
     }
   }
 
+  private def convertNeighbourValueOf(position: Vector, direction: Direction, n: Tuple2[Double, Value]): Tuple2[Double, Value] =
+    {
+      val value = getValue(position)
+      if (n._2.isObstacle) {
+        val value2 = value
+          .modifyVelocity(zero)
+          .modifyPressure(
+            if (direction equals Z)
+              value.pressure - 9.8 * (n._1 - position.get(direction))
+            else
+              value.pressure)
+        return (n._1, value2)
+      } else if (n._2 isBoundary (direction)) {
+        val value2 = value
+          .modifyVelocity(zero)
+          .modifyPressure(
+            if (direction equals Z)
+              value.pressure - 9.8 * (n._1 - position.get(direction))
+            else
+              value.pressure)
+        return (n._1, value2)
+      } else return n
+    }
   private implicit def toList[A](t: Tuple2[A, A]) = List(t._1, t._2)
 
   private implicit def toTuple[A](list: List[A]) = (list(0), list(1))
