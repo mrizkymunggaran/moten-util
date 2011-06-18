@@ -508,10 +508,10 @@ trait Data {
 /**
  * Returns a copy of {{data}} with the value at position overriden. Uses facade pattern.
  */
-private case class DataOverride(data: Data, f: Vector => Option[Value]) extends Data {
+private class DataOverride(data: Data, valueOverride: Vector => Option[Value]) extends Data {
   override def getPositions(): Set[Vector] = data.getPositions
   override def getValue(vector: Vector): Value =
-    f(vector) match {
+    valueOverride(vector) match {
       case Some(v) => v
       case None => data.getValue(vector)
     }
@@ -617,6 +617,7 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
         getValue(position.modify(direction, x.getOrElse(unexpected)))
       val v = n.map(value)
       val nv = n.map(x => (x.getOrElse(unexpected), value(x)))
+      info(nv)
       if (v.exists(_.isBoundaryOrObstacle(direction))) {
 
         //if one neighbour is obstacle or boundary then call getGradient on 
@@ -632,11 +633,12 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
         //and pressure except for the z direction which has pressure to 
         //give -9.8 derivative
         val nv2 = nv.map(convertNeighbourValueOf(position, direction, _))
-        val data = DataOverride(this, p =>
+        def overrideValues(p: Vector) =
           nv2.find(p === _._1) match {
-            case Some((x: Vector, y: Value)) => { info("found"); Some(y) }
+            case Some((_, y: Value)) => Some(y)
             case None => None
-          })
+          }
+        val data = new DataOverride(this, overrideValues)
         return data.getGradient(position, direction, f, relativeTo, derivativeType)
       } else
         return getGradient(position, direction, n, f, derivativeType)
