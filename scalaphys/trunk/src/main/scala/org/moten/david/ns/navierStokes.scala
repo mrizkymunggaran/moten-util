@@ -630,12 +630,15 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
         //and pressure except for the z direction which has pressure to 
         //give -9.8 derivative
         val nv2 = nv.map(convertNeighbourValueOf(position, direction, _))
+
       }
       getGradient(position, direction, n, f, derivativeType)
     }
   }
 
-  private def convertNeighbourValueOf(position: Vector, direction: Direction, n: Tuple2[Double, Value]): Tuple2[Double, Value] =
+  private def convertNeighbourValueOf(position: Vector,
+    direction: Direction,
+    n: Tuple2[Double, Value]): Tuple2[Double, Value] =
     {
       val value = getValue(position)
       if (n._2.isObstacle) {
@@ -646,21 +649,20 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
               value.pressure - 9.8 * (n._1 - position.get(direction))
             else
               value.pressure)
+            .setNotBoundaryOrObstacle
         return (n._1, value2)
       } else if (n._2 isBoundary (direction)) {
         val value2 = value
-          .modifyVelocity(zero)
           .modifyPressure(
             if (direction equals Z)
               value.pressure - 9.8 * (n._1 - position.get(direction))
             else
-              value.pressure)
+              n._2.pressure)
+            .setNotBoundaryOrObstacle
         return (n._1, value2)
-      } else return n
+      } else
+        return n
     }
-  private implicit def toList[A](t: Tuple2[A, A]) = List(t._1, t._2)
-
-  private implicit def toTuple[A](list: List[A]) = (list(0), list(1))
 
   private def getGradientAtObstacle(position: Vector, direction: Direction,
     f: Vector => Double, relativeTo: Option[Vector],
