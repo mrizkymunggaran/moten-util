@@ -507,7 +507,7 @@ trait Data {
 /**
  * Returns a copy of {{data}} with the value at position overriden. Uses facade pattern.
  */
-private class DataOverride(data: Data, f: Vector => Option[Value]) extends Data {
+private case class DataOverride(data: Data, f: Vector => Option[Value]) extends Data {
   override def getPositions(): Set[Vector] = data.getPositions
   override def getValue(vector: Vector): Value =
     f(vector) match {
@@ -630,17 +630,25 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
         //and pressure except for the z direction which has pressure to 
         //give -9.8 derivative
         val nv2 = nv.map(convertNeighbourValueOf(position, direction, _))
-
-      }
-      getGradient(position, direction, n, f, derivativeType)
+        val data = DataOverride(this, p =>
+          if (p equals nv2._1._1)
+            Some(nv2._1._2)
+          else if (p equals nv2._2._1)
+            Some(nv2._2._2)
+          else
+            Some(getValue(p)))
+        return data.getGradient(position, direction, f, relativeTo, derivativeType)
+      } else
+        return getGradient(position, direction, n, f, derivativeType)
     }
   }
 
   private def convertNeighbourValueOf(position: Vector,
     direction: Direction,
-    n: Tuple2[Double, Value]): Tuple2[Double, Value] =
+    n: Tuple2[Double, Value]): Tuple2[Vector, Value] =
     {
       val value = getValue(position)
+      val neighbour = position.modify(direction, n._1)
       if (n._2.isObstacle) {
         val value2 = value
           .modifyVelocity(zero)
@@ -650,7 +658,7 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
             else
               value.pressure)
             .setNotBoundaryOrObstacle
-        return (n._1, value2)
+        return (neighbour, value2)
       } else if (n._2 isBoundary (direction)) {
         val value2 = value
           .modifyPressure(
@@ -659,9 +667,9 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
             else
               n._2.pressure)
             .setNotBoundaryOrObstacle
-        return (n._1, value2)
+        return (neighbour, value2)
       } else
-        return n
+        return (neighbour, n._2)
     }
 
   private def getGradientAtObstacle(position: Vector, direction: Direction,
