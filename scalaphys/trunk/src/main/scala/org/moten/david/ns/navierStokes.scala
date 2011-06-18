@@ -116,6 +116,7 @@ case class Vector(x: Double, y: Double, z: Double) {
       if (direction equals Y) d else y,
       if (direction equals Z) d else z)
   }
+  def ===(v: Vector) = this equals v
   def list = List(x, y, z)
 }
 
@@ -357,7 +358,7 @@ trait Data {
     //assume not obstacle or boundary
     val valueNext = v.modifyPressure(pressure)
     val dataWithOverridenPressureAtPosition =
-      new DataOverride(this, x => if (x equals position) Some(valueNext) else None)
+      new DataOverride(this, x => if (x === position) Some(valueNext) else None)
     dataWithOverridenPressureAtPosition.getPressureCorrection(position)
   }
 
@@ -546,6 +547,7 @@ object Grid {
 class RichTuple2[A](t: Tuple2[A, A]) {
   def map[B](f: A => B): Tuple2[B, B] = (f(t._1), f(t._2))
   def exists(f: A => Boolean) = f(t._1) || f(t._2)
+  def find(f: A => Boolean) = if (f(t._1)) Some(t._1) else if (f(t._2)) Some(t._2) else None
 }
 
 object RichTuple2 {
@@ -607,7 +609,7 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
     if (value.isObstacle)
       return getGradientAtObstacle(position, direction, f, relativeTo, derivativeType)
     else if (value.isBoundary(direction))
-      //TODO boundary gradient is always 0 (yep for pressure, velocity nope
+      //TODO boundary gradient should be calculated as below?
       return 0;
     else {
       val n = getNeighbours(position, direction)
@@ -631,12 +633,10 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
         //give -9.8 derivative
         val nv2 = nv.map(convertNeighbourValueOf(position, direction, _))
         val data = DataOverride(this, p =>
-          if (p equals nv2._1._1)
-            Some(nv2._1._2)
-          else if (p equals nv2._2._1)
-            Some(nv2._2._2)
-          else
-            Some(getValue(p)))
+          nv2.find(p === _._1) match {
+            case Some((x: Vector, y: Value)) => { info("found"); Some(y) }
+            case None => None
+          })
         return data.getGradient(position, direction, f, relativeTo, derivativeType)
       } else
         return getGradient(position, direction, n, f, derivativeType)
