@@ -19,10 +19,22 @@ object Logger {
   val df = new SimpleDateFormat("HH:mm:ss.SSS")
   var infoEnabled = true
   var debugEnabled = false
-  def info(msg: => AnyRef) = if (infoEnabled) println(df.format(new Date()) + " " + msg)
-  def debug(msg: => AnyRef) = if (debugEnabled) println(df.format(new Date()) + " " + msg)
+  def info(msg: => AnyRef) = if (infoEnabled)
+    println(df.format(new Date()) + " " + msg)
+  def debug(msg: => AnyRef) = if (debugEnabled)
+    println(df.format(new Date()) + " " + msg)
 }
 import Logger._
+
+object Throwing {
+  def unexpected =
+    throw new RuntimeException("program should not get to this point")
+
+  def unexpected(message: String) =
+    throw new RuntimeException(message)
+}
+
+import Throwing._
 
 /**
  * X,Y horizontal coordinates (arbitrary coordinate system).
@@ -191,27 +203,8 @@ object Value {
   val NoBoundary = Map(X -> false, Y -> false, Z -> false)
 }
 
-trait DataFunction {
-  def apply(data: Data, v: Vector): Double
-}
-
-object PressureFunction extends DataFunction {
-  def apply(data: Data, v: Vector): Double = {
-    data.getValue(v).pressure
-  }
-}
-
-class VelocityFunction(direction: Direction) extends DataFunction {
-  def apply(data: Data, v: Vector): Double = {
-    data.getValue(v).velocity.get(direction)
-  }
-}
-
-object VelocityFunction {
-  private val map = directions.map(d => (d, new VelocityFunction(d))).toMap
-
-  def get(direction: Direction) =
-    map.getOrElse(direction, null)
+trait DataFactory {
+  def create(overrideValues: Vector => Value): Data
 }
 
 /**
@@ -226,8 +219,13 @@ object Data {
   val gravity = Vector(0, 0, -9.8)
 }
 
+trait DataFunction {
+  def apply(position: Vector)(values: Vector => Value): Double
+}
+
 /**
- * Positions, values and methods for the numerical Navier Stokes equation solver.
+ * Positions, values and methods for the numerical Navier
+ * Stokes equation solver.
  */
 trait Data {
   import Data._
@@ -250,6 +248,13 @@ trait Data {
    * @return
    */
   def getValue(position: Vector): Value
+
+  /**
+   * Returns a [[org.moten.david.ns.DataFactory]] to create a new instance
+   * of Data based on this but with overriden getValue function.
+   * @return
+   */
+  def getDataFactory: DataFactory
 
   /**
    * Returns the gradient of the function f with respect to direction at the
@@ -358,7 +363,7 @@ trait Data {
     //assume not obstacle or boundary
     val valueNext = v.modifyPressure(pressure)
     val dataWithOverridenPressureAtPosition =
-      new DataOverride(this, x => if (x === position) Some(valueNext) else None)
+      getDataFactory.create(x => if (x === position) valueNext else v)
     dataWithOverridenPressureAtPosition.getPressureCorrection(position)
   }
 
@@ -482,10 +487,9 @@ trait Data {
    * @param numSteps
    * @return
    */
-  private def step(data: Data, timestep: Double, numSteps: Int): Data = {
+  private def step(data: Data, timestep: Double, numSteps: Int): Data =
     if (numSteps == 0) return data
     else return step(data.step(timestep), timestep, numSteps - 1)
-  }
 
   /**
    * Returns a new immutable Data object after repeating the
@@ -503,22 +507,6 @@ trait Data {
    */
   override def toString = getPositions.toList.sorted(VectorOrdering)
     .map(v => (v, getValue(v)).toString + "\n").toString
-}
-
-/**
- * Returns a copy of {{data}} with the value at position overriden. Uses facade pattern.
- */
-private class DataOverride(data: Data, valueOverride: Vector => Option[Value]) extends Data {
-  override def getPositions(): Set[Vector] = data.getPositions
-  override def getValue(vector: Vector): Value =
-    valueOverride(vector) match {
-      case Some(v) => v
-      case None => data.getValue(vector)
-    }
-  override def getGradient(position: Vector, direction: Direction,
-    f: Vector => Double, relativeTo: Option[Vector], derivativeType: Derivative): Double =
-    data.getGradient(position, direction, f, relativeTo, derivativeType)
-  override def step(timestep: Double): Data = data.step(timestep)
 }
 
 /**
@@ -544,6 +532,10 @@ object Grid {
   }
 }
 
+case class Grid(positions: Set[Vector]) {
+  val neighbours = Grid.getDirectionalNeighbours(positions)
+}
+
 class RichTuple2[A](t: Tuple2[A, A]) {
   def map[B](f: A => B): Tuple2[B, B] = (f(t._1), f(t._2))
   def exists(f: A => Boolean) = f(t._1) || f(t._2)
@@ -559,22 +551,25 @@ object RichTuple2 {
  * on the grid has nominated neighbours to be used in gradient
  * calculations (both first and second derivatives).
  */
-class RegularGridData(map: Map[Vector, Value]) extends Data {
+class RegularGridData(grid: Grid,
+  values: Vector => Value) extends Data {
   import Data._
   import Grid._
   import RichTuple2._
   import scala.math._
 
-  private final val neighbours = getDirectionalNeighbours(map.keySet)
+  def this(positions: Set[Vector], values: Vector => Value) =
+    this(new Grid(positions), values);
 
-  override def getValue(vector: Vector): Value = {
-    map.get(vector) match {
-      case s: Some[Value] => s.get
-      case None => throw new RuntimeException("no value exists for position " + vector)
-    }
+  override def getValue(vector: Vector): Value =
+    values(vector)
+
+  override def getPositions = grid.positions
+
+  override val getDataFactory = new DataFactory {
+    def create(overrideValues: Vector => Value) =
+      new RegularGridData(grid, overrideValues)
   }
-
-  override def getPositions = map.keySet
 
   //TODO test this
   private def getGradient(position: Vector, direction: Direction,
@@ -595,12 +590,6 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
 
   }
 
-  private def unexpected =
-    throw new RuntimeException("program should not get to this point")
-
-  private def unexpected(message: String) =
-    throw new RuntimeException(message)
-
   override def getGradient(position: Vector, direction: Direction,
     f: Vector => Double, relativeTo: Option[Vector],
     derivativeType: Derivative): Double = {
@@ -617,7 +606,6 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
         getValue(position.modify(direction, x.getOrElse(unexpected)))
       val v = n.map(value)
       val nv = n.map(x => (x.getOrElse(unexpected), value(x)))
-      info(nv)
       if (v.exists(_.isBoundaryOrObstacle(direction))) {
 
         //if one neighbour is obstacle or boundary then call getGradient on 
@@ -635,10 +623,10 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
         val nv2 = nv.map(convertNeighbourValueOf(position, direction, _))
         def overrideValues(p: Vector) =
           nv2.find(p === _._1) match {
-            case Some((_, y: Value)) => Some(y)
-            case None => None
+            case Some((_, y: Value)) => y
+            case None => getValue(p)
           }
-        val data = new DataOverride(this, overrideValues)
+        val data = new RegularGridData(grid, overrideValues _)
         return data.getGradient(position, direction, f, relativeTo, derivativeType)
       } else
         return getGradient(position, direction, n, f, derivativeType)
@@ -693,23 +681,21 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
     }
   }
 
-  private def getNeighbours(position: Vector, d: Direction): Tuple2[Option[Double], Option[Double]] = {
-    neighbours.getOrElse((d, position.get(d)), unexpected)
-  }
+  private def getNeighbours(position: Vector, d: Direction): Tuple2[Option[Double], Option[Double]] =
+    grid.neighbours.getOrElse((d, position.get(d)), unexpected)
 
   private type Pair = Tuple2[Double, Double]
 
   private def getGradient(a1: Pair, a: Pair, a2: Pair,
-    derivativeType: Derivative): Double = {
+    derivativeType: Derivative): Double =
     if (derivativeType equals FirstDerivative)
       (a2._2 - a1._2) / (a2._1 - a1._1)
     else
       (a2._2 + a1._2 - 2 * a._2) / (a2._1 - a1._1)
-  }
 
   override def step(timestep: Double): Data = {
     info("creating parallel collection")
-    val vectors = map.keySet.par
+    val vectors = grid.positions.par
     info("solving timestep")
     val stepped = vectors.map(v => (v, getValueAfterTime(v, timestep)))
     info("converting to sequential collection")
@@ -717,7 +703,7 @@ class RegularGridData(map: Map[Vector, Value]) extends Data {
     info("converting to map")
     val newMap = seq.toMap
     info("creating new Data")
-    return new RegularGridData(newMap)
+    return new RegularGridData(grid, newMap.getOrElse(_: Vector, unexpected))
   }
 }
 
