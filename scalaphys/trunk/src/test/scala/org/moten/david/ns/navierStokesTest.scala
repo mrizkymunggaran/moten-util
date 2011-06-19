@@ -112,6 +112,7 @@ class NewtonsMethodTest {
 @Test
 class NavierStokesTest {
   import Util._
+  import Throwing._
 
   @Test
   def testNavierStokesStepDoesNothingToDataInEquilibrium() {
@@ -130,7 +131,7 @@ class NavierStokesTest {
         boundary = Direction.values.map(d => (d, abs(v.get(d)) == 1 || v.get(d) == size)).toMap)))
       .seq.toMap
     info("creating Data")
-    val data = new RegularGridData(map)
+    val data = new RegularGridData(map.keySet, map.getOrElse(_: Vector, unexpected))
     //    println(data)
     val data2 = data.step(30)
     //    println(data2)
@@ -163,7 +164,7 @@ class NavierStokesTest {
         boundary = Direction.values.map(d => (d, abs(v.get(d)) == 1 || v.get(d) == size)).toMap)))
       .seq.toMap
     info("creating Data")
-    val data = new RegularGridData(map)
+    val data = new RegularGridData(map.keySet, map.getOrElse(_: Vector, unexpected))
     //    println(data)
     val data2 = data.step(30)
     //    println(data2)
@@ -194,7 +195,7 @@ class NavierStokesTest {
           (d, !obstacle && (isZBoundary(d, v)
             || abs(v.get(d)) == max))).toMap))
     }).toMap
-    val data = new RegularGridData(map)
+    val data = new RegularGridData(map.keySet, map.getOrElse(_: Vector, unexpected))
     val v1 = Vector(1.0 / size, (size - 1.0) / size, 0.0)
     val v2 = data.getValueAfterTime(v1, 1)
     info(v2)
