@@ -203,14 +203,14 @@ object Value {
   val NoBoundary = Map(X -> false, Y -> false, Z -> false)
 }
 
-trait DataFactory {
-  def create(overrideValues: Vector => Value): Data
+trait SolverFactory {
+  def create(overrideValues: Vector => Value): Solver
 }
 
 /**
- * Companion object for `Data`.
+ * Companion object for `Solver`.
  */
-object Data {
+object Solver {
   /**
    * Acceleration due to gravity. Note that this vector
    * determines the meaning of the Z direction (positive Z
@@ -219,16 +219,12 @@ object Data {
   val gravity = Vector(0, 0, -9.8)
 }
 
-trait DataFunction {
-  def apply(position: Vector)(values: Vector => Value): Double
-}
-
 /**
  * Positions, values and methods for the numerical Navier
  * Stokes equation solver.
  */
-trait Data {
-  import Data._
+trait Solver {
+  import Solver._
 
   /**
    * ************************************************
@@ -250,11 +246,11 @@ trait Data {
   def getValue(position: Vector): Value
 
   /**
-   * Returns a [[org.moten.david.ns.DataFactory]] to create a new instance
-   * of Data based on this but with overriden getValue function.
+   * Returns a [[org.moten.david.ns.SolverFactory]] to create a new instance
+   * of Solver based on this but with overriden getValue function.
    * @return
    */
-  def getDataFactory: DataFactory
+  def getSolverFactory: SolverFactory
 
   /**
    * Returns the gradient of the function f with respect to direction at the
@@ -274,11 +270,11 @@ trait Data {
     derivativeType: Derivative): Double
 
   /**
-   * Returns calculated `Data` after timestep seconds.
+   * Returns calculated `Solver` after timestep seconds.
    * @param timestep
    * @return
    */
-  def step(timestep: Double): Data
+  def step(timestep: Double): Solver
 
   /**
    * ************************************************
@@ -362,9 +358,9 @@ trait Data {
     val v = getValue(position)
     //assume not obstacle or boundary
     val valueNext = v.modifyPressure(pressure)
-    val dataWithOverridenPressureAtPosition =
-      getDataFactory.create(x => if (x === position) valueNext else v)
-    dataWithOverridenPressureAtPosition.getPressureCorrection(position)
+    val solverWithOverridenPressureAtPosition =
+      getSolverFactory.create(x => if (x === position) valueNext else v)
+    solverWithOverridenPressureAtPosition.getPressureCorrection(position)
   }
 
   /**
@@ -480,25 +476,25 @@ trait Data {
         getValue(_).velocity.get(d), None, SecondDerivative)))
 
   /**
-   * Returns a new immutable Data object representing the
+   * Returns a new immutable Solver object representing the
    * state of the system after `timestep` seconds.
-   * @param data
+   * @param solver
    * @param timestep
    * @param numSteps
    * @return
    */
-  private def step(data: Data, timestep: Double, numSteps: Int): Data =
-    if (numSteps == 0) return data
-    else return step(data.step(timestep), timestep, numSteps - 1)
+  private def step(solver: Solver, timestep: Double, numSteps: Int): Solver =
+    if (numSteps == 0) return solver
+    else return step(solver.step(timestep), timestep, numSteps - 1)
 
   /**
-   * Returns a new immutable Data object after repeating the
+   * Returns a new immutable Solver object after repeating the
    *  timestep `numSteps` times.
    * @param timestep
    * @param numSteps
    * @return
    */
-  def step(timestep: Double, numSteps: Int): Data =
+  def step(timestep: Double, numSteps: Int): Solver =
     step(this, timestep, numSteps)
 
   /**
@@ -551,9 +547,9 @@ object RichTuple2 {
  * on the grid has nominated neighbours to be used in gradient
  * calculations (both first and second derivatives).
  */
-class RegularGridData(grid: Grid,
-  values: Vector => Value) extends Data {
-  import Data._
+class RegularGridSolver(grid: Grid,
+  values: Vector => Value) extends Solver {
+  import Solver._
   import Grid._
   import RichTuple2._
   import scala.math._
@@ -561,14 +557,17 @@ class RegularGridData(grid: Grid,
   def this(positions: Set[Vector], values: Vector => Value) =
     this(new Grid(positions), values);
 
+  def this(map: Map[Vector, Value]) =
+    this(map.keySet, map.getOrElse(_: Vector, unexpected))
+
   override def getValue(vector: Vector): Value =
     values(vector)
 
   override def getPositions = grid.positions
 
-  override val getDataFactory = new DataFactory {
+  override val getSolverFactory = new SolverFactory {
     def create(overrideValues: Vector => Value) =
-      new RegularGridData(grid, overrideValues)
+      new RegularGridSolver(grid, overrideValues)
   }
 
   //TODO test this
@@ -609,7 +608,7 @@ class RegularGridData(grid: Grid,
       if (v.exists(_.isBoundaryOrObstacle(direction))) {
 
         //if one neighbour is obstacle or boundary then call getGradient on 
-        //same new Data which overrides the Values at the neighbour positions
+        //same new Solver which overrides the Values at the neighbour positions
         //to indicate that they are NOT obstacles or boundaries (to terminate 
         //the recursion) and follow the following rules:
         //
@@ -626,8 +625,8 @@ class RegularGridData(grid: Grid,
             case Some((_, y: Value)) => y
             case None => getValue(p)
           }
-        val data = new RegularGridData(grid, overrideValues _)
-        return data.getGradient(position, direction, f, relativeTo, derivativeType)
+        val solver = new RegularGridSolver(grid, overrideValues _)
+        return solver.getGradient(position, direction, f, relativeTo, derivativeType)
       } else
         return getGradient(position, direction, n, f, derivativeType)
     }
@@ -693,7 +692,7 @@ class RegularGridData(grid: Grid,
     else
       (a2._2 + a1._2 - 2 * a._2) / (a2._1 - a1._1)
 
-  override def step(timestep: Double): Data = {
+  override def step(timestep: Double): Solver = {
     info("creating parallel collection")
     val vectors = grid.positions.par
     info("solving timestep")
@@ -702,8 +701,8 @@ class RegularGridData(grid: Grid,
     val seq = stepped.seq
     info("converting to map")
     val newMap = seq.toMap
-    info("creating new Data")
-    return new RegularGridData(grid, newMap.getOrElse(_: Vector, unexpected))
+    info("creating new Solver")
+    return new RegularGridSolver(grid, newMap.getOrElse(_: Vector, unexpected))
   }
 }
 
