@@ -554,13 +554,15 @@ trait Solver {
  */
 object Grid {
 
+  type DirectionalNeighbours = Map[(Direction, Double), (Option[Double], Option[Double])]
+
   /**
    * Returns the neighbours of an ordinate in a given direction.
    * @param vectors
    * @return
    */
   def getDirectionalNeighbours(
-    vectors: Set[Vector]): Map[(Direction, Double), (Option[Double], Option[Double])] = {
+    vectors: Set[Vector]): DirectionalNeighbours = {
     info("getting directional neighbours")
     //produce a map of Direction to a map of ordinate values with their 
     //negative and positive direction neighbour ordinate values. This 
@@ -619,8 +621,17 @@ object RichTuple2 {
 /**
  * Boundary strategy
  */
-object BoundaryHandler {
-  def convertNeighbourValueOf(position: Vector, value: Value,
+object BoundaryStrategy {
+
+  /**
+   * Calculates the boundary/obstacle values in both directions.
+   * @param position
+   * @param value
+   * @param direction
+   * @param n
+   * @return
+   */
+  def applyBoundaryStrategy(position: Vector, value: Value,
     direction: Direction,
     n: Tuple2[Double, Value]): Tuple2[Vector, Value] =
     {
@@ -798,7 +809,7 @@ class RegularGridSolver(grid: Grid,
   private def convertNeighbourValueOf(position: Vector,
     direction: Direction,
     n: Tuple2[Double, Value]): Tuple2[Vector, Value] =
-    BoundaryHandler.convertNeighbourValueOf(position,
+    BoundaryStrategy.applyBoundaryStrategy(position,
       getValue(position), direction, n)
 
   override def step(timestep: Double): Solver = {
