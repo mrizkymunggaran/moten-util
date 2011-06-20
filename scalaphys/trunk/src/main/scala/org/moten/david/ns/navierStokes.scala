@@ -555,7 +555,7 @@ class RegularGridSolver(grid: Grid,
   import scala.math._
 
   def this(positions: Set[Vector], values: Vector => Value) =
-    this(new Grid(positions), values);
+    this(Grid(positions), values);
 
   def this(map: Map[Vector, Value]) =
     this(map.keySet, map.getOrElse(_: Vector, unexpected))
@@ -603,9 +603,10 @@ class RegularGridSolver(grid: Grid,
       val n = getNeighbours(position, direction)
       implicit def value(x: Option[Double]): Value =
         getValue(position.modify(direction, x.getOrElse(unexpected)))
-      val v = n.map(value)
+      //any cell that is not boundary or obstacle should have 
+      //neighbours in both directions
       val nv = n.map(x => (x.getOrElse(unexpected), value(x)))
-      if (v.exists(_.isBoundaryOrObstacle(direction))) {
+      if (nv.exists(_._2.isBoundaryOrObstacle(direction))) {
 
         //if one neighbour is obstacle or boundary then call getGradient on 
         //same new Solver which overrides the Values at the neighbour positions
@@ -683,7 +684,7 @@ class RegularGridSolver(grid: Grid,
   private def getNeighbours(position: Vector, d: Direction): Tuple2[Option[Double], Option[Double]] =
     grid.neighbours.getOrElse((d, position.get(d)), unexpected)
 
-  private type Pair = Tuple2[Double, Double]
+  private type Pair = (Double, Double)
 
   private def getGradient(a1: Pair, a: Pair, a2: Pair,
     derivativeType: Derivative): Double =
@@ -694,7 +695,7 @@ class RegularGridSolver(grid: Grid,
 
   override def step(timestep: Double): Solver = {
     info("creating parallel collection")
-    val vectors = grid.positions.par
+    val vectors = grid.positions //.par
     info("solving timestep")
     val stepped = vectors.map(v => (v, getValueAfterTime(v, timestep)))
     info("converting to sequential collection")

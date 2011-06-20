@@ -68,6 +68,7 @@
 						</goals>
 						<configuration>
 							<args>
+								<arg>-deprecation</arg>
 								<arg>-make:transitive</arg>
 								<arg>-dependencyfile</arg>
 								<arg>${project.build.directory}/.scala_dependencies</arg>
@@ -106,10 +107,10 @@
 			</plugin>
 		</plugins>
 	</reporting>
-		<!-- <repositories> <repository> <id>scala-tools.org</id> <name>Scala-Tools 
+	<!-- <repositories> <repository> <id>scala-tools.org</id> <name>Scala-Tools 
 		Maven2 Repository</name> <url>http://scala-tools.org/repo-releases</url> 
 		</repository> </repositories> <pluginRepositories> <pluginRepository> <id>scala-tools.org</id> 
 		<name>Scala-Tools Maven2 Repository</name> <url>http://scala-tools.org/repo-releases</url> 
 		</pluginRepository> </pluginRepositories> -->
-	
+
 </project>
