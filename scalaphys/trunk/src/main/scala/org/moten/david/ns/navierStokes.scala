@@ -510,7 +510,8 @@ trait Solver {
  */
 object Grid {
 
-  def getDirectionalNeighbours(vectors: Set[Vector]): Map[(Direction, Double), (Option[Double], Option[Double])] = {
+  def getDirectionalNeighbours(
+    vectors: Set[Vector]): Map[(Direction, Double), (Option[Double], Option[Double])] = {
     info("getting directional neighbours")
     //produce a map of Direction to a map of ordinate values with their 
     //negative and positive direction neighbour ordinate values. This 
@@ -542,7 +543,8 @@ case class Grid(positions: Set[Vector]) {
 class RichTuple2[A](t: Tuple2[A, A]) {
   def map[B](f: A => B): Tuple2[B, B] = (f(t._1), f(t._2))
   def exists(f: A => Boolean) = f(t._1) || f(t._2)
-  def find(f: A => Boolean) = if (f(t._1)) Some(t._1) else if (f(t._2)) Some(t._2) else None
+  def find(f: A => Boolean) =
+    if (f(t._1)) Some(t._1) else if (f(t._2)) Some(t._2) else None
 }
 
 object RichTuple2 {
@@ -577,10 +579,10 @@ object BoundaryHandler {
       } else
         return (neighbour, n._2)
     }
-
 }
 
 object RegularGridSolver {
+  import scala.Math._
   def getGradient(position: Vector, direction: Direction,
     n: Tuple2[Option[Double], Option[Double]], f: Vector => Double,
     derivativeType: Derivative): Double = {
@@ -606,6 +608,30 @@ object RegularGridSolver {
       (a2._2 - a1._2) / (a2._1 - a1._1)
     else
       (a2._2 + a1._2 - 2 * a._2) / (a2._1 - a1._1)
+
+  def getGradientAtObstacle(grid: Grid, position: Vector,
+    direction: Direction, f: Vector => Double,
+    relativeTo: Option[Vector], derivativeType: Derivative): Double = {
+    relativeTo match {
+      case None => unexpected("""relativeTo must be supplied as a protected
+ non-empty parameter if obstacle/boundary gradient is being calculated""")
+      case Some(x) => {
+        //get the neighbour in direction closest to relativeTo
+        val n = getNeighbours(grid, position, direction)
+        val sign = signum(x.get(direction) - position.get(direction))
+        val n2 = if (sign < 0)
+          (n._1, Some(position.get(direction)))
+        else
+          (Some(position.get(direction)), n._2)
+        return RegularGridSolver.getGradient(position,
+          direction, n2, f, derivativeType)
+      }
+    }
+  }
+
+  def getNeighbours(grid: Grid, position: Vector,
+    d: Direction): Tuple2[Option[Double], Option[Double]] =
+    grid.neighbours.getOrElse((d, position.get(d)), unexpected)
 
 }
 
@@ -642,77 +668,70 @@ class RegularGridSolver(grid: Grid,
   }
 
   //TODO test this
-
   override def getGradient(position: Vector, direction: Direction,
     f: Vector => Double, relativeTo: Option[Vector],
     derivativeType: Derivative): Double = {
 
     val value = getValue(position)
     if (value.isObstacle)
-      return getGradientAtObstacle(position, direction, f, relativeTo, derivativeType)
+      return getGradientAtObstacle(grid, position, direction,
+        f, relativeTo, derivativeType)
     else if (value.isBoundary(direction))
       //TODO boundary gradient should be calculated as below?
       return 0;
     else {
-      val n = getNeighbours(position, direction)
+      val n = getNeighbours(grid, position, direction)
       implicit def value(x: Option[Double]): Value =
         getValue(position.modify(direction, x.getOrElse(unexpected)))
       //any cell that is not boundary or obstacle should have 
       //neighbours in both directions
       val nv = n.map(x => (x.getOrElse(unexpected), value(x)))
       if (nv.exists(_._2.isBoundaryOrObstacle(direction))) {
-
-        //if one neighbour is obstacle or boundary then call getGradient on 
-        //same new Solver which overrides the Values at the neighbour positions
-        //to indicate that they are NOT obstacles or boundaries (to terminate 
-        //the recursion) and follow the following rules:
-        //
-        //if neighbour is obstacle then neighbour Value has zero velocity
-        //and equal pressure except for z direction which has pressure
-        //to give -9.8 derivative.
-        //
-        //if neighbour is boundary then neighbour Value has it's velocity
-        //and pressure except for the z direction which has pressure to 
-        //give -9.8 derivative
-        val nv2 = nv.map(convertNeighbourValueOf(position, direction, _))
-        def overrideValues(p: Vector) =
-          nv2.find(p === _._1) match {
-            case Some((_, y: Value)) => y
-            case None => getValue(p)
-          }
-        val solver = new RegularGridSolver(grid, overrideValues _, validate = false)
-        return solver.getGradient(position, direction, f, relativeTo, derivativeType)
+        return getGradientNearBoundary(grid, nv,
+          position, direction, f, relativeTo, derivativeType)
       } else
-        return RegularGridSolver.getGradient(position, direction, n, f, derivativeType)
+        return RegularGridSolver.getGradient(position, direction, n,
+          f, derivativeType)
     }
+  }
+
+  private def getGradientNearBoundary(grid: Grid,
+    nv: ((Double, Value), (Double, Value)), position: Vector,
+    direction: Direction, f: Vector => Double,
+    relativeTo: Option[Vector], derivativeType: Derivative): Double = {
+    //if one neighbour is obstacle or boundary then call getGradient on 
+    //same new Solver which overrides the Values at the neighbour positions
+    //to indicate that they are NOT obstacles or boundaries (to terminate 
+    //the recursion) and follow the following rules:
+    //
+    //if neighbour is obstacle then neighbour Value has zero velocity
+    //and equal pressure except for z direction which has pressure
+    //to give -9.8 derivative.
+    //
+    //if neighbour is boundary then neighbour Value has it's velocity
+    //and pressure except for the z direction which has pressure to 
+    //give -9.8 derivative
+    implicit def value(x: Option[Double]): Value =
+      getValue(position.modify(direction, x.getOrElse(unexpected)))
+
+    val nv2 = nv.map(convertNeighbourValueOf(position, direction, _))
+    def overrideValues(p: Vector) =
+      nv2.find(p === _._1) match {
+        case Some((_, y: Value)) => y
+        case None => getValue(p)
+      }
+    val solver = new RegularGridSolver(grid,
+      overrideValues _, validate = false)
+    return solver.getGradient(position, direction, f,
+      relativeTo, derivativeType)
+
   }
 
   private def convertNeighbourValueOf(position: Vector,
     direction: Direction,
     n: Tuple2[Double, Value]): Tuple2[Vector, Value] =
-    BoundaryHandler.convertNeighbourValueOf(position, getValue(position), direction, n)
-
-  private def getGradientAtObstacle(position: Vector, direction: Direction,
-    f: Vector => Double, relativeTo: Option[Vector],
-    derivativeType: Derivative): Double = {
-    relativeTo match {
-      case None => unexpected("""relativeTo must be supplied as a protected
- non-empty parameter if obstacle/boundary gradient is being calculated""")
-      case Some(x) => {
-        //get the neighbour in direction closest to relativeTo
-        val n = getNeighbours(position, direction)
-        val sign = signum(x.get(direction) - position.get(direction))
-        val n2 = if (sign < 0)
-          (n._1, Some(position.get(direction)))
-        else
-          (Some(position.get(direction)), n._2)
-        return RegularGridSolver.getGradient(position, direction, n2, f, derivativeType)
-      }
-    }
-  }
-
-  private def getNeighbours(position: Vector, d: Direction): Tuple2[Option[Double], Option[Double]] =
-    grid.neighbours.getOrElse((d, position.get(d)), unexpected)
+    BoundaryHandler.convertNeighbourValueOf(position,
+      getValue(position), direction, n)
 
   override def step(timestep: Double): Solver = {
     info("creating parallel collection")
@@ -724,7 +743,8 @@ class RegularGridSolver(grid: Grid,
     info("converting to map")
     val newMap = seq.toMap
     info("creating new Solver")
-    return new RegularGridSolver(grid, newMap.getOrElse(_: Vector, unexpected), false)
+    return new RegularGridSolver(grid,
+      newMap.getOrElse(_: Vector, unexpected), false)
   }
 }
 
