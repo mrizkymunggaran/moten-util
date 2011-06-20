@@ -26,6 +26,9 @@ object Logger {
 }
 import Logger._
 
+/**
+ * Useful exceptions.
+ */
 object Throwing {
   def unexpected =
     throw new RuntimeException("program should not get to this point")
@@ -178,6 +181,10 @@ case class Value(
     Value(velocity, p, density, viscosity, isObstacle, boundary)
   }
 
+  /**
+   * Returns a copy of this with obstacle and boundary values set to false.
+   * @return
+   */
   def setNotBoundaryOrObstacle =
     Value(velocity, pressure, density, viscosity, false, Value.NoBoundary)
   /**
@@ -189,20 +196,36 @@ case class Value(
     Value(vel, pressure, density, viscosity, isObstacle, boundary)
   }
 
+  /**
+   * Returns true if is a boundary in the given direction.
+   * @param direction
+   * @return
+   */
   def isBoundary(direction: Direction): Boolean = {
     boundary.get(direction) match {
       case None => throw new RuntimeException("boundary info not found")
       case Some(x) => x
     }
   }
+  /**
+   * Returns true if and only if the position is a boundary or obstacle.
+   * @param direction
+   * @return
+   */
   def isBoundaryOrObstacle(direction: Direction) =
     isObstacle || isBoundary(direction)
 }
 
+/**
+ * Companion object.
+ */
 object Value {
   val NoBoundary = Map(X -> false, Y -> false, Z -> false)
 }
 
+/**
+ * Factory for creating a solver from another.
+ */
 trait SolverFactory {
   def create(overrideValues: Vector => Value): Solver
 }
@@ -217,6 +240,12 @@ object Solver {
    * direction is decrease in depth).
    */
   val gravity = Vector(0, 0, -9.8)
+
+  /**
+   * Returns the value of a function of interest on the Position/Value field
+   */
+  type PositionFunction = (Vector => Value, Vector) => Double
+
 }
 
 /**
@@ -266,7 +295,8 @@ trait Solver {
    * @return
    */
   def getGradient(position: Vector, direction: Direction,
-    f: Vector => Double, relativeTo: Option[Vector],
+    f: PositionFunction, values: Vector => Value,
+    relativeTo: Option[Vector],
     derivativeType: Derivative): Double
 
   /**
@@ -301,6 +331,11 @@ trait Solver {
       getVelocityLaplacian(position, Y),
       getVelocityLaplacian(position, Z))
 
+  /**
+   * Returns the Jacobian of velocity at a position.
+   * @param position
+   * @return
+   */
   private def getVelocityJacobian(position: Vector) =
     Matrix(getVelocityGradient(position, X, None),
       getVelocityGradient(position, Y, None),
@@ -373,7 +408,7 @@ trait Solver {
     val pressureLaplacian = getPressureLaplacian(position)
     return pressureLaplacian +
       directions.map(d => getGradient(position, d,
-        gradientDot(d, Some(position)), None, FirstDerivative)).sum
+        gradientDot(d, Some(position)), getValue, None, FirstDerivative)).sum
   }
 
   /**
@@ -384,7 +419,7 @@ trait Solver {
    * @return
    */
   def gradientDot(direction: Direction,
-    relativeTo: Option[Vector])(v: Vector): Double =
+    relativeTo: Option[Vector])(values: Vector => Value, v: Vector): Double =
     getVelocityGradient(v, direction, relativeTo) * v
 
   /**
@@ -429,11 +464,13 @@ trait Solver {
    * @param direction
    * @return
    */
-  private def getPressureGradient(position: Vector, direction: Direction): Double = {
+  private def getPressureGradient(position: Vector,
+    direction: Direction): Double = {
     val value = getValue(position);
     val force = gravity.get(direction) * value.density
     getGradient(position, direction,
-      getValue(_).pressure, None, FirstDerivative)
+      (values: Vector => Value, p: Vector) => values(p).pressure,
+      getValue, None, FirstDerivative)
   }
 
   /**
@@ -443,7 +480,10 @@ trait Solver {
    */
   private def getPressureGradient2nd(position: Vector): Vector =
     new Vector(directions.map(d =>
-      getGradient(position, d, getValue(_).pressure, None, SecondDerivative)))
+      getGradient(position, d,
+        (values: Vector => Value, p: Vector) => values(p).pressure,
+        getValue,
+        None, SecondDerivative)))
 
   /**
    * Returns the gradient of the velocity vector at position in the given direction
@@ -460,7 +500,9 @@ trait Solver {
     relativeTo: Option[Vector]): Vector =
     new Vector(directions.map(d =>
       getGradient(position, direction,
-        getValue(_).velocity.get(d), relativeTo, FirstDerivative)))
+        (values: Vector => Value, p: Vector) => values(p).velocity.get(d),
+        getValue,
+        relativeTo, FirstDerivative)))
 
   /**
    * Returns the gradient of the pressure gradient at position in the
@@ -473,7 +515,9 @@ trait Solver {
     direction: Direction): Vector =
     new Vector(directions.map(d =>
       getGradient(position, direction,
-        getValue(_).velocity.get(d), None, SecondDerivative)))
+        (values: Vector => Value, p: Vector) =>
+          values(p).velocity.get(d),
+        getValue, None, SecondDerivative)))
 
   /**
    * Returns a new immutable Solver object representing the
@@ -510,6 +554,11 @@ trait Solver {
  */
 object Grid {
 
+  /**
+   * Returns the neighbours of an ordinate in a given direction.
+   * @param vectors
+   * @return
+   */
   def getDirectionalNeighbours(
     vectors: Set[Vector]): Map[(Direction, Double), (Option[Double], Option[Double])] = {
     info("getting directional neighbours")
@@ -528,6 +577,12 @@ object Grid {
     }).flatten.toMap
   }
 
+  /**
+   * Returns the boundary ordinates of the vectors set which is assumed
+   *  to be a 3D grid.
+   * @param vectors
+   * @return
+   */
   def getExtremes(vectors: Set[Vector]): Direction => (Double, Double) = {
     directions.map(d => {
       val list = vectors.map(_.get(d)).toList
@@ -536,10 +591,17 @@ object Grid {
   }
 }
 
+/**
+ * Regular or irregular grid of 3D points (vectors).
+ */
 case class Grid(positions: Set[Vector]) {
   val neighbours = Grid.getDirectionalNeighbours(positions)
 }
 
+/**
+ * An enrichment of the Tuple2 api for one generic type.
+ * @param <A>
+ */
 class RichTuple2[A](t: Tuple2[A, A]) {
   def map[B](f: A => B): Tuple2[B, B] = (f(t._1), f(t._2))
   def exists(f: A => Boolean) = f(t._1) || f(t._2)
@@ -547,10 +609,16 @@ class RichTuple2[A](t: Tuple2[A, A]) {
     if (f(t._1)) Some(t._1) else if (f(t._2)) Some(t._2) else None
 }
 
+/**
+ * Implicit conversion to RichTuple.
+ */
 object RichTuple2 {
   implicit def toRichTuple[A](t: Tuple2[A, A]) = new RichTuple2(t)
 }
 
+/**
+ * Boundary strategy
+ */
 object BoundaryHandler {
   def convertNeighbourValueOf(position: Vector, value: Value,
     direction: Direction,
@@ -583,8 +651,11 @@ object BoundaryHandler {
 
 object RegularGridSolver {
   import scala.Math._
+  import Solver._
+
   def getGradient(position: Vector, direction: Direction,
-    n: Tuple2[Option[Double], Option[Double]], f: Vector => Double,
+    n: Tuple2[Option[Double], Option[Double]],
+    f: PositionFunction, values: Vector => Value,
     derivativeType: Derivative): Double = {
 
     val t: Tuple2[Double, Double] = n match {
@@ -594,12 +665,12 @@ object RegularGridSolver {
       case _ => unexpected
     }
     getGradient(
-      (t._1, f(position.modify(direction, t._1))),
-      (position.get(direction), f(position)),
-      (t._2, f(position.modify(direction, t._2))),
+      (t._1, f(values, position.modify(direction, t._1))),
+      (position.get(direction), f(values, position)),
+      (t._2, f(values, position.modify(direction, t._2))),
       derivativeType)
-
   }
+
   private type Pair = (Double, Double)
 
   private def getGradient(a1: Pair, a: Pair, a2: Pair,
@@ -610,7 +681,7 @@ object RegularGridSolver {
       (a2._2 + a1._2 - 2 * a._2) / (a2._1 - a1._1)
 
   def getGradientAtObstacle(grid: Grid, position: Vector,
-    direction: Direction, f: Vector => Double,
+    direction: Direction, f: PositionFunction, values: Vector => Value,
     relativeTo: Option[Vector], derivativeType: Derivative): Double = {
     relativeTo match {
       case None => unexpected("""relativeTo must be supplied as a protected
@@ -624,7 +695,7 @@ object RegularGridSolver {
         else
           (Some(position.get(direction)), n._2)
         return RegularGridSolver.getGradient(position,
-          direction, n2, f, derivativeType)
+          direction, n2, f, values, derivativeType)
       }
     }
   }
@@ -632,7 +703,6 @@ object RegularGridSolver {
   def getNeighbours(grid: Grid, position: Vector,
     d: Direction): Tuple2[Option[Double], Option[Double]] =
     grid.neighbours.getOrElse((d, position.get(d)), unexpected)
-
 }
 
 /**
@@ -667,15 +737,14 @@ class RegularGridSolver(grid: Grid,
       new RegularGridSolver(grid, overrideValues, validate = false)
   }
 
-  //TODO test this
   override def getGradient(position: Vector, direction: Direction,
-    f: Vector => Double, relativeTo: Option[Vector],
+    f: PositionFunction, values: Vector => Value, relativeTo: Option[Vector],
     derivativeType: Derivative): Double = {
 
     val value = getValue(position)
     if (value.isObstacle)
       return getGradientAtObstacle(grid, position, direction,
-        f, relativeTo, derivativeType)
+        f, values, relativeTo, derivativeType)
     else if (value.isBoundary(direction))
       //TODO boundary gradient should be calculated as below?
       return 0;
@@ -691,13 +760,13 @@ class RegularGridSolver(grid: Grid,
           position, direction, f, relativeTo, derivativeType)
       } else
         return RegularGridSolver.getGradient(position, direction, n,
-          f, derivativeType)
+          f, values, derivativeType)
     }
   }
 
   private def getGradientNearBoundary(grid: Grid,
     nv: ((Double, Value), (Double, Value)), position: Vector,
-    direction: Direction, f: Vector => Double,
+    direction: Direction, f: PositionFunction,
     relativeTo: Option[Vector], derivativeType: Derivative): Double = {
     //if one neighbour is obstacle or boundary then call getGradient on 
     //same new Solver which overrides the Values at the neighbour positions
@@ -722,9 +791,8 @@ class RegularGridSolver(grid: Grid,
       }
     val solver = new RegularGridSolver(grid,
       overrideValues _, validate = false)
-    return solver.getGradient(position, direction, f,
+    return solver.getGradient(position, direction, f, values,
       relativeTo, derivativeType)
-
   }
 
   private def convertNeighbourValueOf(position: Vector,
