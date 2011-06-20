@@ -549,6 +549,35 @@ object RichTuple2 {
   implicit def toRichTuple[A](t: Tuple2[A, A]) = new RichTuple2(t)
 }
 
+object RegularGridSolver {
+  def getGradient(position: Vector, direction: Direction,
+    n: Tuple2[Option[Double], Option[Double]], f: Vector => Double,
+    derivativeType: Derivative): Double = {
+
+    val t: Tuple2[Double, Double] = n match {
+      case (Some(n1), Some(n2)) => (n1, n2)
+      case (None, Some(n2)) => unexpected
+      case (Some(n1), None) => unexpected
+      case _ => unexpected
+    }
+    getGradient(
+      (t._1, f(position.modify(direction, t._1))),
+      (position.get(direction), f(position)),
+      (t._2, f(position.modify(direction, t._2))),
+      derivativeType)
+
+  }
+  private type Pair = (Double, Double)
+
+  private def getGradient(a1: Pair, a: Pair, a2: Pair,
+    derivativeType: Derivative): Double =
+    if (derivativeType equals FirstDerivative)
+      (a2._2 - a1._2) / (a2._1 - a1._1)
+    else
+      (a2._2 + a1._2 - 2 * a._2) / (a2._1 - a1._1)
+
+}
+
 /**
  * Implements gradient calculation for a regular grid. Every positionA,
  * on the grid has nominated neighbours to be used in gradient
@@ -560,6 +589,7 @@ class RegularGridSolver(grid: Grid,
   import Grid._
   import RichTuple2._
   import scala.math._
+  import RegularGridSolver._
 
   def this(positions: Set[Vector], values: Vector => Value) =
     this(Grid(positions), values, true);
@@ -581,23 +611,6 @@ class RegularGridSolver(grid: Grid,
   }
 
   //TODO test this
-  private def getGradient(position: Vector, direction: Direction,
-    n: Tuple2[Option[Double], Option[Double]], f: Vector => Double,
-    derivativeType: Derivative): Double = {
-
-    val t: Tuple2[Double, Double] = n match {
-      case (Some(n1), Some(n2)) => (n1, n2)
-      case (None, Some(n2)) => unexpected
-      case (Some(n1), None) => unexpected
-      case _ => unexpected
-    }
-    getGradient(
-      (t._1, f(position.modify(direction, t._1))),
-      (position.get(direction), f(position)),
-      (t._2, f(position.modify(direction, t._2))),
-      derivativeType)
-
-  }
 
   override def getGradient(position: Vector, direction: Direction,
     f: Vector => Double, relativeTo: Option[Vector],
@@ -639,7 +652,7 @@ class RegularGridSolver(grid: Grid,
         val solver = new RegularGridSolver(grid, overrideValues _, validate = false)
         return solver.getGradient(position, direction, f, relativeTo, derivativeType)
       } else
-        return getGradient(position, direction, n, f, derivativeType)
+        return RegularGridSolver.getGradient(position, direction, n, f, derivativeType)
     }
   }
 
@@ -686,22 +699,13 @@ class RegularGridSolver(grid: Grid,
           (n._1, Some(position.get(direction)))
         else
           (Some(position.get(direction)), n._2)
-        return getGradient(position, direction, n2, f, derivativeType)
+        return RegularGridSolver.getGradient(position, direction, n2, f, derivativeType)
       }
     }
   }
 
   private def getNeighbours(position: Vector, d: Direction): Tuple2[Option[Double], Option[Double]] =
     grid.neighbours.getOrElse((d, position.get(d)), unexpected)
-
-  private type Pair = (Double, Double)
-
-  private def getGradient(a1: Pair, a: Pair, a2: Pair,
-    derivativeType: Derivative): Double =
-    if (derivativeType equals FirstDerivative)
-      (a2._2 - a1._2) / (a2._1 - a1._1)
-    else
-      (a2._2 + a1._2 - 2 * a._2) / (a2._1 - a1._1)
 
   override def step(timestep: Double): Solver = {
     info("creating parallel collection")
