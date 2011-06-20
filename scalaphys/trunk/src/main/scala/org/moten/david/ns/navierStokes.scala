@@ -526,6 +526,13 @@ object Grid {
           .++(List(((d, b(b.size - 1)), (Some(b(b.size - 2)), None))))
     }).flatten.toMap
   }
+
+  def getExtremes(vectors: Set[Vector]): Direction => (Double, Double) = {
+    directions.map(d => {
+      val list = vectors.map(_.get(d)).toList
+      (d, (list.min, list.max))
+    }).toMap.getOrElse(_, unexpected)
+  }
 }
 
 case class Grid(positions: Set[Vector]) {
@@ -548,17 +555,20 @@ object RichTuple2 {
  * calculations (both first and second derivatives).
  */
 class RegularGridSolver(grid: Grid,
-  values: Vector => Value) extends Solver {
+  values: Vector => Value, validate: Boolean) extends Solver {
   import Solver._
   import Grid._
   import RichTuple2._
   import scala.math._
 
   def this(positions: Set[Vector], values: Vector => Value) =
-    this(Grid(positions), values);
+    this(Grid(positions), values, true);
 
   def this(map: Map[Vector, Value]) =
-    this(map.keySet, map.getOrElse(_: Vector, unexpected))
+    this(Grid(map.keySet), map.getOrElse(_: Vector, unexpected), true)
+
+  if (validate)
+    println("validated")
 
   override def getValue(vector: Vector): Value =
     values(vector)
@@ -567,7 +577,7 @@ class RegularGridSolver(grid: Grid,
 
   override val getSolverFactory = new SolverFactory {
     def create(overrideValues: Vector => Value) =
-      new RegularGridSolver(grid, overrideValues)
+      new RegularGridSolver(grid, overrideValues, validate = false)
   }
 
   //TODO test this
@@ -626,7 +636,7 @@ class RegularGridSolver(grid: Grid,
             case Some((_, y: Value)) => y
             case None => getValue(p)
           }
-        val solver = new RegularGridSolver(grid, overrideValues _)
+        val solver = new RegularGridSolver(grid, overrideValues _, validate = false)
         return solver.getGradient(position, direction, f, relativeTo, derivativeType)
       } else
         return getGradient(position, direction, n, f, derivativeType)
@@ -703,7 +713,7 @@ class RegularGridSolver(grid: Grid,
     info("converting to map")
     val newMap = seq.toMap
     info("creating new Solver")
-    return new RegularGridSolver(grid, newMap.getOrElse(_: Vector, unexpected))
+    return new RegularGridSolver(grid, newMap.getOrElse(_: Vector, unexpected), false)
   }
 }
 
