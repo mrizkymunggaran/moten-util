@@ -549,6 +549,37 @@ object RichTuple2 {
   implicit def toRichTuple[A](t: Tuple2[A, A]) = new RichTuple2(t)
 }
 
+object BoundaryHandler {
+  def convertNeighbourValueOf(position: Vector, value: Value,
+    direction: Direction,
+    n: Tuple2[Double, Value]): Tuple2[Vector, Value] =
+    {
+      val neighbour = position.modify(direction, n._1)
+      if (n._2.isObstacle) {
+        val value2 = value
+          .modifyVelocity(zero)
+          .modifyPressure(
+            if (direction equals Z)
+              value.pressure - 9.8 * (n._1 - position.get(direction))
+            else
+              value.pressure)
+            .setNotBoundaryOrObstacle
+        return (neighbour, value2)
+      } else if (n._2 isBoundary (direction)) {
+        val value2 = value
+          .modifyPressure(
+            if (direction equals Z)
+              value.pressure - 9.8 * (n._1 - position.get(direction))
+            else
+              n._2.pressure)
+            .setNotBoundaryOrObstacle
+        return (neighbour, value2)
+      } else
+        return (neighbour, n._2)
+    }
+
+}
+
 object RegularGridSolver {
   def getGradient(position: Vector, direction: Direction,
     n: Tuple2[Option[Double], Option[Double]], f: Vector => Double,
@@ -659,37 +690,13 @@ class RegularGridSolver(grid: Grid,
   private def convertNeighbourValueOf(position: Vector,
     direction: Direction,
     n: Tuple2[Double, Value]): Tuple2[Vector, Value] =
-    {
-      val value = getValue(position)
-      val neighbour = position.modify(direction, n._1)
-      if (n._2.isObstacle) {
-        val value2 = value
-          .modifyVelocity(zero)
-          .modifyPressure(
-            if (direction equals Z)
-              value.pressure - 9.8 * (n._1 - position.get(direction))
-            else
-              value.pressure)
-            .setNotBoundaryOrObstacle
-        return (neighbour, value2)
-      } else if (n._2 isBoundary (direction)) {
-        val value2 = value
-          .modifyPressure(
-            if (direction equals Z)
-              value.pressure - 9.8 * (n._1 - position.get(direction))
-            else
-              n._2.pressure)
-            .setNotBoundaryOrObstacle
-        return (neighbour, value2)
-      } else
-        return (neighbour, n._2)
-    }
+    BoundaryHandler.convertNeighbourValueOf(position, getValue(position), direction, n)
 
   private def getGradientAtObstacle(position: Vector, direction: Direction,
     f: Vector => Double, relativeTo: Option[Vector],
     derivativeType: Derivative): Double = {
     relativeTo match {
-      case None => unexpected("""relativeTo must be supplied as a 
+      case None => unexpected("""relativeTo must be supplied as a protected
  non-empty parameter if obstacle/boundary gradient is being calculated""")
       case Some(x) => {
         //get the neighbour in direction closest to relativeTo
