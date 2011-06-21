@@ -47,9 +47,15 @@ class Tasks(list: List[Task]) extends Actor {
 }
 
 class TaskRequesterServlet extends HttpServlet {
+  import Actor._
   override def doGet(request: HttpServletRequest, response: HttpServletResponse) {
-    val job = request.getParameter("jobId")
-
+    val jobId = request.getParameter("jobId")
+    assert(jobId != null)
+    val a = actor {
+      receive {
+        case t: Task => println(t.taskId + " to be sent to worker")
+      }
+    }
   }
 }
 
