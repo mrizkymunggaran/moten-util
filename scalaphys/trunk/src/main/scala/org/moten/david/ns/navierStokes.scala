@@ -662,7 +662,7 @@ object BoundaryStrategy {
 }
 
 object RegularGridSolver {
-  import scala.Math._
+  import scala.math._
   import Solver._
 
   def getGradient(position: Vector, direction: Direction,
