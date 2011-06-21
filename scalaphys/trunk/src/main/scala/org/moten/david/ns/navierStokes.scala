@@ -624,7 +624,8 @@ object RichTuple2 {
 object BoundaryStrategy {
 
   /**
-   * Calculates the boundary/obstacle values in both directions.
+   * Returns the relative Value (especially for boundary and obstacle Values)
+   *  of the neighbour n of position with value value.
    * @param position
    * @param value
    * @param direction
@@ -736,7 +737,7 @@ class RegularGridSolver(grid: Grid,
     this(Grid(map.keySet), map.getOrElse(_: Vector, unexpected), true)
 
   if (validate)
-    println("validated")
+    info("validated")
 
   override def getValue(vector: Vector): Value =
     values(vector)
@@ -794,7 +795,7 @@ class RegularGridSolver(grid: Grid,
     implicit def value(x: Option[Double]): Value =
       getValue(position.modify(direction, x.getOrElse(unexpected)))
 
-    val nv2 = nv.map(convertNeighbourValueOf(position, direction, _))
+    val nv2 = nv.map(toRelativeValue(position, direction, _))
     def overrideValues(p: Vector) =
       nv2.find(p === _._1) match {
         case Some((_, y: Value)) => y
@@ -806,7 +807,7 @@ class RegularGridSolver(grid: Grid,
       relativeTo, derivativeType)
   }
 
-  private def convertNeighbourValueOf(position: Vector,
+  private def toRelativeValue(position: Vector,
     direction: Direction,
     n: Tuple2[Double, Value]): Tuple2[Vector, Value] =
     BoundaryStrategy.applyBoundaryStrategy(position,
