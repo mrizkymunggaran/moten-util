@@ -57,44 +57,65 @@ object Coordinator {
 }
 
 object Worker extends App {
-  println("setting classLoader")
-  RemoteActor.classLoader = getClass.getClassLoader
-  println("getting remote actor")
-  val coordinator = select(Node("localhost", Coordinator.Port), 'coordinator)
-  println("sending message to remote actor")
-  coordinator !? TaskRequested match {
-    case t: Task => {
-      println("task = " + t)
-      println("task content=" + new String(t.content))
-      coordinator !? ExecutableRequested(t.taskId.jobId) match {
-        case ex: Executable => {
-          println("executable = " + ex)
-          val classLoader =
-            if (ex.jar != null) {
-              println("write jar to temp file")
-              val file = File.createTempFile(t.taskId.jobId, ".jar")
-              val fos = new FileOutputStream(file)
-              fos.write(ex.jar)
-              fos.close
-              println("adding jar to classpath")
-              val urls = List(file.toURI.toURL).toArray
-              new URLClassLoader(urls)
-            } else
-              ClassLoader.getSystemClassLoader
-          println("instantiating object of type " + ex.mainClass)
-          val c = Class.forName(ex.mainClass, true, classLoader)
-          val obj = c.newInstance.asInstanceOf[{ def main(args: Array[String]) }]
-          println("running main method of object")
-          obj.main(List("some", "args").toArray)
-          println("completed run")
-          coordinator ! TaskFinished(t.taskId, "boo".getBytes)
-          println("notified coordinator of result")
-        }
+  new Worker().run
+}
+
+class Worker {
+
+  def run() {
+    println("setting classLoader")
+    RemoteActor.classLoader = getClass.getClassLoader
+    println("getting remote actor")
+    val coordinator = select(Node("localhost", Coordinator.Port), 'coordinator)
+    println("sending message to remote actor")
+    while (true) {
+      coordinator !? TaskRequested match {
+        case t: Task =>
+          performTask(coordinator, t)
+        case None => println("failed to get task")
         case _ => println("unexpected return")
       }
+      Thread.sleep(5000)
     }
-    case None => println("failed to get task")
-    case _ => println("unexpected return")
+  }
+
+  private def getClassLoader(t: Task, ex: Executable) = {
+    if (ex.jar != null) {
+      println("write jar to temp file")
+      val file = File.createTempFile(t.taskId.jobId, ".jar")
+      val fos = new FileOutputStream(file)
+      fos.write(ex.jar)
+      fos.close
+      println("adding jar to classpath")
+      val urls = List(file.toURI.toURL).toArray
+      new URLClassLoader(urls)
+    } else
+      ClassLoader.getSystemClassLoader
+  }
+
+  private def performTask(coordinator: AbstractActor, t: Task) {
+    println("task = " + t)
+    println("task content=" + new String(t.content))
+    //TODO don't always get executable
+    coordinator !? ExecutableRequested(t.taskId.jobId) match {
+      case ex: Executable => {
+        performTask(coordinator, t, ex)
+      }
+      case _ => println("unexpected return")
+    }
+  }
+
+  private def performTask(coordinator: AbstractActor, t: Task, ex: Executable) {
+    println("executable = " + ex)
+    val classLoader = getClassLoader(t, ex)
+    println("instantiating object of type " + ex.mainClass)
+    val c = Class.forName(ex.mainClass, true, classLoader)
+    val obj = c.newInstance.asInstanceOf[{ def main(args: Array[String]) }]
+    println("running main method of object")
+    obj.main(List("some", "args").toArray)
+    println("completed run")
+    coordinator ! TaskFinished(t.taskId, "boo".getBytes)
+    println("notified coordinator of result")
   }
 
 }
