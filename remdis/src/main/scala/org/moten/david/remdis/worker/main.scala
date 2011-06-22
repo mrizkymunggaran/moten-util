@@ -14,9 +14,9 @@ case class JavaOptions(options: String) extends Options
 case class Task(taskId: TaskId, content: Array[Byte], options: Options)
 case class TaskException(taskId: TaskId, message: String)
 case class TaskFinished(taskId: TaskId, result: Array[Byte])
-case object TaskRequested
+case class TaskRequested(requestedBy: AbstractActor)
 case class ExecutableRequested(jobId: String)
-case class Executable(jar: Array[Byte], mainClass: String, options: Options)
+case class Executable(jar: Option[Array[Byte]], mainClass: String, options: Options)
 case object Stop
 
 class Coordinator(port: Int) extends Actor {
@@ -30,11 +30,11 @@ class Coordinator(port: Int) extends Actor {
       react {
         case TaskException(taskId, message) => println("task exception: " + message)
         case TaskFinished(taskId, result) => println("task finished: " + taskId)
-        case TaskRequested => {
+        case TaskRequested(requestedBy) => {
           println("replying with new task")
-          reply(Task(TaskId("job1", "task1"), "payload".getBytes, JavaOptions("-DXmx512m")))
+          requestedBy ! Task(TaskId("job1", "task1"), "payload".getBytes, JavaOptions("-DXmx512m"))
         }
-        case ExecutableRequested(jobId) => reply(Executable(null, new Main().getClass().getName(), null))
+        case ExecutableRequested(jobId) => reply(Executable(None, new Main().getClass().getName(), null))
         case Stop => { println("exiting"); exit }
       }
     }
@@ -62,41 +62,45 @@ object Worker extends App {
 
 class Worker {
 
+  def act() {
+
+  }
+
   def run() {
     println("setting classLoader")
     RemoteActor.classLoader = getClass.getClassLoader
-    println("getting remote actor")
-    val coordinator = select(Node("localhost", Coordinator.Port), 'coordinator)
-    println("sending message to remote actor")
+    val remoteReplyTimeout = 0
     while (true) {
-      coordinator !? TaskRequested match {
-        case t: Task =>
-          performTask(coordinator, t)
-        case None => println("failed to get task")
-        case _ => println("unexpected return")
+      println("getting remote actor")
+      val coordinator = select(Node("localhost", Coordinator.Port), 'coordinator)
+      val myActor = actor {
+        loop {
+          receiveWithin(3000) {
+            case Some(t: Task) => {
+              performTask(coordinator, t)
+              Thread.sleep(2000)
+              requestTask(coordinator, self)
+            }
+            case None => {
+              println("failed to get task")
+              requestTask(coordinator, self)
+            }
+            case x => println("unexpected return " + x)
+          }
+        }
       }
-      Thread.sleep(5000)
+      requestTask(coordinator, myActor)
     }
   }
 
-  private def getClassLoader(t: Task, ex: Executable) = {
-    if (ex.jar != null) {
-      println("write jar to temp file")
-      val file = File.createTempFile(t.taskId.jobId, ".jar")
-      val fos = new FileOutputStream(file)
-      fos.write(ex.jar)
-      fos.close
-      println("adding jar to classpath")
-      val urls = List(file.toURI.toURL).toArray
-      new URLClassLoader(urls)
-    } else
-      ClassLoader.getSystemClassLoader
+  private def requestTask(coordinator: AbstractActor, requestedBy: Actor) {
+    println("sending message to remote actor")
+    coordinator ! TaskRequested(requestedBy)
   }
 
   private def performTask(coordinator: AbstractActor, t: Task) {
     println("task = " + t)
     println("task content=" + new String(t.content))
-    //TODO don't always get executable
     coordinator !? ExecutableRequested(t.taskId.jobId) match {
       case ex: Executable => {
         performTask(coordinator, t, ex)
@@ -118,4 +122,33 @@ class Worker {
     println("notified coordinator of result")
   }
 
+  private def getClassLoader(t: Task, ex: Executable): ClassLoader = {
+    ex.jar match {
+      case Some(jar) => {
+        val directory = new File(System.getProperty("java.io.tmpdir"))
+        val filename = t.taskId.jobId + ".jar"
+        val file = new File(directory, filename)
+        if (!file.exists) {
+          writeJar(file, jar)
+          println("adding jar to classpath")
+        }
+        val urls = List(file.toURI.toURL).toArray
+        println("creating new class loader")
+        new URLClassLoader(urls)
+      }
+      case None => ClassLoader.getSystemClassLoader
+    }
+  }
+
+  private def writeJar(file: File, jar: Array[Byte]) {
+    println("writing jar to temp file")
+    val tempFile = File.createTempFile(file.getName, ".tmp")
+    val fos = new FileOutputStream(tempFile)
+    fos.write(jar)
+    fos.close
+    println("renaming temp file to " + file)
+    if (file.exists) file.delete
+    tempFile.renameTo(file)
+  }
 }
+
