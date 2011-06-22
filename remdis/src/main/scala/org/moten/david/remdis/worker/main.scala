@@ -13,10 +13,10 @@ case class JavaOptions(options: String) extends Options
 case class Task(taskId: TaskId, content: Array[Byte], options: Options)
 case class TaskException(taskId: TaskId, message: String)
 case class TaskFinished(taskId: TaskId, result: Array[Byte])
-case class TaskRequested()
+case object TaskRequested
 case class ExecutableRequested(jobId: String)
 case class Executable(jar: Array[Byte], mainClass: String, options: Options)
-case class Stop
+case object Stop
 
 class Coordinator(port: Int) extends Actor {
   def act() {
@@ -33,14 +33,14 @@ class Coordinator(port: Int) extends Actor {
           println("replying with new task")
           reply(Task(TaskId("job1", "task1"), "payload".getBytes, JavaOptions("-DXmx512m")))
         }
-        case ExecutableRequested(jobId) => reply(Executable(null, Main.getClass().getName(), null))
+        case ExecutableRequested(jobId) => reply(Executable(null, new Main().getClass().getName(), null))
         case Stop => { println("exiting"); exit }
       }
     }
   }
 }
 
-object Main {
+class Main {
   def main(args: Array[String]) {
     println("hello there the main has run with args: " + args)
   }
@@ -48,14 +48,14 @@ object Main {
 
 object Coordinator {
   val Port = 9000
-  def main(args: Array[String]) {
+  def run(args: Array[String]) {
     RemoteActor.classLoader = getClass.getClassLoader
     val c = new Coordinator(Port)
     c.start
   }
 }
 
-object Worker extends Application {
+object Worker extends App {
   println("setting classLoader")
   RemoteActor.classLoader = getClass.getClassLoader
   println("getting remote actor")
