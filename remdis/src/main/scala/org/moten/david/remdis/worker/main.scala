@@ -14,7 +14,7 @@ case class JavaOptions(options: String) extends Options
 case class Task(taskId: TaskId, content: Array[Byte], options: Options)
 case class TaskException(taskId: TaskId, message: String)
 case class TaskFinished(taskId: TaskId, result: Array[Byte])
-case class TaskRequested(requestedBy: AbstractActor)
+case object TaskRequested
 case class ExecutableRequested(jobId: String)
 case class Executable(jar: Option[Array[Byte]], mainClass: String, options: Options)
 case object Stop
@@ -30,9 +30,9 @@ class Coordinator(port: Int) extends Actor {
       react {
         case TaskException(taskId, message) => println("task exception: " + message)
         case TaskFinished(taskId, result) => println("task finished: " + taskId)
-        case TaskRequested(requestedBy) => {
+        case TaskRequested => {
           println("replying with new task")
-          requestedBy ! Task(TaskId("job1", "task1"), "payload".getBytes, JavaOptions("-DXmx512m"))
+          reply(Task(TaskId("job1", "task1"), "payload".getBytes, JavaOptions("-DXmx512m")))
         }
         case ExecutableRequested(jobId) => reply(Executable(None, new Main().getClass().getName(), null))
         case Stop => { println("exiting"); exit }
@@ -62,40 +62,26 @@ object Worker extends App {
 
 class Worker {
 
-  def act() {
-
-  }
-
   def run() {
     println("setting classLoader")
     RemoteActor.classLoader = getClass.getClassLoader
-    val remoteReplyTimeout = 0
+    val remoteReplyTimeout = 5000
     while (true) {
       println("getting remote actor")
       val coordinator = select(Node("localhost", Coordinator.Port), 'coordinator)
-      val myActor = actor {
-        loop {
-          receiveWithin(3000) {
-            case Some(t: Task) => {
-              performTask(coordinator, t)
-              Thread.sleep(2000)
-              requestTask(coordinator, self)
-            }
-            case None => {
-              println("failed to get task")
-              requestTask(coordinator, self)
-            }
-            case x => println("unexpected return " + x)
-          }
+      link(coordinator)
+      println("sending message to remote actor")
+      try {
+        coordinator !? (remoteReplyTimeout, TaskRequested) match {
+          case Some(t: Task) => performTask(coordinator, t)
+          case None => println("failed to get task")
+          case x => println("unexpected return " + x)
         }
+      } catch {
+        case e: RuntimeException => println("ERROR " + e.getMessage)
       }
-      requestTask(coordinator, myActor)
+      Thread.sleep(3000)
     }
-  }
-
-  private def requestTask(coordinator: AbstractActor, requestedBy: Actor) {
-    println("sending message to remote actor")
-    coordinator ! TaskRequested(requestedBy)
   }
 
   private def performTask(coordinator: AbstractActor, t: Task) {
