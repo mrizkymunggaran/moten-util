@@ -42,13 +42,13 @@ class Coordinator(port: Int) extends Actor {
 
 class Main {
   def main(args: Array[String]) {
-    println("hello there the main has run with args: " + args)
+    println("hello there the main has run with args: " + args.toList)
   }
 }
 
 object Coordinator {
   val Port = 9000
-  def run(args: Array[String]) {
+  def main(args: Array[String]) {
     RemoteActor.classLoader = getClass.getClassLoader
     val c = new Coordinator(Port)
     c.start
@@ -75,7 +75,7 @@ object Worker extends App {
           val c = Class.forName(ex.mainClass)
           val obj = c.newInstance.asInstanceOf[{ def main(args: Array[String]) }]
           println("running main method of object")
-          obj.main(List("hello", "there").toArray)
+          obj.main(List("some", "args").toArray)
           println("completed run")
           coordinator ! TaskFinished(t.taskId, "boo".getBytes)
           println("notified coordinator of result")
