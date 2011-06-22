@@ -1,99 +1,63 @@
 package org.moten.david.remdis.worker
 
-import org.mortbay.jetty.Server
-import org.mortbay.jetty.servlet._
 import java.io._
 import java.util.UUID
 import javax.servlet.http._
 
 import java.io._
 
-class Manager(val reportToUrl: String) {
-  var keepGoing = true
-
-  def run {
-    val server = new Server(6060)
-    val root = new Context(server, "/", Context.SESSIONS)
-    //    root.addServlet(new ServletHolder(new StatusServlet(this)), "/*");
-    server.start();
-    while (keepGoing) {
-      Thread.sleep(5000)
-    }
-    server.stop();
-    server.join();
-  }
-}
 import scala.actors._
+import scala.actors.Actor._
+import scala.actors.remote._
+import scala.actors.remote.RemoteActor._
 
-case class Task(payload: InputStream, taskId: String, reportToUrl: String)
-case class TaskException(taskId: String, message: String)
-case class TaskFinished(taskId: String, result: InputStream)
-case class TaskRequested(actor: Actor, jobId: String)
+case class TaskId(jobId: String, taskId: String)
+trait Options
+case class JavaOptions(options: String) extends Options
+case class Task(taskId: TaskId, content: Array[Byte], options: Options)
+case class TaskException(taskId: TaskId, message: String)
+case class TaskFinished(taskId: TaskId, result: Array[Byte])
+case class TaskRequested()
+case class ExecutableRequested(jobId: String)
+case class Executable(executable: Array[Byte], options: Options)
+case class Stop
 
-object Tasks {
-  val tasks = new Tasks(List())
-}
-class Tasks(list: List[Task]) extends Actor {
-  def act {
-    react {
-      case TaskException(taskId, message) => println(message)
-      case TaskFinished(taskId, result) => println("task finished: " + taskId)
-      case TaskRequested(actor, jobId) => {
-        val taskId = jobId + "." + UUID.randomUUID.toString.substring(0, 8) + ""
-        actor ! Task(null, taskId, "http://localhost:8080")
+class Coordinator(port: Int) extends Actor {
+  def act() {
+    println("starting coordinator on port " + port)
+    alive(port)
+    println("registering 'coordinator")
+    register('coordinator, self)
+    println("waiting for messages")
+    loop {
+      react {
+        case TaskException(taskId, message) => println("task exception: " + message)
+        case TaskFinished(taskId, result) => println("task finished: " + taskId)
+        case TaskRequested => {
+          println("replying with new task")
+          reply(Task(TaskId("job1", "task1"), null, JavaOptions("-DXmx512m")))
+        }
+        case Stop => { println("exiting"); exit }
       }
     }
   }
 }
 
-class TaskRequesterServlet extends HttpServlet {
-  import Actor._
-  override def doGet(request: HttpServletRequest, response: HttpServletResponse) {
-    val jobId = request.getParameter("jobId")
-    assert(jobId != null)
-    val a = actor {
-      receive {
-        case t: Task => println(t.taskId + " to be sent to worker")
-      }
-    }
-  }
-}
-
-class Worker(val homeUrl: String) {
-
-  var keepGoing = true
-
-  def run {
-    val server = new Server(8080)
-    val root = new Context(server, "/", Context.SESSIONS)
-    root.addServlet(new ServletHolder(new StatusServlet(this)), "/*")
-    server.start();
-    while (keepGoing) {
-      val task = next()
-      perform(task)
-      Thread.sleep(5000)
-    }
-    server.stop();
-    server.join();
-  }
-
-  def next(): Task =
-    new Task(new ByteArrayInputStream("hello".getBytes), "abc123", homeUrl + "/report")
-
-  def perform(task: Task) {
-    println("performing " + task.taskId)
-  }
-}
-
-class StatusServlet(server: Worker) extends HttpServlet {
-  override def doGet(request: HttpServletRequest, response: HttpServletResponse) {
-    response.getWriter.println("No current tasks from " + server.homeUrl)
-  }
-}
-
-object Main {
+object Coordinator {
+  val Port = 9000
   def main(args: Array[String]) {
-    new Worker(if (args.length > 0) args(0) else "http://localhost:8080").run
+    RemoteActor.classLoader = getClass.getClassLoader
+    val c = new Coordinator(Port)
+    c.start
   }
+}
+
+object Worker extends Application {
+  println("setting classLoader")
+  RemoteActor.classLoader = getClass.getClassLoader
+  println("getting remote actor")
+  val coordinator = select(Node("localhost", Coordinator.Port), 'coordinator)
+  println("sending message to remote actor")
+  println(coordinator !? TaskRequested)
 }
 
