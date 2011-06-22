@@ -4,6 +4,7 @@
 	<groupId>org.moten.david</groupId>
 	<artifactId>remdis</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
+	<name>${project.artifactId}</name>
 	<properties>
 		<encoding>UTF-8</encoding>
 		<scala.version>2.9.0</scala.version>

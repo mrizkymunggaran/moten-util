@@ -78,7 +78,7 @@ object Worker extends App {
               fos.close
               println("adding jar to classpath")
               //add temp file to classpath 
-              val urls = List(file.toURL).toArray
+              val urls = List(file.toURI.toURL).toArray
               new URLClassLoader(urls)
             } else
               ClassLoader.getSystemClassLoader
