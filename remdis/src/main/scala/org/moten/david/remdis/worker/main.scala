@@ -15,7 +15,7 @@ case class TaskException(taskId: TaskId, message: String)
 case class TaskFinished(taskId: TaskId, result: Array[Byte])
 case class TaskRequested()
 case class ExecutableRequested(jobId: String)
-case class Executable(executable: Array[Byte], options: Options)
+case class Executable(jar: Array[Byte], mainClass: String, options: Options)
 case class Stop
 
 class Coordinator(port: Int) extends Actor {
@@ -33,10 +33,16 @@ class Coordinator(port: Int) extends Actor {
           println("replying with new task")
           reply(Task(TaskId("job1", "task1"), "payload".getBytes, JavaOptions("-DXmx512m")))
         }
-        case ExecutableRequested(jobId) => reply(Executable("hello".getBytes, null))
+        case ExecutableRequested(jobId) => reply(Executable(null, Main.getClass().getName(), null))
         case Stop => { println("exiting"); exit }
       }
     }
+  }
+}
+
+object Main {
+  def main(args: Array[String]) {
+    println("hello there the main has run with args: " + args)
   }
 }
 
@@ -62,7 +68,17 @@ object Worker extends Application {
       coordinator !? ExecutableRequested(t.taskId.jobId) match {
         case ex: Executable => {
           println("executable = " + ex)
-          println("executable content=" + new String(ex.executable))
+          if (ex.jar != null) {
+            println("adding jar to classpath")
+          }
+          println("instantiating object of type " + ex.mainClass)
+          val c = Class.forName(ex.mainClass)
+          val obj = c.newInstance.asInstanceOf[{ def main(args: Array[String]) }]
+          println("running main method of object")
+          obj.main(List("hello", "there").toArray)
+          println("completed run")
+          coordinator ! TaskFinished(t.taskId, "boo".getBytes)
+          println("notified coordinator of result")
         }
         case _ => println("unexpected return")
       }
@@ -72,4 +88,3 @@ object Worker extends Application {
   }
 
 }
-
