@@ -2,10 +2,6 @@ package org.moten.david.remdis.worker
 
 import java.io._
 import java.util.UUID
-import javax.servlet.http._
-
-import java.io._
-
 import scala.actors._
 import scala.actors.Actor._
 import scala.actors.remote._
@@ -35,8 +31,9 @@ class Coordinator(port: Int) extends Actor {
         case TaskFinished(taskId, result) => println("task finished: " + taskId)
         case TaskRequested => {
           println("replying with new task")
-          reply(Task(TaskId("job1", "task1"), null, JavaOptions("-DXmx512m")))
+          reply(Task(TaskId("job1", "task1"), "payload".getBytes, JavaOptions("-DXmx512m")))
         }
+        case ExecutableRequested(jobId) => reply(Executable("hello".getBytes, null))
         case Stop => { println("exiting"); exit }
       }
     }
@@ -58,6 +55,21 @@ object Worker extends Application {
   println("getting remote actor")
   val coordinator = select(Node("localhost", Coordinator.Port), 'coordinator)
   println("sending message to remote actor")
-  println(coordinator !? TaskRequested)
+  coordinator !? TaskRequested match {
+    case t: Task => {
+      println("task = " + t)
+      println("task content=" + new String(t.content))
+      coordinator !? ExecutableRequested(t.taskId.jobId) match {
+        case ex: Executable => {
+          println("executable = " + ex)
+          println("executable content=" + new String(ex.executable))
+        }
+        case _ => println("unexpected return")
+      }
+    }
+    case None => println("failed to get task")
+    case _ => println("unexpected return")
+  }
+
 }
 
