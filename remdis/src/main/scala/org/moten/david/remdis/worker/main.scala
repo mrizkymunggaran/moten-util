@@ -1,11 +1,12 @@
 package org.moten.david.remdis.worker
 
 import java.io._
-import java.util.UUID
-import scala.actors._
 import scala.actors.Actor._
-import scala.actors.remote._
 import scala.actors.remote.RemoteActor._
+import scala.actors.remote._
+import scala.actors._
+import scala.io._
+import java.net._
 
 case class TaskId(jobId: String, taskId: String)
 trait Options
@@ -68,11 +69,21 @@ object Worker extends App {
       coordinator !? ExecutableRequested(t.taskId.jobId) match {
         case ex: Executable => {
           println("executable = " + ex)
-          if (ex.jar != null) {
-            println("adding jar to classpath")
-          }
+          val classLoader =
+            if (ex.jar != null) {
+              println("write jar to temp file")
+              val file = File.createTempFile(t.taskId.jobId, ".jar")
+              val fos = new FileOutputStream(file)
+              fos.write(ex.jar)
+              fos.close
+              println("adding jar to classpath")
+              //add temp file to classpath 
+              val urls = List(file.toURL).toArray
+              new URLClassLoader(urls)
+            } else
+              ClassLoader.getSystemClassLoader
           println("instantiating object of type " + ex.mainClass)
-          val c = Class.forName(ex.mainClass)
+          val c = Class.forName(ex.mainClass, true, classLoader)
           val obj = c.newInstance.asInstanceOf[{ def main(args: Array[String]) }]
           println("running main method of object")
           obj.main(List("some", "args").toArray)
