@@ -115,9 +115,10 @@ class Worker {
         val filename = t.taskId.jobId + ".jar"
         val file = new File(directory, filename)
         if (!file.exists) {
+          println("writing jar to " + file)
           writeJar(file, jar)
-          println("adding jar to classpath")
         }
+        println("adding jar to classpath")
         val urls = List(file.toURI.toURL).toArray
         println("creating new class loader")
         new URLClassLoader(urls)
