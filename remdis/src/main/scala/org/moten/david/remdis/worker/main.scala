@@ -9,7 +9,7 @@ import scala.io._
 import java.net._
 
 case class TaskId(jobId: String, taskId: String)
-case class TaskIdRequested
+case object TaskIdRequested
 case class TaskRequested(taskId: TaskId)
 case class Task(taskId: TaskId, content: Array[Byte], options: Options)
 case class ExecutableRequested(jobId: String)
@@ -26,7 +26,6 @@ case object TaskRequested
 case object Stop
 case object Test
 case object ExecuteTask
-case object TaskIdRequested
 
 class Coordinator(port: Int) extends Actor {
   def act() {
