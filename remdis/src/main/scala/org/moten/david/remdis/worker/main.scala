@@ -37,15 +37,18 @@ class Coordinator(port: Int) extends Actor {
     println("waiting for messages")
     loop {
       react {
-        case TaskIdRequested => sender ! TaskId("job1", "task1")
+        case TaskIdRequested => { println("TaskIdRequested"); sender ! TaskId("job1", "task1") }
         case TaskException(taskId, message) => println("task exception: " + message)
-        case TaskFinished(taskId) => sender ! TaskResultRequested(taskId)
+        case TaskFinished(taskId) => { println("TaskFinished"); sender ! TaskResultRequested(taskId) }
         case TaskResult => println("task result returned")
         case TaskRequested(taskId: TaskId) => {
           println("replying with new task")
           sender ! Task(taskId, "payload".getBytes, JavaOptions("-DXmx512m"))
         }
-        case ExecutableRequested(jobId) => reply(Executable("job1", None, new Main().getClass().getName(), null))
+        case ExecutableRequested(jobId) => {
+          println("ExecutableRequested")
+          sender ! Executable("job1", None, new Main().getClass().getName(), null)
+        }
         case Stop => exit
       }
     }
@@ -70,10 +73,12 @@ object Coordinator {
 object Worker extends App {
   val w = new Worker(9001)
   w.start
-  w ! TaskRequested
+  w ! TaskIdRequested
 }
 
 class Worker(port: Int) extends Actor {
+
+  val executableDirectory = new File(System.getProperty("java.io.tmpdir"))
 
   def act {
     var currentTask: Option[Task] = None
@@ -90,6 +95,9 @@ class Worker(port: Int) extends Actor {
         case TaskIdRequested => {
           getCoordinator ! TaskIdRequested
         }
+        case t: TaskId =>
+          getCoordinator ! TaskRequested(t)
+
         case TaskRequested => {
           println("requesting task")
           getCoordinator ! TaskRequested
@@ -99,13 +107,15 @@ class Worker(port: Int) extends Actor {
           getCoordinator ! ExecutableRequested
         }
         case ex: Executable => {
+          println("executable arrived")
           saveExecutable(ex)
           self ! ExecuteTask
         }
         case t: Task => {
+          println("task arrived")
           performTask(t)
           Thread.sleep(3000)
-          self ! TaskRequested
+          self ! TaskIdRequested
         }
         case ExecuteTask => currentTask match {
           case Some(t: Task) => performTask(t)
@@ -113,9 +123,10 @@ class Worker(port: Int) extends Actor {
         }
         case t: TaskFinished => getCoordinator ! t
 
-        case TaskResultRequested(taskId: TaskId) =>
+        case TaskResultRequested(taskId: TaskId) => {
+          println("TaskResultRequested")
           getCoordinator ! TaskResult(taskId, null)
-
+        }
         case t: TaskException =>
           getCoordinator ! t
 
@@ -130,7 +141,12 @@ class Worker(port: Int) extends Actor {
   }
 
   def saveExecutable(ex: Executable) {
-
+    val filename = ex.jobId + ".jar"
+    val file = new File(executableDirectory, filename)
+    if (!file.exists) {
+      println("writing jar to " + file)
+      writeJar(file, ex.jar)
+    }
   }
 
   def getCoordinator = {
@@ -139,51 +155,51 @@ class Worker(port: Int) extends Actor {
     c
   }
 
-  private def performTask(task: Task) {
-    val ex = getExecutable(task.taskId.jobId)
-  }
-
-  private def performTask(t: Task, ex: Executable) {
-    println("executable = " + ex)
-    val classLoader = getClassLoader(t, ex)
-    println("instantiating object of type " + ex.mainClass)
-    val c = Class.forName(ex.mainClass, true, classLoader)
+  private def performTask(t: Task) {
+    println("performing task")
+    val classLoader = getClassLoader(t.taskId.jobId)
+    val mainClass = getMainClass(t.taskId.jobId)
+    println("instantiating object of type " + mainClass)
+    val c = Class.forName(mainClass, true, classLoader)
     val obj = c.newInstance.asInstanceOf[{ def main(args: Array[String]) }]
     println("running main method of object")
     obj.main(List("some", "args").toArray)
     println("completed run")
-    self ! TaskFinished(t.taskId, "boo".getBytes)
+    self ! TaskFinished(t.taskId)
     println("notified coordinator of result")
   }
 
+  def getJarFile(jobId: String) =
+    new File(executableDirectory, jobId + ".jar")
+
+  def getMainClass(jobId: String) = new Main().getClass.getName
+
   private def getClassLoader(jobId: String): ClassLoader = {
-    ex.jar match {
-      case Some(jar) => {
-        val directory = new File(System.getProperty("java.io.tmpdir"))
-        val filename = t.taskId.jobId + ".jar"
-        val file = new File(directory, filename)
-        if (!file.exists) {
-          println("writing jar to " + file)
-          writeJar(file, jar)
-        }
-        println("adding jar to classpath")
-        val urls = List(file.toURI.toURL).toArray
-        println("creating new class loader")
-        new URLClassLoader(urls)
+    val file = getJarFile(jobId)
+    if (file.length > 0) {
+      println("adding jar to classpath")
+      val urls = List(file.toURI.toURL).toArray
+      println("creating new class loader")
+      new URLClassLoader(urls)
+    } else
+      ClassLoader.getSystemClassLoader
+  }
+
+  private def writeJar(file: File, jar: Option[Array[Byte]]) {
+    jar match {
+      case Some(bytes) => {
+        println("writing jar to temp file")
+        val tempFile = File.createTempFile(file.getName, ".tmp")
+        val fos = new FileOutputStream(tempFile)
+        fos.write(bytes)
+        fos.close
+        println("renaming temp file to " + file)
+        if (file.exists) file.delete
+        tempFile.renameTo(file)
       }
-      case None => ClassLoader.getSystemClassLoader
+      case None =>
+        if (!file.createNewFile)
+          throw new RuntimeException("could not create " + file)
     }
   }
-
-  private def writeJar(file: File, jar: Array[Byte]) {
-    println("writing jar to temp file")
-    val tempFile = File.createTempFile(file.getName, ".tmp")
-    val fos = new FileOutputStream(tempFile)
-    fos.write(jar)
-    fos.close
-    println("renaming temp file to " + file)
-    if (file.exists) file.delete
-    tempFile.renameTo(file)
-  }
 }
-
