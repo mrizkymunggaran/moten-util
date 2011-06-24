@@ -75,17 +75,33 @@ class Worker(port: Int) extends Actor {
     println("waiting for messages")
 
     loop {
-      react {
+      reactWithin(5000) {
         case t: Task => {
           performTask(getCoordinator, t)
           Thread.sleep(3000)
-          getCoordinator ! TaskRequested
+          self ! TaskRequested
         }
-        case TaskRequested =>
-          getCoordinator ! TaskRequested
+        case TaskRequested =>{
+    println("requesting task")
+    getCoordinator ! TaskRequested
+      }
+        case ExecutableRequested => {
+          println("requesting task")
+          getCoordinator ! ExecutableRequested
+        }
+        case Executable
+        case TIMEOUT => {
+          println("resetting proxy")
+          resetProxy
+          self ! TaskRequested
+        }
         case x => println("unexpected return " + x)
       }
     }
+  }
+
+  def requestTask {
+
   }
 
   def getCoordinator = {
@@ -97,7 +113,8 @@ class Worker(port: Int) extends Actor {
   private def performTask(coordinator: AbstractActor, t: Task) {
     println("task = " + t)
     println("task content=" + new String(t.content))
-    coordinator !? ExecutableRequested(t.taskId.jobId) match {
+    self ! ExecutableRequested(t.taskId.jobId)
+    
       case ex: Executable => {
         performTask(coordinator, t, ex)
       }
