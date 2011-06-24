@@ -9,16 +9,24 @@ import scala.io._
 import java.net._
 
 case class TaskId(jobId: String, taskId: String)
+case class TaskIdRequested
+case class TaskRequested(taskId: TaskId)
+case class Task(taskId: TaskId, content: Array[Byte], options: Options)
+case class ExecutableRequested(jobId: String)
+case class Executable(jobId: String, jar: Option[Array[Byte]], mainClass: String, options: Options)
+case class TaskFinished(taskId: TaskId)
+case class TaskResultRequested(taskId: TaskId)
+case class TaskResult(taskId: TaskId, result: Array[Byte])
+case class TaskException(taskId: TaskId, message: String)
+
 trait Options
 case class JavaOptions(options: String) extends Options
-case class Task(taskId: TaskId, content: Array[Byte], options: Options)
-case class TaskException(taskId: TaskId, message: String)
-case class TaskFinished(taskId: TaskId, result: Array[Byte])
+
 case object TaskRequested
-case class ExecutableRequested(jobId: String)
-case class Executable(jar: Option[Array[Byte]], mainClass: String, options: Options)
 case object Stop
 case object Test
+case object ExecuteTask
+case object TaskIdRequested
 
 class Coordinator(port: Int) extends Actor {
   def act() {
@@ -29,14 +37,16 @@ class Coordinator(port: Int) extends Actor {
     println("waiting for messages")
     loop {
       react {
+        case TaskIdRequested => sender ! TaskId("job1", "task1")
         case TaskException(taskId, message) => println("task exception: " + message)
-        case TaskFinished(taskId, result) => println("task finished: " + taskId)
-        case TaskRequested => {
+        case TaskFinished(taskId) => sender ! TaskResultRequested(taskId)
+        case TaskResult => println("task result returned")
+        case TaskRequested(taskId: TaskId) => {
           println("replying with new task")
-          sender ! Task(TaskId("job1", "task1"), "payload".getBytes, JavaOptions("-DXmx512m"))
+          sender ! Task(taskId, "payload".getBytes, JavaOptions("-DXmx512m"))
         }
-        case ExecutableRequested(jobId) => reply(Executable(None, new Main().getClass().getName(), null))
-        case Stop => { println("exiting"); exit }
+        case ExecutableRequested(jobId) => reply(Executable("job1", None, new Main().getClass().getName(), null))
+        case Stop => exit
       }
     }
   }
@@ -66,6 +76,7 @@ object Worker extends App {
 class Worker(port: Int) extends Actor {
 
   def act {
+    var currentTask: Option[Task] = None
     println("starting worker on port " + port)
     println("setting classLoader")
     RemoteActor.classLoader = getClass.getClassLoader
@@ -76,20 +87,38 @@ class Worker(port: Int) extends Actor {
 
     loop {
       reactWithin(5000) {
-        case t: Task => {
-          performTask(getCoordinator, t)
-          Thread.sleep(3000)
-          self ! TaskRequested
+        case TaskIdRequested => {
+          getCoordinator ! TaskIdRequested
         }
-        case TaskRequested =>{
-    println("requesting task")
-    getCoordinator ! TaskRequested
-      }
+        case TaskRequested => {
+          println("requesting task")
+          getCoordinator ! TaskRequested
+        }
         case ExecutableRequested => {
           println("requesting task")
           getCoordinator ! ExecutableRequested
         }
-        case Executable
+        case ex: Executable => {
+          saveExecutable(ex)
+          self ! ExecuteTask
+        }
+        case t: Task => {
+          performTask(t)
+          Thread.sleep(3000)
+          self ! TaskRequested
+        }
+        case ExecuteTask => currentTask match {
+          case Some(t: Task) => performTask(t)
+          case None => {}
+        }
+        case t: TaskFinished => getCoordinator ! t
+
+        case TaskResultRequested(taskId: TaskId) =>
+          getCoordinator ! TaskResult(taskId, null)
+
+        case t: TaskException =>
+          getCoordinator ! t
+
         case TIMEOUT => {
           println("resetting proxy")
           resetProxy
@@ -100,7 +129,7 @@ class Worker(port: Int) extends Actor {
     }
   }
 
-  def requestTask {
+  def saveExecutable(ex: Executable) {
 
   }
 
@@ -110,19 +139,11 @@ class Worker(port: Int) extends Actor {
     c
   }
 
-  private def performTask(coordinator: AbstractActor, t: Task) {
-    println("task = " + t)
-    println("task content=" + new String(t.content))
-    self ! ExecutableRequested(t.taskId.jobId)
-    
-      case ex: Executable => {
-        performTask(coordinator, t, ex)
-      }
-      case _ => println("unexpected return")
-    }
+  private def performTask(task: Task) {
+    val ex = getExecutable(task.taskId.jobId)
   }
 
-  private def performTask(coordinator: AbstractActor, t: Task, ex: Executable) {
+  private def performTask(t: Task, ex: Executable) {
     println("executable = " + ex)
     val classLoader = getClassLoader(t, ex)
     println("instantiating object of type " + ex.mainClass)
@@ -131,11 +152,11 @@ class Worker(port: Int) extends Actor {
     println("running main method of object")
     obj.main(List("some", "args").toArray)
     println("completed run")
-    coordinator ! TaskFinished(t.taskId, "boo".getBytes)
+    self ! TaskFinished(t.taskId, "boo".getBytes)
     println("notified coordinator of result")
   }
 
-  private def getClassLoader(t: Task, ex: Executable): ClassLoader = {
+  private def getClassLoader(jobId: String): ClassLoader = {
     ex.jar match {
       case Some(jar) => {
         val directory = new File(System.getProperty("java.io.tmpdir"))
