@@ -7,6 +7,7 @@ import scala.actors.remote._
 import scala.actors._
 import scala.io._
 import java.net._
+import Logger._
 
 case class TaskId(jobId: String, taskId: String)
 case object TaskIdRequested
@@ -29,23 +30,26 @@ case object ExecuteTask
 
 class Coordinator(port: Int) extends Actor {
   def act() {
-    println("starting coordinator on port " + port)
+    info("starting coordinator on port " + port)
     alive(port)
-    println("registering 'coordinator")
+    info("registering 'coordinator")
     register('coordinator, self)
-    println("waiting for messages")
+    info("waiting for messages")
     loop {
       react {
-        case TaskIdRequested => { println("TaskIdRequested"); sender ! TaskId("job1", "task1") }
-        case TaskException(taskId, message) => println("task exception: " + message)
-        case TaskFinished(taskId) => { println("TaskFinished"); sender ! TaskResultRequested(taskId) }
-        case TaskResult => println("task result returned")
+        case TaskIdRequested => { info("TaskIdRequested"); sender ! TaskId("job1", "task1") }
+        case TaskException(taskId, message) => info("task exception: " + message)
+        case TaskFinished(taskId) => {
+          info("TaskFinished"); info("sending TaskResultRequested")
+          sender ! TaskResultRequested(taskId)
+        }
+        case TaskResult => info("task result returned")
         case TaskRequested(taskId: TaskId) => {
-          println("replying with new task")
+          info("replying with new task")
           sender ! Task(taskId, "payload".getBytes, JavaOptions("-DXmx512m"))
         }
         case ExecutableRequested(jobId) => {
-          println("ExecutableRequested")
+          info("ExecutableRequested")
           sender ! Executable("job1", None, new Main().getClass().getName(), null)
         }
         case Stop => exit
@@ -56,7 +60,7 @@ class Coordinator(port: Int) extends Actor {
 
 class Main {
   def main(args: Array[String]) {
-    println("hello there the main has run with args: " + args.toList)
+    info("hello there the main has run with args: " + args.toList)
   }
 }
 
@@ -70,7 +74,8 @@ object Coordinator {
 }
 
 object Worker extends App {
-  val w = new Worker(9001)
+  import scala.math._
+  val w = new Worker((System.currentTimeMillis / 1000 + 9000).toInt);
   w.start
   w ! TaskIdRequested
 }
@@ -81,13 +86,13 @@ class Worker(port: Int) extends Actor {
 
   def act {
     var currentTask: Option[Task] = None
-    println("starting worker on port " + port)
-    println("setting classLoader")
+    info("starting worker on port " + port)
+    info("setting classLoader")
     RemoteActor.classLoader = getClass.getClassLoader
     alive(port)
-    println("registering 'worker")
+    info("registering 'worker")
     register('worker, self)
-    println("waiting for messages")
+    info("waiting for messages")
 
     loop {
       reactWithin(5000) {
@@ -98,20 +103,20 @@ class Worker(port: Int) extends Actor {
           getCoordinator ! TaskRequested(t)
 
         case TaskRequested => {
-          println("requesting task")
+          info("requesting task")
           getCoordinator ! TaskRequested
         }
         case ExecutableRequested => {
-          println("requesting task")
+          info("requesting task")
           getCoordinator ! ExecutableRequested
         }
         case ex: Executable => {
-          println("executable arrived")
+          info("executable arrived")
           saveExecutable(ex)
           self ! ExecuteTask
         }
         case t: Task => {
-          println("task arrived")
+          info("task arrived")
           performTask(t)
           Thread.sleep(3000)
           self ! TaskIdRequested
@@ -123,18 +128,18 @@ class Worker(port: Int) extends Actor {
         case t: TaskFinished => getCoordinator ! t
 
         case TaskResultRequested(taskId: TaskId) => {
-          println("TaskResultRequested")
+          info("sending result")
           getCoordinator ! TaskResult(taskId, null)
         }
         case t: TaskException =>
           getCoordinator ! t
 
         case TIMEOUT => {
-          println("resetting proxy")
+          info("resetting proxy")
           resetProxy
           self ! TaskRequested
         }
-        case x => println("unexpected return " + x)
+        case x => info("unexpected return " + x)
       }
     }
   }
@@ -143,7 +148,7 @@ class Worker(port: Int) extends Actor {
     val filename = ex.jobId + ".jar"
     val file = new File(executableDirectory, filename)
     if (!file.exists) {
-      println("writing jar to " + file)
+      info("writing jar to " + file)
       writeJar(file, ex.jar)
     }
   }
@@ -155,17 +160,17 @@ class Worker(port: Int) extends Actor {
   }
 
   private def performTask(t: Task) {
-    println("performing task")
+    info("performing task")
     val classLoader = getClassLoader(t.taskId.jobId)
     val mainClass = getMainClass(t.taskId.jobId)
-    println("instantiating object of type " + mainClass)
+    info("instantiating object of type " + mainClass)
     val c = Class.forName(mainClass, true, classLoader)
     val obj = c.newInstance.asInstanceOf[{ def main(args: Array[String]) }]
-    println("running main method of object")
+    info("running main method of object")
     obj.main(List("some", "args").toArray)
-    println("completed run")
+    info("completed run")
     self ! TaskFinished(t.taskId)
-    println("notified coordinator of result")
+    info("notified coordinator of result")
   }
 
   def getJarFile(jobId: String) =
@@ -176,9 +181,9 @@ class Worker(port: Int) extends Actor {
   private def getClassLoader(jobId: String): ClassLoader = {
     val file = getJarFile(jobId)
     if (file.length > 0) {
-      println("adding jar to classpath")
+      info("adding jar to classpath")
       val urls = List(file.toURI.toURL).toArray
-      println("creating new class loader")
+      info("creating new class loader")
       new URLClassLoader(urls)
     } else
       ClassLoader.getSystemClassLoader
@@ -187,12 +192,12 @@ class Worker(port: Int) extends Actor {
   private def writeJar(file: File, jar: Option[Array[Byte]]) {
     jar match {
       case Some(bytes) => {
-        println("writing jar to temp file")
+        info("writing jar to temp file")
         val tempFile = File.createTempFile(file.getName, ".tmp")
         val fos = new FileOutputStream(tempFile)
         fos.write(bytes)
         fos.close
-        println("renaming temp file to " + file)
+        info("renaming temp file to " + file)
         if (file.exists) file.delete
         tempFile.renameTo(file)
       }
@@ -201,4 +206,19 @@ class Worker(port: Int) extends Actor {
           throw new RuntimeException("could not create " + file)
     }
   }
+}
+
+/**
+ * Logs to System.out with a timestamp.
+ */
+object Logger {
+  import java.util.Date
+  import java.text.SimpleDateFormat
+  val df = new SimpleDateFormat("HH:mm:ss.SSS")
+  var infoEnabled = true
+  var debugEnabled = false
+  def info(msg: => AnyRef) = if (infoEnabled)
+    println(df.format(new Date()) + " " + msg)
+  def debug(msg: => AnyRef) = if (debugEnabled)
+    println(df.format(new Date()) + " " + msg)
 }
