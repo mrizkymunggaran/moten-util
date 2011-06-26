@@ -1,5 +1,8 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<!-- Usage: -->
+	<!-- Starts Coordinator: mvn scala:run -->
+	<!-- Starts Worker: mvn scala:run -Dclass=Worker -->
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.moten.david</groupId>
 	<artifactId>remdis</artifactId>
@@ -13,12 +16,12 @@
 		<mainClass>org.moten.david.remdis.${class}</mainClass>
 	</properties>
 	<dependencies>
-	<dependency>
+		<dependency>
 			<groupId>org.scala-lang</groupId>
 			<artifactId>scala-library</artifactId>
 			<version>${scala.version}</version>
 		</dependency>
-		</dependencies>
+	</dependencies>
 	<build>
 		<sourceDirectory>src/main/scala</sourceDirectory>
 		<testSourceDirectory>src/test/scala</testSourceDirectory>
