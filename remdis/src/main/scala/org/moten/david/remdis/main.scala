@@ -1,4 +1,4 @@
-package org.moten.david.remdis.worker
+package org.moten.david.remdis
 
 import java.io._
 import scala.actors.Actor._
