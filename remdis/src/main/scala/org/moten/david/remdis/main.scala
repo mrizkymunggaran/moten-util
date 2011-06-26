@@ -208,6 +208,9 @@ class Worker(port: Int) extends Actor {
   }
 }
 
+object Demo {
+
+}
 /**
  * Logs to System.out with a timestamp.
  */

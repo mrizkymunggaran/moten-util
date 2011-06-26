@@ -9,6 +9,8 @@
 		<encoding>UTF-8</encoding>
 		<scala.version>2.9.0-1</scala.version>
 		<scala.plugin.version>2.15.2</scala.plugin.version>
+		<class>Coordinator</class>
+		<mainClass>org.moten.david.remdis.${class}</mainClass>
 	</properties>
 	<dependencies>
 	<dependency>
