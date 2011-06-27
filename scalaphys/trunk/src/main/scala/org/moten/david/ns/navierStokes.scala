@@ -766,7 +766,12 @@ class RegularGridSolver(grid: Grid,
         getValue(position.modify(direction, x.getOrElse(unexpected)))
       //any cell that is not boundary or obstacle should have 
       //neighbours in both directions
-      val nv = n.map(x => (x.getOrElse(unexpected), value(x)))
+      val nv = n.map(x => (x.getOrElse(throw new RuntimeException(
+        "map value in " + n +
+          " not found for " + x +
+          ". position=" + position +
+          ",direction=" + direction +
+          ",value=" + getValue(position))), value(x)))
       if (nv.exists(_._2.isBoundaryOrObstacle(direction))) {
         return getGradientNearBoundary(grid, nv,
           position, direction, f, relativeTo, derivativeType)
