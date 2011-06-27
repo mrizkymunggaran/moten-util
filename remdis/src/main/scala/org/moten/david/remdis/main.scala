@@ -225,7 +225,7 @@ object Logger {
   var infoEnabled = true
   var debugEnabled = false
   def info(msg: => AnyRef) = if (infoEnabled)
-    println(df.format(new Date()) + " " + msg)
+    println(df.format(new Date()) + " INFO " + msg)
   def debug(msg: => AnyRef) = if (debugEnabled)
-    println(df.format(new Date()) + " " + msg)
+    println(df.format(new Date()) + " DEBUG " + msg)
 }
