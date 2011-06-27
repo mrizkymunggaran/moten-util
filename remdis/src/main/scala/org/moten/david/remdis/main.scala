@@ -64,23 +64,27 @@ class Main {
   }
 }
 
-object Coordinator {
-  val Port = 9000
-  def main(args: Array[String]) {
-    RemoteActor.classLoader = getClass.getClassLoader
-    val c = new Coordinator(Port)
-    c.start
-  }
+object Coordinator extends App {
+  val Port = 62831
+  val port = if (args.length > 0) args(0).toInt else Port
+  RemoteActor.classLoader = getClass.getClassLoader
+  val c = new Coordinator(port)
+  c.start
 }
 
 object Worker extends App {
   import scala.math._
-  val w = new Worker((System.currentTimeMillis / 1000 + 9000).toInt);
+  val randomPort = (System.currentTimeMillis / 1000 + 9000).toInt
+  val port = if (args.length > 0) args(0).toInt else randomPort
+  val coordinatorHost = if (args.length > 1) args(1) else "localhost"
+  val coordinatorPort = if (args.length > 2) args(2).toInt else Coordinator.Port
+  val coordinatorNode = Node(coordinatorHost, coordinatorPort)
+  val w = new Worker(port, coordinatorNode);
   w.start
   w ! TaskIdRequested
 }
 
-class Worker(port: Int) extends Actor {
+class Worker(port: Int, coordinatorNode: Node) extends Actor {
 
   val executableDirectory = new File(System.getProperty("java.io.tmpdir"))
 
