@@ -26,6 +26,7 @@ public class HelloAndroidActivity extends Activity {
 		dbAdapter = new WordDbAdapter(this);
 		dbAdapter.open();
 		dbAdapter.createWord("abacus");
+		dbAdapter.close();
 	}
 
 }
