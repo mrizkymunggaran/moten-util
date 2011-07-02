@@ -1,6 +1,7 @@
 package org.moten.david.wordy;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
@@ -25,6 +26,11 @@ public class WordDbAdapter {
 
 	public void createWord(String word) {
 		DatabaseHelper.createWord(database, word);
+	}
+
+	public Cursor getCursor() {
+		return dbHelper.getReadableDatabase().rawQuery("select word from word",
+				null);
 	}
 
 	public void close() {
