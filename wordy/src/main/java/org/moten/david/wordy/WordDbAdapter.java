@@ -1,6 +1,5 @@
 package org.moten.david.wordy;
 
-import android.content.ContentValues;
 import android.content.Context;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
@@ -24,22 +23,12 @@ public class WordDbAdapter {
 		return this;
 	}
 
+	public void createWord(String word) {
+		DatabaseHelper.createWord(database, word);
+	}
+
 	public void close() {
 		dbHelper.close();
 	}
 
-	/**
-	 * Create a new todo If the todo is successfully created return the new
-	 * rowId for that note, otherwise return a -1 to indicate failure.
-	 */
-	public long createWord(String word) {
-		ContentValues initialValues = createContentValues(word);
-		return database.insert(DATABASE_TABLE, null, initialValues);
-	}
-
-	private ContentValues createContentValues(String word) {
-		ContentValues values = new ContentValues();
-		values.put(KEY_WORD, word);
-		return values;
-	}
 }
