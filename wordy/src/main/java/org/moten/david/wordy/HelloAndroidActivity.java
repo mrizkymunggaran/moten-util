@@ -1,8 +1,11 @@
 package org.moten.david.wordy;
 
 import android.app.Activity;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.ListView;
+import android.widget.SimpleCursorAdapter;
 
 public class HelloAndroidActivity extends Activity {
 
@@ -25,8 +28,25 @@ public class HelloAndroidActivity extends Activity {
 		setContentView(R.layout.main);
 		dbAdapter = new WordDbAdapter(this);
 		dbAdapter.open();
-		dbAdapter.createWord("abaco");
+		// dbAdapter.createWord("abaco");
 		dbAdapter.close();
-	}
 
+		ListView listView = (ListView) this.findViewById(R.id.list);
+
+		Cursor cursor = dbAdapter.getCursor();
+		startManagingCursor(cursor);
+
+		// the desired columns to be bound
+		String[] columns = new String[] { "word" };
+		// the XML defined views which the data will be bound to
+		int[] to = new int[] { R.id.list_item };
+
+		// create the adapter using the cursor pointing to the desired data as
+		// well as the layout information
+		SimpleCursorAdapter adapter = new SimpleCursorAdapter(this,
+				R.layout.main, cursor, columns, to);
+
+		listView.setAdapter(adapter);
+
+	}
 }
