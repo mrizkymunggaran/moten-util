@@ -25,7 +25,7 @@ public class HelloAndroidActivity extends Activity {
 		setContentView(R.layout.main);
 		dbAdapter = new WordDbAdapter(this);
 		dbAdapter.open();
-		dbAdapter.createWord("abacus");
+		dbAdapter.createWord("abaco");
 		dbAdapter.close();
 	}
 
