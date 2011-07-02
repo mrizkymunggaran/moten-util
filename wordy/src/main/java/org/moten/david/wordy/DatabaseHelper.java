@@ -14,10 +14,10 @@ import android.util.Log;
 public class DatabaseHelper extends SQLiteOpenHelper {
 	private static final String DATABASE_NAME = "wordy";
 
-	private static final int DATABASE_VERSION = 4;
+	private static final int DATABASE_VERSION = 7;
 
 	// Database creation sql statement
-	private static final String DATABASE_CREATE = "create table word (word text primary key);";
+	private static final String DATABASE_CREATE = "create table word (_id integer primary key, word text);";
 	public static final String KEY_WORD = "word";
 	private static final String DATABASE_TABLE = "word";
 

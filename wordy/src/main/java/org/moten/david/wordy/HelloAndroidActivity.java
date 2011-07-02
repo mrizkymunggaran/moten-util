@@ -27,19 +27,17 @@ public class HelloAndroidActivity extends Activity {
 		Log.i(TAG, "onCreate");
 		setContentView(R.layout.main);
 		dbAdapter = new WordDbAdapter(this);
-		dbAdapter.open();
 		// dbAdapter.createWord("abaco");
-		dbAdapter.close();
 
 		ListView listView = (ListView) this.findViewById(R.id.list);
-
+		dbAdapter.open();
 		Cursor cursor = dbAdapter.getCursor();
 		startManagingCursor(cursor);
 
 		// the desired columns to be bound
-		String[] columns = new String[] { "word" };
+		String[] columns = new String[] { "_id", "word" };
 		// the XML defined views which the data will be bound to
-		int[] to = new int[] { R.id.list_item };
+		int[] to = new int[] { R.id.list_item, R.id.list_item };
 
 		// create the adapter using the cursor pointing to the desired data as
 		// well as the layout information

@@ -29,8 +29,9 @@ public class WordDbAdapter {
 	}
 
 	public Cursor getCursor() {
-		return dbHelper.getReadableDatabase().rawQuery("select word from word",
-				null);
+		return dbHelper.getReadableDatabase().query(DATABASE_TABLE,
+				new String[] { "_id", "word" }, null, null, null, null,
+				"word asc");
 	}
 
 	public void close() {
