@@ -766,7 +766,12 @@ class RegularGridSolver(grid: Grid,
         getValue(position.modify(direction, x.getOrElse(unexpected)))
       //any cell that is not boundary or obstacle should have 
       //neighbours in both directions
-      val nv = n.map(x => (x.getOrElse(throw new RuntimeException(
+
+      val n2 = n.map(x => x match {
+        case a: Some[Double] => a
+        case None => Some(position.get(direction))
+      })
+      val nv = n2.map(x => (x.getOrElse(throw new RuntimeException(
         "map value in " + n +
           " not found for " + x +
           ". position=" + position +
