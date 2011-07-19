@@ -4,10 +4,10 @@ object DbCreator {
 
   import scala.io.Source
 
-  def main(args: Array[String]) {
+  def create {
     println("loading words")
     val words = Source
-      .fromInputStream(Generator.getClass().getResourceAsStream("/sowpods.txt"))
+      .fromInputStream(DbCreator.getClass().getResourceAsStream("/sowpods.txt"))
       .getLines
       .map(_.trim)
       .toList.toSet
@@ -25,7 +25,6 @@ object DbCreator {
     val pstmt = connection.prepareStatement("insert into word values (?,?);")
     connection.setAutoCommit(false)
     words.foreach(w => {
-      println(w + "," + w.sorted)
       pstmt.setString(1, w)
       pstmt.setString(2, w.sorted)
       pstmt.addBatch
@@ -38,6 +37,10 @@ object DbCreator {
     connection.close
 
     println("created database")
+  }
+
+  def main(args: Array[String]) {
+    create
   }
 
 }
