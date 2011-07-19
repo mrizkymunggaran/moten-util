@@ -10,7 +10,7 @@ object DbCreator {
       .fromInputStream(DbCreator.getClass().getResourceAsStream("/sowpods.txt"))
       .getLines
       .map(_.trim)
-      .toList.toSet
+      .toList.toSet.toList.sorted
 
     println("creating database")
     import java.sql._
