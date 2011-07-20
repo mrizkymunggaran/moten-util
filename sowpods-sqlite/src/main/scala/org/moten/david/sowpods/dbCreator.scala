@@ -8,6 +8,7 @@ object DbCreator {
 
   import scala.io.Source
   import java.sql._
+  import java.io.File
 
   def exec(sql: String)(implicit stmt: Statement) {
     stmt.executeUpdate(sql)
@@ -18,12 +19,14 @@ object DbCreator {
     val words = Source
       .fromInputStream(DbCreator.getClass().getResourceAsStream("/sowpods.txt"))
       .getLines
-      .map(_.trim)
-      .toList.toSet.toList.sorted
+      .map(_.trim).filter(_.length > 0)
+      .toSet.toList.sorted
+
+    new File("target/generated-resources").mkdirs
 
     println("creating database")
     Class.forName("org.sqlite.JDBC")
-    val connection = DriverManager.getConnection("jdbc:sqlite:target/word.db")
+    val connection = DriverManager.getConnection("jdbc:sqlite:target/generated-resources/word.db")
     implicit val stmt = connection.createStatement
     exec("drop table if exists android_metadata")
     exec("create table android_metadata (locale TEXT DEFAULT 'en_US');")
