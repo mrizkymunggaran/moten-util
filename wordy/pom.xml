@@ -13,14 +13,9 @@
 		<maven.compiler.target>1.6</maven.compiler.target>
 		<encoding>UTF-8</encoding>
 		<scala.version>2.9.0-1</scala.version>
+		<generated.assets>${project.build.directory}/generated-assets</generated.assets>
 	</properties>
 	<dependencies>
-		<dependency>
-			<groupId>org.scala-lang</groupId>
-			<artifactId>scala-library</artifactId>
-			<version>${scala.version}</version>
-			<optional>true</optional>
-		</dependency>
 		<dependency>
 			<groupId>com.google.android</groupId>
 			<artifactId>android</artifactId>
@@ -28,7 +23,6 @@
 			<scope>provided</scope>
 		</dependency>
 	</dependencies>
-
 	<build>
 		<plugins>
 			<plugin>
@@ -42,18 +36,18 @@
 							<goal>unpack</goal>
 						</goals>
 						<configuration>
-						       <artifactItems>
-							 <artifactItem>
-							   <groupId>org.moten.david</groupId>
-							   <artifactId>sowpods-sqlite</artifactId>
-							   <version>0.0.1-SNAPSHOT</version>
-							   <classifier>db</classifier>
-							   <type>jar</type>
-							   <overWrite>false</overWrite>
-							   <outputDirectory>${project.build.directory}/generated-assets</outputDirectory>
-							 </artifactItem>
-						       </artifactItems>
-             					</configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>org.moten.david</groupId>
+									<artifactId>sowpods-sqlite</artifactId>
+									<version>0.0.1-SNAPSHOT</version>
+									<classifier>db</classifier>
+									<type>jar</type>
+									<overWrite>false</overWrite>
+									<outputDirectory>${generated.assets}</outputDirectory>
+								</artifactItem>
+							</artifactItems>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>
@@ -68,7 +62,7 @@
 						<phase>generate-resources</phase>
 						<configuration>
 							<target>
-								<copy todir="${project.build.directory}/generated-assets">
+								<copy todir="${generated.assets}">
 									<fileset dir="${project.basedir}/assets" includes="**/*" />
 								</copy>
 							</target>
@@ -76,48 +70,29 @@
 					</execution>
 				</executions>
 			</plugin>
-			<plugin>
-				<groupId>com.pyx4me</groupId>
-				<artifactId>proguard-maven-plugin</artifactId>
-				<version>2.0.4</version>
-				<executions>
-					<execution>
-						<phase>process-classes</phase>
-						<goals>
-							<goal>proguard</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<injar>android-classes</injar>
-					<libs>
-						<lib>${java.home}/lib/rt.jar</lib>
-					</libs>
-					<obfuscate>false</obfuscate>
-					<options>
-						<option> -keep public class * extends android.app.Activity</option>
-						<option>-keep public class * extends android.app.Application</option>
-						<option>-keep public class * extends android.app.Service</option>
-						<option>-keep public class * extends
-							android.content.BroadcastReceiver</option>
-						<option>-keep public class * extends
-							android.content.ContentProvider</option>
-						<option>-dontskipnonpubliclibraryclasses</option>
-						<option>-dontoptimize</option>
-						<option>-printmapping map.txt</option>
-						<option>-printseeds seed.txt</option>
-						<option>-ignorewarnings</option>
-					</options>
-				</configuration>
-			</plugin>
-
+			<!-- <plugin> <groupId>com.pyx4me</groupId> <artifactId>proguard-maven-plugin</artifactId> 
+				<version>2.0.4</version> <executions> <execution> <phase>process-classes</phase> 
+				<goals> <goal>proguard</goal> </goals> </execution> </executions> <configuration> 
+				<injar>android-classes</injar> <libs> <lib>${java.home}/lib/rt.jar</lib> 
+				</libs> <obfuscate>false</obfuscate> <options> <option> -keep public class 
+				* extends android.app.Activity</option> <option>-keep public class * extends 
+				android.app.Application</option> <option>-keep public class * extends android.app.Service</option> 
+				<option>-keep public class * extends android.content.BroadcastReceiver</option> 
+				<option>-keep public class * extends android.content.ContentProvider</option> 
+				<option>-dontskipnonpubliclibraryclasses</option> <option>-dontoptimize</option> 
+				<option>-printmapping map.txt</option> <option>-printseeds seed.txt</option> 
+				<option>-ignorewarnings</option> </options> </configuration> </plugin> -->
 			<plugin>
 				<groupId>com.jayway.maven.plugins.android.generation2</groupId>
 				<artifactId>maven-android-plugin</artifactId>
-				<version>2.8.3</version>
+				<version>3.0.0-alpha-2</version>
 				<configuration>
+					<aaptExtraArgs>
+						<aaptExtraArg>-0</aaptExtraArg>
+						<aaptExtraArg>db</aaptExtraArg>
+					</aaptExtraArgs>
 					<androidManifestFile>${project.basedir}/AndroidManifest.xml</androidManifestFile>
-					<assetsDirectory>${project.build.directory}/generated-assets</assetsDirectory>
+					<assetsDirectory>${generated.assets}</assetsDirectory>
 					<resourceDirectory>${project.basedir}/res</resourceDirectory>
 					<nativeLibrariesDirectory>${project.basedir}/src/main/native</nativeLibrariesDirectory>
 					<sdk>
@@ -125,6 +100,7 @@
 					</sdk>
 					<deleteConflictingFiles>true</deleteConflictingFiles>
 					<undeployBeforeDeploy>true</undeployBeforeDeploy>
+
 				</configuration>
 				<extensions>true</extensions>
 			</plugin>
