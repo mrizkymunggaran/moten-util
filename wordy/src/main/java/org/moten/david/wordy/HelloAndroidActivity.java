@@ -10,7 +10,7 @@ import android.widget.SimpleCursorAdapter;
 public class HelloAndroidActivity extends Activity {
 
 	private static String TAG = "wordy";
-	private WordDbAdapter dbAdapter;
+	private WordAdapter dbAdapter;
 
 	/**
 	 * Called when the activity is first created.
@@ -26,16 +26,15 @@ public class HelloAndroidActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		Log.i(TAG, "onCreate");
 		setContentView(R.layout.main);
-		dbAdapter = new WordDbAdapter(this);
-		// dbAdapter.createWord("abaco");
+		dbAdapter = new WordAdapter(this);
 
 		ListView listView = (ListView) this.findViewById(R.id.list);
 		dbAdapter.open();
-		Cursor cursor = dbAdapter.getCursor();
+		Cursor cursor = dbAdapter.getAnagrams();
 		startManagingCursor(cursor);
 
 		// the desired columns to be bound
-		String[] columns = new String[] { "word" };
+		String[] columns = new String[] { "_id", "word" };
 		// the XML defined views which the data will be bound to
 		int[] to = new int[] { R.id.list_item };
 
@@ -45,6 +44,5 @@ public class HelloAndroidActivity extends Activity {
 				R.layout.main, cursor, columns, to);
 
 		listView.setAdapter(adapter);
-
 	}
 }
