@@ -32,15 +32,15 @@ object DbCreator {
     exec("create table android_metadata (locale TEXT DEFAULT 'en_US');")
     exec("insert into android_metadata VALUES ('en_US');")
     exec("drop table if exists word;")
-    exec("create table word(_id integer primary key,word,word_sorted);")
-    val pstmt = connection.prepareStatement("insert into word values (?,?,?);")
+    exec("create table word(_id integer primary key autoincrement,word text,word_sorted text);")
+    val pstmt = connection.prepareStatement("insert into word(word,word_sorted) values (?,?);")
     connection.setAutoCommit(false)
     var count = 0
     words.foreach(w => {
       count += 1
-      pstmt.setInt(1, count)
-      pstmt.setString(2, w)
-      pstmt.setString(3, w.sorted)
+      //      pstmt.setInt(1 count)
+      pstmt.setString(1, w)
+      pstmt.setString(2, w.sorted)
       pstmt.addBatch
     })
     pstmt.executeBatch
