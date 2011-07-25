@@ -34,7 +34,7 @@ public class HelloAndroidActivity extends Activity {
 		startManagingCursor(cursor);
 
 		// the desired columns to be bound
-		String[] columns = new String[] { "_id", "word" };
+		String[] columns = new String[] { "word" };
 		// the XML defined views which the data will be bound to
 		int[] to = new int[] { R.id.list_item };
 

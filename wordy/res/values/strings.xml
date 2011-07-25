@@ -3,4 +3,5 @@
     <string name="hello">Hello wordy!</string>
     <string name="app_name">Abacus</string>
     <string name="words_resource">words.txt</string>
+    <string name="status">status</string>
 </resources>
