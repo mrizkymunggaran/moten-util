@@ -166,9 +166,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
 		builder.setTables("word");
 		builder.setProjectionMap(projectionMap);
-		return builder.query(db, new String[] { "_id", "word" },
+		Cursor cursor = builder.query(db, new String[] { "_id", "word" },
 				"word_sorted = '" + wordSorted.toUpperCase() + "'", null, null,
 				null, null);
+		return cursor;
 	}
 
 }

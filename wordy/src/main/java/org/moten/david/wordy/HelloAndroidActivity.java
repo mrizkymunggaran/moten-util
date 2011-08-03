@@ -1,11 +1,12 @@
 package org.moten.david.wordy;
 
 import android.app.Activity;
-import android.database.Cursor;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
-import android.widget.ListView;
-import android.widget.SimpleCursorAdapter;
+import android.widget.EditText;
 
 public class HelloAndroidActivity extends Activity {
 
@@ -28,21 +29,30 @@ public class HelloAndroidActivity extends Activity {
 		setContentView(R.layout.main);
 		dbAdapter = new WordAdapter(this);
 
-		ListView listView = (ListView) this.findViewById(R.id.list);
-		dbAdapter.open();
-		Cursor cursor = dbAdapter.getAnagrams();
-		startManagingCursor(cursor);
+		EditText text = (EditText) this.findViewById(R.id.entry);
+		text.addTextChangedListener(createTextWatcher(text));
+		// dbAdapter.open();
+		// Cursor cursor = dbAdapter.getAnagrams();
+	}
 
-		// the desired columns to be bound
-		String[] columns = new String[] { "word" };
-		// the XML defined views which the data will be bound to
-		int[] to = new int[] { R.id.list_item };
+	private TextWatcher createTextWatcher(final EditText text) {
+		return new TextWatcher() {
 
-		// create the adapter using the cursor pointing to the desired data as
-		// well as the layout information
-		SimpleCursorAdapter adapter = new SimpleCursorAdapter(this,
-				R.layout.main, cursor, columns, to);
+			public void beforeTextChanged(CharSequence s, int start, int count,
+					int after) {
+			}
 
-		listView.setAdapter(adapter);
+			public void onTextChanged(CharSequence s, int start, int before,
+					int count) {
+			}
+
+			public void afterTextChanged(Editable s) {
+				int length = s.toString().length();
+				if (length % 2 == 0)
+					text.setBackgroundColor(Color.RED);
+				else
+					text.setBackgroundColor(Color.BLUE);
+			}
+		};
 	}
 }

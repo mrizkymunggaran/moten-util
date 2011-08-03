@@ -14,7 +14,7 @@
 		android:layout_height="wrap_content" android:layout_below="@id/entry"
 		android:layout_alignParentRight="true" android:layout_marginLeft="10px"
 		android:text="Get Anagrams" />
-
+<!-- 
 	<ListView android:id="@+id/list" android:layout_width="fill_parent"
 		android:layout_height="wrap_content" />
 
@@ -23,4 +23,5 @@
 		
 	<TextView android:layout_width="fill_parent"
 		android:layout_height="wrap_content" android:text="@string/status" />
+-->
 </LinearLayout>
