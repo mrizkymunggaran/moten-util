@@ -8,7 +8,7 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.widget.EditText;
 
-public class HelloAndroidActivity extends Activity {
+public class WordActivity extends Activity {
 
 	private static String TAG = "wordy";
 	private WordAdapter dbAdapter;
@@ -27,12 +27,10 @@ public class HelloAndroidActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		Log.i(TAG, "onCreate");
 		setContentView(R.layout.main);
+		dbAdapter.open();
 		dbAdapter = new WordAdapter(this);
-
 		EditText text = (EditText) this.findViewById(R.id.entry);
 		text.addTextChangedListener(createTextWatcher(text));
-		// dbAdapter.open();
-		// Cursor cursor = dbAdapter.getAnagrams();
 	}
 
 	private TextWatcher createTextWatcher(final EditText text) {
@@ -47,8 +45,7 @@ public class HelloAndroidActivity extends Activity {
 			}
 
 			public void afterTextChanged(Editable s) {
-				int length = s.toString().length();
-				if (length % 2 == 0)
+				if (dbAdapter.isValidWord(s.toString()))
 					text.setBackgroundColor(Color.RED);
 				else
 					text.setBackgroundColor(Color.BLUE);
