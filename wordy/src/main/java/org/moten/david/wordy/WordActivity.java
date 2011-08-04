@@ -27,8 +27,8 @@ public class WordActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		Log.i(TAG, "onCreate");
 		setContentView(R.layout.main);
-		dbAdapter.open();
 		dbAdapter = new WordAdapter(this);
+		dbAdapter.open();
 		EditText text = (EditText) this.findViewById(R.id.entry);
 		text.addTextChangedListener(createTextWatcher(text));
 	}

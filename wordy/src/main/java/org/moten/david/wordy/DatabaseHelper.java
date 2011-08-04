@@ -173,13 +173,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	}
 
 	public boolean isValidWord(String word) {
-		Cursor c = db.rawQuery("select count(*) from " + WORD_TABLE
-				+ "  where " + WORD_COLUMN + "=?",
+		Cursor c = db.rawQuery("select _id," + WORD_COLUMN + " from "
+				+ WORD_TABLE + "  where " + WORD_COLUMN + "=?",
 				new String[] { word.toUpperCase() });
 		c.moveToFirst();
-		int count = c.getInt(1);
+		boolean isValid = !c.isAfterLast();
 		c.close();
-		return count == 1;
+		return isValid;
 	}
-
 }
