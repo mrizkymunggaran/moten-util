@@ -152,8 +152,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	// to you to create adapters for your views.
 
 	// Database fields
-	public static final String KEY_WORD = "word";
-	private static final String DATABASE_TABLE = "word";
+	public static final String WORD_COLUMN = "word";
+	private static final String WORD_TABLE = "word";
 
 	public Cursor getAnagrams(String word) {
 		char[] chars = word.toCharArray();
@@ -173,7 +173,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	}
 
 	public boolean isValidWord(String word) {
-		Cursor c = db.rawQuery("select count(*) from word where word=?",
+		Cursor c = db.rawQuery("select count(*) from " + WORD_TABLE
+				+ "  where " + WORD_COLUMN + "=?",
 				new String[] { word.toUpperCase() });
 		c.moveToFirst();
 		int count = c.getInt(1);
