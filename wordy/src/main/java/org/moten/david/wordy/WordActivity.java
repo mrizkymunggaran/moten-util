@@ -46,9 +46,9 @@ public class WordActivity extends Activity {
 
 			public void afterTextChanged(Editable s) {
 				if (dbAdapter.isValidWord(s.toString()))
-					text.setBackgroundColor(Color.RED);
+					text.setBackgroundColor(Color.GREEN);
 				else
-					text.setBackgroundColor(Color.BLUE);
+					text.setBackgroundColor(Color.RED);
 			}
 		};
 	}
