@@ -28,4 +28,8 @@ public class WordAdapter {
 		dbHelper.close();
 	}
 
+	public boolean isValidWord(String word) {
+		return dbHelper.isValidWord(word);
+	}
+
 }
