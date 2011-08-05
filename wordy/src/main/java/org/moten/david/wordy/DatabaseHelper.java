@@ -176,7 +176,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		Cursor c = db.rawQuery("select word from word where word=?",
 				new String[] { word.toUpperCase() });
 		c.moveToFirst();
-		boolean isValid = c.getCount() == 1;
+		boolean isValid = c.moveToNext();
 		c.close();
 		return isValid;
 	}
