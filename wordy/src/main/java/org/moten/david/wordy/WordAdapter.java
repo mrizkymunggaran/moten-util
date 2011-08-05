@@ -1,7 +1,8 @@
 package org.moten.david.wordy;
 
+import java.util.List;
+
 import android.content.Context;
-import android.database.Cursor;
 import android.database.SQLException;
 
 public class WordAdapter {
@@ -20,7 +21,7 @@ public class WordAdapter {
 		return this;
 	}
 
-	public Cursor getAnagrams(String word) {
+	public List<String> getAnagrams(String word) {
 		return dbHelper.getAnagrams(word);
 	}
 

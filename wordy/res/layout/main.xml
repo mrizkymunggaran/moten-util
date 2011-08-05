@@ -9,16 +9,18 @@
 	<EditText android:id="@+id/entry" android:layout_width="fill_parent"
 		android:layout_height="wrap_content" android:background="@android:drawable/editbox_background"
 		android:layout_below="@id/label" />
-
+<!-- 
 	<Button android:id="@+id/search" android:layout_width="wrap_content"
 		android:layout_height="wrap_content" android:layout_below="@id/entry"
-		android:layout_alignParentRight="true" android:layout_marginLeft="10px"
+		android:layout_alignParentRight="true" android:layout_marginLeft="0px"
 		android:text="Get Anagrams" />
-
+-->
 	<ListView
 		android:id="@+id/list"
 		android:layout_width="fill_parent"
-		android:layout_height="wrap_content" />
+		android:layout_height="wrap_content"
+		android:layout_below="@id/entry"
+		 />
 
 	<TextView android:id="@+id/list_item" android:layout_width="fill_parent"
 		android:layout_height="wrap_content" />

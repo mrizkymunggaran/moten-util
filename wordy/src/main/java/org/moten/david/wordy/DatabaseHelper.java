@@ -4,16 +4,15 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.database.sqlite.SQLiteQueryBuilder;
 import android.util.Log;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
@@ -155,21 +154,22 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	public static final String WORD_COLUMN = "word";
 	private static final String WORD_TABLE = "word";
 
-	public Cursor getAnagrams(String word) {
+	public List<String> getAnagrams(String word) {
 		char[] chars = word.toCharArray();
 		Arrays.sort(chars);
 		String wordSorted = new String(chars);
-		Map<String, String> projectionMap = new HashMap<String, String>();
-		projectionMap.put("_id", "_id");
-		projectionMap.put("word", "word");
-		projectionMap.put("word_sorted", "word_sorted");
-		SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
-		builder.setTables("word");
-		builder.setProjectionMap(projectionMap);
-		Cursor cursor = builder.query(db, new String[] { "_ID", "WORD" },
-				"WORD_SORTED = ?", new String[] { wordSorted.toUpperCase() },
-				null, null, null);
-		return cursor;
+
+		Cursor c = db.query("WORD", new String[] { "WORD" }, "WORD_SORTED = ?",
+				new String[] { wordSorted.toUpperCase() }, null, null, null);
+		List<String> list = new ArrayList<String>();
+		if (c.moveToFirst()) {
+			list.add(c.getString(0));
+			while (c.moveToNext()) {
+				list.add(c.getString(0));
+			}
+		}
+		c.close();
+		return list;
 	}
 
 	public boolean isValidWord(String word) {

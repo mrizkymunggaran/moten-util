@@ -1,15 +1,16 @@
 package org.moten.david.wordy;
 
+import java.util.Arrays;
+
 import android.app.Activity;
-import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.SimpleCursorAdapter;
 
 public class WordActivity extends Activity {
 
@@ -32,17 +33,17 @@ public class WordActivity extends Activity {
 		setContentView(R.layout.main);
 		dbAdapter = new WordAdapter(this);
 		dbAdapter.open();
-		Cursor c = dbAdapter.getAnagrams("era");
-		startManagingCursor(c);
-		String[] columns = new String[] { "WORD" };
-		int[] to = new int[] { R.id.list_item };
 
-		SimpleCursorAdapter adapter = new SimpleCursorAdapter(this,
-				R.layout.main, c, columns, to);
-		ListView list = (ListView) this.findViewById(R.id.list);
-		list.setAdapter(adapter);
-		// EditText text = (EditText) this.findViewById(R.id.entry);
-		// text.addTextChangedListener(createTextWatcher(text));
+		// Cursor c = dbAdapter.getAnagrams("era");
+		// startManagingCursor(c);
+		// String[] columns = new String[] { "WORD" };
+		// int[] to = new int[] { R.id.list_item };
+		//
+		// SimpleCursorAdapter adapter = new SimpleCursorAdapter(this,
+		// R.layout.main, c, columns, to);
+		// list.setAdapter(adapter);
+		EditText text = (EditText) this.findViewById(R.id.entry);
+		text.addTextChangedListener(createTextWatcher(text));
 	}
 
 	private TextWatcher createTextWatcher(final EditText text) {
@@ -61,6 +62,16 @@ public class WordActivity extends Activity {
 					text.setBackgroundColor(Color.GREEN);
 				else
 					text.setBackgroundColor(Color.RED);
+				String[] words = dbAdapter.getAnagrams(s.toString()).toArray(
+						new String[0]);
+				Arrays.sort(words);
+				for (int i = 0; i < words.length; i++)
+					words[i] = words[i].toLowerCase();
+				ListView lv = (ListView) WordActivity.this
+						.findViewById(R.id.list);
+				lv.setAdapter(new ArrayAdapter<String>(WordActivity.this,
+						android.R.layout.simple_list_item_1, words));
+
 			}
 		};
 	}
