@@ -1,1 +1,1 @@
-emulator -avd wordy1 -scale 0.41
+emulator -avd wordy2 -scale 0.41
