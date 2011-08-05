@@ -20,8 +20,8 @@ public class WordAdapter {
 		return this;
 	}
 
-	public Cursor getAnagrams() {
-		return dbHelper.getAnagrams("abacus");
+	public Cursor getAnagrams(String word) {
+		return dbHelper.getAnagrams(word);
 	}
 
 	public void close() {

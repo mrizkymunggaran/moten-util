@@ -166,9 +166,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
 		builder.setTables("word");
 		builder.setProjectionMap(projectionMap);
-		Cursor cursor = builder.query(db, new String[] { "_id", "word" },
-				"word_sorted = '" + wordSorted.toUpperCase() + "'", null, null,
-				null, null);
+		Cursor cursor = builder.query(db, new String[] { "_ID", "WORD" },
+				"WORD_SORTED = ?", new String[] { wordSorted.toUpperCase() },
+				null, null, null);
 		return cursor;
 	}
 
@@ -178,8 +178,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		Cursor c = db.query("WORD", new String[] { "WORD" }, "WORD=?",
 				new String[] { word.toUpperCase() }, null, null, null);
 		c.moveToFirst();
-		boolean isValid = c.moveToNext();
+		boolean isValid = c.getCount() > 0;
 		c.close();
 		return isValid;
 	}
+
 }
