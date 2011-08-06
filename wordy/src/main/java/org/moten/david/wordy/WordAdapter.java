@@ -25,6 +25,10 @@ public class WordAdapter {
 		return dbHelper.getAnagrams(word);
 	}
 
+	public List<String> getAnagramsExtra(String word) {
+		return dbHelper.getAnagramsExtra(word);
+	}
+
 	public void close() {
 		dbHelper.close();
 	}

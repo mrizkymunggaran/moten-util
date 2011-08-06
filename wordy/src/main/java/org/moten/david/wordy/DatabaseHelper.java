@@ -183,4 +183,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		return isValid;
 	}
 
+	public List<String> getAnagramsExtra(String word) {
+		List<String> list = new ArrayList<String>();
+		for (int i = 0; i < 26; i++) {
+			char c = (char) (i + 'a');
+			list.addAll(getAnagrams(word + c));
+		}
+		return list;
+	}
+
 }
