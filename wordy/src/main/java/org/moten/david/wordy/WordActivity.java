@@ -62,8 +62,8 @@ public class WordActivity extends Activity {
 					text.setBackgroundColor(Color.GREEN);
 				else
 					text.setBackgroundColor(Color.RED);
-				String[] words = dbAdapter.getAnagrams(s.toString()).toArray(
-						new String[0]);
+				String[] words = dbAdapter.getAnagramsExtra(s.toString())
+						.toArray(new String[0]);
 				Arrays.sort(words);
 				for (int i = 0; i < words.length; i++)
 					words[i] = words[i].toLowerCase();
