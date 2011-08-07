@@ -343,7 +343,8 @@ trait Solver {
 
   /**
    * Returns the derivative of velocity over time using this
-   * {http://en.wikipedia.org/wiki/Navier%E2%80%93Stokes_equations#Cartesian_coordinates formula}.
+   * {http://en.wikipedia.org/wiki/Navier%E2%80%93Stokes_equations#Cartesian_coordinates
+   *  formula}.
    * @param position
    * @return
    */
@@ -424,16 +425,17 @@ trait Solver {
 
   /**
    * Returns the` Value` at the given position after `timeDelta` in seconds
-   * by solving <a href="http://en.wikipedia.org/wiki/Navier%E2%80%93Stokes_equations#Cartesian_coordinates">
+   * by solving
+   * <a href="http://en.wikipedia.org/wiki/Navier%E2%80%93Stokes_equations#Cartesian_coordinates">
    * a 3D formulation of the Navier-Stokes equations</a>.  After the velocity
    *  calculation a pressure correction is performed according to this
    * <a href="http://en.wikipedia.org/wiki/Pressure-correction_method">method</a>.
    */
   def getValueAfterTime(position: Vector, timeDelta: Double): Value = {
     debug("getting value after time at " + position)
-    val value0 = getValue(position)
-    debug("value0=" + value0)
-    if (value0.isObstacle) return value0
+    val value = getValue(position)
+    debug("value=" + value)
+    if (value.isObstacle) return value
     val v1 = getVelocityAfterTime(position, timeDelta)
     debug("v1=" + v1)
     val f = getPressureCorrection(position, v1, timeDelta)(_)
@@ -441,13 +443,13 @@ trait Solver {
     val h = 1
     val precision = 0.000001
     val maxIterations = 15
-    val newPressure = NewtonsMethod.solve(f, value0.pressure, h,
+    val newPressure = NewtonsMethod.solve(f, value.pressure, h,
       precision, maxIterations) match {
-        case None => value0.pressure
-        case Some(a) => if (a < 0) value0.pressure else a
+        case None => value.pressure
+        case Some(a) => if (a < 0) value.pressure else a
       }
-    debug("newPressure=" + newPressure + "old=" + value0.pressure)
-    return value0.modifyPressure(newPressure).modifyVelocity(v1)
+    debug("newPressure=" + newPressure + "old=" + value.pressure)
+    return value.modifyPressure(newPressure).modifyVelocity(v1)
   }
 
   /**
@@ -467,7 +469,6 @@ trait Solver {
   private def getPressureGradient(position: Vector,
     direction: Direction): Double = {
     val value = getValue(position);
-    val force = gravity.get(direction) * value.density
     getGradient(position, direction,
       (values: Vector => Value, p: Vector) => values(p).pressure,
       getValue, None, FirstDerivative)
@@ -486,8 +487,8 @@ trait Solver {
         None, SecondDerivative)))
 
   /**
-   * Returns the gradient of the velocity vector at position in the given direction
-   * and for the purposes of obstacle gradient calculation includes the
+   * Returns the gradient of the velocity vector at position in the given
+   * direction and for the purposes of obstacle gradient calculation includes the
    * relativeTo position so a neighbour in the direction of relativeTo can be
    * chosen paired with the position of the obstacle itself for the gradient
    * calculation.
@@ -625,7 +626,7 @@ object BoundaryStrategy {
 
   /**
    * Returns the relative Value (especially for boundary and obstacle Values)
-   *  of the neighbour n of position with value value.
+   *  of the neighbour n of position with Value value.
    * @param position
    * @param value
    * @param direction
