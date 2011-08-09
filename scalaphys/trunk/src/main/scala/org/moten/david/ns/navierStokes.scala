@@ -665,6 +665,7 @@ object BoundaryStrategy {
 object RegularGridSolver {
   import scala.math._
   import Solver._
+  import RichTuple2._
 
   def getGradient(position: Vector, direction: Direction,
     n: Tuple2[Option[Double], Option[Double]],
@@ -716,6 +717,114 @@ object RegularGridSolver {
   def getNeighbours(grid: Grid, position: Vector,
     d: Direction): Tuple2[Option[Double], Option[Double]] =
     grid.neighbours.getOrElse((d, position.get(d)), unexpected)
+
+  private def getGradientNearBoundary(grid: Grid, values: Vector => Value,
+    nv: ((Double, Value), (Double, Value)), position: Vector,
+    direction: Direction, f: PositionFunction,
+    relativeTo: Option[Vector], derivativeType: Derivative): Double = {
+    //if one neighbour is obstacle or boundary then call getGradient on 
+    //same new Solver which overrides the Values at the neighbour positions
+    //to indicate that they are NOT obstacles or boundaries (to terminate 
+    //the recursion) and follow the following rules:
+    //
+    //if neighbour is obstacle then neighbour Value has zero velocity
+    //and equal pressure except for z direction which has pressure
+    //to give -9.8 derivative.
+    //
+    //if neighbour is boundary then neighbour Value has it's velocity
+    //and pressure except for the z direction which has pressure to 
+    //give -9.8 derivative
+    implicit def value(x: Option[Double]): Value =
+      values(position.modify(direction, x.getOrElse(unexpected)))
+
+    val nv2 = nv.map(toRelativeValue(values, position, direction, _))
+    def overrideValues(p: Vector) =
+      nv2.find(p === _._1) match {
+        case Some((_, y: Value)) => y
+        case None => values(p)
+      }
+    val solver = new RegularGridSolver(grid,
+      overrideValues _, validate = false)
+    return solver.getGradient(position, direction, f, values,
+      relativeTo, derivativeType)
+  }
+
+  private def toRelativeValue(values: Vector => Value, position: Vector,
+    direction: Direction,
+    n: Tuple2[Double, Value]): Tuple2[Vector, Value] =
+    BoundaryStrategy.applyBoundaryStrategy(position,
+      values(position), direction, n)
+
+  //TODO unit test this
+  private object Val {
+    def toVal(position: Vector, value: Value, direction: Direction): Val = {
+      if (value.isBoundary(direction))
+        return Boundary(position, value)
+      else if (value.isObstacle)
+        return Obstacle(position, value)
+      else
+        return Point(position, value)
+    }
+
+  }
+
+  private class Val(position: Vector, value: Value)
+  private case class Point(position: Vector, value: Value) extends Val(position, value)
+  private case class Boundary(position: Vector, value: Value) extends Val(position, value)
+  private case class Obstacle(position: Vector, value: Value) extends Val(position, value)
+
+  import Val._
+
+  def getGradient(p1: Option[(Vector, Value)], p2: (Vector, Value),
+    p3: Option[(Vector, Value)], direction: Direction, relativeTo: Vector,
+    derivativeType: Derivative, f: PositionFunction): Double = {
+
+    val positiveDirection = p2._1.get(direction) - relativeTo.get(direction) > 0;
+    if (positiveDirection) {
+
+    } else {
+
+    }
+    unexpected
+  }
+
+  def getGradient(grid: Grid, position: Vector, direction: Direction,
+    f: PositionFunction, values: Vector => Value, relativeTo: Option[Vector],
+    derivativeType: Derivative): Double = {
+
+    val value = values(position)
+    if (value.isObstacle)
+      return getGradientAtObstacle(grid, position, direction,
+        f, values, relativeTo, derivativeType)
+    else if (value.isBoundary(direction))
+      //TODO boundary gradient should be calculated as below?
+      return 0;
+    else {
+      val n = getNeighbours(grid, position, direction)
+      implicit def value(x: Option[Double]): Value =
+        values(position.modify(direction, x.getOrElse(unexpected)))
+      //any cell that is not boundary or obstacle should have 
+      //neighbours in both directions
+
+      val n2 = n.map(x => x match {
+        case a: Some[Double] => a
+        case None => Some(position.get(direction))
+      })
+      val nv = n2.map(x => (x.getOrElse(throw new RuntimeException(
+        "map value in " + n +
+          " not found for " + x +
+          ". position=" + position +
+          ",direction=" + direction +
+          ",value=" + values(position))), value(x)))
+      if (nv.exists(_._2.isBoundaryOrObstacle(direction))) {
+        return getGradientNearBoundary(grid, values, nv,
+          position, direction, f, relativeTo, derivativeType)
+      } else
+        return RegularGridSolver.getGradient(position, direction, n,
+          f, values, derivativeType)
+    }
+  }
+
 }
 
 /**
@@ -752,77 +861,9 @@ class RegularGridSolver(grid: Grid,
 
   override def getGradient(position: Vector, direction: Direction,
     f: PositionFunction, values: Vector => Value, relativeTo: Option[Vector],
-    derivativeType: Derivative): Double = {
-
-    val value = getValue(position)
-    if (value.isObstacle)
-      return getGradientAtObstacle(grid, position, direction,
-        f, values, relativeTo, derivativeType)
-    else if (value.isBoundary(direction))
-      //TODO boundary gradient should be calculated as below?
-      return 0;
-    else {
-      val n = getNeighbours(grid, position, direction)
-      implicit def value(x: Option[Double]): Value =
-        getValue(position.modify(direction, x.getOrElse(unexpected)))
-      //any cell that is not boundary or obstacle should have 
-      //neighbours in both directions
-
-      val n2 = n.map(x => x match {
-        case a: Some[Double] => a
-        case None => Some(position.get(direction))
-      })
-      val nv = n2.map(x => (x.getOrElse(throw new RuntimeException(
-        "map value in " + n +
-          " not found for " + x +
-          ". position=" + position +
-          ",direction=" + direction +
-          ",value=" + getValue(position))), value(x)))
-      if (nv.exists(_._2.isBoundaryOrObstacle(direction))) {
-        return getGradientNearBoundary(grid, nv,
-          position, direction, f, relativeTo, derivativeType)
-      } else
-        return RegularGridSolver.getGradient(position, direction, n,
-          f, values, derivativeType)
-    }
-  }
-
-  private def getGradientNearBoundary(grid: Grid,
-    nv: ((Double, Value), (Double, Value)), position: Vector,
-    direction: Direction, f: PositionFunction,
-    relativeTo: Option[Vector], derivativeType: Derivative): Double = {
-    //if one neighbour is obstacle or boundary then call getGradient on 
-    //same new Solver which overrides the Values at the neighbour positions
-    //to indicate that they are NOT obstacles or boundaries (to terminate 
-    //the recursion) and follow the following rules:
-    //
-    //if neighbour is obstacle then neighbour Value has zero velocity
-    //and equal pressure except for z direction which has pressure
-    //to give -9.8 derivative.
-    //
-    //if neighbour is boundary then neighbour Value has it's velocity
-    //and pressure except for the z direction which has pressure to 
-    //give -9.8 derivative
-    implicit def value(x: Option[Double]): Value =
-      getValue(position.modify(direction, x.getOrElse(unexpected)))
-
-    val nv2 = nv.map(toRelativeValue(position, direction, _))
-    def overrideValues(p: Vector) =
-      nv2.find(p === _._1) match {
-        case Some((_, y: Value)) => y
-        case None => getValue(p)
-      }
-    val solver = new RegularGridSolver(grid,
-      overrideValues _, validate = false)
-    return solver.getGradient(position, direction, f, values,
-      relativeTo, derivativeType)
-  }
-
-  private def toRelativeValue(position: Vector,
-    direction: Direction,
-    n: Tuple2[Double, Value]): Tuple2[Vector, Value] =
-    BoundaryStrategy.applyBoundaryStrategy(position,
-      getValue(position), direction, n)
+    derivativeType: Derivative): Double =
+    return RegularGridSolver.getGradient(grid, position, direction,
+      f, values, relativeTo, derivativeType);
 
   override def step(timestep: Double): Solver = {
     info("creating parallel collection")
