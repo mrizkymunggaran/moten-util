@@ -609,7 +609,8 @@ class RichTuple2[A](t: Tuple2[A, A]) {
   def map[B](f: A => B): Tuple2[B, B] = (f(t._1), f(t._2))
   def exists(f: A => Boolean) = f(t._1) || f(t._2)
   def find(f: A => Boolean) =
-    if (f(t._1)) Some(t._1) else if (f(t._2)) Some(t._2) else None
+    if (f(t._1)) Some(t._1)
+    else if (f(t._2)) Some(t._2) else None
 }
 
 /**
@@ -778,14 +779,13 @@ object RegularGridSolver {
   def getGradient(p1: Option[(Vector, Value)], p2: (Vector, Value),
     p3: Option[(Vector, Value)], direction: Direction, relativeTo: Vector,
     derivativeType: Derivative, f: PositionFunction): Double = {
-
-    val positiveDirection = p2._1.get(direction) - relativeTo.get(direction) > 0;
-    if (positiveDirection) {
-
-    } else {
+    val isBoundary = p2._2.isBoundary(direction)
+    val isObstacle = p2._2.isObstacle
+    val isPoint = !isBoundary && !isObstacle
+    if (isBoundary || isObstacle) {
 
     }
-    unexpected
+    0
   }
 
   def getGradient(grid: Grid, position: Vector, direction: Direction,

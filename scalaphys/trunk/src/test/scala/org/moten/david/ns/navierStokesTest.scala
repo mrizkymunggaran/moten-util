@@ -259,3 +259,35 @@ class GridDataTest {
     assertEquals(Map(), getDirectionalNeighbours(Set(zero)))
   }
 }
+
+/**
+ * P = Point
+ * O = Obstacle
+ * B = Boundary
+ *
+ * Test Cases
+ *
+ * PPP
+ * PPO
+ * PPB
+ * PO*
+ * PB*
+ *
+ * Use function values sqrt of different prime numbers
+ *
+ */
+@Test
+class RegularGridSolverTest {
+
+  @Test
+  def check() {
+    val grid = Grid(Set())
+    def values(v: Vector) = { null }
+    val solver = new RegularGridSolver(grid, values, validate = false)
+    //    override def getGradient(position: Vector, direction: Direction,
+    //    f: PositionFunction, values: Vector => Value, relativeTo: Option[Vector],
+    //    derivativeType: Derivative): Double = {
+
+  }
+
+}
