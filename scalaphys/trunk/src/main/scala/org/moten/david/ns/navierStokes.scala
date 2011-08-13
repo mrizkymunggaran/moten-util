@@ -136,7 +136,7 @@ case class Vector(x: Double, y: Double, z: Double) {
 }
 
 /**
- * Companion object for Vector}.
+ * Companion object for Vector.
  */
 object Vector {
   import Double._
@@ -164,63 +164,55 @@ case class Matrix(row1: Vector, row2: Vector, row3: Vector) {
   def *(v: Vector) = Vector(row1 * v, row2 * v, row3 * v)
 }
 
+trait HasPosition {
+  def position: Vector
+}
+
+trait HasValue {
+  def value: Value
+}
+
+case class Boundary(position: Vector, value: Value)
+  extends HasPosition with HasValue
+
+case class Point(position: Vector, value: Value)
+  extends HasPosition with HasValue
+
+case class Obstacle(position: Vector, value: Value)
+  extends HasPosition with HasValue
+
 /**
  * Measures the velocity and pressure field and water
  * properties for a given position.
  */
-case class Value(
+case class Value(position: Vector,
   velocity: Vector, pressure: Double,
-  density: Double, viscosity: Double, isObstacle: Boolean,
-  boundary: Map[Direction, Boolean]) {
+  density: Double, viscosity: Double) extends HasPosition {
+
   /**
    * Returns a copy of this with pressure modified.
    * @param p
    * @return
    */
-  def modifyPressure(p: Double) = {
-    Value(velocity, p, density, viscosity, isObstacle, boundary)
-  }
+  def modifyPressure(p: Double) =
+    new Value(position, velocity, p, density, viscosity)
 
-  /**
-   * Returns a copy of this with obstacle and boundary values set to false.
-   * @return
-   */
-  def setNotBoundaryOrObstacle =
-    Value(velocity, pressure, density, viscosity, false, Value.NoBoundary)
   /**
    * Returns a copy of this with velocity modified.
    * @param vel
    * @return
    */
-  def modifyVelocity(vel: Vector) = {
-    Value(vel, pressure, density, viscosity, isObstacle, boundary)
-  }
+  def modifyVelocity(vel: Vector) =
+    new Value(position, vel, pressure, density, viscosity)
 
-  /**
-   * Returns true if is a boundary in the given direction.
-   * @param direction
-   * @return
-   */
-  def isBoundary(direction: Direction): Boolean = {
-    boundary.get(direction) match {
-      case None => throw new RuntimeException("boundary info not found")
-      case Some(x) => x
-    }
-  }
-  /**
-   * Returns true if and only if the position is a boundary or obstacle.
-   * @param direction
-   * @return
-   */
-  def isBoundaryOrObstacle(direction: Direction) =
-    isObstacle || isBoundary(direction)
 }
 
 /**
  * Companion object.
  */
 object Value {
-  val NoBoundary = Map(X -> false, Y -> false, Z -> false)
+  implicit def toValue(v: HasValue) = v.value
+  def isObstacle(v: Value) = v.isInstanceOf[Obstacle]
 }
 
 /**
@@ -254,6 +246,7 @@ object Solver {
  */
 trait Solver {
   import Solver._
+  import Value._
 
   /**
    * ************************************************
@@ -272,7 +265,7 @@ trait Solver {
    * @param vector
    * @return
    */
-  def getValue(position: Vector): Value
+  def getValue(position: Vector): HasValue
 
   /**
    * Returns a [[org.moten.david.ns.SolverFactory]] to create a new instance
@@ -354,7 +347,7 @@ trait Solver {
     val pressureGradient: Vector = getPressureGradient(position)
     val velocityJacobian: Matrix = getVelocityJacobian(position)
     val divergenceOfStress =
-      velocityLaplacian * value.viscosity minus pressureGradient
+      velocityLaplacian * value.value.viscosity minus pressureGradient
     debug("velocityLaplacian" + velocityLaplacian)
     debug("pressureGradient=" + pressureGradient)
     debug("velocityJacobian=" + velocityJacobian)
@@ -383,7 +376,7 @@ trait Solver {
    * @return
    */
   private def getVelocityAfterTime(position: Vector, timeDelta: Double) =
-    getValue(position).velocity.add(dvdt(position) * timeDelta)
+    getValue(position).value.velocity.add(dvdt(position) * timeDelta)
 
   /**
    * Returns the Conservation of Mass (Continuity) Equation described by the
@@ -435,7 +428,9 @@ trait Solver {
     debug("getting value after time at " + position)
     val value = getValue(position)
     debug("value=" + value)
-    if (value.isObstacle) return value
+    value.value match {
+      case o: Obstacle => return value
+    }
     val v1 = getVelocityAfterTime(position, timeDelta)
     debug("v1=" + v1)
     val f = getPressureCorrection(position, v1, timeDelta)(_)
@@ -586,12 +581,11 @@ object Grid {
    * @param vectors
    * @return
    */
-  def getExtremes(vectors: Set[Vector]): Direction => (Double, Double) = {
+  def getExtremes(vectors: Set[Vector]): Direction => (Double, Double) =
     directions.map(d => {
       val list = vectors.map(_.get(d)).toList
       (d, (list.min, list.max))
     }).toMap.getOrElse(_, unexpected)
-  }
 }
 
 /**
@@ -620,53 +614,11 @@ object RichTuple2 {
   implicit def toRichTuple[A](t: Tuple2[A, A]) = new RichTuple2(t)
 }
 
-/**
- * Boundary strategy
- */
-object BoundaryStrategy {
-
-  /**
-   * Returns the relative Value (especially for boundary and obstacle Values)
-   *  of the neighbour n of position with Value value.
-   * @param position
-   * @param value
-   * @param direction
-   * @param n
-   * @return
-   */
-  def applyBoundaryStrategy(position: Vector, value: Value,
-    direction: Direction,
-    n: Tuple2[Double, Value]): Tuple2[Vector, Value] =
-    {
-      val neighbour = position.modify(direction, n._1)
-      if (n._2.isObstacle) {
-        val value2 = value
-          .modifyVelocity(zero)
-          .modifyPressure(
-            if (direction equals Z)
-              value.pressure - 9.8 * (n._1 - position.get(direction))
-            else
-              value.pressure)
-            .setNotBoundaryOrObstacle
-        return (neighbour, value2)
-      } else if (n._2 isBoundary (direction)) {
-        val value2 = value
-          .modifyPressure(
-            if (direction equals Z)
-              value.pressure - 9.8 * (n._1 - position.get(direction))
-            else
-              n._2.pressure)
-            .setNotBoundaryOrObstacle
-        return (neighbour, value2)
-      } else
-        return (neighbour, n._2)
-    }
-}
-
 object RegularGridSolver {
   import scala.math._
   import Solver._
   import RichTuple2._
+  import Value._
 
   def getGradient(position: Vector, direction: Direction,
     n: Tuple2[Option[Double], Option[Double]],
@@ -697,7 +649,7 @@ object RegularGridSolver {
 
   def getGradientAtObstacle(grid: Grid, position: Vector,
     direction: Direction, f: PositionFunction, values: Vector => Value,
-    relativeTo: Option[Vector], derivativeType: Derivative): Double = {
+    relativeTo: Option[Vector], derivativeType: Derivative): Double =
     relativeTo match {
       case None => unexpected("""relativeTo must be supplied as a protected
  non-empty parameter if obstacle/boundary gradient is being calculated""")
@@ -713,116 +665,16 @@ object RegularGridSolver {
           direction, n2, f, values, derivativeType)
       }
     }
-  }
 
   def getNeighbours(grid: Grid, position: Vector,
     d: Direction): Tuple2[Option[Double], Option[Double]] =
     grid.neighbours.getOrElse((d, position.get(d)), unexpected)
 
-  private def getGradientNearBoundary(grid: Grid, values: Vector => Value,
-    nv: ((Double, Value), (Double, Value)), position: Vector,
-    direction: Direction, f: PositionFunction,
-    relativeTo: Option[Vector], derivativeType: Derivative): Double = {
-    //if one neighbour is obstacle or boundary then call getGradient on 
-    //same new Solver which overrides the Values at the neighbour positions
-    //to indicate that they are NOT obstacles or boundaries (to terminate 
-    //the recursion) and follow the following rules:
-    //
-    //if neighbour is obstacle then neighbour Value has zero velocity
-    //and equal pressure except for z direction which has pressure
-    //to give -9.8 derivative.
-    //
-    //if neighbour is boundary then neighbour Value has it's velocity
-    //and pressure except for the z direction which has pressure to 
-    //give -9.8 derivative
-    implicit def value(x: Option[Double]): Value =
-      values(position.modify(direction, x.getOrElse(unexpected)))
-
-    val nv2 = nv.map(toRelativeValue(values, position, direction, _))
-    def overrideValues(p: Vector) =
-      nv2.find(p === _._1) match {
-        case Some((_, y: Value)) => y
-        case None => values(p)
-      }
-    val solver = new RegularGridSolver(grid,
-      overrideValues _, validate = false)
-    return solver.getGradient(position, direction, f, values,
-      relativeTo, derivativeType)
-  }
-
-  private def toRelativeValue(values: Vector => Value, position: Vector,
-    direction: Direction,
-    n: Tuple2[Double, Value]): Tuple2[Vector, Value] =
-    BoundaryStrategy.applyBoundaryStrategy(position,
-      values(position), direction, n)
-
-  //TODO unit test this
-  private object Val {
-    def toVal(position: Vector, value: Value, direction: Direction): Val = {
-      if (value.isBoundary(direction))
-        return Boundary(position, value)
-      else if (value.isObstacle)
-        return Obstacle(position, value)
-      else
-        return Point(position, value)
-    }
-
-  }
-
-  private class Val(position: Vector, value: Value)
-  private case class Point(position: Vector, value: Value) extends Val(position, value)
-  private case class Boundary(position: Vector, value: Value) extends Val(position, value)
-  private case class Obstacle(position: Vector, value: Value) extends Val(position, value)
-
-  import Val._
-
-  def getGradient(p1: Option[(Vector, Value)], p2: (Vector, Value),
-    p3: Option[(Vector, Value)], direction: Direction, relativeTo: Vector,
-    derivativeType: Derivative, f: PositionFunction): Double = {
-    val isBoundary = p2._2.isBoundary(direction)
-    val isObstacle = p2._2.isObstacle
-    val isPoint = !isBoundary && !isObstacle
-    if (isBoundary || isObstacle) {
-
-    }
-    0
-  }
-
   def getGradient(grid: Grid, position: Vector, direction: Direction,
     f: PositionFunction, values: Vector => Value, relativeTo: Option[Vector],
     derivativeType: Derivative): Double = {
-
-    val value = values(position)
-    if (value.isObstacle)
-      return getGradientAtObstacle(grid, position, direction,
-        f, values, relativeTo, derivativeType)
-    else if (value.isBoundary(direction))
-      //TODO boundary gradient should be calculated as below?
-      return 0;
-    else {
-      val n = getNeighbours(grid, position, direction)
-      implicit def value(x: Option[Double]): Value =
-        values(position.modify(direction, x.getOrElse(unexpected)))
-      //any cell that is not boundary or obstacle should have 
-      //neighbours in both directions
-
-      val n2 = n.map(x => x match {
-        case a: Some[Double] => a
-        case None => Some(position.get(direction))
-      })
-      val nv = n2.map(x => (x.getOrElse(throw new RuntimeException(
-        "map value in " + n +
-          " not found for " + x +
-          ". position=" + position +
-          ",direction=" + direction +
-          ",value=" + values(position))), value(x)))
-      if (nv.exists(_._2.isBoundaryOrObstacle(direction))) {
-        return getGradientNearBoundary(grid, values, nv,
-          position, direction, f, relativeTo, derivativeType)
-      } else
-        return RegularGridSolver.getGradient(position, direction, n,
-          f, values, derivativeType)
-    }
+    //TODO 
+    0
   }
 
 }
@@ -840,14 +692,14 @@ class RegularGridSolver(grid: Grid,
   import scala.math._
   import RegularGridSolver._
 
+  if (validate)
+    info("validated")
+
   def this(positions: Set[Vector], values: Vector => Value) =
     this(Grid(positions), values, true);
 
   def this(map: Map[Vector, Value]) =
     this(Grid(map.keySet), map.getOrElse(_: Vector, unexpected), true)
-
-  if (validate)
-    info("validated")
 
   override def getValue(vector: Vector): Value =
     values(vector)
