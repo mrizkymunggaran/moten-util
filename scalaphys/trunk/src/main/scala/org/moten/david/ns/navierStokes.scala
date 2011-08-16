@@ -677,6 +677,16 @@ object RegularGridSolver {
     0
   }
 
+  def getGradient(f: PositionFunction, v1: HasPosition, v2: HasPosition, v3: HasPosition,
+    direction: Direction, relativeTo: Option[Vector],
+    derivativeType: Derivative): Double = {
+
+    (v1, v2, v3) match {
+      case (_: Point, _: Point, _: Point) => 0
+      case _ => unexpected
+    }
+  }
+
 }
 
 /**
