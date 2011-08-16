@@ -677,16 +677,28 @@ object RegularGridSolver {
     0
   }
 
+  def todo = throw new RuntimeException("not implemented, TODO")
+
   def getGradient(f: PositionFunction, v1: HasPosition, v2: HasPosition, v3: HasPosition,
     direction: Direction, relativeTo: Option[Vector],
     derivativeType: Derivative): Double = {
 
+    type O = Obstacle
+    type P = Point
+    type A = HasPosition
+    type B = Boundary
+
     (v1, v2, v3) match {
-      case (_: Point, _: Point, _: Point) => 0
+      case v: (P, P, P) => todo
+      case v: (O, P, A) => todo
+      case v: (A, P, O) => todo
+      case v: (B, P, A) => todo
+      case v: (A, P, B) => todo
+      case v: (A, O, A) => todo
+      case v: (A, B, A) => todo
       case _ => unexpected
     }
   }
-
 }
 
 /**
