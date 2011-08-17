@@ -178,8 +178,10 @@ case class Boundary(position: Vector, value: Value)
 case class Point(position: Vector, value: Value)
   extends HasPosition with HasValue
 
-case class Obstacle(position: Vector, value: Value)
-  extends HasPosition with HasValue
+case class Obstacle(position: Vector)
+  extends HasPosition
+
+case class Empty(position: Vector) extends HasPosition
 
 /**
  * Measures the velocity and pressure field and water
@@ -673,8 +675,7 @@ object RegularGridSolver {
   def getGradient(grid: Grid, position: Vector, direction: Direction,
     f: PositionFunction, values: Vector => Value, relativeTo: Option[Vector],
     derivativeType: Derivative): Double = {
-    //TODO 
-    0
+    todo
   }
 
   def todo = throw new RuntimeException("not implemented, TODO")
@@ -687,6 +688,12 @@ object RegularGridSolver {
     type P = Point
     type A = HasPosition
     type B = Boundary
+    type E = Empty
+
+    //sign = 0 if no relativeTo and v2 is Point
+    //sign= 1 if relativeTo is on the v3 side 
+    //sign = -1 if relativeTo is on the v1 side
+    val sign = getSign(v2, relativeTo, direction)
 
     (v1, v2, v3) match {
       case v: (P, P, P) => todo
@@ -694,9 +701,32 @@ object RegularGridSolver {
       case v: (A, P, O) => todo
       case v: (B, P, A) => todo
       case v: (A, P, B) => todo
+      case v: (E, O, P) => todo
+      case v: (P, O, E) => todo
       case v: (A, O, A) => todo
       case v: (A, B, A) => todo
       case _ => unexpected
+    }
+  }
+
+  private def getGradient(f: Point => Double, p1: Point, p2: Point, p3: Point,
+    direction: Direction, relativeTo: Option[Vector],
+    derivativeType: Derivative): Double = {
+    derivativeType match {
+      case FirstDerivative =>
+        (f(p3) - f(p1)) / (p3.position.get(direction) - p1.position.get(direction))
+      case SecondDerivative =>
+        (f(p3) + f(p1) - 2 * f(p2)) / (p3.position.get(direction) - p1.position.get(direction))
+      case _ => unexpected
+    }
+  }
+
+  private def getSign(x: HasPosition, relativeTo: Option[Vector], direction: Direction): Double = {
+    relativeTo match {
+      case None => if (!Point.getClass.isInstance(x))
+        throw new RuntimeException("relativeTo must be specified if calculating gradient at an obstacle or boundary")
+      else 0
+      case Some(v: Vector) => Math.signum(x.position.get(direction) - v.get(direction))
     }
   }
 }
