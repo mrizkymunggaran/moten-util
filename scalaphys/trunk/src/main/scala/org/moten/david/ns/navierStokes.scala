@@ -146,11 +146,15 @@ trait HasValue {
 
 trait PositionValue extends HasPosition with HasValue
 
-case class Boundary(position: Vector, value: Value)
-  extends PositionValue
+case class Boundary(value: Value)
+  extends PositionValue {
+  def position = value.position
+}
 
-case class Point(position: Vector, value: Value)
-  extends PositionValue
+case class Point(value: Value)
+  extends PositionValue {
+  def position = value.position
+}
 
 case class Obstacle(position: Vector)
   extends HasPosition
@@ -180,6 +184,9 @@ case class Value(position: Vector,
    */
   def modifyVelocity(vel: Vector) =
     new Value(position, vel, pressure, density, viscosity)
+
+  def modifyPosition(pos: Vector) =
+    new Value(pos, velocity, pressure, density, viscosity)
 
 }
 
@@ -424,7 +431,7 @@ trait Solver {
         case Some(a) => if (a < 0) value.pressure else a
       }
     debug("newPressure=" + newPressure + "old=" + value.pressure)
-    return value.modifyPressure(newPressure).modifyVelocity(v1)
+    return value.value.modifyPressure(newPressure).modifyVelocity(v1)
   }
 
   /**
@@ -584,9 +591,9 @@ case class Grid(positions: Set[Vector]) {
 //////////////////////////////////////////////////////////////////////////////////
 
 trait Sign
-case class PositiveSign extends Sign
-case class NegativeSign extends Sign
-case class ZeroSign extends Sign
+case class PositiveSign() extends Sign
+case class NegativeSign() extends Sign
+case class ZeroSign() extends Sign
 
 object Sign {
   val Positive = PositiveSign()
@@ -652,7 +659,7 @@ object RegularGridSolver {
   }
 
   private def obstacleToPoint(o: Obstacle, point: PositionValue): Point = {
-    return Point(o.position, point.value.modifyVelocity(Vector.zero))
+    return Point(point.value.modifyVelocity(Vector.zero).modifyPosition(o.position))
   }
 
   private def getGradient(f: PositionValue => Double,
@@ -701,7 +708,7 @@ object RegularGridSolver {
  * calculations (both first and second derivatives).
  */
 class RegularGridSolver(grid: Grid,
-  values: Vector => Value, validate: Boolean) extends Solver {
+  values: Vector => HasValue, validate: Boolean) extends Solver {
   import Solver._
   import Grid._
   import scala.math._
@@ -710,19 +717,19 @@ class RegularGridSolver(grid: Grid,
   if (validate)
     info("validated")
 
-  def this(positions: Set[Vector], values: Vector => Value) =
+  def this(positions: Set[Vector], values: Vector => HasValue) =
     this(Grid(positions), values, true);
 
-  def this(map: Map[Vector, Value]) =
+  def this(map: Map[Vector, HasValue]) =
     this(Grid(map.keySet), map.getOrElse(_: Vector, unexpected), true)
 
-  override def getValue(vector: Vector): Value =
+  override def getValue(vector: Vector): HasValue =
     values(vector)
 
   override def getPositions = grid.positions
 
   override val getSolverFactory = new SolverFactory {
-    def create(overrideValues: Vector => Value) =
+    def create(overrideValues: Vector => HasValue) =
       new RegularGridSolver(grid, overrideValues, validate = false)
   }
 
