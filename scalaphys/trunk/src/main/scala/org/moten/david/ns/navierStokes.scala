@@ -10,6 +10,10 @@
  */
 package org.moten.david.ns
 
+//////////////////////////////////////////////////////////////////////////////////
+// Utilities                       
+//////////////////////////////////////////////////////////////////////////////////
+
 /**
  * Logs to System.out with a timestamp.
  */
@@ -39,6 +43,9 @@ object Throwing {
 
 import Throwing._
 
+//////////////////////////////////////////////////////////////////////////////////
+// Simple Types and Companions                                                                        
+//////////////////////////////////////////////////////////////////////////////////
 /**
  * X,Y horizontal coordinates (arbitrary coordinate system).
  * Z is height above sea level in m (all calculations
@@ -75,12 +82,6 @@ case class Vector(x: Double, y: Double, z: Double) {
   def this(t: Tuple3[Double, Double, Double]) {
     this(t._1, t._2, t._3)
   }
-  /**
-   * Returns the value of the vector for the given direction.
-   *
-   * @param direction
-   * @return
-   */
   def get(direction: Direction): Double = {
     direction match {
       case X => x
@@ -88,39 +89,10 @@ case class Vector(x: Double, y: Double, z: Double) {
       case Z => z
     }
   }
-  /**
-   * Returns the dot product with another `Vector`.
-   * @param v
-   * @return
-   */
   def *(v: Vector) = x * v.x + y * v.y + z * v.z
-
-  /**
-   * Returns the scalar product of this with a `Double` value.
-   * @param d
-   * @return
-   */
   def *(d: Double) = Vector(x * d, y * d, z * d)
-
-  /**
-   * Returns difference of this with the given `Vector`.
-   * @param v
-   * @return
-   */
   def minus(v: Vector) = Vector(x - v.x, y - v.y, z - v.z)
-
-  /**
-   * Returns difference of this with the given `Vector`.
-   * @param v
-   * @return
-   */
   def -(v: Vector) = minus(v)
-
-  /**
-   * Returns the sum of this and the given `Vector`.
-   * @param v
-   * @return
-   */
   def +(v: Vector) = add(v)
   def add(v: Vector) = Vector(x + v.x, y + v.y, z + v.z)
   def /(d: Double) = Vector(x / d, y / d, z / d)
@@ -218,6 +190,10 @@ object Value {
   implicit def toValue(v: HasValue) = v.value
   def isObstacle(v: Value) = v.isInstanceOf[Obstacle]
 }
+
+//////////////////////////////////////////////////////////////////////////////////
+// Solver                      
+//////////////////////////////////////////////////////////////////////////////////
 
 /**
  * Factory for creating a solver from another.
@@ -549,6 +525,10 @@ trait Solver {
     .map(v => (v, getValue(v)).toString + "\n").toString
 }
 
+//////////////////////////////////////////////////////////////////////////////////
+// Grid                      
+//////////////////////////////////////////////////////////////////////////////////
+
 /**
  * Utility methods for a Grid of 3D points.
  */
@@ -599,24 +579,9 @@ case class Grid(positions: Set[Vector]) {
   val neighbours = Grid.getDirectionalNeighbours(positions)
 }
 
-/**
- * An enrichment of the Tuple2 api for one generic type.
- * @param <A>
- */
-class RichTuple2[A](t: Tuple2[A, A]) {
-  def map[B](f: A => B): Tuple2[B, B] = (f(t._1), f(t._2))
-  def exists(f: A => Boolean) = f(t._1) || f(t._2)
-  def find(f: A => Boolean) =
-    if (f(t._1)) Some(t._1)
-    else if (f(t._2)) Some(t._2) else None
-}
-
-/**
- * Implicit conversion to RichTuple.
- */
-object RichTuple2 {
-  implicit def toRichTuple[A](t: Tuple2[A, A]) = new RichTuple2(t)
-}
+//////////////////////////////////////////////////////////////////////////////////
+// RegularGridSolver                                                                        
+//////////////////////////////////////////////////////////////////////////////////
 
 trait Sign
 case class PositiveSign extends Sign
@@ -632,54 +597,7 @@ object Sign {
 object RegularGridSolver {
   import scala.math._
   import Solver._
-  import RichTuple2._
   import Value._
-
-  def getGradient(position: Vector, direction: Direction,
-    n: Tuple2[Option[Double], Option[Double]],
-    f: PositionFunction, values: Vector => Value,
-    derivativeType: Derivative): Double = {
-
-    val t: Tuple2[Double, Double] = n match {
-      case (Some(n1), Some(n2)) => (n1, n2)
-      case (None, Some(n2)) => unexpected
-      case (Some(n1), None) => unexpected
-      case _ => unexpected
-    }
-    getGradient(
-      (t._1, f(values, position.modify(direction, t._1))),
-      (position.get(direction), f(values, position)),
-      (t._2, f(values, position.modify(direction, t._2))),
-      derivativeType)
-  }
-
-  private type Pair = (Double, Double)
-
-  private def getGradient(a1: Pair, a: Pair, a2: Pair,
-    derivativeType: Derivative): Double =
-    if (derivativeType equals FirstDerivative)
-      (a2._2 - a1._2) / (a2._1 - a1._1)
-    else
-      (a2._2 + a1._2 - 2 * a._2) / (a2._1 - a1._1)
-
-  def getGradientAtObstacle(grid: Grid, position: Vector,
-    direction: Direction, f: PositionFunction, values: Vector => Value,
-    relativeTo: Option[Vector], derivativeType: Derivative): Double =
-    relativeTo match {
-      case None => unexpected("""relativeTo must be supplied as a protected
- non-empty parameter if obstacle/boundary gradient is being calculated""")
-      case Some(x) => {
-        //get the neighbour in direction closest to relativeTo
-        val n = getNeighbours(grid, position, direction)
-        val sign = signum(x.get(direction) - position.get(direction))
-        val n2 = if (sign < 0)
-          (n._1, Some(position.get(direction)))
-        else
-          (Some(position.get(direction)), n._2)
-        return RegularGridSolver.getGradient(position,
-          direction, n2, f, values, derivativeType)
-      }
-    }
 
   def getNeighbours(grid: Grid, position: Vector,
     d: Direction): Tuple2[Option[Double], Option[Double]] =
@@ -705,9 +623,9 @@ object RegularGridSolver {
     type E = Empty
     type V = PositionValue //either Point or Boundary
 
-    //sign = 0 if no relativeTo and v2 is Point
-    //sign= 1 if relativeTo is on the v3 side 
-    //sign = -1 if relativeTo is on the v1 side
+    //sign = ZeroSign  if no relativeTo and v2 is Point
+    //sign= PositiveSign if relativeTo is on the v3 side 
+    //sign = NegativeSign if relativeTo is on the v1 side
     val sign = getSign(v2, relativeTo, direction)
 
     (v1, v2, v3, sign) match {
@@ -729,7 +647,6 @@ object RegularGridSolver {
       case v: (V, O, A, NegativeSign) =>
         getGradient(f, v._1, obstacleToPoint(v._2, v._1),
           direction, derivativeType)
-      case v: (A, O, A, _) => unexpected
       case _ => unexpected
     }
   }
@@ -787,7 +704,6 @@ class RegularGridSolver(grid: Grid,
   values: Vector => Value, validate: Boolean) extends Solver {
   import Solver._
   import Grid._
-  import RichTuple2._
   import scala.math._
   import RegularGridSolver._
 
@@ -831,8 +747,12 @@ class RegularGridSolver(grid: Grid,
   }
 }
 
+//////////////////////////////////////////////////////////////////////////////////
+// Newtons Method                                                                        
+//////////////////////////////////////////////////////////////////////////////////
 /**
- * Newton's Method solver for one dimensional equations in the real numbers.
+ * Newton's Method solver for one dimensional equations in
+ *  the real numbers.
  *
  */
 object NewtonsMethod {
