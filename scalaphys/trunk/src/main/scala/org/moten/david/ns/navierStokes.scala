@@ -680,7 +680,7 @@ object RegularGridSolver {
 
   def todo = throw new RuntimeException("not implemented, TODO")
 
-  def getGradient(f: PositionFunction, v1: HasPosition, v2: HasPosition, v3: HasPosition,
+  def getGradient(f: Point => Double, v1: HasPosition, v2: HasPosition, v3: HasPosition,
     direction: Direction, relativeTo: Option[Vector],
     derivativeType: Derivative): Double = {
 
@@ -696,8 +696,12 @@ object RegularGridSolver {
     val sign = getSign(v2, relativeTo, direction)
 
     (v1, v2, v3) match {
-      case v: (P, P, P) => todo
-      case v: (O, P, A) => todo
+      case v: (P, P, P) => getGradient(f, v._1, v._2, v._3, direction, derivativeType)
+      case v: (E, P, P) => getGradient(f, v._2, v._3, direction, derivativeType)
+      case v: (P, P, E) => getGradient(f, v._1, v._2, direction, derivativeType)
+      case v: (O, P, P) => getGradient(f, v._2, v._3, direction, derivativeType)
+      case v: (P, P, O) => getGradient(f, v._1, v._2, direction, derivativeType)
+      case v: (O, P, O) => unexpected
       case v: (A, P, O) => todo
       case v: (B, P, A) => todo
       case v: (A, P, B) => todo
@@ -709,14 +713,28 @@ object RegularGridSolver {
     }
   }
 
-  private def getGradient(f: Point => Double, p1: Point, p2: Point, p3: Point,
-    direction: Direction, relativeTo: Option[Vector],
+  private def getGradient(f: Point => Double,
+    p1: Point, p2: Point, p3: Point,
+    direction: Direction,
     derivativeType: Derivative): Double = {
     derivativeType match {
       case FirstDerivative =>
         (f(p3) - f(p1)) / (p3.position.get(direction) - p1.position.get(direction))
       case SecondDerivative =>
         (f(p3) + f(p1) - 2 * f(p2)) / (p3.position.get(direction) - p1.position.get(direction))
+      case _ => unexpected
+    }
+  }
+
+  private def getGradient(f: Point => Double,
+    p1: Point, p2: Point,
+    direction: Direction,
+    derivativeType: Derivative): Double = {
+    derivativeType match {
+      case FirstDerivative =>
+        (f(p2) - f(p1)) / (p2.position.get(direction) - p1.position.get(direction))
+      case SecondDerivative =>
+        0
       case _ => unexpected
     }
   }
