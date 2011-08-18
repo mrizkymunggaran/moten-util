@@ -172,11 +172,13 @@ trait HasValue {
   def value: Value
 }
 
+trait PositionValue extends HasPosition with HasValue
+
 case class Boundary(position: Vector, value: Value)
-  extends HasPosition with HasValue
+  extends PositionValue
 
 case class Point(position: Vector, value: Value)
-  extends HasPosition with HasValue
+  extends PositionValue
 
 case class Obstacle(position: Vector)
   extends HasPosition
@@ -616,6 +618,17 @@ object RichTuple2 {
   implicit def toRichTuple[A](t: Tuple2[A, A]) = new RichTuple2(t)
 }
 
+trait Sign
+case class PositiveSign extends Sign
+case class NegativeSign extends Sign
+case class ZeroSign extends Sign
+
+object Sign {
+  val Positive = PositiveSign()
+  val Negative = NegativeSign()
+  val Zero = ZeroSign();
+}
+
 object RegularGridSolver {
   import scala.math._
   import Solver._
@@ -680,7 +693,8 @@ object RegularGridSolver {
 
   def todo = throw new RuntimeException("not implemented, TODO")
 
-  def getGradient(f: Point => Double, v1: HasPosition, v2: HasPosition, v3: HasPosition,
+  def getGradient(f: PositionValue => Double,
+    v1: HasPosition, v2: HasPosition, v3: HasPosition,
     direction: Direction, relativeTo: Option[Vector],
     derivativeType: Derivative): Double = {
 
@@ -689,32 +703,43 @@ object RegularGridSolver {
     type A = HasPosition
     type B = Boundary
     type E = Empty
+    type V = PositionValue //either Point or Boundary
 
     //sign = 0 if no relativeTo and v2 is Point
     //sign= 1 if relativeTo is on the v3 side 
     //sign = -1 if relativeTo is on the v1 side
     val sign = getSign(v2, relativeTo, direction)
 
-    (v1, v2, v3) match {
-      case v: (P, P, P) => getGradient(f, v._1, v._2, v._3, direction, derivativeType)
-      case v: (E, P, P) => getGradient(f, v._2, v._3, direction, derivativeType)
-      case v: (P, P, E) => getGradient(f, v._1, v._2, direction, derivativeType)
-      case v: (O, P, P) => getGradient(f, v._2, v._3, direction, derivativeType)
-      case v: (P, P, O) => getGradient(f, v._1, v._2, direction, derivativeType)
-      case v: (O, P, O) => unexpected
-      case v: (A, P, O) => todo
-      case v: (B, P, A) => todo
-      case v: (A, P, B) => todo
-      case v: (E, O, P) => todo
-      case v: (P, O, E) => todo
-      case v: (A, O, A) => todo
-      case v: (A, B, A) => todo
+    (v1, v2, v3, sign) match {
+      case v: (V, V, V, _) =>
+        getGradient(f, v._1, v._2, v._3, direction, derivativeType)
+      case v: (E, V, V, _) =>
+        getGradient(f, v._2, v._3, direction, derivativeType)
+      case v: (V, V, E, _) =>
+        getGradient(f, v._1, v._2, direction, derivativeType)
+      case v: (A, V, O, _) =>
+        getGradient(f, v._1, v._2, obstacleToPoint(v._3, v._2),
+          direction, relativeTo, derivativeType)
+      case v: (O, V, A, _) =>
+        getGradient(f, obstacleToPoint(v._1, v._2), v._2, v._3,
+          direction, relativeTo, derivativeType)
+      case v: (A, O, V, PositiveSign) =>
+        getGradient(f, obstacleToPoint(v._2, v._3), v._3,
+          direction, derivativeType)
+      case v: (V, O, A, NegativeSign) =>
+        getGradient(f, v._1, obstacleToPoint(v._2, v._1),
+          direction, derivativeType)
+      case v: (A, O, A, _) => unexpected
       case _ => unexpected
     }
   }
 
-  private def getGradient(f: Point => Double,
-    p1: Point, p2: Point, p3: Point,
+  private def obstacleToPoint(o: Obstacle, point: PositionValue): Point = {
+    return Point(o.position, point.value.modifyVelocity(Vector.zero))
+  }
+
+  private def getGradient(f: PositionValue => Double,
+    p1: PositionValue, p2: PositionValue, p3: PositionValue,
     direction: Direction,
     derivativeType: Derivative): Double = {
     derivativeType match {
@@ -726,8 +751,8 @@ object RegularGridSolver {
     }
   }
 
-  private def getGradient(f: Point => Double,
-    p1: Point, p2: Point,
+  private def getGradient(f: PositionValue => Double,
+    p1: PositionValue, p2: PositionValue,
     direction: Direction,
     derivativeType: Derivative): Double = {
     derivativeType match {
@@ -739,12 +764,16 @@ object RegularGridSolver {
     }
   }
 
-  private def getSign(x: HasPosition, relativeTo: Option[Vector], direction: Direction): Double = {
+  private def getSign(x: HasPosition, relativeTo: Option[Vector], direction: Direction): Sign = {
     relativeTo match {
       case None => if (!Point.getClass.isInstance(x))
         throw new RuntimeException("relativeTo must be specified if calculating gradient at an obstacle or boundary")
-      else 0
-      case Some(v: Vector) => Math.signum(x.position.get(direction) - v.get(direction))
+      else Sign.Zero
+      case Some(v: Vector) =>
+        if (Math.signum(x.position.get(direction) - v.get(direction)) > 0)
+          Sign.Positive
+        else
+          Sign.Negative
     }
   }
 }
