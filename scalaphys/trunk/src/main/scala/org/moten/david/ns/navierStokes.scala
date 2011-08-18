@@ -167,7 +167,7 @@ case class Empty(position: Vector) extends HasPosition
  */
 case class Value(position: Vector,
   velocity: Vector, pressure: Double,
-  density: Double, viscosity: Double) extends HasPosition {
+  density: Double, viscosity: Double) extends HasPosition with HasValue {
 
   /**
    * Returns a copy of this with pressure modified.
@@ -411,7 +411,7 @@ trait Solver {
    *  calculation a pressure correction is performed according to this
    * <a href="http://en.wikipedia.org/wiki/Pressure-correction_method">method</a>.
    */
-  def getValueAfterTime(position: Vector, timeDelta: Double): Value = {
+  def getValueAfterTime(position: Vector, timeDelta: Double): HasValue = {
     debug("getting value after time at " + position)
     val value = getValue(position)
     debug("value=" + value)
