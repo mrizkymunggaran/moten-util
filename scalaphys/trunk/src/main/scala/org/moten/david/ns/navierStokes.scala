@@ -1,3 +1,6 @@
+/////////////////////////////////////////////////////////////////////
+// Navier Stokes Solver                                                                        
+/////////////////////////////////////////////////////////////////////
 /**
  * Provides a clear and concise solver for the
  * Navier Stokes equations over a rectangular
@@ -10,9 +13,9 @@
  */
 package org.moten.david.ns
 
-//////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
 // Utilities                       
-//////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
 
 /**
  * Logs to System.out with a timestamp.
@@ -35,7 +38,8 @@ import Logger._
  */
 object Throwing {
   def unexpected =
-    throw new RuntimeException("program should not get to this point")
+    throw new RuntimeException(
+      "program should not get to this point")
 
   def unexpected(message: String) =
     throw new RuntimeException(message)
@@ -43,9 +47,9 @@ object Throwing {
 
 import Throwing._
 
-//////////////////////////////////////////////////////////////////////////////////
-// Simple Types and Companions                                                                        
-//////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
+// Direction                                                                        
+/////////////////////////////////////////////////////////////////////
 /**
  * X,Y horizontal coordinates (arbitrary coordinate system).
  * Z is height above sea level in m (all calculations
@@ -59,6 +63,9 @@ object Direction extends Enumeration {
 }
 import Direction._
 
+/////////////////////////////////////////////////////////////////////
+// Derivative
+/////////////////////////////////////////////////////////////////////
 /**
  * The derivative type.
  */
@@ -67,6 +74,10 @@ object DerivativeType extends Enumeration {
   val FirstDerivative, SecondDerivative = Value
 }
 import DerivativeType._
+
+/////////////////////////////////////////////////////////////////////
+// Vector                                
+/////////////////////////////////////////////////////////////////////
 
 /**
  * A mathematical vector in X,Y,Z space.
@@ -133,28 +144,27 @@ object VectorOrdering extends Ordering[Vector] {
  * A 3 dimensional matrix.
  */
 case class Matrix(row1: Vector, row2: Vector, row3: Vector) {
-  def *(v: Vector) = Vector(row1 * v, row2 * v, row3 * v)
+  def *(v: Vector) =
+    Vector(row1 * v, row2 * v, row3 * v)
 }
+
+/////////////////////////////////////////////////////////////////////
+// Value                                                                        
+/////////////////////////////////////////////////////////////////////
 
 trait HasPosition {
   def position: Vector
 }
 
-trait HasValue {
+trait HasValue extends HasPosition {
   def value: Value
 }
 
-trait PositionValue extends HasPosition with HasValue
-
 case class Boundary(value: Value)
-  extends PositionValue {
-  def position = value.position
-}
+  extends HasValue
 
 case class Point(value: Value)
-  extends PositionValue {
-  def position = value.position
-}
+  extends HasValue
 
 case class Obstacle(position: Vector)
   extends HasPosition
@@ -167,7 +177,8 @@ case class Empty(position: Vector) extends HasPosition
  */
 case class Value(position: Vector,
   velocity: Vector, pressure: Double,
-  density: Double, viscosity: Double) extends HasPosition with HasValue {
+  density: Double, viscosity: Double)
+  extends HasPosition with HasValue {
 
   /**
    * Returns a copy of this with pressure modified.
@@ -198,9 +209,9 @@ object Value {
   def isObstacle(v: Value) = v.isInstanceOf[Obstacle]
 }
 
-//////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
 // Solver                      
-//////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
 
 /**
  * Factory for creating a solver from another.
@@ -221,7 +232,8 @@ object Solver {
   val gravity = Vector(0, 0, -9.8)
 
   /**
-   * Returns the value of a function of interest on the Position/Value field
+   * Returns the value of a function of interest on the
+   *  Position/Value field
    */
   type PositionFunction = (Vector => Value, Vector) => Double
 
@@ -532,9 +544,9 @@ trait Solver {
     .map(v => (v, getValue(v)).toString + "\n").toString
 }
 
-//////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
 // Grid                      
-//////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
 
 /**
  * Utility methods for a Grid of 3D points.
@@ -586,9 +598,9 @@ case class Grid(positions: Set[Vector]) {
   val neighbours = Grid.getDirectionalNeighbours(positions)
 }
 
-//////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
 // RegularGridSolver                                                                        
-//////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
 
 trait Sign
 case class PositiveSign() extends Sign
@@ -618,7 +630,7 @@ object RegularGridSolver {
 
   def todo = throw new RuntimeException("not implemented, TODO")
 
-  def getGradient(f: PositionValue => Double,
+  def getGradient(f: HasValue => Double,
     v1: HasPosition, v2: HasPosition, v3: HasPosition,
     direction: Direction, relativeTo: Option[Vector],
     derivativeType: Derivative): Double = {
@@ -628,7 +640,7 @@ object RegularGridSolver {
     type A = HasPosition
     type B = Boundary
     type E = Empty
-    type V = PositionValue //either Point or Boundary
+    type V = HasValue //either Point or Boundary
 
     //sign = ZeroSign  if no relativeTo and v2 is Point
     //sign= PositiveSign if relativeTo is on the v3 side 
@@ -658,12 +670,12 @@ object RegularGridSolver {
     }
   }
 
-  private def obstacleToPoint(o: Obstacle, point: PositionValue): Point = {
+  private def obstacleToPoint(o: Obstacle, point: HasValue): Point = {
     return Point(point.value.modifyVelocity(Vector.zero).modifyPosition(o.position))
   }
 
-  private def getGradient(f: PositionValue => Double,
-    p1: PositionValue, p2: PositionValue, p3: PositionValue,
+  private def getGradient(f: HasValue => Double,
+    p1: HasValue, p2: HasValue, p3: HasValue,
     direction: Direction,
     derivativeType: Derivative): Double = {
     derivativeType match {
@@ -675,8 +687,8 @@ object RegularGridSolver {
     }
   }
 
-  private def getGradient(f: PositionValue => Double,
-    p1: PositionValue, p2: PositionValue,
+  private def getGradient(f: HasValue => Double,
+    p1: HasValue, p2: HasValue,
     direction: Direction,
     derivativeType: Derivative): Double = {
     derivativeType match {
@@ -754,9 +766,9 @@ class RegularGridSolver(grid: Grid,
   }
 }
 
-//////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
 // Newtons Method                                                                        
-//////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
 /**
  * Newton's Method solver for one dimensional equations in
  *  the real numbers.
