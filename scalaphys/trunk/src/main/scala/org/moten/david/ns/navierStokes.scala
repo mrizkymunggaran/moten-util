@@ -132,12 +132,14 @@ import Vector._
  * An ordering to help with readable String
  * representations of Vector collections.
  */
-object VectorOrdering extends Ordering[Vector] {
-  def compare(a: Vector, b: Vector): Int = {
-    if (a.z != b.z) return a.z compare b.z
-    else if (a.y != b.y) return a.y compare b.y
-    else return a.x compare b.x
-  }
+object HasPositionOrdering extends Ordering[HasPosition] {
+  override def compare(a: HasPosition, b: HasPosition): Int =
+    if (a.position.z != b.position.z)
+      return a.position.z compare b.position.z
+    else if (a.position.y != b.position.y)
+      return a.position.y compare b.position.y
+    else
+      return a.position.x compare b.position.x
 }
 
 /**
@@ -206,6 +208,7 @@ case class Value(position: Vector,
  */
 object Value {
   implicit def toValue(v: HasValue) = v.value
+  implicit def toPosition(p: HasPosition) = p.position
   def isObstacle(v: Value) = v.isInstanceOf[Obstacle]
 }
 
@@ -235,7 +238,7 @@ object Solver {
    * Returns the value of a function of interest on the
    *  Position/Value field
    */
-  type PositionFunction = (Vector => Value, Vector) => Double
+  type PositionFunction = HasValue => Double
 
 }
 
@@ -257,14 +260,14 @@ trait Solver {
    * Returns all positions.
    * @return
    */
-  def getPositions: Set[Vector]
+  def getPositions: Set[HasPosition]
 
   /**
    * Returns `Value` at a position.
    * @param vector
    * @return
    */
-  def getValue(position: Vector): HasValue
+  //  def getValue(position: Vector): HasValue
 
   /**
    * Returns a [[org.moten.david.ns.SolverFactory]] to create a new instance
@@ -286,8 +289,8 @@ trait Solver {
    * @param derivativeType
    * @return
    */
-  def getGradient(position: Vector, direction: Direction,
-    f: PositionFunction, values: Vector => Value,
+  def getGradient(position: HasPosition, direction: Direction,
+    f: PositionFunction,
     relativeTo: Option[Vector],
     derivativeType: Derivative): Double
 
@@ -310,7 +313,7 @@ trait Solver {
    * @param direction
    * @return
    */
-  private def getVelocityLaplacian(position: Vector, direction: Direction) =
+  private def getVelocityLaplacian(position: HasValue, direction: Direction) =
     getVelocityGradient2nd(position, direction).sum
 
   /**
@@ -318,7 +321,7 @@ trait Solver {
    * @param position
    * @return
    */
-  private def getVelocityLaplacian(position: Vector): Vector =
+  private def getVelocityLaplacian(position: HasValue): Vector =
     Vector(getVelocityLaplacian(position, X),
       getVelocityLaplacian(position, Y),
       getVelocityLaplacian(position, Z))
@@ -328,10 +331,16 @@ trait Solver {
    * @param position
    * @return
    */
-  private def getVelocityJacobian(position: Vector) =
+  private def getVelocityJacobian(position: HasValue) =
     Matrix(getVelocityGradient(position, X, None),
       getVelocityGradient(position, Y, None),
       getVelocityGradient(position, Z, None))
+
+  //  private def getValue(position: HasPosition): Value =
+  //    position match {
+  //      case v: HasValue => v.value
+  //      case _ => unexpected
+  //    }
 
   /**
    * Returns the derivative of velocity over time using this
@@ -340,8 +349,8 @@ trait Solver {
    * @param position
    * @return
    */
-  private def dvdt(position: Vector) = {
-    val value = getValue(position)
+  private def dvdt(position: HasValue) = {
+    val value = position.value
     val velocityLaplacian: Vector = getVelocityLaplacian(position)
     val pressureGradient: Vector = getPressureGradient(position)
     val velocityJacobian: Matrix = getVelocityJacobian(position)
@@ -365,7 +374,7 @@ trait Solver {
    * @param position
    * @return
    */
-  private def getPressureLaplacian(position: Vector) =
+  private def getPressureLaplacian(position: HasValue) =
     getPressureGradient2nd(position).sum
 
   /**
@@ -374,20 +383,20 @@ trait Solver {
    * @param timeStep
    * @return
    */
-  private def getVelocityAfterTime(position: Vector, timeDelta: Double) =
-    getValue(position).value.velocity.add(dvdt(position) * timeDelta)
+  private def getVelocityAfterTime(position: HasValue, timeDelta: Double) =
+    position.value.velocity.add(dvdt(position) * timeDelta)
 
   /**
    * Returns the Conservation of Mass (Continuity) Equation described by the
    * Navier-Stokes equations.
    */
-  private def getPressureCorrection(position: Vector, v1: Vector,
+  private def getPressureCorrection(position: HasValue, v1: Vector,
     timeDelta: Double)(pressure: Double): Double = {
-    val v = getValue(position)
+    val v = position.value
     //assume not obstacle or boundary
     val valueNext = v.modifyPressure(pressure)
     val solverWithOverridenPressureAtPosition =
-      getSolverFactory.create(x => if (x === position) valueNext else v)
+      getSolverFactory.create(x => if (x === position.value) valueNext else v)
     solverWithOverridenPressureAtPosition.getPressureCorrection(position)
   }
 
@@ -396,24 +405,23 @@ trait Solver {
    * @param position
    * @return
    */
-  private def getPressureCorrection(position: Vector): Double = {
-    val value = getValue(position)
+  private def getPressureCorrection(position: HasValue): Double = {
     val pressureLaplacian = getPressureLaplacian(position)
     return pressureLaplacian +
       directions.map(d => getGradient(position, d,
-        gradientDot(d, Some(position)), getValue, None, FirstDerivative)).sum
+        gradientDot(d, Some(position.position)), None, FirstDerivative)).sum
   }
 
   /**
-   * Returns the value of Del(Del dot v) for a given velocity vector v.
+   * Returns the value of Del(Del dot v) for a given position.
    * @param direction
    * @param relativeTo
    * @param v
    * @return
    */
   def gradientDot(direction: Direction,
-    relativeTo: Option[Vector])(values: Vector => Value, v: Vector): Double =
-    getVelocityGradient(v, direction, relativeTo) * v
+    relativeTo: Option[Vector])(v: HasValue): Double =
+    getVelocityGradient(v, direction, relativeTo) * v.velocity
 
   /**
    * Returns the` Value` at the given position after `timeDelta` in seconds
@@ -423,13 +431,26 @@ trait Solver {
    *  calculation a pressure correction is performed according to this
    * <a href="http://en.wikipedia.org/wiki/Pressure-correction_method">method</a>.
    */
-  def getValueAfterTime(position: Vector, timeDelta: Double): HasValue = {
-    debug("getting value after time at " + position)
-    val value = getValue(position)
-    debug("value=" + value)
-    value.value match {
-      case o: Obstacle => return value
+  def getValueAfterTime(position: HasPosition, timeDelta: Double): HasPosition = {
+    position match {
+      case v: HasValue => getValueAfterTime(v, timeDelta)
+      case _ => position
     }
+  }
+
+  /**
+   * Returns the` Value` at the given position after `timeDelta` in seconds
+   * by solving
+   * <a href="http://en.wikipedia.org/wiki/Navier%E2%80%93Stokes_equations#Cartesian_coordinates">
+   * a 3D formulation of the Navier-Stokes equations</a>.  After the velocity
+   *  calculation a pressure correction is performed according to this
+   * <a href="http://en.wikipedia.org/wiki/Pressure-correction_method">method</a>.
+   */
+  private def getValueAfterTime(position: HasValue, timeDelta: Double): HasValue = {
+    debug("getting value after time at " + position)
+    val value = position.value
+    debug("value=" + value)
+
     val v1 = getVelocityAfterTime(position, timeDelta)
     debug("v1=" + v1)
     val f = getPressureCorrection(position, v1, timeDelta)(_)
@@ -451,7 +472,7 @@ trait Solver {
    * @param position
    * @return
    */
-  private def getPressureGradient(position: Vector): Vector =
+  private def getPressureGradient(position: HasValue): Vector =
     new Vector(directions.map(getPressureGradient(position, _)))
 
   /**
@@ -460,12 +481,12 @@ trait Solver {
    * @param direction
    * @return
    */
-  private def getPressureGradient(position: Vector,
+  private def getPressureGradient(position: HasValue,
     direction: Direction): Double = {
-    val value = getValue(position);
+    val value = position.value;
     getGradient(position, direction,
-      (values: Vector => Value, p: Vector) => values(p).pressure,
-      getValue, None, FirstDerivative)
+      (p: HasValue) => p.pressure,
+      None, FirstDerivative)
   }
 
   /**
@@ -473,11 +494,10 @@ trait Solver {
    * @param position
    * @return
    */
-  private def getPressureGradient2nd(position: Vector): Vector =
+  private def getPressureGradient2nd(position: HasValue): Vector =
     new Vector(directions.map(d =>
       getGradient(position, d,
-        (values: Vector => Value, p: Vector) => values(p).pressure,
-        getValue,
+        (p: HasValue) => p.pressure,
         None, SecondDerivative)))
 
   /**
@@ -491,13 +511,14 @@ trait Solver {
    * @param relativeTo
    * @return
    */
-  private def getVelocityGradient(position: Vector, direction: Direction,
-    relativeTo: Option[Vector]): Vector =
-    new Vector(directions.map(d =>
-      getGradient(position, direction,
-        (values: Vector => Value, p: Vector) => values(p).velocity.get(d),
-        getValue,
-        relativeTo, FirstDerivative)))
+  private def getVelocityGradient(position: HasValue, direction: Direction,
+    relativeTo: Option[Vector]): Vector = {
+    def f(d: Direction) = (p: HasValue) => p.value.velocity.get(d)
+    new Vector(directions.map(
+      d =>
+        getGradient(position, direction, f(d),
+          relativeTo, FirstDerivative)))
+  }
 
   /**
    * Returns the gradient of the pressure gradient at position in the
@@ -506,13 +527,13 @@ trait Solver {
    * @param direction
    * @return
    */
-  private def getVelocityGradient2nd(position: Vector,
+  private def getVelocityGradient2nd(position: HasValue,
     direction: Direction): Vector =
     new Vector(directions.map(d =>
       getGradient(position, direction,
-        (values: Vector => Value, p: Vector) =>
-          values(p).velocity.get(d),
-        getValue, None, SecondDerivative)))
+        (p: HasValue) =>
+          p.velocity.get(d),
+        None, SecondDerivative)))
 
   /**
    * Returns a new immutable Solver object representing the
@@ -540,8 +561,8 @@ trait Solver {
    * Returns a readable view of the positions and their values.
    * @return
    */
-  override def toString = getPositions.toList.sorted(VectorOrdering)
-    .map(v => (v, getValue(v)).toString + "\n").toString
+  override def toString = getPositions.toList.sorted(HasPositionOrdering)
+    .map(v => v.toString + "\n").toString
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -561,13 +582,13 @@ object Grid {
    * @return
    */
   def getDirectionalNeighbours(
-    vectors: Set[Vector]): DirectionalNeighbours = {
+    vectors: Set[HasPosition]): DirectionalNeighbours = {
     info("getting directional neighbours")
     //produce a map of Direction to a map of ordinate values with their 
     //negative and positive direction neighbour ordinate values. This 
     //map will return None for all elements on the boundary.
     directions.map(d => {
-      val b = vectors.map(_.get(d)).toSet.toList.sorted
+      val b = vectors.map(_.position.get(d)).toSet.toList.sorted
       if (b.size < 3)
         List()
       else
@@ -594,7 +615,7 @@ object Grid {
 /**
  * Regular or irregular grid of 3D points (vectors).
  */
-case class Grid(positions: Set[Vector]) {
+case class Grid(positions: Set[HasPosition]) {
   val neighbours = Grid.getDirectionalNeighbours(positions)
 }
 
@@ -621,12 +642,6 @@ object RegularGridSolver {
   def getNeighbours(grid: Grid, position: Vector,
     d: Direction): Tuple2[Option[Double], Option[Double]] =
     grid.neighbours.getOrElse((d, position.get(d)), unexpected)
-
-  def getGradient(grid: Grid, position: Vector, direction: Direction,
-    f: PositionFunction, values: Vector => Value, relativeTo: Option[Vector],
-    derivativeType: Derivative): Double = {
-    todo
-  }
 
   def todo = throw new RuntimeException("not implemented, TODO")
 
@@ -719,8 +734,7 @@ object RegularGridSolver {
  * on the grid has nominated neighbours to be used in gradient
  * calculations (both first and second derivatives).
  */
-class RegularGridSolver(grid: Grid,
-  values: Vector => HasValue, validate: Boolean) extends Solver {
+class RegularGridSolver(grid: Grid, validate: Boolean) extends Solver {
   import Solver._
   import Grid._
   import scala.math._
@@ -729,19 +743,13 @@ class RegularGridSolver(grid: Grid,
   if (validate)
     info("validated")
 
-  def this(positions: Set[Vector], values: Vector => HasValue) =
-    this(Grid(positions), values, true);
-
-  def this(map: Map[Vector, HasValue]) =
-    this(Grid(map.keySet), map.getOrElse(_: Vector, unexpected), true)
-
-  override def getValue(vector: Vector): HasValue =
-    values(vector)
+  def this(positions: Set[HasPosition]) =
+    this(Grid(positions), true);
 
   override def getPositions = grid.positions
 
   override val getSolverFactory = new SolverFactory {
-    def create(overrideValues: Vector => HasValue) =
+    def create(overrideValues: HasValue => HasValue) =
       new RegularGridSolver(grid, overrideValues, validate = false)
   }
 
@@ -753,9 +761,9 @@ class RegularGridSolver(grid: Grid,
 
   override def step(timestep: Double): Solver = {
     info("creating parallel collection")
-    val vectors = grid.positions //.par
+    val collection = grid.positions //.par
     info("solving timestep")
-    val stepped = vectors.map(v => (v, getValueAfterTime(v, timestep)))
+    val stepped = collection.map(v => (v, getValueAfterTime(v, timestep)))
     info("converting to sequential collection")
     val seq = stepped.seq
     info("converting to map")
