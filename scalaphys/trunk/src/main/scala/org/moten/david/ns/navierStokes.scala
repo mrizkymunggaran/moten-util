@@ -726,24 +726,26 @@ object RegularGridSolver {
  * on the grid has nominated neighbours to be used in gradient
  * calculations (both first and second derivatives).
  */
-class RegularGridSolver(grid: Grid, validate: Boolean) extends Solver {
+class RegularGridSolver(positions: Set[HasPosition], validate: Boolean) extends Solver {
   import Solver._
   import Grid._
   import scala.math._
   import RegularGridSolver._
 
+  private final val grid = new Grid(positions)
+
   if (validate)
     info("validated")
 
   def this(positions: Set[HasPosition]) =
-    this(Grid(positions), true);
+    this(positions, true);
 
   override def getPositions = grid.positions
 
   override val getSolverFactory = new SolverFactory {
     def create(overrideValues: HasValue => HasValue) =
       //TODO use overrideValues
-      new RegularGridSolver(grid, validate = false)
+      new RegularGridSolver(positions, validate = false)
   }
 
   override def getGradient(position: HasPosition, direction: Direction,
@@ -761,7 +763,7 @@ class RegularGridSolver(grid: Grid, validate: Boolean) extends Solver {
     val seq = stepped.seq
 
     info("creating new Solver")
-    return new RegularGridSolver(grid,
+    return new RegularGridSolver(
       seq, false)
   }
 }
