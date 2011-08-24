@@ -263,13 +263,6 @@ trait Solver {
   def getPositions: Set[HasPosition]
 
   /**
-   * Returns `Value` at a position.
-   * @param vector
-   * @return
-   */
-  //  def getValue(position: Vector): HasValue
-
-  /**
    * Returns a [[org.moten.david.ns.SolverFactory]] to create a new instance
    * of Solver based on this but with overriden getValue function.
    * @return
@@ -567,7 +560,7 @@ trait Solver {
  */
 object Grid {
 
-  type DirectionalNeighbours = Map[(Direction, Double), (Option[Double], Option[Double])]
+  type DirectionalNeighbours = Map[(Direction, HasPosition), (Option[HasPosition], Option[HasPosition])]
 
   /**
    * Returns the neighbours of an ordinate in a given direction.
@@ -575,13 +568,13 @@ object Grid {
    * @return
    */
   def getDirectionalNeighbours(
-    vectors: Set[HasPosition]): DirectionalNeighbours = {
+    positions: Set[HasPosition]): DirectionalNeighbours = {
     info("getting directional neighbours")
     //produce a map of Direction to a map of ordinate values with their 
     //negative and positive direction neighbour ordinate values. This 
     //map will return None for all elements on the boundary.
     directions.map(d => {
-      val b = vectors.map(_.position.get(d)).toSet.toList.sorted
+      val b = positions.map(_.position).toSet.toList.sorted(HasPositionOrdering)
       if (b.size < 3)
         List()
       else
@@ -637,6 +630,12 @@ object RegularGridSolver {
     grid.neighbours.getOrElse((d, position.get(d)), unexpected)
 
   def todo = throw new RuntimeException("not implemented, TODO")
+
+  def getGradient(grid: Grid, position: HasPosition, direction: Direction,
+    f: PositionFunction, relativeTo: Option[Vector], derivativeType: Derivative) =
+
+    //TODO implement this
+    0
 
   def getGradient(f: HasValue => Double,
     v1: HasPosition, v2: HasPosition, v3: HasPosition,
@@ -743,14 +742,15 @@ class RegularGridSolver(grid: Grid, validate: Boolean) extends Solver {
 
   override val getSolverFactory = new SolverFactory {
     def create(overrideValues: HasValue => HasValue) =
-      new RegularGridSolver(grid, overrideValues, validate = false)
+      //TODO use overrideValues
+      new RegularGridSolver(grid, validate = false)
   }
 
-  override def getGradient(position: Vector, direction: Direction,
-    f: PositionFunction, values: Vector => Value, relativeTo: Option[Vector],
+  override def getGradient(position: HasPosition, direction: Direction,
+    f: PositionFunction, relativeTo: Option[Vector],
     derivativeType: Derivative): Double =
     return RegularGridSolver.getGradient(grid, position, direction,
-      f, values, relativeTo, derivativeType);
+      f, relativeTo, derivativeType);
 
   override def step(timestep: Double): Solver = {
     info("creating parallel collection")
