@@ -560,7 +560,7 @@ trait Solver {
  */
 object Grid {
 
-  type DirectionalNeighbours = Map[(Direction, HasPosition), (Option[HasPosition], Option[HasPosition])]
+  type DirectionalNeighbours = Map[(Direction, HasPosition), (HasPosition, HasPosition)]
 
   /**
    * Returns the neighbours of an ordinate in a given direction.
@@ -574,14 +574,14 @@ object Grid {
     //negative and positive direction neighbour ordinate values. This 
     //map will return None for all elements on the boundary.
     directions.map(d => {
-      val b = positions.map(_.position).toSet.toList.sorted(HasPositionOrdering)
+      val b = positions.toSet.toList.sorted(HasPositionOrdering)
       if (b.size < 3)
         List()
       else
         b.sliding(3).toList.map(
-          x => ((d, x(1)), (Some(x(0)), Some(x(2)))))
-          .++(List(((d, b(0)), (None, Some(b(1))))))
-          .++(List(((d, b(b.size - 1)), (Some(b(b.size - 2)), None))))
+          x => ((d, x(1)), (x(0), x(2))))
+          .++(List(((d, b(0)), (Empty(b(0).position), b(1)))))
+          .++(List(((d, b(b.size - 1)), (b(b.size - 2), Empty(b(b.size - 1).position)))))
     }).flatten.toMap
   }
 
@@ -625,9 +625,9 @@ object RegularGridSolver {
   import Solver._
   import Value._
 
-  def getNeighbours(grid: Grid, position: Vector,
+  def getNeighbours(grid: Grid, position: HasPosition,
     d: Direction): Tuple2[Option[Double], Option[Double]] =
-    grid.neighbours.getOrElse((d, position.get(d)), unexpected)
+    grid.neighbours.getOrElse((d, position.position.get(d)), unexpected)
 
   def todo = throw new RuntimeException("not implemented, TODO")
 
