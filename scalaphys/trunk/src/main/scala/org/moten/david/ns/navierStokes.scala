@@ -336,12 +336,6 @@ trait Solver {
       getVelocityGradient(position, Y, None),
       getVelocityGradient(position, Z, None))
 
-  //  private def getValue(position: HasPosition): Value =
-  //    position match {
-  //      case v: HasValue => v.value
-  //      case _ => unexpected
-  //    }
-
   /**
    * Returns the derivative of velocity over time using this
    * {http://en.wikipedia.org/wiki/Navier%E2%80%93Stokes_equations#Cartesian_coordinates
@@ -420,8 +414,8 @@ trait Solver {
    * @return
    */
   def gradientDot(direction: Direction,
-    relativeTo: Option[Vector])(v: HasValue): Double =
-    getVelocityGradient(v, direction, relativeTo) * v.velocity
+    relativeTo: Option[Vector])(position: HasValue): Double =
+    getVelocityGradient(position, direction, relativeTo) * position.velocity
 
   /**
    * Returns the` Value` at the given position after `timeDelta` in seconds
@@ -513,11 +507,10 @@ trait Solver {
    */
   private def getVelocityGradient(position: HasValue, direction: Direction,
     relativeTo: Option[Vector]): Vector = {
-    def f(d: Direction) = (p: HasValue) => p.value.velocity.get(d)
+    def velocity(d: Direction) = (p: HasValue) => p.value.velocity.get(d)
     new Vector(directions.map(
-      d =>
-        getGradient(position, direction, f(d),
-          relativeTo, FirstDerivative)))
+      d => getGradient(position, direction, velocity(d),
+        relativeTo, FirstDerivative)))
   }
 
   /**
@@ -528,12 +521,12 @@ trait Solver {
    * @return
    */
   private def getVelocityGradient2nd(position: HasValue,
-    direction: Direction): Vector =
+    direction: Direction): Vector = {
+    def velocity(d: Direction) = (p: HasValue) => p.velocity.get(d)
     new Vector(directions.map(d =>
-      getGradient(position, direction,
-        (p: HasValue) =>
-          p.velocity.get(d),
+      getGradient(position, direction, velocity(d),
         None, SecondDerivative)))
+  }
 
   /**
    * Returns a new immutable Solver object representing the
