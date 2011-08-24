@@ -626,8 +626,8 @@ object RegularGridSolver {
   import Value._
 
   def getNeighbours(grid: Grid, position: HasPosition,
-    d: Direction): Tuple2[Option[Double], Option[Double]] =
-    grid.neighbours.getOrElse((d, position.position.get(d)), unexpected)
+    d: Direction): Tuple2[HasPosition, HasPosition] =
+    grid.neighbours.getOrElse((d, position), unexpected)
 
   def todo = throw new RuntimeException("not implemented, TODO")
 
@@ -756,14 +756,13 @@ class RegularGridSolver(grid: Grid, validate: Boolean) extends Solver {
     info("creating parallel collection")
     val collection = grid.positions //.par
     info("solving timestep")
-    val stepped = collection.map(v => (v, getValueAfterTime(v, timestep)))
+    val stepped = collection.map(getValueAfterTime(_, timestep))
     info("converting to sequential collection")
     val seq = stepped.seq
-    info("converting to map")
-    val newMap = seq.toMap
+
     info("creating new Solver")
     return new RegularGridSolver(grid,
-      newMap.getOrElse(_: Vector, unexpected), false)
+      seq, false)
   }
 }
 
