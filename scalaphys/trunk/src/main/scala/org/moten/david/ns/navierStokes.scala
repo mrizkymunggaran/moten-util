@@ -171,7 +171,11 @@ case class Point(value: Value)
 case class Obstacle(position: Vector)
   extends HasPosition
 
-case class Empty(position: Vector) extends HasPosition
+case class Empty(position: Vector) extends HasPosition {
+  def this() {
+    this(Vector.zero)
+  }
+}
 
 /**
  * Measures the velocity and pressure field and water
@@ -625,54 +629,64 @@ object RegularGridSolver {
   import Solver._
   import Value._
 
+  type O = Obstacle
+  type P = Point
+  type A = HasPosition
+  type B = Boundary
+  type E = Empty
+  type V = HasValue //either Point or Boundary
+
   def getNeighbours(grid: Grid, position: HasPosition,
-    d: Direction): Tuple2[HasPosition, HasPosition] =
-    grid.neighbours.getOrElse((d, position), unexpected)
+    d: Direction, relativeTo: Option[Vector]): Tuple3[HasPosition, HasPosition, HasPosition] =
+    //    grid.getNeighbours(position)
+    //    grid.neighbours.getOrElse((d, position), unexpected)
+    todo
 
   def todo = throw new RuntimeException("not implemented, TODO")
 
   def getGradient(grid: Grid, position: HasPosition, direction: Direction,
     f: PositionFunction, relativeTo: Option[Vector], derivativeType: Derivative) =
-
-    //TODO implement this
-    0
+    todo
 
   def getGradient(f: HasValue => Double,
     v1: HasPosition, v2: HasPosition, v3: HasPosition,
     direction: Direction, relativeTo: Option[Vector],
     derivativeType: Derivative): Double = {
 
-    type O = Obstacle
-    type P = Point
-    type A = HasPosition
-    type B = Boundary
-    type E = Empty
-    type V = HasValue //either Point or Boundary
+    val sign = getSign(v2, relativeTo, direction)
+
+    val t = transform((v1, v2, v3, sign))
+
+    t match {
+      case v: (V, V, V) =>
+        getGradient(f, v._1, v._2, v._3, direction, derivativeType)
+      case v: (V, V, E) =>
+        getGradient(f, v._1, v._2, direction, derivativeType)
+      case _ => unexpected
+    }
+  }
+
+  /**
+   * Returns either (V,V,V) or (V,V,E).
+   *
+   * @param t
+   * @return
+   */
+  private def transform(
+    t: (HasPosition, HasPosition, HasPosition, Sign)): (HasPosition, HasPosition, HasPosition) = {
 
     //sign = ZeroSign  if no relativeTo and v2 is Point
     //sign= PositiveSign if relativeTo is on the v3 side 
     //sign = NegativeSign if relativeTo is on the v1 side
-    val sign = getSign(v2, relativeTo, direction)
 
-    (v1, v2, v3, sign) match {
-      case v: (V, V, V, _) =>
-        getGradient(f, v._1, v._2, v._3, direction, derivativeType)
-      case v: (E, V, V, _) =>
-        getGradient(f, v._2, v._3, direction, derivativeType)
-      case v: (V, V, E, _) =>
-        getGradient(f, v._1, v._2, direction, derivativeType)
-      case v: (A, V, O, _) =>
-        getGradient(f, v._1, v._2, obstacleToPoint(v._3, v._2),
-          direction, relativeTo, derivativeType)
-      case v: (O, V, A, _) =>
-        getGradient(f, obstacleToPoint(v._1, v._2), v._2, v._3,
-          direction, relativeTo, derivativeType)
-      case v: (A, O, V, PositiveSign) =>
-        getGradient(f, obstacleToPoint(v._2, v._3), v._3,
-          direction, derivativeType)
-      case v: (V, O, A, NegativeSign) =>
-        getGradient(f, v._1, obstacleToPoint(v._2, v._1),
-          direction, derivativeType)
+    t match {
+      case v: (V, V, V, _) => (v._1, v._2, v._3)
+      case v: (V, V, E, _) => (v._1, v._2, v._3)
+      case v: (E, V, V, _) => (v._2, v._3, v._1)
+      case v: (A, V, O, _) => transform((v._1, v._2, obstacleToPoint(v._3, v._2), v._4))
+      case v: (O, V, A, _) => transform((obstacleToPoint(v._1, v._2), v._2, v._3, v._4))
+      case v: (A, O, V, PositiveSign) => (obstacleToPoint(v._2, v._3), v._3, new Empty)
+      case v: (V, O, A, NegativeSign) => (v._1, obstacleToPoint(v._2, v._1), new Empty)
       case _ => unexpected
     }
   }
