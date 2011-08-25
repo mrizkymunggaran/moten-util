@@ -638,8 +638,6 @@ object RegularGridSolver {
 
   def getNeighbours(grid: Grid, position: HasPosition,
     d: Direction, relativeTo: Option[Vector]): Tuple3[HasPosition, HasPosition, HasPosition] =
-    //    grid.getNeighbours(position)
-    //    grid.neighbours.getOrElse((d, position), unexpected)
     todo
 
   def todo = throw new RuntimeException("not implemented, TODO")
