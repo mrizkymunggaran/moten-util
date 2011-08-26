@@ -43,6 +43,9 @@ object Throwing {
 
   def unexpected(message: String) =
     throw new RuntimeException(message)
+
+  def todo =
+    throw new RuntimeException("not implemented, TODO")
 }
 
 import Throwing._
@@ -221,13 +224,6 @@ object Value {
 /////////////////////////////////////////////////////////////////////
 
 /**
- * Factory for creating a solver from another.
- */
-trait SolverFactory {
-  def create(overrideValues: Vector => Value): Solver
-}
-
-/**
  * Companion object for `Solver`.
  */
 object Solver {
@@ -242,7 +238,7 @@ object Solver {
    * Returns the value of a function of interest on the
    *  Position/Value field
    */
-  type PositionFunction = HasValue => Double
+  type ValueFunction = HasValue => Double
 
 }
 
@@ -267,13 +263,6 @@ trait Solver {
   def getPositions: Set[HasPosition]
 
   /**
-   * Returns a [[org.moten.david.ns.SolverFactory]] to create a new instance
-   * of Solver based on this but with overriden getValue function.
-   * @return
-   */
-  def getSolverFactory: SolverFactory
-
-  /**
    * Returns the gradient of the function f with respect to direction at the
    * given position. `relativeTo` is used to calculate the gradient near and
    *  on boundary and obstacle positions. In particular we need to handle
@@ -287,7 +276,7 @@ trait Solver {
    * @return
    */
   def getGradient(position: HasPosition, direction: Direction,
-    f: PositionFunction,
+    f: ValueFunction,
     relativeTo: Option[Vector],
     derivativeType: Derivative): Double
 
@@ -386,9 +375,10 @@ trait Solver {
     val v = position.value
     //assume not obstacle or boundary
     val valueNext = v.modifyPressure(pressure)
-    val solverWithOverridenPressureAtPosition =
-      getSolverFactory.create(x => if (x === position.value) valueNext else v)
-    solverWithOverridenPressureAtPosition.getPressureCorrection(position)
+    todo
+    //    val solverWithOverridenPressureAtPosition =
+    //      getSolverFactory.create(x => if (x === position.value) valueNext else v)
+    //    solverWithOverridenPressureAtPosition.getPressureCorrection(position)
   }
 
   /**
@@ -640,10 +630,8 @@ object RegularGridSolver {
     d: Direction, relativeTo: Option[Vector]): Tuple3[HasPosition, HasPosition, HasPosition] =
     todo
 
-  def todo = throw new RuntimeException("not implemented, TODO")
-
   def getGradient(grid: Grid, position: HasPosition, direction: Direction,
-    f: PositionFunction, relativeTo: Option[Vector], derivativeType: Derivative) =
+    f: ValueFunction, relativeTo: Option[Vector], derivativeType: Derivative) =
     todo
 
   def getGradient(f: HasValue => Double,
@@ -754,14 +742,8 @@ class RegularGridSolver(positions: Set[HasPosition], validate: Boolean) extends 
 
   override def getPositions = grid.positions
 
-  override val getSolverFactory = new SolverFactory {
-    def create(overrideValues: HasValue => HasValue) =
-      //TODO use overrideValues
-      new RegularGridSolver(positions, validate = false)
-  }
-
   override def getGradient(position: HasPosition, direction: Direction,
-    f: PositionFunction, relativeTo: Option[Vector],
+    f: ValueFunction, relativeTo: Option[Vector],
     derivativeType: Derivative): Double =
     return RegularGridSolver.getGradient(grid, position, direction,
       f, relativeTo, derivativeType);
