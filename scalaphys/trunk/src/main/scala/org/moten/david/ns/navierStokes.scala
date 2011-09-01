@@ -166,10 +166,14 @@ trait HasValue extends HasPosition {
 }
 
 case class Boundary(value: Value)
-  extends HasValue
+  extends HasValue {
+  val position = value.position
+}
 
 case class Point(value: Value)
-  extends HasValue
+  extends HasValue {
+  val position = value.position
+}
 
 case class Obstacle(position: Vector)
   extends HasPosition
@@ -188,6 +192,8 @@ case class Value(position: Vector,
   velocity: Vector, pressure: Double,
   density: Double, viscosity: Double)
   extends HasPosition with HasValue {
+
+  val value = this
 
   /**
    * Returns a copy of this with pressure modified.
@@ -711,7 +717,7 @@ object RegularGridSolver {
         throw new RuntimeException("relativeTo must be specified if calculating gradient at an obstacle or boundary")
       else Sign.Zero
       case Some(v: Vector) =>
-        if (Math.signum(x.position.get(direction) - v.get(direction)) > 0)
+        if (scala.math.signum(x.position.get(direction) - v.get(direction)) > 0)
           Sign.Positive
         else
           Sign.Negative
