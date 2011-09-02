@@ -589,6 +589,7 @@ object Grid {
    * @param vectors
    * @return
    */
+//TODO is this used?
   def getExtremes(vectors: Set[Vector]): Direction => (Double, Double) =
     directions.map(d => {
       val list = vectors.map(_.get(d)).toList
@@ -619,7 +620,7 @@ object Sign {
 }
 
 object RegularGridSolver {
-  import scala.math._
+  import scala.math.signum
   import Solver._
   import Value._
 
@@ -635,7 +636,7 @@ object RegularGridSolver {
     todo
 
   def getGradient(grid: Grid, position: HasPosition, direction: Direction,
-    f: ValueFunction, relativeTo: Option[Vector], derivativeType: Derivative) =
+    f: ValueFunction, relativeTo: Option[Vector], derivativeType: Derivative,overrideValue:Option[HasValue]) =
     todo
 
   def getGradient(f: HasValue => Double,
@@ -717,7 +718,7 @@ object RegularGridSolver {
         throw new RuntimeException("relativeTo must be specified if calculating gradient at an obstacle or boundary")
       else Sign.Zero
       case Some(v: Vector) =>
-        if (scala.math.signum(x.position.get(direction) - v.get(direction)) > 0)
+        if (signum(x.position.get(direction) - v.get(direction)) > 0)
           Sign.Positive
         else
           Sign.Negative
@@ -750,7 +751,7 @@ class RegularGridSolver(positions: Set[HasPosition], validate: Boolean) extends 
     f: ValueFunction, relativeTo: Option[Vector],
     derivativeType: Derivative, overrideValue: Option[HasValue]): Double =
     return RegularGridSolver.getGradient(grid, position, direction,
-      f, relativeTo, derivativeType);
+      f, relativeTo, derivativeType,overrideValue);
 
   override def step(timestep: Double): Solver = {
     info("creating parallel collection")
