@@ -670,11 +670,11 @@ object RegularGridSolver {
     //sign = NegativeSign if relativeTo is on the v1 side
 
     t match {
-      case v: (V, V, V, _) => (v._1, v._2, v._3)
-      case v: (V, V, E, _) => (v._1, v._2, v._3)
-      case v: (E, V, V, _) => (v._2, v._3, v._1)
-      case v: (A, V, O, _) => transform((v._1, v._2, obstacleToPoint(v._3, v._2), v._4))
-      case v: (O, V, A, _) => transform((obstacleToPoint(v._1, v._2), v._2, v._3, v._4))
+      case v: (V, V, V, Sign) => (v._1, v._2, v._3)
+      case v: (V, V, E, Sign) => (v._1, v._2, v._3)
+      case v: (E, V, V, Sign) => (v._2, v._3, v._1)
+      case v: (A, V, O, Sign) => transform((v._1, v._2, obstacleToPoint(v._3, v._2), v._4))
+      case v: (O, V, A, Sign) => transform((obstacleToPoint(v._1, v._2), v._2, v._3, v._4))
       case v: (A, O, V, PositiveSign) => (obstacleToPoint(v._2, v._3), v._3, new Empty)
       case v: (V, O, A, NegativeSign) => (v._1, obstacleToPoint(v._2, v._1), new Empty)
       case _ => unexpected
