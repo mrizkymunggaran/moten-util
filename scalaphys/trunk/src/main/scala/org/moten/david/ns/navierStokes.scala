@@ -13,8 +13,7 @@
  */
 package org.moten.david.ns
 
-/////////////////////////////////////////////////////////////////////
-// Utilities                       
+                       
 /////////////////////////////////////////////////////////////////////
 
 /**
@@ -549,6 +548,7 @@ trait Solver {
     .map(v => v.toString + "\n").toString
 }
 
+
 /////////////////////////////////////////////////////////////////////
 // Grid                      
 /////////////////////////////////////////////////////////////////////
@@ -636,10 +636,11 @@ object RegularGridSolver {
     todo
 
   def getGradient(grid: Grid, position: HasPosition, direction: Direction,
-    f: ValueFunction, relativeTo: Option[Vector], derivativeType: Derivative,overrideValue:Option[HasValue]) =
+    f: ValueFunction, relativeTo: Option[Vector], derivativeType: Derivative,
+    overrideValue:Option[HasValue]) =
     todo
 
-  def getGradient(f: HasValue => Double,
+  def getGradient(f: ValueFunction,
     v1: HasPosition, v2: HasPosition, v3: HasPosition,
     direction: Direction, relativeTo: Option[Vector],
     derivativeType: Derivative): Double = {
@@ -770,6 +771,7 @@ class RegularGridSolver(positions: Set[HasPosition], validate: Boolean) extends 
 /////////////////////////////////////////////////////////////////////
 // Newtons Method                                                                        
 /////////////////////////////////////////////////////////////////////
+
 /**
  * Newton's Method solver for one dimensional equations in
  *  the real numbers.
