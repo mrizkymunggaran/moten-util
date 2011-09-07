@@ -658,14 +658,14 @@ object RegularGridSolver {
     f: ValueFunction, relativeTo: Option[Vector], derivativeType: Derivative,
     overridden:Option[HasValue]):Double = {
     
-    val n = overrideValue(getNeighbours(grid, position, direction, relativeTo),overridden)
+    val n = overrideValue(
+      getNeighbours(grid, position, direction, relativeTo),overridden)
     getGradient(f, n._1, n._2, n._3, direction, relativeTo, derivativeType)
   }
     
   def getGradient(f: ValueFunction,
-    v1: HasPosition, v2: HasPosition, v3: HasPosition,
-    direction: Direction, relativeTo: Option[Vector],
-    derivativeType: Derivative): Double = {
+    v1: HasPosition, v2: HasPosition, v3: HasPosition, direction: Direction,
+    relativeTo: Option[Vector], derivativeType: Derivative): Double = {
 
     val sign = getSign(v2, relativeTo, direction)
 
