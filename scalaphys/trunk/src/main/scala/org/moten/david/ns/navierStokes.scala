@@ -630,16 +630,38 @@ object RegularGridSolver {
   type B = Boundary
   type E = Empty
   type V = HasValue //either Point or Boundary
+  type Positions = Tuple3[HasPosition,HasPosition,HasPosition]
 
   def getNeighbours(grid: Grid, position: HasPosition,
-    d: Direction, relativeTo: Option[Vector]): Tuple3[HasPosition, HasPosition, HasPosition] =
+    d: Direction, relativeTo: Option[Vector]): Positions =
     todo
+
+  def overrideValue(t:HasPosition, overrideValue:Value):HasPosition = {
+    if (t.position.equals(overrideValue.position))
+      overrideValue
+    else 
+      t
+  }
+
+  def overrideValue(t:Positions, v : HasValue):Positions =
+    (overrideValue(t._1,v),
+     overrideValue(t._2,v),
+     overrideValue(t._3,v))
+
+  def overrideValue(t:Positions, v : Option[HasValue]):Positions =
+    v match {
+      case Some(value:HasValue) => overrideValue(t,value)
+      case None => t
+    }
 
   def getGradient(grid: Grid, position: HasPosition, direction: Direction,
     f: ValueFunction, relativeTo: Option[Vector], derivativeType: Derivative,
-    overrideValue:Option[HasValue]) =
-    todo
-
+    overridden:Option[HasValue]):Double = {
+    
+    val n = overrideValue(getNeighbours(grid, position, direction, relativeTo),overridden)
+    getGradient(f, n._1, n._2, n._3, direction, relativeTo, derivativeType)
+  }
+    
   def getGradient(f: ValueFunction,
     v1: HasPosition, v2: HasPosition, v3: HasPosition,
     direction: Direction, relativeTo: Option[Vector],
@@ -713,10 +735,13 @@ object RegularGridSolver {
     }
   }
 
-  private def getSign(x: HasPosition, relativeTo: Option[Vector], direction: Direction): Sign = {
+  private def getSign(x: HasPosition, 
+    relativeTo: Option[Vector], direction: Direction): Sign = {
     relativeTo match {
       case None => if (!Point.getClass.isInstance(x))
-        throw new RuntimeException("relativeTo must be specified if calculating gradient at an obstacle or boundary")
+        throw new RuntimeException(
+          "relativeTo must be specified if " 
+          + "calculating gradient at an obstacle or boundary")
       else Sign.Zero
       case Some(v: Vector) =>
         if (signum(x.position.get(direction) - v.get(direction)) > 0)
