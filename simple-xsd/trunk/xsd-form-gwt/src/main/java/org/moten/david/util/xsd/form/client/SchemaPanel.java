@@ -24,12 +24,12 @@ import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.HasChangeHandlers;
+import com.google.gwt.event.logical.shared.HasValueChangeHandlers;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.regexp.shared.RegExp;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.DisclosurePanel;
@@ -65,7 +65,7 @@ public class SchemaPanel extends VerticalPanel {
 
 	private int itemNumber = 0;
 
-	private final String style;
+	private final List<ChangeHandler> changeHandlers = new ArrayList<ChangeHandler>();
 
 	public SchemaPanel(Schema schema) {
 		this.schema = schema;
@@ -75,8 +75,19 @@ public class SchemaPanel extends VerticalPanel {
 		}
 		Button submit = new Button("Submit");
 		add(submit);
+		submit.addClickHandler(createSubmitClickHandler());
 		add(new Label(schema.getNamespace()));
-		style = Window.Location.getParameter("style");
+		// style = Window.Location.getParameter("style");
+	}
+
+	private ClickHandler createSubmitClickHandler() {
+		return new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				for (ChangeHandler changeHandler : changeHandlers) {
+					changeHandler.onChange(null);
+				}
+			}
+		};
 	}
 
 	private Widget createElementPanel(Element element, List<Runnable> validators) {
@@ -176,29 +187,9 @@ public class SchemaPanel extends VerticalPanel {
 	}
 
 	private Widget createCheckBox(Item item, final boolean mustBeChecked) {
-		Panel hp = new HorizontalPanel();
-		hp.add(createNumberWidget(item.displayNumberIfEnabled(),
-				item.getNumber()));
-		final CheckBox c = new CheckBox(item.getDisplayName());
+		final CheckBox c = new CheckBox();
 		c.addStyleName("item");
-		VerticalPanel p = new VerticalPanel();
-		final Label validation = new Label("this must be selected to continue");
-		validation.addStyleName("validation");
-		validation.setVisible(false);
-		p.add(c);
-		p.add(validation);
-		p.add(addDescription(c, item.getDescription()));
-		p.addStyleName("itemGroup");
-		if (mustBeChecked) {
-			c.addClickHandler(new ClickHandler() {
-
-				public void onClick(ClickEvent event) {
-					validation.setVisible(mustBeChecked && !c.getValue());
-				}
-			});
-		}
-		hp.add(p);
-		return hp;
+		return layout(item, c, null);
 	}
 
 	private Widget createTextWidget(Item item, Integer lines, Integer cols,
@@ -317,8 +308,13 @@ public class SchemaPanel extends VerticalPanel {
 			HorizontalPanel hp = new HorizontalPanel();
 			hp.add(createNumberWidget(itm.isDisplayNumberIfEnabled(),
 					itm.getNumber()));
+			if (item instanceof CheckBox) {
+				hp.add(item);
+				hp.addStyleName("checkBox");
+			}
 			hp.add(createLabelWidget(itm.getDisplayName()));
-			hp.add(item);
+			if (!(item instanceof CheckBox))
+				hp.add(item);
 			vp.add(hp);
 		} else {
 			vp.add(createLabelWidget(itm.getDisplayName()));
@@ -332,7 +328,11 @@ public class SchemaPanel extends VerticalPanel {
 		vp.add(createAfterWidget(itm.getAfter()));
 		if (factory != null && item instanceof HasChangeHandlers) {
 			HasChangeHandlers m = (HasChangeHandlers) item;
-			m.addChangeHandler(factory.create(m, validationLabel));
+			ChangeHandler changeHandler = factory.create(m, validationLabel);
+			m.addChangeHandler(changeHandler);
+			changeHandlers.add(changeHandler);
+		} else if (factory != null && item instanceof HasValueChangeHandlers) {
+			HasValueChangeHandlers m = (HasValueChangeHandlers) item;
 		}
 		return vp;
 	}
