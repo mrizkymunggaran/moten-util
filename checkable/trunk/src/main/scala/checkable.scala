@@ -26,40 +26,35 @@ package checkable {
 
   trait Function extends Function0[FunctionValue] {
 
-    def and(f: Function) = {
-      val v = apply
-      val v2 = f()
-      FunctionValue(v.value && v2.value, v.properties)
-    }
-
-    def or(f: Function) = {
-      val v = apply
-      val v2 = f()
-      FunctionValue(v.value || v2.value, v.properties)
-    }
-
-    def not = {
-      val v = apply
-      FunctionValue(!v.value, v.properties)
-    }
   }
 
   trait NumericExpression extends Function0[BigDecimal] {
 
-    def >(n: NumericExpression): Function0[Boolean] =
-      () => apply() > n.apply()
-    def <(n: NumericExpression): Function0[Boolean] =
-      () => apply() < n.apply()
-    def >=(n: NumericExpression): Function0[Boolean] =
-      () => apply() >= n.apply()
-    def <=(n: NumericExpression): Function0[Boolean] =
-      () => apply() <= n.apply()
+    def >(n: NumericExpression): BooleanExpression =
+      BooleanExpression(() => apply() > n.apply())
+    def <(n: NumericExpression): BooleanExpression =
+      BooleanExpression(() => apply() < n.apply())
+    def >=(n: NumericExpression): BooleanExpression =
+      BooleanExpression(() => apply() >= n.apply())
+    def <=(n: NumericExpression): BooleanExpression =
+      BooleanExpression(() => apply() <= n.apply())
     def *(n: NumericExpression): Function0[BigDecimal] =
       () => apply() * n.apply()
     def /(n: NumericExpression): Function0[BigDecimal] =
       () => apply() / n.apply()
-    def isNull: Function0[Boolean] =
-      () => apply() == null
+    def empty: BooleanExpression =
+      BooleanExpression(() => apply() == null)
+  }
+
+  case class BooleanExpression(f: Function0[Boolean]) extends Function0[Boolean] {
+
+    def apply = f.apply()
+    def or(e: BooleanExpression) =
+      BooleanExpression(() => f.apply || e.apply)
+    def and(e: BooleanExpression) =
+      BooleanExpression(() => f.apply || e.apply)
+    def not() =
+      BooleanExpression(() => !f.apply)
   }
 
   trait Level
@@ -95,25 +90,8 @@ package checkable {
 
     def getBigDecimalMandatory(properties: Properties, key: String) =
       BigDecimal(getStringMandatory(properties, key))
-  }
 
-  trait PropertiesProvider extends Function0[Properties]
-
-  class UrlPropertiesFunction(
-    provider: PropertiesProvider,
-    function: PropertiesFunction) extends Function {
-    def apply() = function(provider())
-  }
-
-  class UrlPropertiesProvider(url: URL) extends PropertiesProvider {
-    def apply(): Properties = PropertiesUtil.propertiesToMap(url)
-  }
-
-  object Util {
-
-    def keyNotFound(key: String) = throw new RuntimeException("key not found=" + key)
-
-    implicit def stringToNumeric(properties: Properties)(key: String) =
+    implicit def stringToNumeric(key: String)(implicit properties: Properties) =
       new NumericExpression() {
         def apply =
           properties.get(key) match {
@@ -131,17 +109,26 @@ package checkable {
       new NumericExpression() {
         def apply = BigDecimal(x)
       }
-
   }
 
-  object MyPropertiesProvider extends UrlPropertiesProvider(Util.getClass().getResource("/test.properties"))
+  trait PropertiesProvider extends Function0[Properties]
 
-  import Util._
+  class UrlPropertiesFunction(
+    provider: PropertiesProvider,
+    function: PropertiesFunction) extends Function {
+    def apply() = function(provider())
+  }
+
+  class UrlPropertiesProvider(url: URL) extends PropertiesProvider {
+    def apply(): Properties = PropertiesUtil.propertiesToMap(url)
+  }
+
+  object MyPropertiesProvider extends UrlPropertiesProvider(PropertiesUtil.getClass().getResource("/test.properties"))
 
   object MyPropertiesFunction extends PropertiesFunction {
     def apply(properties: Properties) = {
-      implicit def toNumeric = stringToNumeric(properties) _
-      val exp: BooleanExpression = ("example.time.ms".isNull) or ("example.time.ms" > 100)
+
+      val exp: BooleanExpression = ("example.time.ms" empty) or ("example.time.ms" > 100)
       FunctionValue(exp.apply(), properties)
     }
   }
