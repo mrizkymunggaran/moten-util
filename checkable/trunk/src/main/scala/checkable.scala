@@ -4,6 +4,8 @@ package checkable {
   import scala.collection.JavaConversions._
   import java.net.URL
 
+  trait Source;
+
   case class FunctionValue(value: Boolean, properties: Map[String, String])
 
   trait Function {
@@ -11,12 +13,14 @@ package checkable {
 
     def and(f: Function) = {
       val v = apply
-      FunctionValue(v.value && f().value, v.properties)
+      val v2 = f()
+      FunctionValue(v.value && v2.value, v.properties)
     }
 
     def or(f: Function) = {
       val v = apply
-      FunctionValue(v.value || f().value, v.properties)
+      val v2 = f()
+      FunctionValue(v.value || v2.value, v.properties)
     }
 
     def not = {
@@ -40,9 +44,7 @@ package checkable {
       (Unit) => apply() / n.apply()
   }
 
-  trait BooleanExpression {
-    def get: Boolean
-  }
+  trait BooleanExpression extends Function1[Unit, Boolean]
 
   trait Level
   case class Ok extends Level
@@ -66,14 +68,12 @@ package checkable {
     def apply(properties: Map[String, String]): FunctionValue
   }
 
-  trait PropertiesProvider {
-    def get: Map[String, String]
-  }
+  trait PropertiesProvider extends Function1[Unit, Map[String, String]]
 
   class UrlPropertiesFunction(
     provider: PropertiesProvider,
     function: PropertiesFunction) extends Function {
-    def apply() = function(provider.get)
+    def apply() = function(provider())
   }
 
   class UrlPropertiesProvider(url: String) extends PropertiesProvider {
@@ -88,9 +88,14 @@ package checkable {
     }
   }
 
-  //  class ExampleFunction extends PropertiesFunction {
-  //    def apply(p: Map[String, String]) = {
-  //
-  //    }
-  //  }
+  case class MySource(name: String) extends Source
+
+  class ExampleFunction extends PropertiesFunction {
+    def apply(p: Map[String, String]) = {
+      p.get("example.interval.ms") match {
+        case None => FunctionValue(false, p)
+        case x => FunctionValue(x == "100", p)
+      }
+    }
+  }
 }
