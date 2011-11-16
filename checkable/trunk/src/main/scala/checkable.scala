@@ -18,17 +18,15 @@ package checkable {
 
     type Properties = Map[String, String]
     type BooleanExpression = Function0[Boolean]
+    type Function = Function0[FunctionValue]
   }
 
   import PropertiesUtil._
 
   case class FunctionValue(value: Boolean, properties: Properties)
 
-  trait Function extends Function0[FunctionValue] {
-
-  }
-
-  trait NumericExpression extends Function0[BigDecimal] {
+  case class NumericExpression(f: Function0[BigDecimal]) extends Function0[BigDecimal] {
+    def apply = f.apply
 
     def >(n: NumericExpression): BooleanExpression =
       BooleanExpression(() => apply() > n.apply())
@@ -91,24 +89,17 @@ package checkable {
     def getBigDecimalMandatory(properties: Properties, key: String) =
       BigDecimal(getStringMandatory(properties, key))
 
-    implicit def stringToNumeric(key: String)(implicit properties: Properties) =
-      new NumericExpression() {
-        def apply =
-          properties.get(key) match {
-            case None => null
-            case x: Option[String] => BigDecimal(x.get)
-          }
-      }
+    implicit def stringToNumeric(properties: Properties)(key: String) =
+      NumericExpression(() => properties.get(key) match {
+        case None => null
+        case x: Option[String] => BigDecimal(x.get)
+      })
 
     implicit def stringToNumeric(x: BigDecimal) =
-      new NumericExpression() {
-        def apply = x
-      }
+      NumericExpression(() => x)
 
     implicit def integerToNumericExpression(x: Int) =
-      new NumericExpression() {
-        def apply = BigDecimal(x)
-      }
+      NumericExpression(BigDecimal(x))
   }
 
   trait PropertiesProvider extends Function0[Properties]
@@ -127,7 +118,7 @@ package checkable {
 
   object MyPropertiesFunction extends PropertiesFunction {
     def apply(properties: Properties) = {
-
+      implicit def toNumeric = stringToNumeric(properties)_
       val exp: BooleanExpression = ("example.time.ms" empty) or ("example.time.ms" > 100)
       FunctionValue(exp.apply(), properties)
     }
