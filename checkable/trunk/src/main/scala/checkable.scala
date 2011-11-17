@@ -123,10 +123,9 @@ package checkable {
 
   object MyPropertiesProvider extends UrlPropertiesProvider(PropertiesUtil.getClass().getResource("/test.properties"))
 
-  import PropertiesFunction._
-
   case class PropsFunction()
 
+  import PropertiesFunction._
   object MyPropertiesFunction extends PropertiesFunction {
     def apply(properties: Properties) = {
       implicit def toNumeric = stringToNumeric(properties)_
