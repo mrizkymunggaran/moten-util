@@ -20,6 +20,7 @@ package checkable {
     type BooleanExpression = Function0[Boolean]
     type Function = Function0[FunctionValue]
     type PropertiesProvider = Function0[Properties]
+    type ReturnsFunctionValue = Function0[FunctionValue]
   }
 
   import PropertiesUtil._
@@ -77,10 +78,6 @@ package checkable {
     level: Level,
     policy: Policy)
 
-  trait PropertiesFunction {
-    def apply: FunctionValue
-  }
-
   object PropertiesFunction {
 
     def notFound(key: String) =
@@ -106,12 +103,6 @@ package checkable {
 
   }
 
-  //  class UrlPropertiesFunction(
-  //    provider: PropertiesProvider,
-  //    function: PropertiesFunction) extends Function {
-  //    def apply = function(provider())
-  //  }
-
   class UrlPropertiesProvider(url: URL) extends PropertiesProvider {
     def apply(): Properties = PropertiesUtil.propertiesToMap(url)
   }
@@ -122,7 +113,7 @@ package checkable {
 
   import PropertiesFunction._
 
-  abstract class AbstractPropertiesFunction(properties: Properties) {
+  abstract class PropertiesFunction(properties: Properties) extends ReturnsFunctionValue {
 
     implicit def toNumeric = stringToNumeric(properties)_
 
@@ -132,17 +123,17 @@ package checkable {
     implicit def integerToNumericExpression(x: Int) =
       NumericExpression(() => BigDecimal(x))
 
-    def apply = {
-      FunctionValue(expression(),
-        properties)
-    }
+    def apply =
+      FunctionValue(expression(), properties)
 
     def expression: BooleanExpression
 
   }
 
-  case class MyPropertiesFunction(properties: Properties)
-    extends AbstractPropertiesFunction(properties) {
+  // example properties function
+
+  case class Sample(properties: Properties)
+    extends PropertiesFunction(properties) {
 
     val expression = ("example.time.ms" empty) or ("example.time.ms" > 100)
 
