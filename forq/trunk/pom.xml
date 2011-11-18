@@ -57,15 +57,15 @@
 				<version>1.1.1</version>
 				<executions>
 					<execution>
-						<phase>assembly</phase>
+<!--						<phase>assembly</phase> -->
 						<goals>
 							<goal>java</goal>
 						</goals>
-						<configuration>
-							<mainClass>au.edu.anu.delibdem.qsort.gui.MainFrame</mainClass>
-						</configuration>
 					</execution>
 				</executions>
+				<configuration>
+					<mainClass>au.edu.anu.delibdem.qsort.gui.MainFrame</mainClass>
+				</configuration>
 			</plugin>
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
