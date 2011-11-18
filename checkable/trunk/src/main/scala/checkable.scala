@@ -78,7 +78,7 @@ package checkable {
     policy: Policy)
 
   trait PropertiesFunction {
-    def apply(properties: Properties): FunctionValue
+    def apply: FunctionValue
   }
 
   object PropertiesFunction {
@@ -98,24 +98,19 @@ package checkable {
     def getBigDecimalMandatory(properties: Properties, key: String) =
       BigDecimal(getStringMandatory(properties, key))
 
-    implicit def stringToNumeric(properties: Properties)(key: String) =
+    def stringToNumeric(properties: Properties)(key: String) =
       NumericExpression(() => properties.get(key) match {
         case None => null
         case x: Option[String] => BigDecimal(x.get)
       })
 
-    implicit def bigDecimalToNumeric(x: BigDecimal) =
-      NumericExpression(() => x)
-
-    implicit def integerToNumericExpression(x: Int) =
-      NumericExpression(BigDecimal(x))
   }
 
-  class UrlPropertiesFunction(
-    provider: PropertiesProvider,
-    function: PropertiesFunction) extends Function {
-    def apply() = function(provider())
-  }
+  //  class UrlPropertiesFunction(
+  //    provider: PropertiesProvider,
+  //    function: PropertiesFunction) extends Function {
+  //    def apply = function(provider())
+  //  }
 
   class UrlPropertiesProvider(url: URL) extends PropertiesProvider {
     def apply(): Properties = PropertiesUtil.propertiesToMap(url)
@@ -126,13 +121,31 @@ package checkable {
   case class PropsFunction()
 
   import PropertiesFunction._
-  object MyPropertiesFunction extends PropertiesFunction {
-    def apply(properties: Properties) = {
-      implicit def toNumeric = stringToNumeric(properties)_
-      val b: BooleanExpression =
-        ("example.time.ms" empty) or ("example.time.ms" > 100)
-      FunctionValue(b(), properties)
+
+  abstract class AbstractPropertiesFunction(properties: Properties) {
+
+    implicit def toNumeric = stringToNumeric(properties)_
+
+    implicit def bigDecimalToNumeric(x: BigDecimal) =
+      NumericExpression(() => x)
+
+    implicit def integerToNumericExpression(x: Int) =
+      NumericExpression(() => BigDecimal(x))
+
+    def apply = {
+      FunctionValue(expression(),
+        properties)
     }
+
+    def expression: BooleanExpression
+
+  }
+
+  case class MyPropertiesFunction(properties: Properties)
+    extends AbstractPropertiesFunction(properties) {
+
+    val expression = ("example.time.ms" empty) or ("example.time.ms" > 100)
+
   }
 
 }
