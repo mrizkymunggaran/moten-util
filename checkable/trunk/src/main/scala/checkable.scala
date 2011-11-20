@@ -29,7 +29,8 @@ package checkable {
   }
 
   case class NumericExpression(f: () => BigDecimal) extends Function0[BigDecimal] {
-    def apply = f.apply
+
+    def apply = f()
 
     def >(n: NumericExpression): BooleanExpression =
       BooleanExpression(() => apply > n.apply)
@@ -54,7 +55,6 @@ package checkable {
       BooleanExpression(() => apply() == null)
     def notEmpty: BooleanExpression =
       BooleanExpression(() => apply() != null)
-
     def milliseconds = this
     def seconds = NumericExpression(() => 1000 * this())
     def minutes = NumericExpression(() => 60 * seconds())
@@ -87,7 +87,7 @@ package checkable {
 
   trait Policy
 
-  trait Checkable extends Function0[Result] {
+  trait Checkable extends ReturnsResult {
     val name: String
     val description: String
     val level: Level
@@ -97,10 +97,6 @@ package checkable {
   class UrlPropertiesProvider(url: URL) extends PropertiesProvider {
     def apply(): Properties = PropertiesUtil.propertiesToMap(url)
   }
-
-  object MyPropertiesProvider extends UrlPropertiesProvider(PropertiesUtil.getClass().getResource("/test.properties"))
-
-  case class PropsFunction()
 
   trait PropertiesFunction extends ReturnsResult {
 
@@ -158,7 +154,8 @@ package amsa {
     def infoUrl: String = wikiBase + wikiTitle
   }
 
-  trait AmsaWebAppCheckable extends WebAppPropertiesFunction with AmsaCheckable {
+  trait AmsaWebAppCheckable extends WebAppPropertiesFunction
+    with AmsaCheckable {
     val webappBase = "http://sardevc.amsa.gov.au:8080"
     def date(s: String): NumericExpression = {
       (s + ".epoch.ms")
@@ -178,13 +175,16 @@ package amsa {
   import NumericExpression._
   import AmsaCheckable._
 
+  object MyPropertiesProvider extends UrlPropertiesProvider(PropertiesUtil.getClass().getResource("/test.properties"))
+
   class SampleWebAppCheckable extends AmsaWebAppCheckable {
     val wikiTitle = "Sample_Web_App"
     val webapp = "sample"
     val name = "last processing duration time"
     val description = "processing duration time is acceptable"
     val level: Level = Warning()
-    val policies: Set[Policy] = Set(FixNextWorkingDay(), NotifyAdministrator(), NotifyOncall())
+    val policies: Set[Policy] = Set(FixNextWorkingDay(),
+      NotifyAdministrator(), NotifyOncall())
     val expression =
       ((lastProcessDuration empty)
         or ((lastProcessDuration hours) < 0.5)) and
