@@ -62,7 +62,7 @@ package checkable {
     def days = NumericExpression(() => 24 * hours())
     def weeks = NumericExpression(() => 7 * days())
   }
-
+  object MyPropertiesProvider extends UrlPropertiesProvider(PropertiesUtil.getClass().getResource("/test.properties"))
   case class BooleanExpression(f: Function0[Boolean]) extends Function0[Boolean] {
 
     def apply = f.apply()
@@ -74,6 +74,17 @@ package checkable {
       BooleanExpression(() => !f.apply)
     def && = and _
     def || = or _
+  }
+
+  object BooleanExpression {
+    def urlAvailable(url: String) = BooleanExpression(
+      () =>
+        {
+          val u = new URL(url)
+          val is = u.openStream();
+          is.close();
+          true
+        })
   }
 
   trait Level
@@ -152,11 +163,11 @@ package amsa {
     val wikiBase = "http://wiki.amsa.gov.au/index.php?title="
     val wikiTitle: String
     def infoUrl: String = wikiBase + wikiTitle
+    val webappBase = "http://sardevc.amsa.gov.au:8080"
   }
 
   trait AmsaWebAppCheckable extends WebAppPropertiesFunction
     with AmsaCheckable {
-    val webappBase = "http://sardevc.amsa.gov.au:8080"
     def date(s: String): NumericExpression = {
       (s + ".epoch.ms")
     }
