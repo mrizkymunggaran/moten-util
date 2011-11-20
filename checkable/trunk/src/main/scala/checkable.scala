@@ -18,14 +18,11 @@ package checkable {
 
     type Properties = Map[String, String]
     type BooleanExpression = Function0[Boolean]
-    type Function = Function0[FunctionValue]
     type PropertiesProvider = Function0[Properties]
-    type ReturnsFunctionValue = Function0[FunctionValue]
+    type ReturnsResult = Function0[Result]
   }
 
   import PropertiesUtil._
-
-  case class FunctionValue(value: Boolean, properties: Properties)
 
   case class NumericExpression(f: Function0[BigDecimal]) extends Function0[BigDecimal] {
     def apply = f.apply
@@ -47,6 +44,12 @@ package checkable {
     def ==(n: NumericExpression, precision: BigDecimal) = equals(n, precision)
     def empty: BooleanExpression =
       BooleanExpression(() => apply() == null)
+    def milliseconds = this
+    def seconds = NumericExpression(() => 1000 * this())
+    def minutes = NumericExpression(() => 60 * seconds())
+    def hours = NumericExpression(() => 60 * minutes())
+    def days = NumericExpression(() => 24 * hours())
+    def weeks = NumericExpression(() => 7 * days())
   }
 
   case class BooleanExpression(f: Function0[Boolean]) extends Function0[Boolean] {
@@ -66,17 +69,21 @@ package checkable {
   case class Warning extends Level
   case class Failure extends Level
 
-  trait Policy {
+  trait Result
+
+  case class Passed extends Result
+  case class Failed extends Result
+  case class Unknown extends Result
+  case class ExceptionOccurred(throwable: Throwable) extends Unknown
+
+  trait Policy
+
+  trait Checkable extends Function0[Result] {
     val name: String
     val description: String
+    val level: Level
+    val policies: Set[Policy]
   }
-
-  class Checkable(
-    name: String,
-    description: String,
-    check: Function,
-    level: Level,
-    policy: Policy)
 
   object PropertiesFunction {
 
@@ -95,12 +102,6 @@ package checkable {
     def getBigDecimalMandatory(properties: Properties, key: String) =
       BigDecimal(getStringMandatory(properties, key))
 
-    def stringToNumeric(properties: Properties)(key: String) =
-      NumericExpression(() => properties.get(key) match {
-        case None => null
-        case x: Option[String] => BigDecimal(x.get)
-      })
-
   }
 
   class UrlPropertiesProvider(url: URL) extends PropertiesProvider {
@@ -113,9 +114,15 @@ package checkable {
 
   import PropertiesFunction._
 
-  abstract class PropertiesFunction(properties: Properties) extends ReturnsFunctionValue {
+  trait PropertiesFunction extends ReturnsResult {
 
-    implicit def toNumeric = stringToNumeric(properties)_
+    val properties: () => Properties
+
+    implicit def toNumeric(key: String) =
+      NumericExpression(() => properties().get(key) match {
+        case None => null
+        case x: Option[String] => BigDecimal(x.get)
+      })
 
     implicit def bigDecimalToNumeric(x: BigDecimal) =
       NumericExpression(() => x)
@@ -123,20 +130,46 @@ package checkable {
     implicit def integerToNumericExpression(x: Int) =
       NumericExpression(() => BigDecimal(x))
 
-    def apply =
-      FunctionValue(expression(), properties)
+    def apply = {
+      try {
+        if (expression()) Passed()
+        else Failed()
+      } catch {
+        case e: Throwable => ExceptionOccurred(e)
+      }
+    }
 
     def expression: BooleanExpression
-
   }
 
-  // example properties function
-
-  case class Sample(properties: Properties)
-    extends PropertiesFunction(properties) {
-
-    val expression = ("example.time.ms" empty) or ("example.time.ms" > 100)
-
+  trait WebAppPropertiesFunction extends PropertiesFunction {
+    val webApp: String
+    val webAppBase: String
+    private val url = new URL(webAppBase + "/" + webApp)
+    val properties = new UrlPropertiesProvider(url)
   }
 
+}
+
+package amsa {
+
+  import checkable._
+
+  trait AmsaWebAppCheckable extends WebAppPropertiesFunction with Checkable {
+    val infoUrl: String
+    val webAppBase = "http://sardevc.amsa.gov.au:8080"
+  }
+
+  case class FixNextWorkingDay extends Policy
+  case class FixImmediate extends Policy
+
+  object SampleWebAppCheckable extends AmsaWebAppCheckable {
+    val infoUrl = "http://wiki.amsa.gov.au/sample"
+    val webApp = "sample"
+    val name = "last processing duration time"
+    val description = "processing duration time is acceptable"
+    val level: Level = Warning()
+    val policies: Set[Policy] = Set(FixNextWorkingDay())
+    val expression = ("example.time.hours" empty) or (("example.time.hours" hours) > 100)
+  }
 }
