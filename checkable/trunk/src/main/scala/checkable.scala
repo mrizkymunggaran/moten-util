@@ -149,6 +149,49 @@ package checkable {
 
 }
 
+package monitoring {
+
+  import scala.actors.Actor
+  import scala.actors.Actor._
+
+  class MonitoringProperties {
+    import MonitoringPropertiesActor._
+
+    private val actor = new MonitoringPropertiesActor
+    private def unexpected = throw new RuntimeException("unexpected")
+    def put(key: String, value: String) = actor ! Put(key, value)
+    def get(key: String) = actor !? Get(key) match {
+      case x: String => x
+      case _ => unexpected
+    }
+    def put(key: String, value: java.util.Date): Unit = put(key, value.getTime())
+    def put(key: String, value: Any): Unit = put(key, value.toString)
+    def getNumber(key: String) = BigDecimal(get(key))
+  }
+
+  object MonitoringPropertiesActor {
+    case class Put(key: String, value: String)
+    case class Get(key: String)
+  }
+
+  class MonitoringPropertiesActor extends Actor {
+    //use an Actor to handle concurrent access to the internal properties object safely
+    import MonitoringPropertiesActor._
+
+    def act =
+      {
+        var properties = Map[String, String]()
+        loop {
+          react {
+            case x: Put => properties += x.key -> x.value
+            case x: Get => reply(properties.get(x.key))
+          }
+        }
+      }
+  }
+
+}
+
 package amsa {
 
   import checkable._
