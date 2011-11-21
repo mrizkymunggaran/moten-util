@@ -62,7 +62,7 @@ package checkable {
     def days = NumericExpression(() => 24 * hours())
     def weeks = NumericExpression(() => 7 * days())
   }
-  object MyPropertiesProvider extends UrlPropertiesProvider(PropertiesUtil.getClass().getResource("/test.properties"))
+
   case class BooleanExpression(f: Function0[Boolean]) extends Function0[Boolean] {
 
     def apply = f.apply()
@@ -130,8 +130,10 @@ package checkable {
 
     def apply = {
       try {
-        if (expression()) Passed()
-        else Failed()
+        if (expression())
+          Passed()
+        else
+          Failed()
       } catch {
         case e: Throwable => ExceptionOccurred(e)
       }
@@ -197,6 +199,7 @@ package amsa {
   import checkable._
 
   object AmsaCheckable {
+    def instance = this
     val lastProcessDuration = "last.process.duration.ms"
     val lastRunTime = "last.run.time";
     val applicationStartedTime = "application.started.time"
