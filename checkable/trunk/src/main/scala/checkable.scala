@@ -6,6 +6,9 @@ import java.net.InetAddress
 import java.net.InetSocketAddress
 import java.net.UnknownHostException
 import java.io.File
+import javax.servlet.http.HttpServlet
+import javax.servlet.http.HttpServletResponse
+import javax.servlet.http.HttpServletRequest
 package checkable {
 
   import scala.collection.JavaConversions._
@@ -226,11 +229,19 @@ package monitoring {
       put("application.started.epoch.ms",
         System.currentTimeMillis())
     }
+    def getAll = actor !? GetAll() match {
+      case x: Map[String, String] => x
+      case _ => unexpected
+    }
+  }
+  object MonitoringProperties {
+    val instance = new MonitoringProperties
   }
 
   object MonitoringPropertiesActor {
     case class Put(key: String, value: String)
     case class Get(key: String)
+    case class GetAll
     case class Reset
     case class Initialize
   }
@@ -247,10 +258,17 @@ package monitoring {
             case x: Put => properties += x.key -> x.value
             case x: Get => reply(properties.get(x.key))
             case x: Reset => properties = Map()
+            case x: GetAll => reply(properties)
           }
         }
       }
+  }
 
+  class MonitoringPropertiesServlet extends HttpServlet {
+    override def doGet(request: HttpServletRequest, response: HttpServletResponse) {
+      val properties = MonitoringProperties.instance.getAll
+      //TODO
+    }
   }
 
 }
