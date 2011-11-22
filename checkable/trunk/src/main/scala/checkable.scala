@@ -5,6 +5,7 @@ import java.net.Socket
 import java.net.InetAddress
 import java.net.InetSocketAddress
 import java.net.UnknownHostException
+import java.io.File
 package checkable {
 
   import scala.collection.JavaConversions._
@@ -106,8 +107,10 @@ package checkable {
             }
           }
         } catch {
-          case e: MalformedURLException => throw new RuntimeException(e)
-          case e: IOException => false
+          case e: MalformedURLException =>
+            throw new RuntimeException(e)
+          case e: IOException =>
+            false
         })
 
     def socketAvailable(host: String, port: Int, timeoutMs: Long) = BooleanExpression(
@@ -121,7 +124,7 @@ package checkable {
           // this method will block no more than timeout ms.
           socket.connect(socketAddress, timeoutMs.intValue())
           //socket available
-          true;
+          true
         } catch {
           case e: UnknownHostException => false
           case e: IOException => false
@@ -132,6 +135,8 @@ package checkable {
             }
         }
       })
+
+    def fileExists(file: File) = BooleanExpression(() => file.exists)
   }
 
   trait Level
@@ -192,8 +197,8 @@ package checkable {
   trait WebAppPropertiesFunction extends PropertiesFunction {
     val webapp: String
     val webappBase: String
-    private val url = new URL(webappBase + "/" + webapp)
-    val properties = new UrlPropertiesProvider(url)
+    val propertiesUrl = new URL(webappBase + "/" + webapp + "/properties")
+    val properties = new UrlPropertiesProvider(propertiesUrl)
   }
 
 }
@@ -253,6 +258,7 @@ package monitoring {
 package amsa {
 
   import checkable._
+  import BooleanExpression._
 
   object AmsaCheckable {
     def instance = this
@@ -266,6 +272,8 @@ package amsa {
     val wikiTitle: String
     def infoUrl: String = wikiBase + wikiTitle
     val webappBase = "http://sardevc.amsa.gov.au:8080"
+    def webappAvailable(webapp: String) =
+      urlAvailable(webappBase + "/" + webapp)
   }
 
   trait AmsaWebAppCheckable extends WebAppPropertiesFunction
@@ -308,6 +316,16 @@ package amsa {
           (time(applicationStartedTime) < (now - (1 hours))))
           or
           (time(lastRunTime) > (now - (2 days))))
+  }
+
+  class CtsAvailCheckable extends AmsaWebAppCheckable {
+    val wikiTitle = "CTS"
+    val webapp = "cts"
+    val name = "cts"
+    val description = "cts base url is available"
+    val level: Level = Failure()
+    val policies: Set[Policy] = Set(FixImmediate(), NotifyOncall())
+    val expression = webappAvailable(webapp)
   }
 
 }
