@@ -169,11 +169,18 @@ package monitoring {
     def put(key: String, value: java.util.Date): Unit = put(key, value.getTime())
     def put(key: String, value: Any): Unit = put(key, value.toString)
     def getNumber(key: String) = BigDecimal(get(key))
+    def reset = {
+      actor ! Reset()
+      put("application.started.epoch.ms",
+        System.currentTimeMillis())
+    }
   }
 
   object MonitoringPropertiesActor {
     case class Put(key: String, value: String)
     case class Get(key: String)
+    case class Reset
+    case class Initialize
   }
 
   class MonitoringPropertiesActor extends Actor {
@@ -187,9 +194,11 @@ package monitoring {
           react {
             case x: Put => properties += x.key -> x.value
             case x: Get => reply(properties.get(x.key))
+            case x: Reset => properties = Map()
           }
         }
       }
+
   }
 
 }
@@ -214,7 +223,7 @@ package amsa {
 
   trait AmsaWebAppCheckable extends WebAppPropertiesFunction
     with AmsaCheckable {
-    def date(s: String): NumericExpression = {
+    def time(s: String): NumericExpression = {
       (s + ".epoch.ms")
     }
   }
@@ -232,12 +241,14 @@ package amsa {
   import NumericExpression._
   import AmsaCheckable._
 
-  object MyPropertiesProvider extends UrlPropertiesProvider(PropertiesUtil.getClass().getResource("/test.properties"))
+  object MyPropertiesProvider
+    extends UrlPropertiesProvider(
+      PropertiesUtil.getClass().getResource("/test.properties"))
 
   class SampleWebAppCheckable extends AmsaWebAppCheckable {
     val wikiTitle = "Sample_Web_App"
     val webapp = "sample"
-    val name = "last processing duration time"
+    val name = "sample last processing duration time"
     val description = "processing duration time is acceptable"
     val level: Level = Warning()
     val policies: Set[Policy] = Set(FixNextWorkingDay(),
@@ -245,11 +256,11 @@ package amsa {
     val expression =
       ((lastProcessDuration empty)
         or ((lastProcessDuration hours) < 0.5)) and
-        (((date(lastRunTime) empty)
+        (((time(lastRunTime) empty)
           and
-          (date(applicationStartedTime) < (now - (1 hours))))
+          (time(applicationStartedTime) < (now - (1 hours))))
           or
-          (date(lastRunTime) > (now - (2 days))))
+          (time(lastRunTime) > (now - (2 days))))
   }
 
 }
