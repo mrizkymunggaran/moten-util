@@ -1,3 +1,10 @@
+import java.net.HttpURLConnection
+import java.net.MalformedURLException
+import java.io.IOException
+import java.net.Socket
+import java.net.InetAddress
+import java.net.InetSocketAddress
+import java.net.UnknownHostException
 package checkable {
 
   import scala.collection.JavaConversions._
@@ -77,14 +84,54 @@ package checkable {
   }
 
   object BooleanExpression {
+
     def urlAvailable(url: String) = BooleanExpression(
       () =>
-        {
+        try {
           val u = new URL(url)
-          val is = u.openStream();
-          is.close();
-          true
+          val con = u.openConnection()
+          con match {
+            case http: HttpURLConnection => {
+              http.setConnectTimeout(2000)
+              http.connect()
+              val code = http.getResponseCode()
+              val ok = (code >= 200 && code <= 299) ||
+                (code >= 300 && code <= 399)
+              http.disconnect()
+              ok
+            }
+            case _ => {
+              con.getInputStream().close()
+              true
+            }
+          }
+        } catch {
+          case e: MalformedURLException => throw new RuntimeException(e)
+          case e: IOException => false
         })
+
+    def socketAvailable(host: String, port: Int, timeoutMs: Long) = BooleanExpression(
+      () => {
+        val socket = new Socket()
+        try {
+          val inetAddress = InetAddress.getByName(host)
+          val socketAddress = new InetSocketAddress(inetAddress,
+            port)
+
+          // this method will block no more than timeout ms.
+          socket.connect(socketAddress, timeoutMs.intValue())
+          //socket available
+          true;
+        } catch {
+          case e: UnknownHostException => false
+          case e: IOException => false
+        } finally {
+          if (socket != null)
+            try {
+              socket.close();
+            }
+        }
+      })
   }
 
   trait Level
