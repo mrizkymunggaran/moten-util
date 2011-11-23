@@ -197,9 +197,10 @@ package checkable {
     def expression: BooleanExpression
   }
 
-  trait WebAppPropertiesFunction extends PropertiesFunction {
-    val webapp: String
+  trait WebAppPropertiesFunction
+    extends PropertiesFunction {
     val webappBase: String
+    val webapp: String
     val propertiesUrl = new URL(webappBase + "/" + webapp + "/properties")
     val properties = new UrlPropertiesProvider(propertiesUrl)
   }
@@ -267,7 +268,9 @@ package monitoring {
   class MonitoringPropertiesServlet extends HttpServlet {
     override def doGet(request: HttpServletRequest, response: HttpServletResponse) {
       val properties = MonitoringProperties.instance.getAll
-      //TODO
+      val p = new java.util.Properties()
+      properties.foreach { case (k, v) => p.setProperty(k, v) }
+      p.store(response.getOutputStream(), null)
     }
   }
 
@@ -289,9 +292,6 @@ package amsa {
     val wikiBase = "http://wiki.amsa.gov.au/index.php?title="
     val wikiTitle: String
     def infoUrl: String = wikiBase + wikiTitle
-    val webappBase = "http://sardevc.amsa.gov.au:8080"
-    def webappAvailable(webapp: String) =
-      urlAvailable(webappBase + "/" + webapp)
   }
 
   trait AmsaWebAppCheckable extends WebAppPropertiesFunction
@@ -299,6 +299,9 @@ package amsa {
     def time(s: String): NumericExpression = {
       (s + ".epoch.ms")
     }
+    override val webappBase = "http://sardevc.amsa.gov.au:8080"
+    def webappAvailable(webapp: String) =
+      urlAvailable(webappBase + "/" + webapp)
   }
 
   case class Ok extends Level
@@ -318,9 +321,9 @@ package amsa {
     extends UrlPropertiesProvider(
       PropertiesUtil.getClass().getResource("/test.properties"))
 
-  class SampleWebAppCheckable extends AmsaWebAppCheckable {
+  class SampleWebAppCheckable extends AmsaWebAppCheckable() {
     val wikiTitle = "Sample_Web_App"
-    val webapp = "sample"
+    override val webapp = "sample"
     val name = "sample last processing duration time"
     val description = "processing duration time is acceptable"
     val level: Level = Warning()
@@ -338,7 +341,7 @@ package amsa {
 
   class CtsAvailCheckable extends AmsaWebAppCheckable {
     val wikiTitle = "CTS"
-    val webapp = "cts"
+    override val webapp = "cts"
     val name = "cts"
     val description = "cts base url is available"
     val level: Level = Failure()
