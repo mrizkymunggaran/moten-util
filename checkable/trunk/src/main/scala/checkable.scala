@@ -199,8 +199,8 @@ package checkable {
 
   trait WebAppPropertiesFunction
     extends PropertiesFunction {
-    val webappBase: String
-    val webapp: String
+    def webappBase: String
+    def webapp: String
     val propertiesUrl = new URL(webappBase + "/" + webapp + "/properties")
     val properties = new UrlPropertiesProvider(propertiesUrl)
   }
@@ -299,7 +299,7 @@ package amsa {
     def time(s: String): NumericExpression = {
       (s + ".epoch.ms")
     }
-    override val webappBase = "http://sardevc.amsa.gov.au:8080"
+    override def webappBase = "http://sardevc.amsa.gov.au:8080"
     def webappAvailable(webapp: String) =
       urlAvailable(webappBase + "/" + webapp)
   }
@@ -323,7 +323,7 @@ package amsa {
 
   class SampleWebAppCheckable extends AmsaWebAppCheckable() {
     val wikiTitle = "Sample_Web_App"
-    override val webapp = "sample"
+    override def webapp = "sample"
     val name = "sample last processing duration time"
     val description = "processing duration time is acceptable"
     val level: Level = Warning()
@@ -341,7 +341,7 @@ package amsa {
 
   class CtsAvailCheckable extends AmsaWebAppCheckable {
     val wikiTitle = "CTS"
-    override val webapp = "cts"
+    override def webapp = "cts"
     val name = "cts"
     val description = "cts base url is available"
     val level: Level = Failure()
