@@ -5,7 +5,7 @@ package amsa {
   class CheckableTest {
     @Test
     def test {
-      val list = List(new CtsAvailCheckable(), new GoogleCheckable())
+      val list = List(new CtsAvailCheckable(), new GoogleCheckable(), new SampleWebAppCheckable())
       list.foreach { case c: checkable.Checkable => { println(c); println(c()) } }
     }
   }
