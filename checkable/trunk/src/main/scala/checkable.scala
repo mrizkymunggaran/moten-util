@@ -36,55 +36,57 @@ package checkable {
   import PropertiesUtil._
 
   object NumericExpression {
-    def now = NumericExpression(() => System.currentTimeMillis())
+    def now = NumericExpression(() => System.currentTimeMillis(), () => "now")
   }
 
-  case class NumericExpression(f: () => BigDecimal) extends Function0[BigDecimal] {
+  case class NumericExpression(f: () => BigDecimal, string: () => String) extends Function0[BigDecimal] {
 
     def apply = f()
 
     def >(n: NumericExpression): BooleanExpression =
-      BooleanExpression(() => apply > n.apply)
+      BooleanExpression(() => apply > n.apply, () => this + " > " + n)
     def <(n: NumericExpression): BooleanExpression =
-      BooleanExpression(() => apply < n.apply)
+      BooleanExpression(() => apply < n.apply, () => this + " < " + n)
     def >=(n: NumericExpression): BooleanExpression =
-      BooleanExpression(() => apply >= n.apply)
+      BooleanExpression(() => apply >= n.apply, () => this + " >= " + n)
     def <=(n: NumericExpression): BooleanExpression =
-      BooleanExpression(() => apply <= n.apply)
+      BooleanExpression(() => apply <= n.apply, () => this + " <= " + n)
     def *(n: NumericExpression): NumericExpression =
-      NumericExpression(() => apply * n.apply)
+      NumericExpression(() => apply * n.apply, () => this + " * " + n)
     def +(n: NumericExpression): NumericExpression =
-      NumericExpression(() => apply + n.apply)
+      NumericExpression(() => apply + n.apply, () => this + " + " + n)
     def -(n: NumericExpression): NumericExpression =
-      NumericExpression(() => apply - n.apply)
+      NumericExpression(() => apply - n.apply, () => this + " - " + n)
     def /(n: NumericExpression): NumericExpression =
-      NumericExpression(() => apply / n.apply)
+      NumericExpression(() => apply / n.apply, () => this + " / " + n)
     def equals(n: NumericExpression, precision: BigDecimal) =
-      BooleanExpression(() => (apply - n.apply).abs <= precision)
+      BooleanExpression(() => (apply - n.apply).abs <= precision, () => this + " = " + n)
     def ==(n: NumericExpression, precision: BigDecimal) = equals(n, precision)
     def empty: BooleanExpression =
-      BooleanExpression(() => apply() == null)
+      BooleanExpression(() => apply() == null, () => this + " is empty")
     def notEmpty: BooleanExpression =
-      BooleanExpression(() => apply() != null)
-    def milliseconds = this
-    def seconds = NumericExpression(() => 1000 * this())
-    def minutes = NumericExpression(() => 60 * seconds())
-    def hours = NumericExpression(() => 60 * minutes())
-    def days = NumericExpression(() => 24 * hours())
-    def weeks = NumericExpression(() => 7 * days())
+      BooleanExpression(() => apply() != null, () => this + " is not empty")
+    def milliseconds = NumericExpression(f, () => this + " ms")
+    def seconds = NumericExpression(() => 1000 * this(), () => this + " seconds")
+    def minutes = NumericExpression(() => 60 * seconds(), () => this + " minutes")
+    def hours = NumericExpression(() => 60 * minutes(), () => this + " hours")
+    def days = NumericExpression(() => 24 * hours(), () => this + " days")
+    def weeks = NumericExpression(() => 7 * days(), () => this + " weeks")
+    override def toString = string()
   }
 
-  case class BooleanExpression(f: Function0[Boolean]) extends Function0[Boolean] {
+  case class BooleanExpression(f: () => Boolean, string: () => String) extends Function0[Boolean] {
 
     def apply = f.apply()
     def or(e: BooleanExpression) =
-      BooleanExpression(() => f.apply || e.apply)
+      BooleanExpression(() => f.apply || e.apply, () => toString + " or " + e.toString)
     def and(e: BooleanExpression) =
-      BooleanExpression(() => f.apply || e.apply)
+      BooleanExpression(() => f.apply || e.apply, () => toString + " and " + e.toString)
     def not() =
-      BooleanExpression(() => !f.apply)
+      BooleanExpression(() => !f.apply, () => "not " + toString)
     def && = and _
     def || = or _
+    override def toString = string()
   }
 
   object BooleanExpression {
@@ -114,7 +116,7 @@ package checkable {
             throw new RuntimeException(e)
           case e: IOException =>
             false
-        })
+        }, () => "UrlAvailable(" + url + ")")
 
     def socketAvailable(host: String, port: Int, timeoutMs: Long) = BooleanExpression(
       () => {
@@ -137,9 +139,11 @@ package checkable {
               socket.close();
             }
         }
-      })
+      },
+      () => "SocketAvailable(" + host + ":" + port + ")")
 
-    def fileExists(file: File) = BooleanExpression(() => file.exists)
+    def fileExists(file: File) =
+      BooleanExpression(() => file.exists, () => "FileExists(" + file + ")")
   }
 
   trait Level
@@ -172,16 +176,16 @@ package checkable {
       NumericExpression(() => properties().get(key) match {
         case None => null
         case x: Option[String] => BigDecimal(x.get)
-      })
+      }, () => key)
 
     implicit def bigDecimalToNumeric(x: BigDecimal) =
-      NumericExpression(() => x)
+      NumericExpression(() => x, () => x.toString)
 
     implicit def doubleToNumeric(x: Double) =
-      NumericExpression(() => BigDecimal(x))
+      NumericExpression(() => BigDecimal(x), () => x.toString)
 
     implicit def integerToNumericExpression(x: Int) =
-      NumericExpression(() => BigDecimal(x))
+      NumericExpression(() => BigDecimal(x), () => x.toString)
 
     def apply = {
       try {
@@ -195,6 +199,8 @@ package checkable {
     }
 
     def expression: BooleanExpression
+
+    override def toString = expression.toString
   }
 
   trait WebAppPropertiesFunction
@@ -224,6 +230,7 @@ package monitoring {
     }
     def put(key: String, value: java.util.Date): Unit = put(key, value.getTime())
     def put(key: String, value: Any): Unit = put(key, value.toString)
+    def put(map: Map[String, String]): Unit = { actor ! PutAll(map) }
     def getNumber(key: String) = BigDecimal(get(key))
     def reset = {
       actor ! Reset()
@@ -241,6 +248,7 @@ package monitoring {
 
   object MonitoringPropertiesActor {
     case class Put(key: String, value: String)
+    case class PutAll(map: Map[String, String])
     case class Get(key: String)
     case class GetAll
     case class Reset
@@ -257,6 +265,7 @@ package monitoring {
         loop {
           react {
             case x: Put => properties += x.key -> x.value
+            case x: PutAll => properties ++= x.map
             case x: Get => reply(properties.get(x.key))
             case x: Reset => properties = Map()
             case x: GetAll => reply(properties)
@@ -349,4 +358,14 @@ package amsa {
     val expression = webappAvailable(webapp)
   }
 
+  class GoogleCheckable extends AmsaWebAppCheckable {
+    val wikiTitle = "Google"
+    override def webappBase = "http://www.google.com"
+    override def webapp = ""
+    val name = "Google"
+    val description = "Google base url is available"
+    val level: Level = Failure()
+    val policies: Set[Policy] = Set(FixImmediate(), NotifyOncall())
+    val expression = socketAvailable("www.google.com", 80, 20)
+  }
 }
