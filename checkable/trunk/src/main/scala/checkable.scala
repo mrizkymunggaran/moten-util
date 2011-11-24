@@ -366,6 +366,6 @@ package amsa {
     val description = "Google base url is available"
     val level: Level = Failure()
     val policies: Set[Policy] = Set(FixImmediate(), NotifyOncall())
-    val expression = socketAvailable("www.google.com", 80, 20)
+    val expression = socketAvailable("localhost", 22, 20)
   }
 }
