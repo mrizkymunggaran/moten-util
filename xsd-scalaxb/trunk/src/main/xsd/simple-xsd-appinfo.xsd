@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema"
+	xmlns:tns="http://moten.david.org/util/xsd/simplified/appinfo"
+	targetNamespace="http://moten.david.org/util/xsd/simplified/appinfo"
+	elementFormDefault="qualified" version="1.0">
+
+	
+	<attribute name="label" type="string"/>
+	<attribute name="description" type="string"/>
+	<attribute name="before" type="string"/>
+	<attribute name="after" type="string"/>
+	<attribute name="validation" type="string"/>
+	<attribute name="style" type="string"/>
+	<attribute name="styleName" type="string"/>
+	<attribute name="lines" type="integer"/>
+	<attribute name="cols" type="integer"/>
+	<attribute name="numberItems" type="boolean"/>
+</schema>
