@@ -45,6 +45,13 @@ package amsa {
         case _ => None
       })
 
+      val schemaTypes =
+        (topLevelComplexTypes.map(x => (x.name.get, x))
+          ++ (topLevelSimpleTypes.map(x => (x.name.get, x)))).toMap;
+
+      val xs = "http://www.w3.org/2001/XMLSchema"
+      def qn(namespaceUri: String, localPart: String) = new QName(namespaceUri, localPart)
+      val baseTypes = Set("decimal", "string", "integer", "date", "datetime", "boolean").map(qn(xs, _))
       println(s)
       println
 
@@ -68,10 +75,9 @@ package amsa {
 
       println(element)
 
-      val xs = "http://www.w3.org/2001/XMLSchema"
-      def qn(namespaceUri: String, localPart: String) = new QName(namespaceUri, localPart)
-
       val elementType = element.typeValue.getOrElse(unexpected("type of element " + rootElement + " is missing"))
+      //      allTypes.get(elementType)
+      println("elementType = " + elementType)
     }
 
     val getXml =
