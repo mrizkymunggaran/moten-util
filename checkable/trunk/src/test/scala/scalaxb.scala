@@ -4,6 +4,7 @@ package simple {
   import xsd._
   import xsd.ComplexTypeModelSequence1
   import javax.xml.namespace.QName
+  import scalaxb._
 
   case class BaseType(qName: QName)
 
@@ -13,40 +14,98 @@ package simple {
     }
 
   }
-  
+
   class Simple {
+
+    val xs = "http://www.w3.org/2001/XMLSchema"
+    def qn(namespaceUri: String, localPart: String) = new QName(namespaceUri, localPart)
+    def qn(localPart: String): QName = new QName(xs, localPart)
+
+    case class Sequence(group: ExplicitGroupable)
+    case class Choice(group: ExplicitGroupable)
+
+    private def toQName[T](d: DataRecord[T]) =
+      new QName(d.namespace.getOrElse(null), d.key.getOrElse(null))
+
+    private def matches[T](d: DataRecord[T], q: QName) =
+      toQName(d).equals(q)
+
+    def process(x: Sequence) {
+      println("sequence")
+      x.group.arg1.foreach(y => process(toQName(y),y.value))
+    }
+    
+    def process(q:QName, x:ParticleOption) {
+      if (q == qn("element") ) {
+    	  println("element")
+    	  x match {
+    	    case y: LocalElementable => println(y.name.get + " " + y.typeValue.get)
+    	    case y: GroupRef => println("group ref")
+    	    case y: Allable => unexpected
+    	    case y:AnyType => unexpected
+    	    case y: ExplicitGroupable => println("explicit groupable")
+    	    case _ => unexpected
+    	  }
+      } else if (q == qn("choice")){
+        println("choice")
+        x match {
+          case y: ExplicitGroupable => println("explicit groupable\n"+ y)
+          case _ => unexpected
+        }
+      }
+       else unexpected(q + x.toString)
+    }
+
+    def process(x: Choice) {
+      println("choice")
+    }
 
     def process(e: Element, x: TopLevelComplexType) {
       x.arg1.value match {
-        case x:ComplexContent => unexpected         
-        case x:SimpleContent => x.simplecontentoption.value match {
-          case y:SimpleRestrictionType => println("SimpleRestrictionType base " + y.base)
-          case y:SimpleExtensionType => println("SimpleExtensionType " + y.base)
-        }
-        case x: ComplexTypeModelSequence1 => x.arg1.getOrElse(unexpected).value match {
-          case y:GroupRef => println("groupRef")
-          case y:ExplicitGroupable =>  y.arg1.foreach{ z=>process(e,z.value )}
-        }
+        case x: ComplexContent =>
+          unexpected
+        case x: SimpleContent =>
+          x.simplecontentoption.value match {
+            case y: SimpleRestrictionType =>
+              println("SimpleRestrictionType base " + y.base)
+            case y: SimpleExtensionType =>
+              println("SimpleExtensionType " + y.base)
+            case _ => unexpected
+          }
+        case x: ComplexTypeModelSequence1 =>
+          x.arg1.getOrElse(unexpected).value match {
+            case y: GroupRef =>
+              println("groupRef")
+            case y: ExplicitGroupable =>
+              if (matches(x.arg1.get, qn("sequence")))
+                process(Sequence(y))
+              else if (matches(x.arg1.get, qn("choice")))
+                process(Choice(y))
+                else unexpected
+            case _ => unexpected
+          }
       }
-      
     }
-    def process(e: Element, x: ParticleOption){
+
+    def process(e: Element, x: ParticleOption) {
       x match {
-        case y:AnyType =>
-        case y:LocalElementable =>
-        case y:GroupRef =>
-        case y:Allable =>
-        case y:ExplicitGroupable =>
+        case y: AnyType =>
+        case y: LocalElementable =>
+        case y: GroupRef =>
+        case y: Allable =>
+        case y: ExplicitGroupable =>
+        case _ => unexpected
       }
     }
     def process(e: Element, x: TopLevelSimpleType) {}
     def process(e: Element, x: BaseType) {
-    	x.qName.getLocalPart() match {
-    	  case "string" => println(e.name + ": [TextBox]")
-    	  case "date" => println(e.name + ": [DatePicker]")
-    	  case "datetime" => println(e.name + ": [DateTimePicker]")
-    	  case "boolean" => println(e.name + ": [CheckBox]")
-    	}
+      x.qName.getLocalPart() match {
+        case "string" => println(e.name + ": [TextBox]")
+        case "date" => println(e.name + ": [DatePicker]")
+        case "datetime" => println(e.name + ": [DateTimePicker]")
+        case "boolean" => println(e.name + ": [CheckBox]")
+        case _ => unexpected
+      }
     }
 
     def unexpected(s: String) = throw new RuntimeException(s)
@@ -72,8 +131,6 @@ package simple {
         case _ => None
       })
 
-      val xs = "http://www.w3.org/2001/XMLSchema"
-      def qn(namespaceUri: String, localPart: String) = new QName(namespaceUri, localPart)
       val targetNs = s.targetNamespace.getOrElse(
         unexpected("schema must have targetNamespace attribute")).toString
 
@@ -120,7 +177,7 @@ package simple {
         unexpected("type of element " + rootElement + " is missing"))
       //      allTypes.get(elementType)
       println("elementTypeQName = " + elementTypeQName)
-      println("elementType=" + getType(elementTypeQName))
+      println("elementType=" + getType(elementTypeQName).toString().replace("(", "(\n"))
 
       val elementType = getType(elementTypeQName)
       elementType match {
