@@ -32,32 +32,33 @@ package simple {
 
     def process(x: Sequence) {
       println("sequence")
-      x.group.arg1.foreach(y => process(toQName(y),y.value))
+      x.group.arg1.foreach(y => process(toQName(y), y.value))
     }
-    
-    def process(q:QName, x:ParticleOption) {
-      if (q == qn("element") ) {
-    	  println("element")
-    	  x match {
-    	    case y: LocalElementable => println(y.name.get + " " + y.typeValue.get)
-    	    case y: GroupRef => println("group ref")
-    	    case y: Allable => unexpected
-    	    case y:AnyType => unexpected
-    	    case y: ExplicitGroupable => println("explicit groupable")
-    	    case _ => unexpected
-    	  }
-      } else if (q == qn("choice")){
-        println("choice")
+
+    def process(q: QName, x: ParticleOption) {
+      if (q == qn("element")) {
+        println("element")
         x match {
-          case y: ExplicitGroupable => println("explicit groupable\n"+ y)
+          case y: LocalElementable => println(y.name.get + " " + y.typeValue.get)
+          case y: GroupRef => println("group ref")
+          case y: Allable => unexpected
+          case y: AnyType => unexpected
+          case y: ExplicitGroupable => process(Sequence(y))
           case _ => unexpected
         }
-      }
-       else unexpected(q + x.toString)
+        println("end element")
+      } else if (q == qn("choice")) {
+        println("choice")
+        x match {
+          case y: ExplicitGroupable => process(Choice(y))
+          case _ => unexpected
+        }
+        println("end choice")
+      } else unexpected(q + x.toString)
     }
 
     def process(x: Choice) {
-      println("choice")
+      x.group.arg1.foreach(y => process(toQName(y), y.value))
     }
 
     def process(e: Element, x: TopLevelComplexType) {
@@ -81,22 +82,22 @@ package simple {
                 process(Sequence(y))
               else if (matches(x.arg1.get, qn("choice")))
                 process(Choice(y))
-                else unexpected
+              else unexpected
             case _ => unexpected
           }
       }
     }
 
-    def process(e: Element, x: ParticleOption) {
-      x match {
-        case y: AnyType =>
-        case y: LocalElementable =>
-        case y: GroupRef =>
-        case y: Allable =>
-        case y: ExplicitGroupable =>
-        case _ => unexpected
-      }
-    }
+//    def process(e: Element, x: ParticleOption) {
+//      x match {
+//        case y: AnyType =>
+//        case y: LocalElementable =>
+//        case y: GroupRef =>
+//        case y: Allable =>
+//        case y: ExplicitGroupable =>
+//        case _ => unexpected
+//      }
+//    }
     def process(e: Element, x: TopLevelSimpleType) {}
     def process(e: Element, x: BaseType) {
       x.qName.getLocalPart() match {
@@ -220,6 +221,9 @@ package simple {
                 <xs:annotation i:label="Address" i:lines="4" i:cols="40"/>
               </xs:element>
               <xs:element name="phone" type="xs:string" maxOccurs="unbounded"/>
+              <xs:element name="other" type="other">
+    			<xs:annotation i:glass="true"/>
+    		  </xs:element>
             </xs:choice>
             <xs:element name="code" type="code">
               <xs:annotation i:label="Identifier Code" i:validation="This field must be a whole number between 10 and 20 inclusive"/>
@@ -235,6 +239,12 @@ package simple {
             </xs:element>
           </xs:sequence>
         </xs:complexType>
+    	<xs:complexType name="other">
+    		<xs:sequence>
+    			<xs:element name="other1" type="xs:string"/>
+    			<xs:element name="other2" type="xs:string"/>
+    		</xs:sequence>
+    	</xs:complexType>
         <xs:simpleType name="alwaysTrue">
           <xs:restriction base="xs:boolean">
             <xs:enumeration value="true"/>
