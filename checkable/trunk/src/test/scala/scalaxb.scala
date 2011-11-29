@@ -10,12 +10,48 @@ package simple {
 
   object Simple {
     def main(args: Array[String]) {
-      new Simple().test
+      new Simple().process
     }
 
   }
 
-  class Simple {
+  class Simple() {
+    val s = scalaxb.fromXML[Schema](getXml)
+
+    val topLevelElements =
+      s.schemasequence1.flatMap(_.arg1.value match {
+        case y: TopLevelElement => Some(y)
+        case _ => None
+      })
+
+    val topLevelComplexTypes = s.schemasequence1.flatMap(_.arg1.value match {
+      case y: TopLevelComplexType => Some(y)
+      case _ => None
+    })
+
+    val topLevelSimpleTypes = s.schemasequence1.flatMap(_.arg1.value match {
+      case y: TopLevelSimpleType => Some(y)
+      case _ => None
+    })
+
+    val targetNs = s.targetNamespace.getOrElse(
+      unexpected("schema must have targetNamespace attribute")).toString
+
+    val schemaTypes =
+      (topLevelComplexTypes.map(x => (qn(targetNs, x.name.get), x))
+        ++ (topLevelSimpleTypes.map(x => (qn(targetNs, x.name.get), x)))).toMap;
+
+    val baseTypes =
+      Set("decimal", "string", "integer", "date", "datetime", "boolean")
+        .map(qn(xs, _))
+
+    def getType(q: QName): AnyRef = {
+      schemaTypes.get(q) match {
+        case Some(x: Annotatedable) => return x
+        case _ => if (baseTypes contains q) return BaseType(q)
+        else unexpected("unrecognized type: " + q)
+      }
+    }
 
     val xs = "http://www.w3.org/2001/XMLSchema"
     def qn(namespaceUri: String, localPart: String) = new QName(namespaceUri, localPart)
@@ -34,13 +70,35 @@ package simple {
       println("sequence")
       x.group.arg1.foreach(y => process(toQName(y), y.value))
     }
+    
+    case class MyType(typeValue:AnyRef)
+
+    def process(e: Element) {
+//      println(e.name.get + " " + e.typeValue.get)
+      def exception = unexpected("type of element " + e + " is missing")
+      
+      e.typeValue match {
+        case Some(x:QName) => process(e,MyType(getType(x)))
+        case _ => exception
+      }
+      
+    }
+    
+    def process(e:Element, typeValue:MyType){
+      println(e.name.get + " " + e.typeValue.get)
+      typeValue.typeValue match {
+        case x:TopLevelComplexType => process(e, x)
+        case x:TopLevelSimpleType => process(e, x)
+        case x:BaseType => process(e,x)
+      }
+    }
 
     def process(q: QName, x: ParticleOption) {
       if (q == qn("element")) {
         println("element")
         x match {
-          case y: LocalElementable => println(y.name.get + " " + y.typeValue.get)
-          case y: GroupRef => println("group ref")
+          case y: LocalElementable => process(y)
+          case y: GroupRef => unexpected
           case y: Allable => unexpected
           case y: AnyType => unexpected
           case y: ExplicitGroupable => process(Sequence(y))
@@ -48,20 +106,20 @@ package simple {
         }
         println("end element")
       } else if (q == qn("choice")) {
-        println("choice")
         x match {
           case y: ExplicitGroupable => process(Choice(y))
           case _ => unexpected
         }
-        println("end choice")
       } else unexpected(q + x.toString)
     }
 
     def process(x: Choice) {
+      println("choice")
       x.group.arg1.foreach(y => process(toQName(y), y.value))
+      println("end choice")
     }
 
-    def process(e: Element, x: TopLevelComplexType) {
+    def process(e: Element, x: ComplexType) {
       x.arg1.value match {
         case x: ComplexContent =>
           unexpected
@@ -88,17 +146,9 @@ package simple {
       }
     }
 
-//    def process(e: Element, x: ParticleOption) {
-//      x match {
-//        case y: AnyType =>
-//        case y: LocalElementable =>
-//        case y: GroupRef =>
-//        case y: Allable =>
-//        case y: ExplicitGroupable =>
-//        case _ => unexpected
-//      }
-//    }
-    def process(e: Element, x: TopLevelSimpleType) {}
+    def process(e: Element, x: TopLevelSimpleType) {
+      //TODO
+    }
     def process(e: Element, x: BaseType) {
       x.qName.getLocalPart() match {
         case "string" => println(e.name + ": [TextBox]")
@@ -112,46 +162,7 @@ package simple {
     def unexpected(s: String) = throw new RuntimeException(s)
     def unexpected() = throw new RuntimeException()
 
-    def test {
-
-      val s = scalaxb.fromXML[Schema](getXml)
-
-      val topLevelElements =
-        s.schemasequence1.flatMap(_.arg1.value match {
-          case y: TopLevelElement => Some(y)
-          case _ => None
-        })
-
-      val topLevelComplexTypes = s.schemasequence1.flatMap(_.arg1.value match {
-        case y: TopLevelComplexType => Some(y)
-        case _ => None
-      })
-
-      val topLevelSimpleTypes = s.schemasequence1.flatMap(_.arg1.value match {
-        case y: TopLevelSimpleType => Some(y)
-        case _ => None
-      })
-
-      val targetNs = s.targetNamespace.getOrElse(
-        unexpected("schema must have targetNamespace attribute")).toString
-
-      val schemaTypes =
-        (topLevelComplexTypes.map(x => (qn(targetNs, x.name.get), x))
-          ++ (topLevelSimpleTypes.map(x => (qn(targetNs, x.name.get), x)))).toMap;
-
-      val baseTypes =
-        Set("decimal", "string", "integer", "date", "datetime", "boolean")
-          .map(qn(xs, _))
-
-      def getType(q: QName): AnyRef = {
-        schemaTypes.get(q) match {
-          case Some(x: Annotatedable) => return x
-        }
-        if (baseTypes contains q) return BaseType(q)
-        else unexpected("unrecognized type: " + q)
-      }
-
-      val a: Annotatedable = null;
+    def process {
 
       println(s)
       println
@@ -174,23 +185,11 @@ package simple {
 
       println(element)
 
-      val elementTypeQName = element.typeValue.getOrElse(
-        unexpected("type of element " + rootElement + " is missing"))
-      //      allTypes.get(elementType)
-      println("elementTypeQName = " + elementTypeQName)
-      println("elementType=" + getType(elementTypeQName).toString().replace("(", "(\n"))
-
-      val elementType = getType(elementTypeQName)
-      elementType match {
-        case x: TopLevelComplexType => process(element, x)
-        case x: TopLevelSimpleType => process(element, x)
-        case x: BaseType => process(element, x)
-        case _ => unexpected
-      }
+      process(element)
 
     }
 
-    val getXml =
+    def getXml =
       <xs:schema targetNamespace="http://org.moten.david/example" xmlns="http://org.moten.david/example" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:i="http://moten.david.org/util/xsd/simplified/appinfo">
         <xs:annotation i:numberItems="true"/>
         <xs:element name="person" type="person">
@@ -222,8 +221,8 @@ package simple {
               </xs:element>
               <xs:element name="phone" type="xs:string" maxOccurs="unbounded"/>
               <xs:element name="other" type="other">
-    			<xs:annotation i:glass="true"/>
-    		  </xs:element>
+                <xs:annotation i:glass="true"/>
+              </xs:element>
             </xs:choice>
             <xs:element name="code" type="code">
               <xs:annotation i:label="Identifier Code" i:validation="This field must be a whole number between 10 and 20 inclusive"/>
@@ -239,12 +238,12 @@ package simple {
             </xs:element>
           </xs:sequence>
         </xs:complexType>
-    	<xs:complexType name="other">
-    		<xs:sequence>
-    			<xs:element name="other1" type="xs:string"/>
-    			<xs:element name="other2" type="xs:string"/>
-    		</xs:sequence>
-    	</xs:complexType>
+        <xs:complexType name="other">
+          <xs:sequence>
+            <xs:element name="other1" type="xs:string"/>
+            <xs:element name="other2" type="xs:string"/>
+          </xs:sequence>
+        </xs:complexType>
         <xs:simpleType name="alwaysTrue">
           <xs:restriction base="xs:boolean">
             <xs:enumeration value="true"/>
