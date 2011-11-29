@@ -5,16 +5,55 @@ package simple {
   import xsd.ComplexTypeModelSequence1
   import javax.xml.namespace.QName
 
-  
-  object Simple {
+  case class BaseType(qName: QName)
 
-    def main(args:Array[String]){
-      test
+  object Simple {
+    def main(args: Array[String]) {
+      new Simple().test
     }
-    
+
+  }
+  
+  class Simple {
+
+    def process(e: Element, x: TopLevelComplexType) {
+      x.arg1.value match {
+        case x:ComplexContent => unexpected         
+        case x:SimpleContent => x.simplecontentoption.value match {
+          case y:SimpleRestrictionType => println("SimpleRestrictionType base " + y.base)
+          case y:SimpleExtensionType => println("SimpleExtensionType " + y.base)
+        }
+        case x: ComplexTypeModelSequence1 => x.arg1.getOrElse(unexpected).value match {
+          case y:GroupRef => println("groupRef")
+          case y:ExplicitGroupable =>  y.arg1.foreach{ z=>process(e,z.value )}
+        }
+      }
+      
+    }
+    def process(e: Element, x: ParticleOption){
+      x match {
+        case y:AnyType =>
+        case y:LocalElementable =>
+        case y:GroupRef =>
+        case y:Allable =>
+        case y:ExplicitGroupable =>
+      }
+    }
+    def process(e: Element, x: TopLevelSimpleType) {}
+    def process(e: Element, x: BaseType) {
+    	x.qName.getLocalPart() match {
+    	  case "string" => println(e.name + ": [TextBox]")
+    	  case "date" => println(e.name + ": [DatePicker]")
+    	  case "datetime" => println(e.name + ": [DateTimePicker]")
+    	  case "boolean" => println(e.name + ": [CheckBox]")
+    	}
+    }
+
+    def unexpected(s: String) = throw new RuntimeException(s)
+    def unexpected() = throw new RuntimeException()
+
     def test {
 
-      def unexpected(s: String) = throw new RuntimeException(s)
       val s = scalaxb.fromXML[Schema](getXml)
 
       val topLevelElements =
@@ -42,9 +81,19 @@ package simple {
         (topLevelComplexTypes.map(x => (qn(targetNs, x.name.get), x))
           ++ (topLevelSimpleTypes.map(x => (qn(targetNs, x.name.get), x)))).toMap;
 
-      val baseTypes = 
+      val baseTypes =
         Set("decimal", "string", "integer", "date", "datetime", "boolean")
-        .map(qn(xs, _))
+          .map(qn(xs, _))
+
+      def getType(q: QName): AnyRef = {
+        schemaTypes.get(q) match {
+          case Some(x: Annotatedable) => return x
+        }
+        if (baseTypes contains q) return BaseType(q)
+        else unexpected("unrecognized type: " + q)
+      }
+
+      val a: Annotatedable = null;
 
       println(s)
       println
@@ -67,10 +116,20 @@ package simple {
 
       println(element)
 
-      val elementType = element.typeValue.getOrElse(
+      val elementTypeQName = element.typeValue.getOrElse(
         unexpected("type of element " + rootElement + " is missing"))
       //      allTypes.get(elementType)
-      println("elementType = " + elementType)
+      println("elementTypeQName = " + elementTypeQName)
+      println("elementType=" + getType(elementTypeQName))
+
+      val elementType = getType(elementTypeQName)
+      elementType match {
+        case x: TopLevelComplexType => process(element, x)
+        case x: TopLevelSimpleType => process(element, x)
+        case x: BaseType => process(element, x)
+        case _ => unexpected
+      }
+
     }
 
     val getXml =
