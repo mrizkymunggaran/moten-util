@@ -41,19 +41,21 @@ package simple {
       (topLevelComplexTypes.map(x => (qn(targetNs, x.name.get), x))
         ++ (topLevelSimpleTypes.map(x => (qn(targetNs, x.name.get), x)))).toMap;
 
+    val xs = "http://www.w3.org/2001/XMLSchema"
+
     val baseTypes =
-      Set("decimal", "string", "integer", "date", "datetime", "boolean")
-        .map(qn(xs, _))
+      Set("decimal", "string", "integer", "date", "dateTime", "boolean")
+        .map(new QName(xs, _))
 
     def getType(q: QName): AnyRef = {
       schemaTypes.get(q) match {
         case Some(x: Annotatedable) => return x
-        case _ => if (baseTypes contains q) return BaseType(q)
-        else unexpected("unrecognized type: " + q)
+        case _ =>
+          if (baseTypes contains q) return BaseType(q)
+          else unexpected("unrecognized type: " + q)
       }
     }
 
-    val xs = "http://www.w3.org/2001/XMLSchema"
     def qn(namespaceUri: String, localPart: String) = new QName(namespaceUri, localPart)
     def qn(localPart: String): QName = new QName(xs, localPart)
 
@@ -70,26 +72,26 @@ package simple {
       println("sequence")
       x.group.arg1.foreach(y => process(toQName(y), y.value))
     }
-    
-    case class MyType(typeValue:AnyRef)
+
+    case class MyType(typeValue: AnyRef)
 
     def process(e: Element) {
-//      println(e.name.get + " " + e.typeValue.get)
+      //      println(e.name.get + " " + e.typeValue.get)
       def exception = unexpected("type of element " + e + " is missing")
-      
+
       e.typeValue match {
-        case Some(x:QName) => process(e,MyType(getType(x)))
+        case Some(x: QName) => process(e, MyType(getType(x)))
         case _ => exception
       }
-      
+
     }
-    
-    def process(e:Element, typeValue:MyType){
+
+    def process(e: Element, typeValue: MyType) {
       println(e.name.get + " " + e.typeValue.get)
       typeValue.typeValue match {
-        case x:TopLevelComplexType => process(e, x)
-        case x:TopLevelSimpleType => process(e, x)
-        case x:BaseType => process(e,x)
+        case x: TopLevelComplexType => process(e, x)
+        case x: TopLevelSimpleType => process(e, x)
+        case x: BaseType => process(e, x)
       }
     }
 
@@ -150,12 +152,15 @@ package simple {
       //TODO
     }
     def process(e: Element, x: BaseType) {
+      val name= e.name.get
       x.qName.getLocalPart() match {
-        case "string" => println(e.name + ": [TextBox]")
-        case "date" => println(e.name + ": [DatePicker]")
-        case "datetime" => println(e.name + ": [DateTimePicker]")
-        case "boolean" => println(e.name + ": [CheckBox]")
-        case _ => unexpected
+        case "string" => println(name + ": [TextBox]")
+        case "date" => println(name + ": [DatePicker]")
+        case "dateTime" => println(name + ": [DateTimePicker]")
+        case "boolean" => println(name + ": [CheckBox]")
+        case "integer" => println(name + ": [TextBox]")
+        case "decimal" => println(name + ": [TextBox]")
+        case _ => unexpected(name + ":" + x)
       }
     }
 
@@ -175,6 +180,8 @@ package simple {
       println("\ntopLevelElements:")
       println(topLevelElements)
       println
+
+      println(schemaTypes)
 
       val rootElement = "person"
       val element = topLevelElements.find(
@@ -252,6 +259,11 @@ package simple {
         <xs:simpleType name="passport-no">
           <xs:restriction base="xs:string">
             <xs:pattern value="L[0-9]+"/>
+          </xs:restriction>
+        </xs:simpleType>
+        <xs:simpleType name="email">
+          <xs:restriction base="xsd:string">
+            <xs:pattern value="^([0-9a-zA-Z]([-.\w]*[0-9a-zA-Z])*@([0-9a-zA-Z][-\w]*[0-9a-zA-Z]\.)+[a-zA-Z]{2,9})$"/>
           </xs:restriction>
         </xs:simpleType>
         <!-- List source : http://geotags.com/iso3166/countries.html -->
