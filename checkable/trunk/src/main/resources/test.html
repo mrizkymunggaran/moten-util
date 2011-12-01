@@ -1,0 +1,106 @@
+<html>
+<head>
+<script type="text/javascript" src="jquery.js"></script>
+<style type="text/css">
+
+body {
+	padding: 0 0px;
+	font: normal 62.5% "Lucida Grande", Helvetica, Verdana, Arial;
+}
+
+.form {
+	margin-left: 0px;
+	background-color: #EDFAD9;
+	max-width: 500px;
+}
+
+.form-title {
+	font-size:15;
+	padding-bottom:5px;
+}
+
+.items-before {
+	padding-left:10px;
+	padding-bottom:10px;
+}
+
+
+.item-group {
+	position: relative;
+	margin-left:25px;
+}
+
+.item {
+	clear:left;
+	border-top: 1px solid #C9DCA6;
+	color: black;
+}
+
+.item-number {
+	padding-top: 13px;
+	padding-left:5px;
+	padding-right:5px;
+	float: left;
+	width: 2em;
+	color:gray;
+	font-size:52%;
+}
+
+.item-label {
+	float: left;
+	margin-top: 10px;
+	min-width: 100px;
+	padding-right: 10px;
+	padding-bottom:10px;
+}
+
+.item-input-text {
+  clear: left;
+  // border: #999999 solid thin;
+  margin-top:7px;
+  margin-bottom:7px;
+}
+.item-input-long-text {
+  clear: left;
+  // border: #999999 solid thin;
+  height:5em;
+  width:20em;
+  margin-top:7px;
+  margin-bottom:7px;
+}
+
+em {
+  color: red;
+}
+
+#item-input {
+	
+}
+</style>
+</head>
+<body>
+	<div class="form-before" />
+	<form>
+		<div class="form">
+		    <div class="form-title">Personal details</div>
+		    <div class="items-before">Please complete the form below. Mandatory fields marked <em>*</em> </div>
+			<div class="items">
+				<div class="item-before" />
+				<div class="item">
+					<div class="label">Name</div>
+					<div class="item-group">
+						<div class="label">Phone</div>
+					</div>
+				</div>
+				<div class="item">
+					<div class="label">Title</div>
+					<div class="item-group">
+						<div class="label">Mobile</div>
+					</div>
+				</div>
+			</div>
+	    </div>
+		<input class="submit" type="submit"/>
+	</form>
+</body>
+</html>
