@@ -2,40 +2,58 @@
 <head>
 <script type="text/javascript" src="jquery.js"></script>
 <style type="text/css">
-#form {
+body {
+	padding: 0 10px;
+	font: normal 62.5% "Lucida Grande", Helvetica, Verdana, Arial;
+	}
+
+.form {
 	margin-left: 30px;
 }
-#item-group {
+
+.item-group {
 	position: relative;
 	margin-left:25px;
 }
 
-#item {
-    clear:left;
+.item {
+    	clear:left;
 	position: relative;
-	background-color: white;
+	background-color: #EDFAD9;
+	border-top: 1px solid #C9DCA6;
 	color: black;
 }
 
-#item-number {
-	margin-top: 7px;
+.item-number {
+	padding-top: 11px;
+	padding-left:5px;
 	float: left;
 	width: 2em;
 	color:gray;
-	font-size:9;
+	font-size:52%;
 }
 
-#item-label {
+.item-label {
 	float: left;
-	margin-top: 3px;
+	margin-top: 10px;
 	min-width: 100px;
 	margin-right: 10px;
 }
 
+.item-input-text {
+  clear: left;
+  border: #999999 solid thin;
+  margin-top:7px;
+  margin-bottom:7px;
+}
+
+em {
+  color: red;
+}
 
 
 /*
-#item-after { 
+.item-after { 
   clear: left;
   margin-top: 15px;
   padding-top: 15px;
@@ -48,103 +66,99 @@
 </style>
 </head>
 <body>
-	<div id="form-before" />
+	<div class="form-before" />
 	<form>
-		<div id="form">
-			<div id="items-before" />
-			<div id="items">
-				<div id="item-before" />
-				<div id="item">
-					<div id="item-content-before" />
-					<div id="item-number">1</div>
-					<div id="item-number-dotted" />
-					<div id="item-label">First name</div>
-					<div id="item-input">
-						<input name="item-input-1" type="text" />
+		<div class="form">
+			<div class="items-before" />
+			<div class="items">
+				<div class="item-before" />
+				<div class="item">
+					<div class="item-content-before" />
+					<div class="item-number">1</div>
+					<div class="item-label">First name <em>*</em></div>
+					<div class="item-input">
+						<input name="item-input-1" class="item-input-text" type="text" />
 					</div>
-					<div id="item-description" />
-					<div id="item-help" />
-					<div id="item-error" />
-					<div id="item-content-after" />
+					<div class="item-description" />
+					<div class="item-help" />
+					<div class="item-error" />
+					<div class="item-content-after" />
 				</div>
-				<div id="item-after" />
-				<div id="item-before" />
-				<div id="item">
-					<div id="item-content-before" />
-					<div id="item-number">2</div>
-					<div id="item-number-dotted" />
-					<div id="item-label">Family name</div>
-					<div id="item-input">
-						<input name="item-input-2" type="text" />
+				<div class="item-after" />
+				<div class="item-before" />
+				<div class="item">
+					<div class="item-content-before" />
+					<div class="item-number">2</div>
+					<div class="item-label">Family name <em>*</em></div>
+					<div class="item-input">
+						<input name="item-input-2" class="item-input-text" type="text" />
 					</div>
-					<div id="item-description" />
-					<div id="item-help" />
-					<div id="item-error" />
-					<div id="item-content-after" />
+					<div class="item-description" />
+					<div class="item-help" />
+					<div class="item-error" />
+					<div class="item-content-after" />
 				</div>
-				<div id="item-after" />
-				<div id="item-before" />
-				<div id="item">
-					<div id="item-content-before" />
-					<div id="item-number">3</div>
-					<div id="item-number-dotted" />
-					<div id="item-label">Number of living children</div>
-					<div id="item-input">
-						<input name="item-input-3" type="text" />
+				<div class="item-after" />
+				<div class="item-before" />
+				<div class="item">
+					<div class="item-content-before" />
+					<div class="item-number">3</div>
+					<div class="item-number-dotted" />
+					<div class="item-label">Number of living children</div>
+					<div class="item-input">
+						<input name="item-input-3" class="item-input-text" type="text" />
 					</div>
-					<div id="item-description" />
-					<div id="item-help" />
-					<div id="item-error" />
-					<div id="item-content-after" />
+					<div class="item-description" />
+					<div class="item-help" />
+					<div class="item-error" />
+					<div class="item-content-after" />
 				</div>
-				<div id="item-after" />
-				<div id="item-before" />
-				<div id="item">
-					<div id="item-content-before" />
-					<div id="item-number">4</div>
-					<div id="item-number-dotted" />
-					<div id="item-label">Contact details</div>
-					<div id="item-input"></div>
-					<div id="item-description" />
-					<div id="item-help" />
-					<div id="item-error" />
-					<div id="item-content-after" />
-					<div id="item-group">
-						<div id="item-before" />
-						<div id="item">
-							<div id="item-content-before" />
-							<div id="item-number">4.1</div>
-							<div id="item-number-dotted" />
-							<div id="item-label">Email</div>
-							<div id="item-input">
-								<input name="item-input-4" type="text" />
+				<div class="item-after" />
+				<div class="item-before" />
+				<div class="item">
+					<div class="item-content-before" />
+					<div class="item-number">4</div>
+					<div class="item-number-dotted" />
+					<div class="item-label">Contact details</div>
+					<div class="item-input"></div>
+					<div class="item-description" />
+					<div class="item-help" />
+					<div class="item-error" />
+					<div class="item-content-after" />
+					<div class="item-group">
+						<div class="item-before" />
+						<div class="item">
+							<div class="item-content-before" />
+							<div class="item-number">4.1</div>
+							<div class="item-label">Email <em>*</em></div>
+							<div class="item-input">
+								<input name="item-input-4" class="item-input-text" type="text" />
 							</div>
-							<div id="item-description" />
-							<div id="item-help" />
-							<div id="item-error" />
-							<div id="item-content-after" />
+							<div class="item-description" />
+							<div class="item-help" />
+							<div class="item-error" />
+							<div class="item-content-after" />
 						</div>
-						<div id="item-after" />
-						<div id="item-before" />
-						<div id="item">
-							<div id="item-content-before" />
-							<div id="item-number">4.2</div>
-							<div id="item-number-dotted" />
-							<div id="item-label">Mobile number</div>
-							<div id="item-input">
-								<input name="item-input-5" type="text" />
+						<div class="item-after" />
+						<div class="item-before" />
+						<div class="item">
+							<div class="item-content-before" />
+							<div class="item-number">4.2</div>
+							<div class="item-label">Mobile number</div>
+							<div class="item-input">
+								<input name="item-input-5" class="item-input-text" type="text" />
 							</div>
-							<div id="item-description" />
-							<div id="item-help" />
-							<div id="item-error" />
-							<div id="item-content-after" />
+							<div class="item-description" />
+							<div class="item-help" />
+							<div class="item-error" />
+							<div class="item-content-after" />
 						</div>
-						<div id="item-after" />
+						<div class="item-after" />
 					</div>
 				</div>
-				<div id="item-after" />
+				<div class="item-after" />
 			</div>
-			<div id="items-after" />
+			<div class="items-after" />
 		</div>
 	</form>
 </body>
