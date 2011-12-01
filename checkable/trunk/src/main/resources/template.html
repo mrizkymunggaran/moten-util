@@ -2,7 +2,6 @@
 <head>
 <script type="text/javascript" src="jquery.js"></script>
 <style type="text/css">
-
 body {
 	padding: 0 0px;
 	font: normal 62.5% "Lucida Grande", Helvetica, Verdana, Arial;
@@ -15,35 +14,34 @@ body {
 }
 
 .form-title {
-	font-size:15;
-	padding-bottom:5px;
+	font-size: 15;
+	padding-bottom: 5px;
 }
 
 .items-before {
-	padding-left:10px;
-	padding-bottom:10px;
+	padding-left: 10px;
+	padding-bottom: 10px;
 }
-
 
 .item-group {
 	position: relative;
-	margin-left:25px;
+	margin-left: 25px;
 }
 
 .item {
-	clear:left;
+	clear: left;
 	border-top: 1px solid #C9DCA6;
 	color: black;
 }
 
 .item-number {
 	padding-top: 13px;
-	padding-left:5px;
-	padding-right:5px;
+	padding-left: 5px;
+	padding-right: 5px;
 	float: left;
 	width: 2em;
-	color:gray;
-	font-size:52%;
+	color: gray;
+	font-size: 52%;
 }
 
 .item-label {
@@ -51,26 +49,27 @@ body {
 	margin-top: 10px;
 	min-width: 100px;
 	padding-right: 10px;
-	padding-bottom:10px;
+	padding-bottom: 10px;
 }
 
 .item-input-text {
-  clear: left;
-  // border: #999999 solid thin;
-  margin-top:7px;
-  margin-bottom:7px;
+	clear: left; 
+/*	border: #999999 solid thin;*/
+	margin-top: 7px;
+	margin-bottom: 7px;
 }
+
 .item-input-long-text {
-  clear: left;
-  // border: #999999 solid thin;
-  height:5em;
-  width:20em;
-  margin-top:7px;
-  margin-bottom:7px;
+	clear: left; 
+	/* border: #999999 solid thin; */
+	height: 5em;
+	width: 20em;
+	margin-top: 7px;
+	margin-bottom: 7px;
 }
 
 em {
-  color: red;
+	color: red;
 }
 
 #item-input {
@@ -82,16 +81,20 @@ em {
 	<div class="form-before" />
 	<form>
 		<div class="form">
-		    <div class="form-title">Personal details</div>
-		    <div class="items-before">Please complete the form below. Mandatory fields marked <em>*</em> </div>
+			<div class="form-title">Personal details</div>
+			<div class="items-before">
+				Please complete the form below. Mandatory fields marked <em>*</em>
+			</div>
 			<div class="items">
 				<div class="item-before" />
 				<div class="item">
 					<div class="item-content-before" />
 					<div class="item-number">1</div>
-					<div class="item-label">First name <em>*</em></div>
+					<div class="item-label">
+						First name <em>*</em>
+					</div>
 					<div class="item-input">
-						<input name="item-input-1" class="item-input-text" type="text" ></input>
+						<input name="item-input-1" class="item-input-text" type="text"></input>
 					</div>
 					<div class="item-description" />
 					<div class="item-help" />
@@ -103,9 +106,11 @@ em {
 				<div id="person_last-name" class="item">
 					<div class="item-content-before" />
 					<div class="item-number">2</div>
-					<div class="item-label">Family name <em>*</em></div>
+					<div class="item-label">
+						Family name <em>*</em>
+					</div>
 					<div class="item-input">
-						<input name="item-input-2" class="item-input-text" type="text" ></input>
+						<input name="item-input-2" class="item-input-text" type="text"></input>
 					</div>
 					<div class="item-description" />
 					<div class="item-help" />
@@ -119,7 +124,7 @@ em {
 					<div class="item-number">3</div>
 					<div class="item-label">Number of living children</div>
 					<div class="item-input">
-						<input name="item-input-3" class="item-input-text" type="text" ></input>
+						<input name="item-input-3" class="item-input-text" type="text"></input>
 					</div>
 					<div class="item-description" />
 					<div class="item-help" />
@@ -142,9 +147,11 @@ em {
 						<div class="item">
 							<div class="item-content-before" />
 							<div class="item-number">4.1</div>
-							<div class="item-label">Email <em>*</em></div>
+							<div class="item-label">
+								Email <em>*</em>
+							</div>
 							<div class="item-input">
-								<input name="item-input-4-1" class="item-input-text" type="text" ></input>
+								<input name="item-input-4-1" class="item-input-text" type="text"></input>
 							</div>
 							<div class="item-description" />
 							<div class="item-help" />
@@ -158,7 +165,7 @@ em {
 							<div class="item-number">4.2</div>
 							<div class="item-label">Mobile number</div>
 							<div class="item-input">
-								<input name="item-input-4-2" class="item-input-text" type="text" ></input>
+								<input name="item-input-4-2" class="item-input-text" type="text"></input>
 							</div>
 							<div class="item-description" />
 							<div class="item-help" />
@@ -175,18 +182,18 @@ em {
 					<div class="item-number">5</div>
 					<div class="item-label">Address</div>
 					<div class="item-input">
-						<textarea name="item-input-5" class="item-input-long-text" ></textarea>
+						<textarea name="item-input-5" class="item-input-long-text"></textarea>
 					</div>
 					<div class="item-description" />
 					<div class="item-help" />
 					<div class="item-error" />
 					<div class="item-content-after" />
 				</div>
-	
+
 			</div>
 			<div class="items-after" />
 		</div>
-		<input class="submit" type="submit"/>
+		<input class="submit" type="submit" />
 	</form>
 </body>
 </html>
