@@ -34,6 +34,25 @@ body {
 	color: black;
 }
 
+.item-group-number {
+	float: left;
+	padding-top: 13px;
+	padding-left: 5px;
+	padding-right: 5px;
+	width: 2em;
+	color: gray;
+	font-size: 52%;
+}
+
+.item-group-label {
+	float: left;
+	margin-top: 10px;
+	min-width: 100px;
+	padding-right: 10px;
+	padding-bottom: 10px;
+	font-weight: bold;
+}
+
 .item-number {
 	padding-top: 13px;
 	padding-left: 5px;
@@ -86,9 +105,7 @@ em {
 				Please complete the form below. Mandatory fields marked <em>*</em>
 			</div>
 			<div class="item-group">
-				<div class="item-before" />
 				<div class="item">
-					<div class="item-content-before" />
 					<div class="item-number">1</div>
 					<div class="item-label">
 						First name <em>*</em>
@@ -99,12 +116,8 @@ em {
 					<div class="item-description" />
 					<div class="item-help" />
 					<div class="item-error" />
-					<div class="item-content-after" />
 				</div>
-				<div class="item-after" />
-				<div class="item-before" />
 				<div id="person_last-name" class="item">
-					<div class="item-content-before" />
 					<div class="item-number">2</div>
 					<div class="item-label">
 						Family name <em>*</em>
@@ -115,12 +128,8 @@ em {
 					<div class="item-description" />
 					<div class="item-help" />
 					<div class="item-error" />
-					<div class="item-content-after" />
 				</div>
-				<div class="item-after" />
-				<div class="item-before" />
 				<div class="item">
-					<div class="item-content-before" />
 					<div class="item-number">3</div>
 					<div class="item-label">Number of living children</div>
 					<div class="item-input">
@@ -129,56 +138,34 @@ em {
 					<div class="item-description" />
 					<div class="item-help" />
 					<div class="item-error" />
-					<div class="item-content-after" />
 				</div>
-				<div class="item-after" />
-				<div class="item-before" />
-				<div class="item">
-					<div class="item-content-before" />
-					<div class="item-number">4</div>
-					<div class="item-label">Contact details</div>
-					<div class="item-input"></div>
-					<div class="item-description" />
-					<div class="item-help" />
-					<div class="item-error" />
-					<div class="item-content-after" />
-					<div class="item-group">
-						<div class="item-before" />
-						<div class="item">
-							<div class="item-content-before" />
-							<div class="item-number">4.1</div>
-							<div class="item-label">
-								Email <em>*</em>
-							</div>
-							<div class="item-input">
-								<input name="item-input-4-1" class="item-input-text" type="text"></input>
-							</div>
-							<div class="item-description" />
-							<div class="item-help" />
-							<div class="item-error" />
-							<div class="item-content-after" />
+				<div class="item-group">
+					<div class="item-group-number">4</div>
+					<div class="item-group-label">Contact details</div>
+					<div class="item">
+						<div class="item-number">4.1</div>
+						<div class="item-label">
+							Email <em>*</em>
 						</div>
-						<div class="item-after" />
-						<div class="item-before" />
-						<div class="item">
-							<div class="item-content-before" />
-							<div class="item-number">4.2</div>
-							<div class="item-label">Mobile number</div>
-							<div class="item-input">
-								<input name="item-input-4-2" class="item-input-text" type="text"></input>
-							</div>
-							<div class="item-description" />
-							<div class="item-help" />
-							<div class="item-error" />
-							<div class="item-content-after" />
+						<div class="item-input">
+							<input name="item-input-4-1" class="item-input-text" type="text"></input>
 						</div>
-						<div class="item-after" />
+						<div class="item-description" />
+						<div class="item-help" />
+						<div class="item-error" />
+					</div>
+					<div class="item">
+						<div class="item-number">4.2</div>
+						<div class="item-label">Mobile number</div>
+						<div class="item-input">
+							<input name="item-input-4-2" class="item-input-text" type="text"></input>
+						</div>
+						<div class="item-description" />
+						<div class="item-help" />
+						<div class="item-error" />
 					</div>
 				</div>
-				<div class="item-after" />
-				<div class="item-before" />
 				<div class="item">
-					<div class="item-content-before" />
 					<div class="item-number">5</div>
 					<div class="item-label">Address</div>
 					<div class="item-input">
@@ -187,11 +174,8 @@ em {
 					<div class="item-description" />
 					<div class="item-help" />
 					<div class="item-error" />
-					<div class="item-content-after" />
 				</div>
-				<div class="item-after"/>
 			</div>
-			<div class="item-group-after" />
 		</div>
 		<input class="submit" type="submit" />
 	</form>
