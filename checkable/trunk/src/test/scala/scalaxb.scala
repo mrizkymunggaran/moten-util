@@ -10,12 +10,22 @@ package simple {
 
   object Simple {
     def main(args: Array[String]) {
-      new Simple().process
+      new Simple(new HtmlVisitor()).process
     }
 
   }
 
-  class Simple() {
+  trait Visitor {
+    def startElement(e: Element)
+    def endElement(e: Element)
+  }
+
+  class HtmlVisitor extends Visitor {
+    def startElement(e: Element) {}
+    def endElement(e: Element) {}
+  }
+
+  class Simple(visitor: Visitor) {
     val s = scalaxb.fromXML[Schema](getXml)
 
     val topLevelElements =
@@ -76,14 +86,11 @@ package simple {
     case class MyType(typeValue: AnyRef)
 
     def process(e: Element) {
-      //      println(e.name.get + " " + e.typeValue.get)
       def exception = unexpected("type of element " + e + " is missing")
-
       e.typeValue match {
         case Some(x: QName) => process(e, MyType(getType(x)))
         case _ => exception
       }
-
     }
 
     def process(e: Element, typeValue: MyType) {
@@ -152,7 +159,7 @@ package simple {
       //TODO
     }
     def process(e: Element, x: BaseType) {
-      val name= e.name.get
+      val name = e.name.get
       x.qName.getLocalPart() match {
         case "string" => println(name + ": [TextBox]")
         case "date" => println(name + ": [DatePicker]")

@@ -18,7 +18,7 @@ body {
 	padding-bottom: 5px;
 }
 
-.items-before {
+.form-description {
 	padding-left: 10px;
 	padding-bottom: 10px;
 }
@@ -53,14 +53,14 @@ body {
 }
 
 .item-input-text {
-	clear: left; 
-/*	border: #999999 solid thin;*/
+	clear: left;
+	/*	border: #999999 solid thin;*/
 	margin-top: 7px;
 	margin-bottom: 7px;
 }
 
 .item-input-long-text {
-	clear: left; 
+	clear: left;
 	/* border: #999999 solid thin; */
 	height: 5em;
 	width: 20em;
@@ -82,10 +82,10 @@ em {
 	<form>
 		<div class="form">
 			<div class="form-title">Personal details</div>
-			<div class="items-before">
+			<div class="form-description">
 				Please complete the form below. Mandatory fields marked <em>*</em>
 			</div>
-			<div class="items">
+			<div class="item-group">
 				<div class="item-before" />
 				<div class="item">
 					<div class="item-content-before" />
@@ -189,9 +189,9 @@ em {
 					<div class="item-error" />
 					<div class="item-content-after" />
 				</div>
-
+				<div class="item-after"/>
 			</div>
-			<div class="items-after" />
+			<div class="item-group-after" />
 		</div>
 		<input class="submit" type="submit" />
 	</form>
