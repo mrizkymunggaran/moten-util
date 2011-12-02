@@ -12,17 +12,51 @@ package simple {
     def main(args: Array[String]) {
       new Simple(new HtmlVisitor()).process
     }
-
   }
 
+  case class Sequence(group: ExplicitGroupable)
+  case class Choice(group: ExplicitGroupable)
+
+  //every element is either a sequence, choice or simpleType
+  // simpleTypes may be based on string, decimal, boolean, date, datetime
+  // and may be restricted to a regex pattern, have min, max ranges
+  // or be an enumeration. all elements may have  minOccurs and maxOccurs
+  //attributes.
+
   trait Visitor {
-    def startElement(e: Element)
-    def endElement(e: Element)
+    def startSequence(sequence: Sequence)
+    def endSequence(sequence: Sequence)
+    def startChoice(choice: Choice)
+    def endChoice(choice: Choice)
+    def simpleType(e: Element, typ: SimpleType)
+    def baseType(e: Element, typ: BaseType)
   }
 
   class HtmlVisitor extends Visitor {
-    def startElement(e: Element) {}
-    def endElement(e: Element) {}
+    def println(x:Any) = Console.println(x)
+    
+    def startSequence(sequence: Sequence) {
+      println("<div class=\"item-group\">")
+      println("<div class=\"item-group-label\">Group</div>")
+      println("<div class=\"item-group-content\">")
+    }
+    
+    def endSequence(sequence: Sequence) {
+        println("</div>")
+    	println("</div>")
+    }
+    def startChoice(choice: Choice) {
+      println("<div class=\"choice\">")
+    }
+    def endChoice(choice: Choice) {
+      println("</div>")
+    }
+    def simpleType(e: Element, typ: SimpleType) {
+      println(e.name.get + " " + typ.name.get)
+    }
+    def baseType(e: Element, typ: BaseType) {
+      println(e.name.get + " " +  typ.qName)
+    }
   }
 
   class Simple(visitor: Visitor) {
@@ -69,9 +103,6 @@ package simple {
     def qn(namespaceUri: String, localPart: String) = new QName(namespaceUri, localPart)
     def qn(localPart: String): QName = new QName(xs, localPart)
 
-    case class Sequence(group: ExplicitGroupable)
-    case class Choice(group: ExplicitGroupable)
-
     private def toQName[T](d: DataRecord[T]) =
       new QName(d.namespace.getOrElse(null), d.key.getOrElse(null))
 
@@ -79,8 +110,9 @@ package simple {
       toQName(d).equals(q)
 
     def process(x: Sequence) {
-      println("sequence")
+      visitor.startSequence(x)
       x.group.arg1.foreach(y => process(toQName(y), y.value))
+      visitor.endSequence(x)
     }
 
     case class MyType(typeValue: AnyRef)
@@ -94,26 +126,23 @@ package simple {
     }
 
     def process(e: Element, typeValue: MyType) {
-      println(e.name.get + " " + e.typeValue.get)
       typeValue.typeValue match {
-        case x: TopLevelComplexType => process(e, x)
         case x: TopLevelSimpleType => process(e, x)
+        case x: TopLevelComplexType => process(e, x)
         case x: BaseType => process(e, x)
       }
     }
 
     def process(q: QName, x: ParticleOption) {
       if (q == qn("element")) {
-        println("element")
         x match {
           case y: LocalElementable => process(y)
-          case y: GroupRef => unexpected
-          case y: Allable => unexpected
-          case y: AnyType => unexpected
-          case y: ExplicitGroupable => process(Sequence(y))
+//          case y: GroupRef => unexpected
+//          case y: Allable => unexpected
+//          case y: AnyType => unexpected
+//          case y: ExplicitGroupable => unexpected //process(Sequence(y))
           case _ => unexpected
         }
-        println("end element")
       } else if (q == qn("choice")) {
         x match {
           case y: ExplicitGroupable => process(Choice(y))
@@ -123,9 +152,9 @@ package simple {
     }
 
     def process(x: Choice) {
-      println("choice")
+      visitor.startChoice(x)
       x.group.arg1.foreach(y => process(toQName(y), y.value))
-      println("end choice")
+      visitor.endChoice(x)
     }
 
     def process(e: Element, x: ComplexType) {
@@ -133,17 +162,18 @@ package simple {
         case x: ComplexContent =>
           unexpected
         case x: SimpleContent =>
-          x.simplecontentoption.value match {
-            case y: SimpleRestrictionType =>
-              println("SimpleRestrictionType base " + y.base)
-            case y: SimpleExtensionType =>
-              println("SimpleExtensionType " + y.base)
-            case _ => unexpected
-          }
+        	unexpected
+          //          x.simplecontentoption.value match {
+//            case y: SimpleRestrictionType =>
+//              unexpected
+//            case y: SimpleExtensionType =>
+//              unexpected
+//            case _ => unexpected
+//          }
         case x: ComplexTypeModelSequence1 =>
           x.arg1.getOrElse(unexpected).value match {
             case y: GroupRef =>
-              println("groupRef")
+              unexpected
             case y: ExplicitGroupable =>
               if (matches(x.arg1.get, qn("sequence")))
                 process(Sequence(y))
@@ -155,20 +185,21 @@ package simple {
       }
     }
 
-    def process(e: Element, x: TopLevelSimpleType) {
-      //TODO
+    def process(e: Element, x: SimpleType) {
+      visitor.simpleType(e, x)
     }
     def process(e: Element, x: BaseType) {
-      val name = e.name.get
-      x.qName.getLocalPart() match {
-        case "string" => println(name + ": [TextBox]")
-        case "date" => println(name + ": [DatePicker]")
-        case "dateTime" => println(name + ": [DateTimePicker]")
-        case "boolean" => println(name + ": [CheckBox]")
-        case "integer" => println(name + ": [TextBox]")
-        case "decimal" => println(name + ": [TextBox]")
-        case _ => unexpected(name + ":" + x)
-      }
+      visitor.baseType(e, x)
+//      val name = e.name.get
+//      x.qName.getLocalPart() match {
+//        case "string" => println(name + ": [TextBox]")
+//        case "date" => println(name + ": [DatePicker]")
+//        case "dateTime" => println(name + ": [DateTimePicker]")
+//        case "boolean" => println(name + ": [CheckBox]")
+//        case "integer" => println(name + ": [TextBox]")
+//        case "decimal" => println(name + ": [TextBox]")
+//        case _ => unexpected(name + ":" + x)
+//      }
     }
 
     def unexpected(s: String) = throw new RuntimeException(s)
