@@ -1,0 +1,95 @@
+body {
+	padding: 0 0px;
+	font: normal 62.5% "Lucida Grande", Helvetica, Verdana, Arial;
+}
+
+.form {
+	margin-left: 0px;
+	background-color: #EDFAD9;
+	max-width: 500px;
+}
+
+.form-title {
+	font-size: 15;
+	padding-bottom: 5px;
+}
+
+.form-description {
+	padding-left: 10px;
+	padding-bottom: 10px;
+}
+
+.sequence {
+	clear:left;
+}
+
+.sequence-content {
+	margin-left: 20px;
+}
+
+.item {
+	clear: left;
+	border-top: 1px solid #C9DCA6;
+	color: black;
+}
+
+.sequence-number {
+	float: left;
+	padding-top: 13px;
+	padding-left: 5px;
+	padding-right: 5px;
+	width: 2em;
+	color: gray;
+	font-size: 52%;
+}
+
+.sequence-label {
+	float: left;
+	margin-top: 10px;
+	min-width: 100px;
+	padding-right: 10px;
+	padding-bottom: 10px;
+	font-weight: bold;
+}
+
+.item-number {
+	padding-top: 11px;
+	padding-left: 5px;
+	padding-right: 5px;
+	float: left;
+	width: 2em;
+	color: gray;
+	font-size: 72%;
+}
+
+.item-label {
+	float: left;
+	margin-top: 10px;
+	min-width: 100px;
+	padding-right: 10px;
+	padding-bottom: 10px;
+}
+
+.item-input-text {
+	clear: left;
+	/*	border: #999999 solid thin;*/
+	margin-top: 7 px;
+	margin-bottom: 7 px;
+}
+
+.item-input-long-text {
+	clear: left;
+	/* border: #999999 solid thin; */
+	height: 5em;
+	width: 20em;
+	margin-top: 7px;
+	margin-bottom: 7px;
+}
+
+em {
+	color: red;
+}
+
+#item-input {
+	
+}
