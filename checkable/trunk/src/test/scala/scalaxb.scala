@@ -10,7 +10,12 @@ package simple {
 
   object Simple {
     def main(args: Array[String]) {
-      new Simple(new HtmlVisitor()).process
+      val visitor = new HtmlVisitor
+      new Simple(visitor).process
+      println(visitor.text)
+      val fos = new java.io.FileOutputStream("target/test.html");
+      fos.write(visitor.text.getBytes)
+      fos.close
     }
   }
 
@@ -33,17 +38,40 @@ package simple {
   }
 
   class HtmlVisitor extends Visitor {
-    def println(x:Any) = Console.println(x)
-    
-    def startSequence(sequence: Sequence) {
-      println("<div class=\"item-group\">")
-      println("<div class=\"item-group-label\">Group</div>")
-      println("<div class=\"item-group-content\">")
+    private val t = new StringBuilder
+
+    private def println(x: Any) = {
+      t.append(x.toString)
+      t.append("\n")
+    }
+
+    def text = 
+       header +
+        t.toString()  +footer
+
+    private def header = {
+      val s = new StringBuilder
+      s.append("<html>\n")
+      s.append("<head>\n")
+      s.append("<link rel=StyleSheet href=\"style.css\" type=\"text/css\"/>\n")
+      s.append("<script type=\"text/javascript\" src=\"jquery.js\"></script>\n")
+      s.append("</head>\n")
+      s.append("<body>\n")
+      s.append("<form class=\"form\">\n")
+      s.toString
     }
     
+    private def footer = "</form>\n</body>\n</html>"
+
+    def startSequence(sequence: Sequence) {
+      println("<div class=\"sequence\">")
+      println("<div class=\"sequence-label\">Group</div>")
+      println("<div class=\"sequence-content\">")
+    }
+
     def endSequence(sequence: Sequence) {
-        println("</div>")
-    	println("</div>")
+      println("</div>")
+      println("</div>")
     }
     def startChoice(choice: Choice) {
       println("<div class=\"choice\">")
@@ -52,10 +80,13 @@ package simple {
       println("</div>")
     }
     def simpleType(e: Element, typ: SimpleType) {
-      println(e.name.get + " " + typ.name.get)
+      println("<div class=\"item-label\">" + e.name.get + "</div>")
+      println("<div class=\"item-input\">")
+      println("<input name=\"item-input-n\" class=\"item-input-text\" type=\"text\"></input>")
+      println("</div>")
     }
     def baseType(e: Element, typ: BaseType) {
-      println(e.name.get + " " +  typ.qName)
+      //println(e.name.get + " " +  typ.qName)
     }
   }
 
@@ -137,10 +168,10 @@ package simple {
       if (q == qn("element")) {
         x match {
           case y: LocalElementable => process(y)
-//          case y: GroupRef => unexpected
-//          case y: Allable => unexpected
-//          case y: AnyType => unexpected
-//          case y: ExplicitGroupable => unexpected //process(Sequence(y))
+          //          case y: GroupRef => unexpected
+          //          case y: Allable => unexpected
+          //          case y: AnyType => unexpected
+          //          case y: ExplicitGroupable => unexpected //process(Sequence(y))
           case _ => unexpected
         }
       } else if (q == qn("choice")) {
@@ -162,14 +193,14 @@ package simple {
         case x: ComplexContent =>
           unexpected
         case x: SimpleContent =>
-        	unexpected
-          //          x.simplecontentoption.value match {
-//            case y: SimpleRestrictionType =>
-//              unexpected
-//            case y: SimpleExtensionType =>
-//              unexpected
-//            case _ => unexpected
-//          }
+          unexpected
+        //          x.simplecontentoption.value match {
+        //            case y: SimpleRestrictionType =>
+        //              unexpected
+        //            case y: SimpleExtensionType =>
+        //              unexpected
+        //            case _ => unexpected
+        //          }
         case x: ComplexTypeModelSequence1 =>
           x.arg1.getOrElse(unexpected).value match {
             case y: GroupRef =>
@@ -190,16 +221,16 @@ package simple {
     }
     def process(e: Element, x: BaseType) {
       visitor.baseType(e, x)
-//      val name = e.name.get
-//      x.qName.getLocalPart() match {
-//        case "string" => println(name + ": [TextBox]")
-//        case "date" => println(name + ": [DatePicker]")
-//        case "dateTime" => println(name + ": [DateTimePicker]")
-//        case "boolean" => println(name + ": [CheckBox]")
-//        case "integer" => println(name + ": [TextBox]")
-//        case "decimal" => println(name + ": [TextBox]")
-//        case _ => unexpected(name + ":" + x)
-//      }
+      //      val name = e.name.get
+      //      x.qName.getLocalPart() match {
+      //        case "string" => println(name + ": [TextBox]")
+      //        case "date" => println(name + ": [DatePicker]")
+      //        case "dateTime" => println(name + ": [DateTimePicker]")
+      //        case "boolean" => println(name + ": [CheckBox]")
+      //        case "integer" => println(name + ": [TextBox]")
+      //        case "decimal" => println(name + ": [TextBox]")
+      //        case _ => unexpected(name + ":" + x)
+      //      }
     }
 
     def unexpected(s: String) = throw new RuntimeException(s)
@@ -207,19 +238,19 @@ package simple {
 
     def process {
 
-      println(s)
-      println
-
-      println("\ntopLevelComplexTypes:")
-      println(topLevelComplexTypes)
-      println("\ntopLevelSimpleTypes:")
-      println(topLevelSimpleTypes)
-
-      println("\ntopLevelElements:")
-      println(topLevelElements)
-      println
-
-      println(schemaTypes)
+      //      println(s)
+      //      println
+      //
+      //      println("\ntopLevelComplexTypes:")
+      //      println(topLevelComplexTypes)
+      //      println("\ntopLevelSimpleTypes:")
+      //      println(topLevelSimpleTypes)
+      //
+      //      println("\ntopLevelElements:")
+      //      println(topLevelElements)
+      //      println
+      //
+      //      println(schemaTypes)
 
       val rootElement = "person"
       val element = topLevelElements.find(
@@ -228,10 +259,10 @@ package simple {
           case None => false
         }).getOrElse(unexpected("did not find element " + rootElement))
 
-      println(element)
+      //      println(element)
 
       process(element)
-
+      
     }
 
     def getXml =
