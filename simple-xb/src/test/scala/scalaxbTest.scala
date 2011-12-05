@@ -2,11 +2,10 @@ package simple {
   import org.junit.Test
   import xsd.Schema
   
-  @Test
-  class SimpleTest {
-    @Test
-    def generateTestForm = {
-      val visitor = new HtmlVisitor
+  object SimpleTest {
+
+    def main(args:Array[String]){
+       val visitor = new HtmlVisitor
       import scala.xml._
       val schema = scalaxb.fromXML[Schema](
         XML.load(new java.io.FileInputStream("src/test/resources/test.xsd")))
@@ -19,8 +18,15 @@ package simple {
       fos.write(visitor.text.getBytes)
       fos.close
     }
+  }
+  
+  @Test
+  class SimpleTest {
     
-    
+    @Test
+    def generateTestForm = {
+     SimpleTest.main(null)
+    }
     
   }
   

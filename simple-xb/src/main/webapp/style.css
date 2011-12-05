@@ -85,13 +85,15 @@ body {
 	font-size:100%;
 }
 
-.item-input-long-text {
+.item-input-textarea {
 	clear: left;
 	/* border: #999999 solid thin; */
-	height: 5em;
-	width: 20em;
+	height: 6em;
+	width: 25em;
 	margin-top: 7px;
 	margin-bottom: 7px;
+	overflow:auto;
+	font-size:120%;
 }
 
 em {
