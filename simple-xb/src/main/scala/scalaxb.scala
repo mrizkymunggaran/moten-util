@@ -16,6 +16,7 @@ package simple {
     def qn(namespaceUri: String, localPart: String) = new QName(namespaceUri, localPart)
     def qn(localPart: String): QName = new QName(xs, localPart)
     val xs = "http://www.w3.org/2001/XMLSchema"
+    val appInfoSchema = "http://moten.david.org/util/xsd/simplified/appinfo"
   }
 
   case class Sequence(group: ExplicitGroupable)
@@ -99,28 +100,44 @@ package simple {
       println("<div class=\"item-label\">" + getLabel(e) + "</div>")
       println("<div class=\"item-input\">")
       val enumeration =
-        typ.arg1.value match {
-          case x: Restriction =>
-            x.arg1.arg2.seq.map(
-              _.value match {
-                case y: NoFixedFacet => { Some(y.value) }
-                case _ => None
-              }).flatten
-          case _ => unexpected
-        }
+        getEnumeration(typ)
       if (!enumeration.isEmpty) {
         println("<select class=\"select\">")
         enumeration.foreach { x => println("<option value=\"" + x + "\">" + x + "</option>") }
         println("</select>")
-      } else
+      } else {
         getTextType(e) match {
           case Some("textarea") =>
-            println("<textarea name=\"item-input-textarea\" class=\"item-input-textarea\"></textarea>")
+            println("""<textarea name="item-input-textarea" class="item-input-textarea"></textarea>""")
           case _ =>
-            println("<input name=\"item-input-n\" class=\"item-input-text\" type=\"text\"></input>")
+            println("""<input name="item-input-text-n" class="item-input-text" type="text"></input>""")
         }
+        getAnnotation(e, "description") match {
+          case Some(x) => println("<div class=\"item-description\">"+x + "</div>")
+          case None =>
+        }
+        getAnnotation(e, "validation") match {
+          case Some(x) => println("<div class=\"item-error\">"+x + "</div>")
+          case None =>
+        }
+        getAnnotation(e, "help") match {
+          case Some(x) => println("<div class=\"item-help\">"+x + "</div>")
+          case None =>
+        }
+      }
       println("</div>")
     }
+
+    private def getEnumeration(typ: SimpleType) =
+      typ.arg1.value match {
+        case x: Restriction =>
+          x.arg1.arg2.seq.map(
+            _.value match {
+              case y: NoFixedFacet => { Some(y.value) }
+              case _ => None
+            }).flatten
+        case _ => unexpected
+      }
 
     private def getTextType(e: Element) =
       getAnnotation(e, "text")
@@ -130,16 +147,22 @@ package simple {
       println("<div class=\"item-number\">" + number + "</div>")
       println("<div class=\"item-label\">" + getLabel(e) + "</div>")
       println("<div class=\"item-input\">")
-      val extraClasses = if (typ.qName == qn("date")) "datepickerclass " else ""
-      val inputType = if (typ.qName == qn("boolean")) "checkbox" else "text"
-      getTextType(e) match {
-        case Some("textarea") =>
-          println("<textarea name=\"item-input-textarea-" + number + "\" class=\"item-input-textarea\"></textarea>")
-        case _ =>
-          println("<input name=\"item-input-text-" + number + "\" class=\"item-input-text\" type=\"text\"></input>")
-      }
+      val extraClasses = 
+        if (typ.qName == qn("date")) "datepickerclass " else ""
+      val inputType = 
+        if (typ.qName == qn("boolean")) "checkbox" else "text"
+      processTextType(e, number + "", extraClasses)
       //println("<input name=\"item-input-n\" class=\"" + extraClasses + "item-input-text\" type=\"" + inputType + "\"></input>")
       println("</div>")
+    }
+
+    def processTextType(e: Element, number: String, extraClasses: String) {
+      getTextType(e) match {
+        case Some("textarea") =>
+          println("<textarea name=\"item-input-textarea-" + number + "\" class=\""+extraClasses + "item-input-textarea\"></textarea>")
+        case _ =>
+          println("<input name=\"item-input-text-\"" + number + "\" class=\"" + extraClasses + "item-input-text\" type=\"text\"></input>")
+      }
     }
 
     def getAnnotation(e: Element, key: String): Option[String] =
@@ -147,7 +170,7 @@ package simple {
 
         case Some(x) => {
           //          println(x.attributes)
-          x.attributes.get("@{http://moten.david.org/util/xsd/simplified/appinfo}" + key) match {
+          x.attributes.get("@{" + appInfoSchema + "}" + key) match {
             case Some(y) => Some(y.value.toString)
             case None => None
           }
@@ -167,7 +190,7 @@ package simple {
           case Some(x) => x
           case _ => name
         }
-        val mandatory = e.minOccurs.intValue()>0
+        val mandatory = e.minOccurs.intValue() > 0
         if (mandatory) label + "<em>*</em>"
         else label
       }

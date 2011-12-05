@@ -96,6 +96,18 @@ body {
 	font-size:120%;
 }
 
+.item-description {
+	margin-left:150px;
+	margin-bottom:10px;
+	font-size:85%;
+}
+
+.item-error {
+	margin-left:150px;
+	margin-bottom:10px;
+	font-size:85%;
+}
+
 em {
 	color: red;
 }
