@@ -151,17 +151,17 @@ package simple {
         if (typ.qName == qn("date")) "datepickerclass " else ""
       val inputType = 
         if (typ.qName == qn("boolean")) "checkbox" else "text"
-      processTextType(e, number + "", extraClasses)
+      processTextType(e, number + "", inputType,extraClasses)
       //println("<input name=\"item-input-n\" class=\"" + extraClasses + "item-input-text\" type=\"" + inputType + "\"></input>")
       println("</div>")
     }
 
-    def processTextType(e: Element, number: String, extraClasses: String) {
+    def processTextType(e: Element, number: String, inputType:String,extraClasses: String) {
       getTextType(e) match {
         case Some("textarea") =>
           println("<textarea name=\"item-input-textarea-" + number + "\" class=\""+extraClasses + "item-input-textarea\"></textarea>")
         case _ =>
-          println("<input name=\"item-input-text-\"" + number + "\" class=\"" + extraClasses + "item-input-text\" type=\"text\"></input>")
+          println("<input name=\"item-input-text-\"" + number + "\" class=\"" + extraClasses + "item-input-text\" type=\""+inputType+"\"></input>")
       }
     }
 
@@ -333,8 +333,8 @@ package simple {
 
     def process {
 
-      //      println(s)
-      //      println
+            println(s.toString.replaceAllLiterally("(","(\n"))
+            println
       //
       //      println("\ntopLevelComplexTypes:")
       //      println(topLevelComplexTypes)
@@ -354,7 +354,6 @@ package simple {
         }).getOrElse(unexpected("did not find element " + rootElement))
 
       //      println(element)
-
       process(element)
 
     }
