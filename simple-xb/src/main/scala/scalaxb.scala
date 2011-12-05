@@ -113,9 +113,17 @@ package simple {
         enumeration.foreach { x => println("<option value=\"" + x + "\">" + x + "</option>") }
         println("</select>")
       } else
-        println("<input name=\"item-input-n\" class=\"item-input-text\" type=\"text\"></input>")
+        getTextType(e) match {
+          case Some("textarea") =>
+            println("<textarea name=\"item-input-textarea\" class=\"item-input-textarea\"></textarea>")
+          case _ =>
+            println("<input name=\"item-input-n\" class=\"item-input-text\" type=\"text\"></input>")
+        }
       println("</div>")
     }
+
+    private def getTextType(e: Element) =
+      getAnnotation(e, "text")
 
     def baseType(e: Element, typ: BaseType) {
       number += 1
@@ -124,18 +132,26 @@ package simple {
       println("<div class=\"item-input\">")
       val extraClasses = if (typ.qName == qn("date")) "datepickerclass " else ""
       val inputType = if (typ.qName == qn("boolean")) "checkbox" else "text"
-      println("<input name=\"item-input-n\" class=\"" + extraClasses + "item-input-text\" type=\"" + inputType + "\"></input>")
+      getTextType(e) match {
+        case Some("textarea") =>
+          println("<textarea name=\"item-input-textarea-" + number + "\" class=\"item-input-textarea\"></textarea>")
+        case _ =>
+          println("<input name=\"item-input-text-" + number + "\" class=\"item-input-text\" type=\"text\"></input>")
+      }
+      //println("<input name=\"item-input-n\" class=\"" + extraClasses + "item-input-text\" type=\"" + inputType + "\"></input>")
       println("</div>")
     }
 
     def getAnnotation(e: Element, key: String): Option[String] =
       e.annotation match {
 
-        case Some(x) =>
+        case Some(x) => {
+          //          println(x.attributes)
           x.attributes.get("@{http://moten.david.org/util/xsd/simplified/appinfo}" + key) match {
             case Some(y) => Some(y.value.toString)
             case None => None
           }
+        }
         case None => None
       }
 
@@ -147,10 +163,13 @@ package simple {
           .split(" ")
           .map(s => Character.toUpperCase(s.charAt(0)) + s.substring(1, s.length))
           .mkString(" ")
-        getAnnotation(e, "label") match {
+        val label = getAnnotation(e, "label") match {
           case Some(x) => x
           case _ => name
         }
+        val mandatory = e.minOccurs.intValue()>0
+        if (mandatory) label + "<em>*</em>"
+        else label
       }
   }
 
