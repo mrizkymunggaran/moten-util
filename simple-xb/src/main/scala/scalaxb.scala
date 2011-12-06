@@ -68,6 +68,7 @@ package simple {
 	$(function() {
 		$('input').filter('.datepickerclass').datepicker()
         $('input').filter('.datetimepickerclass').datetimepicker()
+        $('input').filter('.timepickerclass').timepicker({})
 	});
 </script>
 </head>
@@ -158,6 +159,7 @@ package simple {
         toQN(qName) match {
         case QN(xs,"date") => "datepickerclass"
         case QN(xs,"datetime")=> "datetimepickerclass"
+        case QN(xs, "time") => "timepickerclass"
         case _=> ""
       }
       val inputType =
