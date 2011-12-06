@@ -60,11 +60,14 @@ package simple {
 <head>
 <link rel="stylesheet" href="style.css" type="text/css"/>
 <link type="text/css" href="css/smoothness/jquery-ui-1.8.16.custom.css" rel="stylesheet" />	
+<link type="text/css" href="css/timepicker.css" rel="stylesheet" />	
 <script type="text/javascript" src="js/jquery-1.6.2.min.js"></script>
 <script type="text/javascript" src="js/jquery-ui-1.8.16.custom.min.js"></script>
+<script type="text/javascript" src="js/jquery-ui-timepicker-addon.js"></script>
 <script type="text/javascript">
 	$(function() {
 		$('input').filter('.datepickerclass').datepicker()
+        $('input').filter('.datetimepickerclass').datetimepicker()
 	});
 </script>
 </head>
@@ -95,34 +98,18 @@ package simple {
     }
 
     def simpleType(e: Element, typ: SimpleType) {
-      number += 1
+      val number = nextNumber
       println("<div class=\"item-number\">" + number + "</div>")
       println("<div class=\"item-label\">" + getLabel(e) + "</div>")
       println("<div class=\"item-input\">")
-      val enumeration =
+      val en =
         getEnumeration(typ)
-      if (!enumeration.isEmpty) {
-        println("<select class=\"select\">")
-        enumeration.foreach { x => println("<option value=\"" + x + "\">" + x + "</option>") }
-        println("</select>")
+      if (!en.isEmpty) {
+        enumeration(en)
       } else {
-        getTextType(e) match {
-          case Some("textarea") =>
-            println("""<textarea name="item-input-textarea" class="item-input-textarea"></textarea>""")
-          case _ =>
-            println("""<input name="item-input-text-n" class="item-input-text" type="text"></input>""")
-        }
-        getAnnotation(e, "description") match {
-          case Some(x) => println("<div class=\"item-description\">" + x + "</div>")
-          case None =>
-        }
-        getAnnotation(e, "validation") match {
-          case Some(x) => println("<div class=\"item-error\">" + x + "</div>")
-          case None =>
-        }
-        getAnnotation(e, "help") match {
-          case Some(x) => println("<div class=\"item-help\">" + x + "</div>")
-          case None =>
+        typ.arg1.value match {
+          case x:Restriction => simpleType(e, x.base.get,number)
+          case _ => 
         }
       }
       println("</div>")
@@ -139,34 +126,66 @@ package simple {
         case _ => unexpected
       }
 
+    private def enumeration(en: Seq[String]) {
+      println("<select class=\"select\">")
+      en.foreach { x => println("<option value=\"" + x + "\">" + x + "</option>") }
+      println("</select>")
+    }
+
     private def getTextType(e: Element) =
       getAnnotation(e, "text")
 
-    def baseType(e: Element, typ: BaseType) {
+    private def nextNumber: String = {
       number += 1
+      number + ""
+    }
+
+    def baseType(e: Element, typ: BaseType) {
+      val number = nextNumber
       println("<div class=\"item-number\">" + number + "</div>")
       println("<div class=\"item-label\">" + getLabel(e) + "</div>")
       println("<div class=\"item-input\">")
-      val extraClasses =
-        if (typ.qName == qn("date")) "datepickerclass " else ""
-      val inputType =
-        if (typ.qName == qn("boolean")) "checkbox" else "text"
-      processTextType(e, number + "", inputType, extraClasses)
+      simpleType(e, typ.qName, number + "")
       println("</div>")
     }
+    
+    case class QN(namespace:String, localPart:String)
+    
+    implicit def toQN(qName:QName) = QN(qName.getNamespaceURI(),qName.getLocalPart())
 
-    def processTextType(e: Element, number: String, inputType: String, extraClasses: String) {
+    def simpleType(e: Element, qName: QName, number: String) {
+      val extraClasses =
+        toQN(qName) match {
+        case QN(xs,"date") => "datepickerclass"
+        case QN(xs,"datetime")=> "datetimepickerclass"
+        case _=> ""
+      }
+      val inputType =
+        if (qName == qn("boolean")) "checkbox" else "text"
+
       getTextType(e) match {
         case Some("textarea") =>
-          println("<textarea name=\"item-input-textarea-" + number + "\" class=\"" + extraClasses + "item-input-textarea\"></textarea>")
+          println("<textarea name=\"item-input-textarea-" + number + "\" class=\"" + extraClasses + " item-input-textarea\"></textarea>")
         case _ =>
-          println("<input name=\"item-input-text-\"" + number + "\" class=\"" + extraClasses + "item-input-text\" type=\"" + inputType + "\"></input>")
+          println("<input name=\"item-input-text-" + number + "\" class=\"" + extraClasses + " item-input-text\" type=\"" + inputType + "\"></input>")
+      }
+
+      getAnnotation(e, "description") match {
+        case Some(x) => println("<div class=\"item-description\">" + x + "</div>")
+        case None =>
+      }
+      getAnnotation(e, "validation") match {
+        case Some(x) => println("<div class=\"item-error\">" + x + "</div>")
+        case None =>
+      }
+      getAnnotation(e, "help") match {
+        case Some(x) => println("<div class=\"item-help\">" + x + "</div>")
+        case None =>
       }
     }
 
     def getAnnotation(e: Element, key: String): Option[String] =
       e.annotation match {
-
         case Some(x) => {
           //          println(x.attributes)
           x.attributes.get("@{" + appInfoSchema + "}" + key) match {
@@ -223,7 +242,7 @@ package simple {
         ++ (topLevelSimpleTypes.map(x => (qn(targetNs, x.name.get), x)))).toMap;
 
     private val baseTypes =
-      Set("decimal", "string", "integer", "date", "dateTime", "boolean")
+      Set("decimal", "string", "integer", "date", "dateTime","time", "boolean")
         .map(new QName(xs, _))
 
     private def getType(q: QName): AnyRef = {
@@ -248,7 +267,7 @@ package simple {
      */
     def process {
 
-      println(s.toString.replaceAllLiterally("(", "(\n"))
+//      println(s.toString.replaceAllLiterally("(", "(\n"))
       val element = topLevelElements.find(
         _.name match {
           case Some(y) => y equals rootElement
