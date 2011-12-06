@@ -29,10 +29,10 @@ package simple {
   //attributes.
 
   trait Visitor {
-    def startSequence(sequence: Sequence)
-    def endSequence(sequence: Sequence)
-    def startChoice(choice: Choice)
-    def endChoice(choice: Choice)
+    def startSequence(e: Element, sequence: Sequence)
+    def endSequence(e: Element, sequence: Sequence)
+    def startChoice(e: Element, choice: Choice)
+    def endChoice(e: Element, choice: Choice)
     def simpleType(e: Element, typ: SimpleType)
     def baseType(e: Element, typ: BaseType)
   }
@@ -76,21 +76,21 @@ package simple {
 
     private def footer = "</form>\n</body>\n</html>"
 
-    def startSequence(sequence: Sequence) {
+    def startSequence(e: Element, sequence: Sequence) {
       println(
         """<div class="sequence">
 <div class="sequence-label">Group</div>
 <div class="sequence-content">""")
     }
 
-    def endSequence(sequence: Sequence) {
+    def endSequence(e: Element, sequence: Sequence) {
       println("</div>")
       println("</div>")
     }
-    def startChoice(choice: Choice) {
+    def startChoice(e: Element, choice: Choice) {
       println("<div class=\"choice\">")
     }
-    def endChoice(choice: Choice) {
+    def endChoice(e: Element, choice: Choice) {
       println("</div>")
     }
 
@@ -113,15 +113,15 @@ package simple {
             println("""<input name="item-input-text-n" class="item-input-text" type="text"></input>""")
         }
         getAnnotation(e, "description") match {
-          case Some(x) => println("<div class=\"item-description\">"+x + "</div>")
+          case Some(x) => println("<div class=\"item-description\">" + x + "</div>")
           case None =>
         }
         getAnnotation(e, "validation") match {
-          case Some(x) => println("<div class=\"item-error\">"+x + "</div>")
+          case Some(x) => println("<div class=\"item-error\">" + x + "</div>")
           case None =>
         }
         getAnnotation(e, "help") match {
-          case Some(x) => println("<div class=\"item-help\">"+x + "</div>")
+          case Some(x) => println("<div class=\"item-help\">" + x + "</div>")
           case None =>
         }
       }
@@ -147,21 +147,20 @@ package simple {
       println("<div class=\"item-number\">" + number + "</div>")
       println("<div class=\"item-label\">" + getLabel(e) + "</div>")
       println("<div class=\"item-input\">")
-      val extraClasses = 
+      val extraClasses =
         if (typ.qName == qn("date")) "datepickerclass " else ""
-      val inputType = 
+      val inputType =
         if (typ.qName == qn("boolean")) "checkbox" else "text"
-      processTextType(e, number + "", inputType,extraClasses)
-      //println("<input name=\"item-input-n\" class=\"" + extraClasses + "item-input-text\" type=\"" + inputType + "\"></input>")
+      processTextType(e, number + "", inputType, extraClasses)
       println("</div>")
     }
 
-    def processTextType(e: Element, number: String, inputType:String,extraClasses: String) {
+    def processTextType(e: Element, number: String, inputType: String, extraClasses: String) {
       getTextType(e) match {
         case Some("textarea") =>
-          println("<textarea name=\"item-input-textarea-" + number + "\" class=\""+extraClasses + "item-input-textarea\"></textarea>")
+          println("<textarea name=\"item-input-textarea-" + number + "\" class=\"" + extraClasses + "item-input-textarea\"></textarea>")
         case _ =>
-          println("<input name=\"item-input-text-\"" + number + "\" class=\"" + extraClasses + "item-input-text\" type=\""+inputType+"\"></input>")
+          println("<input name=\"item-input-text-\"" + number + "\" class=\"" + extraClasses + "item-input-text\" type=\"" + inputType + "\"></input>")
       }
     }
 
@@ -200,34 +199,34 @@ package simple {
     import Util._
     import XsdUtil._
 
-    val topLevelElements =
+    private val topLevelElements =
       s.schemasequence1.flatMap(_.arg1.value match {
         case y: TopLevelElement => Some(y)
         case _ => None
       })
 
-    val topLevelComplexTypes = s.schemasequence1.flatMap(_.arg1.value match {
+    private val topLevelComplexTypes = s.schemasequence1.flatMap(_.arg1.value match {
       case y: TopLevelComplexType => Some(y)
       case _ => None
     })
 
-    val topLevelSimpleTypes = s.schemasequence1.flatMap(_.arg1.value match {
+    private val topLevelSimpleTypes = s.schemasequence1.flatMap(_.arg1.value match {
       case y: TopLevelSimpleType => Some(y)
       case _ => None
     })
 
-    val targetNs = s.targetNamespace.getOrElse(
+    private val targetNs = s.targetNamespace.getOrElse(
       unexpected("schema must have targetNamespace attribute")).toString
 
-    val schemaTypes =
+    private val schemaTypes =
       (topLevelComplexTypes.map(x => (qn(targetNs, x.name.get), x))
         ++ (topLevelSimpleTypes.map(x => (qn(targetNs, x.name.get), x)))).toMap;
 
-    val baseTypes =
+    private val baseTypes =
       Set("decimal", "string", "integer", "date", "dateTime", "boolean")
         .map(new QName(xs, _))
 
-    def getType(q: QName): AnyRef = {
+    private def getType(q: QName): AnyRef = {
       schemaTypes.get(q) match {
         case Some(x: Annotatedable) => return x
         case _ =>
@@ -242,15 +241,25 @@ package simple {
     private def matches[T](d: DataRecord[T], q: QName) =
       toQName(d).equals(q)
 
-    def process(x: Sequence) {
-      visitor.startSequence(x)
-      x.group.arg1.foreach(y => process(toQName(y), y.value))
-      visitor.endSequence(x)
+    private case class MyType(typeValue: AnyRef)
+
+    /**
+     * Visits the element definition tree.
+     */
+    def process {
+
+      println(s.toString.replaceAllLiterally("(", "(\n"))
+      val element = topLevelElements.find(
+        _.name match {
+          case Some(y) => y equals rootElement
+          case None => false
+        }).getOrElse(unexpected("did not find element " + rootElement))
+
+      process(element)
+
     }
 
-    case class MyType(typeValue: AnyRef)
-
-    def process(e: Element) {
+    private def process(e: Element) {
       def exception = unexpected("type of element " + e + " is missing")
       e.typeValue match {
         case Some(x: QName) => process(e, MyType(getType(x)))
@@ -258,7 +267,7 @@ package simple {
       }
     }
 
-    def process(e: Element, typeValue: MyType) {
+    private def process(e: Element, typeValue: MyType) {
       typeValue.typeValue match {
         case x: TopLevelSimpleType => process(e, x)
         case x: TopLevelComplexType => process(e, x)
@@ -266,7 +275,42 @@ package simple {
       }
     }
 
-    def process(q: QName, x: ParticleOption) {
+    private def process(e: Element, x: SimpleType) {
+      visitor.simpleType(e, x)
+    }
+
+    private def process(e: Element, x: ComplexType) {
+      x.arg1.value match {
+        case x: ComplexContent =>
+          unexpected
+        case x: SimpleContent =>
+          unexpected
+        case x: ComplexTypeModelSequence1 =>
+          x.arg1.getOrElse(unexpected).value match {
+            case y: GroupRef =>
+              unexpected
+            case y: ExplicitGroupable =>
+              if (matches(x.arg1.get, qn("sequence")))
+                process(e, Sequence(y))
+              else if (matches(x.arg1.get, qn("choice")))
+                process(e, Choice(y))
+              else unexpected
+            case _ => unexpected
+          }
+      }
+    }
+
+    private def process(e: Element, x: BaseType) {
+      visitor.baseType(e, x)
+    }
+
+    private def process(e: Element, x: Sequence) {
+      visitor.startSequence(e, x)
+      x.group.arg1.foreach(y => process(e, toQName(y), y.value))
+      visitor.endSequence(e, x)
+    }
+
+    private def process(e: Element, q: QName, x: ParticleOption) {
       if (q == qn("element")) {
         x match {
           case y: LocalElementable => process(y)
@@ -274,88 +318,16 @@ package simple {
         }
       } else if (q == qn("choice")) {
         x match {
-          case y: ExplicitGroupable => process(Choice(y))
+          case y: ExplicitGroupable => process(e, Choice(y))
           case _ => unexpected
         }
       } else unexpected(q + x.toString)
     }
 
-    def process(x: Choice) {
-      visitor.startChoice(x)
-      x.group.arg1.foreach(y => process(toQName(y), y.value))
-      visitor.endChoice(x)
-    }
-
-    def process(e: Element, x: ComplexType) {
-      x.arg1.value match {
-        case x: ComplexContent =>
-          unexpected
-        case x: SimpleContent =>
-          unexpected
-        //          x.simplecontentoption.value match {
-        //            case y: SimpleRestrictionType =>
-        //              unexpected
-        //            case y: SimpleExtensionType =>
-        //              unexpected
-        //            case _ => unexpected
-        //          }
-        case x: ComplexTypeModelSequence1 =>
-          x.arg1.getOrElse(unexpected).value match {
-            case y: GroupRef =>
-              unexpected
-            case y: ExplicitGroupable =>
-              if (matches(x.arg1.get, qn("sequence")))
-                process(Sequence(y))
-              else if (matches(x.arg1.get, qn("choice")))
-                process(Choice(y))
-              else unexpected
-            case _ => unexpected
-          }
-      }
-    }
-
-    def process(e: Element, x: SimpleType) {
-      visitor.simpleType(e, x)
-    }
-    def process(e: Element, x: BaseType) {
-      visitor.baseType(e, x)
-      //      val name = e.name.get
-      //      x.qName.getLocalPart() match {
-      //        case "string" => println(name + ": [TextBox]")
-      //        case "date" => println(name + ": [DatePicker]")
-      //        case "dateTime" => println(name + ": [DateTimePicker]")
-      //        case "boolean" => println(name + ": [CheckBox]")
-      //        case "integer" => println(name + ": [TextBox]")
-      //        case "decimal" => println(name + ": [TextBox]")
-      //        case _ => unexpected(name + ":" + x)
-      //      }
-    }
-
-    def process {
-
-            println(s.toString.replaceAllLiterally("(","(\n"))
-            println
-      //
-      //      println("\ntopLevelComplexTypes:")
-      //      println(topLevelComplexTypes)
-      //      println("\ntopLevelSimpleTypes:")
-      //      println(topLevelSimpleTypes)
-      //
-      //      println("\ntopLevelElements:")
-      //      println(topLevelElements)
-      //      println
-      //
-      //      println(schemaTypes)
-
-      val element = topLevelElements.find(
-        _.name match {
-          case Some(y) => y equals rootElement
-          case None => false
-        }).getOrElse(unexpected("did not find element " + rootElement))
-
-      //      println(element)
-      process(element)
-
+    private def process(e: Element, x: Choice) {
+      visitor.startChoice(e, x)
+      x.group.arg1.foreach(y => process(e, toQName(y), y.value))
+      visitor.endChoice(e, x)
     }
   }
 }
