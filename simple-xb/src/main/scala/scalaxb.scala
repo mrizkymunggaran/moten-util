@@ -97,6 +97,12 @@ package simple {
     def endChoice(e: Element, choice: Choice) {
       println("</div>")
     }
+    
+    
+    private case class MyRestriction(qName:QName) 
+    extends Restriction(
+        None,SimpleRestrictionModelSequence(),None,Some(qName),Map())
+      
 
     def simpleType(e: Element, typ: SimpleType) {
       val number = nextNumber
@@ -106,11 +112,11 @@ package simple {
       val en =
         getEnumeration(typ)
       if (!en.isEmpty) {
-        enumeration(en)
+        enumeration(en, number)
       } else {
         typ.arg1.value match {
-          case x:Restriction => simpleType(e, x.base.get,number)
-          case _ => 
+          case x: Restriction => simpleType(e, x, number)
+          case _ =>
         }
       }
       println("</div>")
@@ -127,8 +133,8 @@ package simple {
         case _ => unexpected
       }
 
-    private def enumeration(en: Seq[String]) {
-      println("<select class=\"select\">")
+    private def enumeration(en: Seq[String], number: String) {
+      println("<select id=\"select-" + number + "\" class=\"select\">")
       en.foreach { x => println("<option value=\"" + x + "\">" + x + "</option>") }
       println("</select>")
     }
@@ -146,30 +152,34 @@ package simple {
       println("<div class=\"item-number\">" + number + "</div>")
       println("<div class=\"item-label\">" + getLabel(e) + "</div>")
       println("<div class=\"item-input\">")
-      simpleType(e, typ.qName, number + "")
+      simpleType(e, MyRestriction(typ.qName), number + "")
       println("</div>")
     }
-    
-    case class QN(namespace:String, localPart:String)
-    
-    implicit def toQN(qName:QName) = QN(qName.getNamespaceURI(),qName.getLocalPart())
 
-    def simpleType(e: Element, qName: QName, number: String) {
+    case class QN(namespace: String, localPart: String)
+
+    implicit def toQN(qName: QName) = QN(qName.getNamespaceURI(), qName.getLocalPart())
+
+    def simpleType(e: Element, r:Restriction, number: String) {
+      val qn = toQN(r.base.get)
       val extraClasses =
-        toQN(qName) match {
-        case QN(xs,"date") => "datepickerclass"
-        case QN(xs,"datetime")=> "datetimepickerclass"
-        case QN(xs, "time") => "timepickerclass"
-        case _=> ""
-      }
+        qn match {
+          case QN(xs, "date") => "datepickerclass "
+          case QN(xs, "datetime") => "datetimepickerclass "
+          case QN(xs, "time") => "timepickerclass "
+          case _ => ""
+        }
       val inputType =
-        if (qName == qn("boolean")) "checkbox" else "text"
+        qn match {
+          case QN(xs, "boolean") => "checkbox"
+          case _ => "text"
+        }
 
       getTextType(e) match {
         case Some("textarea") =>
-          println("<textarea name=\"item-input-textarea-" + number + "\" class=\"" + extraClasses + " item-input-textarea\"></textarea>")
+          println("<textarea name=\"item-input-textarea-" + number + "\" class=\"" + extraClasses + "item-input-textarea\"></textarea>")
         case _ =>
-          println("<input name=\"item-input-text-" + number + "\" class=\"" + extraClasses + " item-input-text\" type=\"" + inputType + "\"></input>")
+          println("<input name=\"item-input-text-" + number + "\" class=\"" + extraClasses + "item-input-text\" type=\"" + inputType + "\"></input>")
       }
 
       getAnnotation(e, "description") match {
@@ -244,7 +254,7 @@ package simple {
         ++ (topLevelSimpleTypes.map(x => (qn(targetNs, x.name.get), x)))).toMap;
 
     private val baseTypes =
-      Set("decimal", "string", "integer", "date", "dateTime","time", "boolean")
+      Set("decimal", "string", "integer", "date", "dateTime", "time", "boolean")
         .map(new QName(xs, _))
 
     private def getType(q: QName): AnyRef = {
@@ -269,7 +279,7 @@ package simple {
      */
     def process {
 
-//      println(s.toString.replaceAllLiterally("(", "(\n"))
+      //      println(s.toString.replaceAllLiterally("(", "(\n"))
       val element = topLevelElements.find(
         _.name match {
           case Some(y) => y equals rootElement
