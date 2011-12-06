@@ -22,6 +22,13 @@
 					i:validation="This field must of the form dd/mm/yyyy. For example, 12 March 2011 is 12/03/2011"
 					i:after="If you have concerns about privacy please see our &lt;a href=&quot;http://google.com&quot;&gt;privacy statement&lt;a&gt;" />
 			</xs:element>
+			<xs:element name="time-of-birth" type="xs:time" minOccurs="0">
+				<xs:annotation
+					i:before="Time of birth is required for age based statistical analysis but will not be available publically"
+					i:label="Time of birth" i:description="hh:mm (hh=hour, mm=minute)"
+					i:validation="This field must of the form hh:mm. For example, 2pm is 14:30"
+					i:after="If you have concerns about privacy please see our &lt;a href=&quot;http://google.com&quot;&gt;privacy statement&lt;a&gt;" />
+			</xs:element>
 			<xs:element name="passport-no" type="passport-no">
 				<xs:annotation i:label="Passport Number"
 					i:description="L followed by digits"
