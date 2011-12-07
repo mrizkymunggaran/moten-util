@@ -32,6 +32,8 @@ package simple {
     def startSequence(e: Element, sequence: Sequence)
     def endSequence(e: Element, sequence: Sequence)
     def startChoice(e: Element, choice: Choice)
+    def startChoiceItem(e: Element, p: ParticleOption)
+    def endChoiceItem(e: Element, p: ParticleOption)
     def endChoice(e: Element, choice: Choice)
     def simpleType(e: Element, typ: SimpleType)
     def baseType(e: Element, typ: BaseType)
@@ -91,18 +93,30 @@ package simple {
       println("</div>")
       println("</div>")
     }
+
+    var choiceNumber: String = "?????"
+
     def startChoice(e: Element, choice: Choice) {
+      val choiceNumber = nextNumber
       println("<div class=\"choice\">")
     }
+
+    def startChoiceItem(e: Element, p: ParticleOption) {
+      val number= nextNumber
+      //println("<input name=\"choice-" + choiceNumber + "\" type=\"radio\" value=\"number\">")
+    }
+
+    def endChoiceItem(e: Element, p: ParticleOption) {
+      println("</input>")
+    }
+
     def endChoice(e: Element, choice: Choice) {
       println("</div>")
     }
-    
-    
-    private case class MyRestriction(qName:QName) 
-    extends Restriction(
-        None,SimpleRestrictionModelSequence(),None,Some(qName),Map())
-      
+
+    private case class MyRestriction(qName: QName)
+      extends Restriction(
+        None, SimpleRestrictionModelSequence(), None, Some(qName), Map())
 
     def simpleType(e: Element, typ: SimpleType) {
       val number = nextNumber
@@ -160,7 +174,7 @@ package simple {
 
     implicit def toQN(qName: QName) = QN(qName.getNamespaceURI(), qName.getLocalPart())
 
-    def simpleType(e: Element, r:Restriction, number: String) {
+    def simpleType(e: Element, r: Restriction, number: String) {
       val qn = toQN(r.base.get)
       val extraClasses =
         qn match {
@@ -357,7 +371,11 @@ package simple {
 
     private def process(e: Element, x: Choice) {
       visitor.startChoice(e, x)
-      x.group.arg1.foreach(y => process(e, toQName(y), y.value))
+      x.group.arg1.foreach(y => {
+        visitor.startChoiceItem(e, y.value)
+        process(e, toQName(y), y.value)
+        visitor.endChoiceItem(e, y.value)
+      })
       visitor.endChoice(e, x)
     }
   }
