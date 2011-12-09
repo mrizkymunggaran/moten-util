@@ -43,12 +43,18 @@ package simple {
     import XsdUtil._
     import Util._
     private val t = new StringBuilder
+    private val script = new StringBuilder
 
     private var number = 0
 
-    private def println(x: Any) = {
+    private def println(x: Any) {
       t.append(x.toString)
       t.append("\n")
+    }
+
+    private def addScript(s:String) {
+      script.append(s)
+      script.append("\n")
     }
 
     def text =
@@ -58,7 +64,8 @@ package simple {
     private def header = {
       val s = new StringBuilder
       s.append(
-        """<html>
+        """
+<html>
 <head>
 <link rel="stylesheet" href="style.css" type="text/css"/>
 <link type="text/css" href="css/smoothness/jquery-ui-1.8.16.custom.css" rel="stylesheet" />	
@@ -71,6 +78,7 @@ package simple {
 		$('input').filter('.datepickerclass').datepicker()
         $('input').filter('.datetimepickerclass').datetimepicker()
         $('input').filter('.timepickerclass').timepicker({})
+""" + script + """
 	});
 </script>
 </head>
@@ -102,7 +110,7 @@ package simple {
     }
 
     def startChoiceItem(e: Element, p: ParticleOption) {
-      val number= nextNumber
+      val number = nextNumber
       //println("<input name=\"choice-" + choiceNumber + "\" type=\"radio\" value=\"number\">")
     }
 
