@@ -52,7 +52,7 @@ package simple {
       t.append("\n")
     }
 
-    private def addScript(s:String) {
+    private def addScript(s: String) {
       script.append(s)
       script.append("\n")
     }
@@ -123,8 +123,7 @@ package simple {
     }
 
     private case class MyRestriction(qName: QName)
-      extends Restriction(
-        None, SimpleRestrictionModelSequence(), None, Some(qName), Map())
+      extends Restriction(None, SimpleRestrictionModelSequence(), None, Some(qName), Map())
 
     def simpleType(e: Element, typ: SimpleType) {
       val number = nextNumber
@@ -197,25 +196,49 @@ package simple {
           case _ => "text"
         }
 
+      val itemId = "item-" + number
+
       getTextType(e) match {
         case Some("textarea") =>
-          println("<textarea name=\"item-input-textarea-" + number + "\" class=\"" + extraClasses + "item-input-textarea\"></textarea>")
+          println("<textarea id=\"" + itemId + "\" name=\"item-input-textarea-" + number + "\" class=\"" + extraClasses + "item-input-textarea\"></textarea>")
         case _ =>
-          println("<input name=\"item-input-text-" + number + "\" class=\"" + extraClasses + "item-input-text\" type=\"" + inputType + "\"></input>")
+          println("<input id=\"" + itemId + "\" name=\"item-input-text-" + number + "\" class=\"" + extraClasses + "item-input-text\" type=\"" + inputType + "\"></input>")
       }
 
       getAnnotation(e, "description") match {
         case Some(x) => println("<div class=\"item-description\">" + x + "</div>")
         case None =>
       }
+
+      val itemErrorId = "item-error" + number
       getAnnotation(e, "validation") match {
-        case Some(x) => println("<div class=\"item-error\">" + x + "</div>")
-        case None =>
+        case Some(x) =>
+          println("<div id=\"" + itemErrorId + "\" class=\"item-error\">" + x + "</div>")
+        case None => "Invalid"
       }
+
       getAnnotation(e, "help") match {
         case Some(x) => println("<div class=\"item-help\">" + x + "</div>")
         case None =>
       }
+
+      val patterns = r.arg1.arg2.seq.flatMap(f => {
+        f.value match {
+          case x: Pattern => Some(x)
+          case _ => None
+        }
+      })
+
+      patterns.foreach(p => {
+        addScript("""
+    	$("#""" + itemId + """").blur(function() {
+	        var regex = /^""" + p.value + """$/;
+	        if (!(regex.test($('#""" + itemId + """').val()))) 
+		        $('#""" + itemErrorId + """').show();
+		        else $('#""" + itemErrorId + """').hide();
+      })
+          """)
+      })
     }
 
     def getAnnotation(e: Element, key: String): Option[String] =
