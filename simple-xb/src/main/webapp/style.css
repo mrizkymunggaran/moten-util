@@ -106,6 +106,8 @@ body {
 	margin-left:150px;
 	margin-bottom:10px;
 	font-size:85%;
+	color:red;
+	display: none;
 }
 
 em {
