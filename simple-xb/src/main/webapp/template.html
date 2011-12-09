@@ -1,7 +1,18 @@
 <html>
 <head>
 <link rel=StyleSheet href="style.css" type="text/css"/>
-<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="js/jquery-1.6.2.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+	$("#fred").blur(function() {
+	    var regex = /^a$/;
+	    if (!(regex.test($('#fred').val()))) {
+		$('#frederror').text('that is not the letter A!');
+	    };
+	});
+});
+</script>
 </head>
 <body>
 	<form>
@@ -17,11 +28,11 @@
 						First name <em>*</em>
 					</div>
 					<div class="item-input">
-						<input name="item-input-1" class="item-input-text" type="text"></input>
+						<input id="fred" name="item-input-1" class="item-input-text" type="text"></input>
 					</div>
 					<div class="item-description" ></div>
 					<div class="item-help" ></div>
-					<div class="item-error" ></div>
+					<div id="frederror" class="item-error" ></div>
 				</div>
 				<div class="item" id="person_last-name">
 					<div class="item-number">2</div>
