@@ -233,19 +233,29 @@ package simple {
       }
 
       //TODO do a logical OR across the patterns
-      (basePattern ++ patterns).foreach(p => {
-        addScript("""
+      addScript("""
     	$("#""" + itemId + """").blur(function() {
-    	  var regex = /^""" + p + """$/;
+          var ok = true;
           var v = $("#""" + itemId + """");
-          var error= $("#""" + itemErrorId + """"); 
-          if (!(regex.test(v.val()))) 
+          var error= $("#""" + itemErrorId + """");
+"""
+        + (if (patterns.size > 0)
+"""    	  var regex = /^""" + patterns.first + """$/ ;
+          if (!(regex.test(v.val()))) ok = false;
+"""
+        else "") +
+         (if (basePattern.size > 0)
+"""    	  
+          var regex2 = /^""" + basePattern.first + """$/ ;
+          if (!(regex2.test(v.val()))) ok = false;"""
+        else "") +
+"""
+          if (!(ok)) 
             error.show();
           else 
             error.hide();
         })
 """)
-      })
     }
 
     def getAnnotation(e: Element, key: String): Option[String] =
