@@ -74,12 +74,12 @@ package simple {
 <script type="text/javascript" src="js/jquery-ui-1.8.16.custom.min.js"></script>
 <script type="text/javascript" src="js/jquery-ui-timepicker-addon.js"></script>
 <script type="text/javascript">
-	$(function() {
-		$('input').filter('.datepickerclass').datepicker()
-        $('input').filter('.datetimepickerclass').datetimepicker()
-        $('input').filter('.timepickerclass').timepicker({})
-""" + script + """
-	});
+    $(function() {
+      $('input').filter('.datepickerclass').datepicker();
+      $('input').filter('.datetimepickerclass').datetimepicker();
+      $('input').filter('.timepickerclass').timepicker({});
+"""  + script + """
+    });
 </script>
 </head>
 <body>
@@ -232,12 +232,15 @@ package simple {
       patterns.foreach(p => {
         addScript("""
     	$("#""" + itemId + """").blur(function() {
-	        var regex = /^""" + p.value + """$/;
-	        if (!(regex.test($('#""" + itemId + """').val()))) 
-		        $('#""" + itemErrorId + """').show();
-		        else $('#""" + itemErrorId + """').hide();
-      })
-          """)
+    	  var regex = /^""" + p.value + """$/;
+          var v = $("#""" + itemId +"""");
+          var error= $("#""" + itemErrorId + """"); 
+          if (!(regex.test(v.val()))) 
+            error.show();
+          else 
+            error.hide();
+        })
+""")
       })
     }
 
