@@ -78,7 +78,7 @@ package simple {
       $('input').filter('.datepickerclass').datepicker();
       $('input').filter('.datetimepickerclass').datetimepicker();
       $('input').filter('.timepickerclass').timepicker({});
-"""  + script + """
+""" + script + """
     });
 </script>
 </head>
@@ -190,6 +190,7 @@ package simple {
           case QN(xs, "time") => "timepickerclass "
           case _ => ""
         }
+
       val inputType =
         qn match {
           case QN(xs, "boolean") => "checkbox"
@@ -211,11 +212,7 @@ package simple {
       }
 
       val itemErrorId = "item-error" + number
-      getAnnotation(e, "validation") match {
-        case Some(x) =>
-          println("<div id=\"" + itemErrorId + "\" class=\"item-error\">" + x + "</div>")
-        case None => "Invalid"
-      }
+      println("<div id=\"" + itemErrorId + "\" class=\"item-error\">" + getAnnotation(e, "validation").getOrElse("Invalid") + "</div>")
 
       getAnnotation(e, "help") match {
         case Some(x) => println("<div class=\"item-help\">" + x + "</div>")
@@ -224,16 +221,23 @@ package simple {
 
       val patterns = r.arg1.arg2.seq.flatMap(f => {
         f.value match {
-          case x: Pattern => Some(x)
+          case x: Pattern => Some(x.value)
           case _ => None
         }
       })
 
-      patterns.foreach(p => {
+      val basePattern = qn match {
+        case QN(xs, "decimal") => Some("\\d+(\\.\\d*)?")
+        case QN(xs, "integer") => Some("\\d+")
+        case _ => None
+      }
+
+      //TODO do a logical OR across the patterns
+      (basePattern ++ patterns).foreach(p => {
         addScript("""
     	$("#""" + itemId + """").blur(function() {
-    	  var regex = /^""" + p.value + """$/;
-          var v = $("#""" + itemId +"""");
+    	  var regex = /^""" + p + """$/;
+          var v = $("#""" + itemId + """");
           var error= $("#""" + itemErrorId + """"); 
           if (!(regex.test(v.val()))) 
             error.show();
