@@ -219,6 +219,7 @@ package simple {
         case None =>
       }
 
+      //TODO do a logical OR across the patterns
       val patterns = r.arg1.arg2.seq.flatMap(f => {
         f.value match {
           case x: Pattern => Some(x.value)
@@ -239,8 +240,8 @@ package simple {
         }
       })
 
-      val facetTests = r.arg1.arg2.seq.flatMap(f => {
-        val start = "|  //facet test\n|  if ((+(v.val())) "
+      val facetTestScriptlet = r.arg1.arg2.seq.flatMap(f => {
+        val start = "\n|  //facet test\n|  if ((+(v.val())) "
         val finish = ")\n|    ok = false;"
 
         f match {
@@ -254,22 +255,18 @@ package simple {
             Some(start + ">= " + x.value + finish)
           case _ => None
         }
-      })
+      }).mkString("\n")
       
-      val facetTestScriptlet =facetTests.mkString("          \n") 
-
       val declarationScriptlet = """
 |$("#""" + itemId + """").blur(function() {
 |  var ok = true;
 |  var v = $("#""" + itemId + """");
-|  var error= $("#""" + itemErrorId + """");
-"""
+|  var error= $("#""" + itemErrorId + """");"""
       val mandatoryTestScriptlet = if (e.minOccurs.intValue() == 1)
         """
 |  // mandatory test
 |  if ((v.val() == null) || (v.val().length==0))
-|    ok=false;
-"""
+|    ok=false;"""
       else ""
 
       val patternsTestScriptlet = if (patterns.size > 0)
@@ -277,8 +274,7 @@ package simple {
 |  // pattern test
 |  var regex = /^""" + patterns.first + """$/ ;
 |  if (!(regex.test(v.val()))) 
-|    ok = false;
-"""
+|    ok = false;"""
       else ""
 
       val basePatternTestScriptlet = if (basePattern.size > 0)
@@ -287,7 +283,7 @@ package simple {
 |  var regex = /^""" + basePattern.first + """$/ ;
 |  if (!(regex.test(v.val()))) 
 |    ok = false;"""
-      else "" + "\n"
+      else "" 
      
       val closingScriptlet =           
 """
@@ -306,7 +302,6 @@ package simple {
           facetTestScriptlet, 
           closingScriptlet)
           
-          //TODO do a logical OR across the patterns
           statements
           .map(_.stripMargin.replaceAll("\n","\n"+margin))
           .foreach(line => addScript(line))
