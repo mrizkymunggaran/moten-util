@@ -256,12 +256,13 @@ package simple {
           case _ => None
         }
       }).mkString("\n")
-      
+
       val declarationScriptlet = """
 |$("#""" + itemId + """").blur(function() {
 |  var ok = true;
 |  var v = $("#""" + itemId + """");
 |  var error= $("#""" + itemErrorId + """");"""
+
       val mandatoryTestScriptlet = if (e.minOccurs.intValue() == 1)
         """
 |  // mandatory test
@@ -283,10 +284,10 @@ package simple {
 |  var regex = /^""" + basePattern.first + """$/ ;
 |  if (!(regex.test(v.val()))) 
 |    ok = false;"""
-      else "" 
-     
-      val closingScriptlet =           
-"""
+      else ""
+
+      val closingScriptlet =
+        """
 |  if (!(ok)) 
 |    error.show();
 |  else 
@@ -295,16 +296,16 @@ package simple {
 """
       val margin = "          "
       val statements = List(
-          declarationScriptlet,
-          mandatoryTestScriptlet,
-          patternsTestScriptlet,
-          basePatternTestScriptlet,
-          facetTestScriptlet, 
-          closingScriptlet)
-          
-          statements
-          .map(_.stripMargin.replaceAll("\n","\n"+margin))
-          .foreach(line => addScript(line))
+        declarationScriptlet,
+        mandatoryTestScriptlet,
+        patternsTestScriptlet,
+        basePatternTestScriptlet,
+        facetTestScriptlet,
+        closingScriptlet)
+
+      statements
+        .map(_.stripMargin.replaceAll("\n", "\n" + margin))
+        .foreach(addScript(_))
 
     }
 
