@@ -247,15 +247,18 @@ package simple {
       })
 
       val facetTests = r.arg1.arg2.seq.flatMap(f => {
+        val start = "          //facet test\n          if ((+(v.val())) "
+        val finish = ") \n            ok = false;"
+        
         f match {
           case DataRecord(xs, Some("minInclusive"), x: Facet) =>
-            Some("if ((+(v.val())) < " + x.value + ") ok = false;")
+            Some(start + "< " + x.value + finish)
           case DataRecord(xs, Some("maxInclusive"), x: Facet) =>
-            Some("if ((+(v.val())) > " + x.value + ") ok = false;")
+            Some(start + "> " + x.value + finish)
           case DataRecord(xs, Some("minExclusive"), x: Facet) =>
-            Some("if ((+(v.val())) <= " + x.value + ") ok = false;")
+            Some(start + "<=" + x.value + finish)
           case DataRecord(xs, Some("maxExclusive"), x: Facet) =>
-            Some("if ((+(v.val())) >= " + x.value + ") ok = false;")
+            Some(start + ">= " + x.value + finish)
           case _ => None
         }
       })
@@ -267,18 +270,30 @@ package simple {
           var v = $("#""" + itemId + """");
           var error= $("#""" + itemErrorId + """");
 """
+        + (if (e.minOccurs.intValue()==1)
+"""
+          // mandatory test
+          if ((v.val() == null) || (v.val().length==0))
+            ok=false;
+""" else ""
+        )
         + (if (patterns.size > 0)
-          """    	  var regex = /^""" + patterns.first + """$/ ;
-          if (!(regex.test(v.val()))) ok = false;
+          """
+          // pattern test
+          var regex = /^""" + patterns.first + """$/ ;
+          if (!(regex.test(v.val()))) 
+            ok = false;
 """
         else "") +
         (if (basePattern.size > 0)
           """    	  
-          var regex2 = /^""" + basePattern.first + """$/ ;
-          if (!(regex2.test(v.val()))) ok = false;"""
-        else "") 
-        + facetTests.mkString("          \n") 
-+
+          // base pattern test
+          var regex = /^""" + basePattern.first + """$/ ;
+          if (!(regex.test(v.val()))) 
+            ok = false;"""
+        else "") + "\n"
+        + facetTests.mkString("          \n")
+        +
         """
           if (!(ok)) 
             error.show();
