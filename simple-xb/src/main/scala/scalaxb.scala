@@ -309,6 +309,7 @@ package simple {
 |    error.show();
 |  else 
 |    error.hide();
+|  // v.clone(true).removeAttr("id").attr("id", "del" + i).insertAfter("#""" + itemId +"""");
 |})
 """
       val margin = "          "
