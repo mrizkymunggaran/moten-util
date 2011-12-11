@@ -226,11 +226,39 @@ package simple {
         }
       })
 
+      //      val other = r.arg1.arg2.seq.flatMap(f => {
+      //        f.value match {
+      //          case x:TotalDigits => 
+      //          case x:WhiteSpace =>
+      //        }
+      //      })
+
       val basePattern = qn match {
         case QN(xs, "decimal") => Some("\\d+(\\.\\d*)?")
         case QN(xs, "integer") => Some("\\d+")
         case _ => None
       }
+
+      val restricitions = r.arg1.arg2.seq.flatMap(f => {
+        f.value match {
+          case x: Pattern => Some(x.value)
+          case _ => None
+        }
+      })
+
+      val facetTests = r.arg1.arg2.seq.flatMap(f => {
+        f match {
+          case DataRecord(xs, Some("minInclusive"), x: Facet) =>
+            Some("if ((+(v.val())) < " + x.value + ") ok = false;")
+          case DataRecord(xs, Some("maxInclusive"), x: Facet) =>
+            Some("if ((+(v.val())) > " + x.value + ") ok = false;")
+          case DataRecord(xs, Some("minExclusive"), x: Facet) =>
+            Some("if ((+(v.val())) <= " + x.value + ") ok = false;")
+          case DataRecord(xs, Some("maxExclusive"), x: Facet) =>
+            Some("if ((+(v.val())) >= " + x.value + ") ok = false;")
+          case _ => None
+        }
+      })
 
       //TODO do a logical OR across the patterns
       addScript("""
@@ -240,16 +268,18 @@ package simple {
           var error= $("#""" + itemErrorId + """");
 """
         + (if (patterns.size > 0)
-"""    	  var regex = /^""" + patterns.first + """$/ ;
+          """    	  var regex = /^""" + patterns.first + """$/ ;
           if (!(regex.test(v.val()))) ok = false;
 """
         else "") +
-         (if (basePattern.size > 0)
-"""    	  
+        (if (basePattern.size > 0)
+          """    	  
           var regex2 = /^""" + basePattern.first + """$/ ;
           if (!(regex2.test(v.val()))) ok = false;"""
-        else "") +
-"""
+        else "") 
+        + facetTests.mkString("          \n") 
++
+        """
           if (!(ok)) 
             error.show();
           else 

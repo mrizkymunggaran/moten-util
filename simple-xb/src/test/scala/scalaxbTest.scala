@@ -10,7 +10,7 @@ package simple {
       val schema = scalaxb.fromXML[Schema](
         XML.load(new java.io.FileInputStream("src/test/resources/test.xsd")))
 
-      println(schema)
+      println(schema.toString.replaceAll("\\(","(\n"))
 
       new Simple(schema, "person", visitor).process
       println(visitor.text)
