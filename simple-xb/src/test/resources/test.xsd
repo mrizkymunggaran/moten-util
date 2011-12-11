@@ -48,7 +48,7 @@
 				<xs:element name="address" type="xs:string">
 					<xs:annotation i:label="Address" i:text="textarea" />
 				</xs:element>
-				<xs:element name="phone" type="xs:string" maxOccurs="unbounded" />
+				<xs:element name="phone" type="phone" maxOccurs="unbounded" />
 				<xs:element name="other" type="other">
 					<xs:annotation i:glass="true" />
 				</xs:element>
@@ -302,19 +302,18 @@
 			<xs:maxInclusive value="20" />
 		</xs:restriction>
 	</xs:simpleType>
-	<xs:complexType name="contact-details">
+	<xs:complexType name="phone">
 		<xs:sequence>
-			<xs:element name="email" type="email" minOccurs="1" />
-			<xs:element name="phone-number-home" type="phone"
-				minOccurs="0" />
-			<xs:element name="phone-number-mobile" type="phone" />
-			<xs:element name="phone-number-work" type="phone" />
-			<xs:element name="address" type="xs:string" />
+			<xs:element name="phone" type="xs:string"/>
+			<xs:element name="type" type="phone-type"/>
 		</xs:sequence>
 	</xs:complexType>
-	<xs:simpleType name="phone">
+    <xs:simpleType name="phone-type">
 		<xs:restriction base="xs:string">
-			<xs:maxLength value="50" />
+			<xs:enumeration value="home"/>
+			<xs:enumeration value="work"/>
+			<xs:enumeration value="mobile"/>
 		</xs:restriction>
 	</xs:simpleType>
+	
 </xs:schema>
