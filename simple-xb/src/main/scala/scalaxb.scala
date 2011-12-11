@@ -221,19 +221,30 @@ package simple {
 
       //TODO do a logical OR across the patterns
       val patterns = r.arg1.arg2.seq.flatMap(f => {
-        f.value match {
-          case x: Pattern => Some(x.value)
+        f match {
+          case DataRecord(xs,Some("pattern"),x: Pattern) => Some(x.value)
           case _ => None
         }
       })
 
+      val lengthTestScriptlet= r.arg1.arg2.seq.flatMap(f => {
+        val start = "\n|  //length test\n|  if (v.val().length "
+        val finish = ")\n|    ok = false;"
+        f match {
+          case DataRecord(xs,Some("minLength"),x: NumFacet) => Some(start + "<" +x.value + finish)
+          case DataRecord(xs,Some("maxLength"),x: NumFacet) => Some(start + ">" +x.value + finish)
+          case DataRecord(xs,Some("length"),x: NumFacet) => Some(start + "==" +x.value + finish)
+          case _ => None
+        }
+      }).mkString("\n")
+      
       val basePattern = qn match {
         case QN(xs, "decimal") => Some("\\d+(\\.\\d*)?")
         case QN(xs, "integer") => Some("\\d+")
         case _ => None
       }
 
-      val restricitions = r.arg1.arg2.seq.flatMap(f => {
+      val restrictions = r.arg1.arg2.seq.flatMap(f => {
         f.value match {
           case x: Pattern => Some(x.value)
           case _ => None
@@ -256,9 +267,11 @@ package simple {
           case _ => None
         }
       }).mkString("\n")
+      
 
       val declarationScriptlet = """
 |$("#""" + itemId + """").blur(function() {
+|  // element.name = """+ e.name.get + """
 |  var ok = true;
 |  var v = $("#""" + itemId + """");
 |  var error= $("#""" + itemErrorId + """");"""
@@ -301,6 +314,7 @@ package simple {
         patternsTestScriptlet,
         basePatternTestScriptlet,
         facetTestScriptlet,
+        lengthTestScriptlet,
         closingScriptlet)
 
       statements

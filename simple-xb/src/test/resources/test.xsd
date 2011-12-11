@@ -44,7 +44,7 @@
 			<xs:element name="number-of-children" type="xs:integer"
 				default="0" />
 			<xs:choice>
-				<xs:annotation i:choiceInline="true"/>
+				<xs:annotation i:choiceInline="true" />
 				<xs:element name="address" type="xs:string">
 					<xs:annotation i:label="Address" i:text="textarea" />
 				</xs:element>
@@ -78,6 +78,8 @@
 	<xs:simpleType name="passport-no">
 		<xs:restriction base="xs:string">
 			<xs:pattern value="L[0-9]+" />
+			<xs:minLength value="4"/>
+			<xs:maxLength value="8"/>
 		</xs:restriction>
 	</xs:simpleType>
 	<xs:simpleType name="email">
@@ -298,6 +300,21 @@
 		<xs:restriction base="xs:integer">
 			<xs:minInclusive value="10" />
 			<xs:maxInclusive value="20" />
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="contact-details">
+		<xs:sequence>
+			<xs:element name="email" type="email" minOccurs="1" />
+			<xs:element name="phone-number-home" type="phone"
+				minOccurs="0" />
+			<xs:element name="phone-number-mobile" type="phone" />
+			<xs:element name="phone-number-work" type="phone" />
+			<xs:element name="address" type="xs:string" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:simpleType name="phone">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="50" />
 		</xs:restriction>
 	</xs:simpleType>
 </xs:schema>
