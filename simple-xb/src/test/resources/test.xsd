@@ -49,9 +49,6 @@
 					<xs:annotation i:label="Address" i:text="textarea" />
 				</xs:element>
 				<xs:element name="phone" type="phone" maxOccurs="unbounded" />
-				<xs:element name="other" type="other">
-					<xs:annotation i:glass="true" />
-				</xs:element>
 			</xs:choice>
 			<xs:element name="code" type="code">
 				<xs:annotation i:label="Identifier Code"
@@ -67,12 +64,6 @@
 				<xs:annotation
 					i:label="I acknowledge the &lt;a href=''&gt;Terms and Conditions&lt;/a&gt;" />
 			</xs:element>
-		</xs:sequence>
-	</xs:complexType>
-	<xs:complexType name="other">
-		<xs:sequence>
-			<xs:element name="other1" type="xs:string" />
-			<xs:element name="other2" type="xs:string" />
 		</xs:sequence>
 	</xs:complexType>
 	<xs:simpleType name="passport-no">

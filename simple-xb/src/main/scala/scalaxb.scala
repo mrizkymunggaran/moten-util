@@ -98,6 +98,7 @@ package simple {
     }
 
     def endSequence(e: Element, sequence: Sequence) {
+      maxOccurs(e,true)
       println("</div>")
       println("</div>")
     }
@@ -134,7 +135,7 @@ package simple {
         getEnumeration(typ)
       if (!en.isEmpty) {
         enumeration(en, number)
-        maxOccurs(e)
+        maxOccurs(e,false)
       } else {
         typ.arg1.value match {
           case x: Restriction => simpleType(e, x, number)
@@ -207,7 +208,7 @@ package simple {
           println("<input id=\"" + itemId + "\" name=\"item-input-text-" + number + "\" class=\"" + extraClasses + "item-input-text\" type=\"" + inputType + "\"></input>")
       }
 
-      maxOccurs(e)
+      maxOccurs(e,false)
       
       getAnnotation(e, "description") match {
         case Some(x) => println("<div class=\"item-description\">" + x + "</div>")
@@ -326,10 +327,11 @@ package simple {
 
     }
     
-    def maxOccurs(e:Element) {
+    def maxOccurs(e:Element,isGroup:Boolean) {
      if (e.maxOccurs=="unbounded"||e.maxOccurs.toInt>1) 
-        println("<div class=\"item-add white button small\">+</div>")
-
+        println("<div class=\"" 
+            + (if (isGroup) "group-add" else "item-add") 
+            + " white button small\">+</div>")
     }
 
     def getAnnotation(e: Element, key: String): Option[String] =
