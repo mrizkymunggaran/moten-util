@@ -226,13 +226,6 @@ package simple {
         }
       })
 
-      //      val other = r.arg1.arg2.seq.flatMap(f => {
-      //        f.value match {
-      //          case x:TotalDigits => 
-      //          case x:WhiteSpace =>
-      //        }
-      //      })
-
       val basePattern = qn match {
         case QN(xs, "decimal") => Some("\\d+(\\.\\d*)?")
         case QN(xs, "integer") => Some("\\d+")
@@ -247,9 +240,9 @@ package simple {
       })
 
       val facetTests = r.arg1.arg2.seq.flatMap(f => {
-        val start = "          //facet test\n          if ((+(v.val())) "
-        val finish = ") \n            ok = false;"
-        
+        val start = "|  //facet test\n|  if ((+(v.val())) "
+        val finish = ")\n|    ok = false;"
+
         f match {
           case DataRecord(xs, Some("minInclusive"), x: Facet) =>
             Some(start + "< " + x.value + finish)
@@ -262,45 +255,62 @@ package simple {
           case _ => None
         }
       })
+      
+      val facetTestScriptlet =facetTests.mkString("          \n") 
 
-      //TODO do a logical OR across the patterns
-      addScript("""
-    	$("#""" + itemId + """").blur(function() {
-          var ok = true;
-          var v = $("#""" + itemId + """");
-          var error= $("#""" + itemErrorId + """");
+      val declarationScriptlet = """
+|$("#""" + itemId + """").blur(function() {
+|  var ok = true;
+|  var v = $("#""" + itemId + """");
+|  var error= $("#""" + itemErrorId + """");
 """
-        + (if (e.minOccurs.intValue()==1)
-"""
-          // mandatory test
-          if ((v.val() == null) || (v.val().length==0))
-            ok=false;
-""" else ""
-        )
-        + (if (patterns.size > 0)
-          """
-          // pattern test
-          var regex = /^""" + patterns.first + """$/ ;
-          if (!(regex.test(v.val()))) 
-            ok = false;
-"""
-        else "") +
-        (if (basePattern.size > 0)
-          """    	  
-          // base pattern test
-          var regex = /^""" + basePattern.first + """$/ ;
-          if (!(regex.test(v.val()))) 
-            ok = false;"""
-        else "") + "\n"
-        + facetTests.mkString("          \n")
-        +
+      val mandatoryTestScriptlet = if (e.minOccurs.intValue() == 1)
         """
-          if (!(ok)) 
-            error.show();
-          else 
-            error.hide();
-        })
-""")
+|  // mandatory test
+|  if ((v.val() == null) || (v.val().length==0))
+|    ok=false;
+"""
+      else ""
+
+      val patternsTestScriptlet = if (patterns.size > 0)
+        """
+|  // pattern test
+|  var regex = /^""" + patterns.first + """$/ ;
+|  if (!(regex.test(v.val()))) 
+|    ok = false;
+"""
+      else ""
+
+      val basePatternTestScriptlet = if (basePattern.size > 0)
+        """    	  
+|  // base pattern test
+|  var regex = /^""" + basePattern.first + """$/ ;
+|  if (!(regex.test(v.val()))) 
+|    ok = false;"""
+      else "" + "\n"
+     
+      val closingScriptlet =           
+"""
+|  if (!(ok)) 
+|    error.show();
+|  else 
+|    error.hide();
+|})
+"""
+      val margin = "          "
+      val statements = List(
+          declarationScriptlet,
+          mandatoryTestScriptlet,
+          patternsTestScriptlet,
+          basePatternTestScriptlet,
+          facetTestScriptlet, 
+          closingScriptlet)
+          
+          //TODO do a logical OR across the patterns
+          statements
+          .map(_.stripMargin.replaceAll("\n","\n"+margin))
+          .foreach(line => addScript(line))
+
     }
 
     def getAnnotation(e: Element, key: String): Option[String] =
