@@ -76,6 +76,7 @@ package simple {
 <script type="text/javascript">
     $(function() {
       $('input').filter('.datepickerclass').datepicker();
+      $('input').filter('.datepickerclass').datepicker( "option", "dateFormat","dd/mm/yy");
       $('input').filter('.datetimepickerclass').datetimepicker();
       $('input').filter('.timepickerclass').timepicker({});
 """ + script + """
@@ -329,10 +330,17 @@ package simple {
     }
 
     def maxOccurs(e: Element, isGroup: Boolean) {
-      if (e.maxOccurs == "unbounded" || e.maxOccurs.toInt > 1) 
+
+      if (e.maxOccurs == "unbounded" || e.maxOccurs.toInt > 1) {
+        val label = getAnnotation(e, "addLabel") match {
+          case Some(x) => x
+          case None => "+"
+        }
+
         println("<div class=\""
           + (if (isGroup) "group-add" else "item-add")
-          + " white button small\">+</div>")
+          + " white button small\">" + label + "</div>")
+      }
     }
 
     def getAnnotation(e: Annotatedable, key: String): Option[String] =

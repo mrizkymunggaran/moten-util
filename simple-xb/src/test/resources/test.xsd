@@ -49,7 +49,7 @@
 					<xs:annotation i:label="Address" i:text="textarea" />
 				</xs:element>
 				<xs:element name="phone" type="phone" maxOccurs="unbounded" >
-					<xs:annotation i:label="Phone"/>
+					<xs:annotation i:label="Phone" i:addLabel="Add another phone"/>
 				</xs:element>
 			</xs:choice>
 			<xs:element name="code" type="code">
