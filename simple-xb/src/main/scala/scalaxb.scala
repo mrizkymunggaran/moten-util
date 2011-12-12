@@ -329,7 +329,7 @@ package simple {
     }
 
     def maxOccurs(e: Element, isGroup: Boolean) {
-      if (e.maxOccurs == "unbounded" || e.maxOccurs.toInt > 1)
+      if (e.maxOccurs == "unbounded" || e.maxOccurs.toInt > 1) 
         println("<div class=\""
           + (if (isGroup) "group-add" else "item-add")
           + " white button small\">+</div>")
