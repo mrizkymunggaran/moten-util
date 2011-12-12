@@ -91,14 +91,15 @@ package simple {
     private def footer = "</form>\n</body>\n</html>"
 
     def startSequence(e: Element, sequence: Sequence) {
+      val label = getAnnotation(e, "label").mkString
       println(
         """<div class="sequence">
-<div class="sequence-label">Group</div>
+<div class="sequence-label">""" + label + """</div>
 <div class="sequence-content">""")
     }
 
     def endSequence(e: Element, sequence: Sequence) {
-      maxOccurs(e,true)
+      maxOccurs(e, true)
       println("</div>")
       println("</div>")
     }
@@ -135,7 +136,7 @@ package simple {
         getEnumeration(typ)
       if (!en.isEmpty) {
         enumeration(en, number)
-        maxOccurs(e,false)
+        maxOccurs(e, false)
       } else {
         typ.arg1.value match {
           case x: Restriction => simpleType(e, x, number)
@@ -208,8 +209,8 @@ package simple {
           println("<input id=\"" + itemId + "\" name=\"item-input-text-" + number + "\" class=\"" + extraClasses + "item-input-text\" type=\"" + inputType + "\"></input>")
       }
 
-      maxOccurs(e,false)
-      
+      maxOccurs(e, false)
+
       getAnnotation(e, "description") match {
         case Some(x) => println("<div class=\"item-description\">" + x + "</div>")
         case None =>
@@ -226,22 +227,22 @@ package simple {
       //TODO do a logical OR across the patterns
       val patterns = r.arg1.arg2.seq.flatMap(f => {
         f match {
-          case DataRecord(xs,Some("pattern"),x: Pattern) => Some(x.value)
+          case DataRecord(xs, Some("pattern"), x: Pattern) => Some(x.value)
           case _ => None
         }
       })
 
-      val lengthTestScriptlet= r.arg1.arg2.seq.flatMap(f => {
+      val lengthTestScriptlet = r.arg1.arg2.seq.flatMap(f => {
         val start = "\n|  //length test\n|  if (v.val().length "
         val finish = ")\n|    ok = false;"
         f match {
-          case DataRecord(xs,Some("minLength"),x: NumFacet) => Some(start + "<" +x.value + finish)
-          case DataRecord(xs,Some("maxLength"),x: NumFacet) => Some(start + ">" +x.value + finish)
-          case DataRecord(xs,Some("length"),x: NumFacet) => Some(start + "==" +x.value + finish)
+          case DataRecord(xs, Some("minLength"), x: NumFacet) => Some(start + "<" + x.value + finish)
+          case DataRecord(xs, Some("maxLength"), x: NumFacet) => Some(start + ">" + x.value + finish)
+          case DataRecord(xs, Some("length"), x: NumFacet) => Some(start + "==" + x.value + finish)
           case _ => None
         }
       }).mkString("\n")
-      
+
       val basePattern = qn match {
         case QN(xs, "decimal") => Some("\\d+(\\.\\d*)?")
         case QN(xs, "integer") => Some("\\d+")
@@ -271,11 +272,10 @@ package simple {
           case _ => None
         }
       }).mkString("\n")
-      
 
       val declarationScriptlet = """
 |$("#""" + itemId + """").blur(function() {
-|  // element.name = """+ e.name.get + """
+|  // element.name = """ + e.name.get + """
 |  var ok = true;
 |  var v = $("#""" + itemId + """");
 |  var error= $("#""" + itemErrorId + """");"""
@@ -309,7 +309,7 @@ package simple {
 |    error.show();
 |  else 
 |    error.hide();
-|  // v.clone(true).removeAttr("id").attr("id", "del" + i).insertAfter("#""" + itemId +"""");
+|  // v.clone(true).removeAttr("id").attr("id", "del" + i).insertAfter("#""" + itemId + """");
 |})
 """
       val margin = "          "
@@ -327,15 +327,15 @@ package simple {
         .foreach(addScript(_))
 
     }
-    
-    def maxOccurs(e:Element,isGroup:Boolean) {
-     if (e.maxOccurs=="unbounded"||e.maxOccurs.toInt>1) 
-        println("<div class=\"" 
-            + (if (isGroup) "group-add" else "item-add") 
-            + " white button small\">+</div>")
+
+    def maxOccurs(e: Element, isGroup: Boolean) {
+      if (e.maxOccurs == "unbounded" || e.maxOccurs.toInt > 1)
+        println("<div class=\""
+          + (if (isGroup) "group-add" else "item-add")
+          + " white button small\">+</div>")
     }
 
-    def getAnnotation(e: Element, key: String): Option[String] =
+    def getAnnotation(e: Annotatedable, key: String): Option[String] =
       e.annotation match {
         case Some(x) => {
           //          println(x.attributes)

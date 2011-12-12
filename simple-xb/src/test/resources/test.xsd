@@ -48,7 +48,9 @@
 				<xs:element name="address" type="xs:string">
 					<xs:annotation i:label="Address" i:text="textarea" />
 				</xs:element>
-				<xs:element name="phone" type="phone" maxOccurs="unbounded" />
+				<xs:element name="phone" type="phone" maxOccurs="unbounded" >
+					<xs:annotation i:label="Phone"/>
+				</xs:element>
 			</xs:choice>
 			<xs:element name="code" type="code">
 				<xs:annotation i:label="Identifier Code"
