@@ -339,7 +339,7 @@ package simple {
 
         println("<div class=\""
           + (if (isGroup) "group-add" else "item-add")
-          + " white button small\">" + label + "</div>")
+          + " white small\">" + label + "</div>")
       }
     }
 
