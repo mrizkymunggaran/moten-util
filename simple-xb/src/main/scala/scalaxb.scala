@@ -100,8 +100,8 @@ package simple {
     }
 
     def endSequence(e: Element, sequence: Sequence) {
-      maxOccurs(e, true)
       println("</div>")
+      maxOccurs(e, true)
       println("</div>")
     }
 

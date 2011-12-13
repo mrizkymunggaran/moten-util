@@ -24,7 +24,7 @@ body {
 }
 
 .sequence-content {
-	margin-left: 20px;
+	margin-left: 10px;
 }
 
 .item {
@@ -139,17 +139,17 @@ body {
 }
 
 .group-add {
-	display: inline-block;
-	zoom: 1; /* zoom and *display = ie7 hack for display:inline-block */
-	display: inline;
+	/* display: inline-block; */
+	/* zoom: 1; */ /* zoom and *display = ie7 hack for display:inline-block */
+	/* display: inline; */
 	vertical-align: baseline;
-	margin: 0 2px;
+	margin: 0px 20% 10px 20%;
 	outline: none;
 	cursor: pointer;
 	text-align: center;
 	text-decoration: none;
 	font: 11px/100% Arial, Helvetica, sans-serif;
-	padding: .5em 2em .55em; 
+	padding: .5em 2em .55em 2em; 
 	text-shadow: 0 1px 1px rgba(0,0,0,.3);
 	-webkit-border-radius: .5em; 
 	-moz-border-radius: .5em;
@@ -165,7 +165,6 @@ body {
 	position: relative;
 	top: 1px;
 }
-
 
 .bigrounded {
 	-webkit-border-radius: 2em;
