@@ -16,11 +16,11 @@ public class ReferenceQuartimaxCriterion implements MatrixFunction {
 		this.matrix = matrix;
 	}
 
-	
+	@Override
 	public double function(Matrix m) {
 		Map<Point, Double> map = matrix.times(m).getMatchedCorrelations(
 				reference);
-		//TODO write the quartimax criterion
+		// TODO write the quartimax criterion
 		throw new Error("not implemented yet");
 	}
 }

@@ -21,11 +21,13 @@ public class DataFrame extends JFrame {
 		add(dp);
 	}
 
-	public static void main(String[] args) throws FileNotFoundException, IOException{
+	public static void main(String[] args) throws FileNotFoundException,
+			IOException {
 
 		LookAndFeel.setLookAndFeel();
 		String filename = "src/New Mexico.txt";
-		if (args.length>0) filename = args[0];
+		if (args.length > 0)
+			filename = args[0];
 		Data data = new Data(new FileInputStream(filename));
 		DataFrame frame = new DataFrame(data);
 		frame.setSize(1000, 600);

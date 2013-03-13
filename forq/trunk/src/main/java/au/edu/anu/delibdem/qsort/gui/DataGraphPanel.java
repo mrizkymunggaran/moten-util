@@ -85,18 +85,17 @@ public class DataGraphPanel extends JPanel {
 
 	private void doit(final AnalysisConfiguration... analyses) {
 		Thread t = new Thread(new Runnable() {
+			@Override
 			public void run() {
 				List<FactorAnalysisResults> results = new ArrayList<FactorAnalysisResults>();
 
 				for (AnalysisConfiguration analysis : analyses) {
-					Status
-							.setStatus("Performing "
-									+ analysis.getExtractionMethod().toString()
-									+ "...");
+					Status.setStatus("Performing "
+							+ analysis.getExtractionMethod().toString() + "...");
 					FactorAnalysisResults r = getFactorAnalysisResults(data,
-							combination, analysis.isIntersubjective(), analysis
-									.getExtractionMethod(), analysis
-									.getEigenvalueThreshold());
+							combination, analysis.isIntersubjective(),
+							analysis.getExtractionMethod(),
+							analysis.getEigenvalueThreshold());
 
 					if (r != null) {
 						r.setTitle(analysis.getTitle());
@@ -194,6 +193,7 @@ public class DataGraphPanel extends JPanel {
 	private ActionListener createAnalyzeActionListener() {
 
 		return new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				Configuration configuration = ApplicationInjector.getInjector()
 						.getInstance(Configuration.class);
@@ -203,10 +203,10 @@ public class DataGraphPanel extends JPanel {
 						"Analysis Options", JOptionPane.OK_CANCEL_OPTION,
 						JOptionPane.PLAIN_MESSAGE, null, null, null);
 				if (choice == JOptionPane.OK_OPTION) {
-					doit(new AnalysisConfiguration(configuration
-							.getQFactorsTitle(), options
-							.getFactorExtractionMethod(), options
-							.getEigenvalueThreshold(), true),
+					doit(new AnalysisConfiguration(
+							configuration.getQFactorsTitle(),
+							options.getFactorExtractionMethod(),
+							options.getEigenvalueThreshold(), true),
 							new AnalysisConfiguration(configuration
 									.getPreferencesTitle(), options
 									.getFactorExtractionMethod(), options
@@ -291,6 +291,7 @@ public class DataGraphPanel extends JPanel {
 
 		slider.addChangeListener(new ChangeListener() {
 
+			@Override
 			public void stateChanged(ChangeEvent e) {
 				gp.setProportionDrawn(slider.getValue() * 1.0
 						/ slider.getMaximum());
@@ -309,6 +310,7 @@ public class DataGraphPanel extends JPanel {
 		final Timer timer = new Timer(50, null);
 		timer.addActionListener(new ActionListener() {
 
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (slider.getValue() == slider.getMaximum()) {
 					timer.stop();
@@ -318,6 +320,7 @@ public class DataGraphPanel extends JPanel {
 		});
 		animate.addActionListener(new ActionListener() {
 
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (timer.isRunning())
 					timer.stop();

@@ -119,8 +119,8 @@ public class Varimax {
 
 	/*
 	 * 010614 added arguments method and param and modified code so that it
-	 * finds optimal orthomax rotation with parameter lambda = params[0] lambda ==
-	 * 1 <==> varimax lambda == 2 <==> quartimax
+	 * finds optimal orthomax rotation with parameter lambda = params[0] lambda
+	 * == 1 <==> varimax lambda == 2 <==> quartimax
 	 */
 
 	private List<MatrixRotation> varimax(double data[][], double param) {

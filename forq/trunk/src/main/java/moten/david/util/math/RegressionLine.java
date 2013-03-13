@@ -1,6 +1,6 @@
 package moten.david.util.math;
 
-public class RegressionLine implements Function{
+public class RegressionLine implements Function {
 	private double a0;
 	private double a1;
 	private double r2;
@@ -46,7 +46,7 @@ public class RegressionLine implements Function{
 		this.r2 = r2;
 	}
 
-	
+	@Override
 	public double f(double x) {
 		return valueAt(x);
 	}

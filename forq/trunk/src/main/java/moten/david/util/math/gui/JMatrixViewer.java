@@ -160,6 +160,7 @@ public class JMatrixViewer extends JPanel {
 		SelectionManager.getInstance().addSelectionListener(
 				new SelectionListener() {
 
+					@Override
 					public void selectionChanged(SelectionManagerEvent event) {
 						if (event.getObject() != null
 								&& event.getObject() instanceof NamedMatrix) {
@@ -225,14 +226,13 @@ public class JMatrixViewer extends JPanel {
 			jMatrix = null;
 		} else {
 			jMatrix = new JMatrix(namedMatrix.getMatrix(), this.useCheckBoxes);
-			jMatrix
-					.addColumnHeaderCheckboxListener(new ColumnHeaderCheckboxListener() {
+			jMatrix.addColumnHeaderCheckboxListener(new ColumnHeaderCheckboxListener() {
 
-						public void selectionChanged(int columnIndex,
-								boolean isSelected) {
-							fireSelectionChanged();
-						}
-					});
+				@Override
+				public void selectionChanged(int columnIndex, boolean isSelected) {
+					fireSelectionChanged();
+				}
+			});
 			jMatrix.addFocusListener(new FocusAdapter() {
 
 				@Override
@@ -243,6 +243,7 @@ public class JMatrixViewer extends JPanel {
 			scrollPane = new JScrollPane(jMatrix);
 			add(scrollPane, BorderLayout.CENTER);
 			SwingUtilities.invokeLater(new Runnable() {
+				@Override
 				public void run() {
 					ColumnResizer.adjustColumnPreferredWidths(jMatrix);
 					jMatrix.revalidate();
@@ -279,10 +280,12 @@ public class JMatrixViewer extends JPanel {
 		SelectionManager.getInstance().selectionChanged(
 				new SelectionManagerEvent() {
 
+					@Override
 					public String getDescription() {
 						return "Checkbox changed";
 					}
 
+					@Override
 					public Object getObject() {
 						return jMatrix;
 					}

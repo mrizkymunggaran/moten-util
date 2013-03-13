@@ -382,8 +382,8 @@ public class Matrix implements Html, Serializable, MatrixProvider {
 		for (int i = 1; i <= result.rowCount(); i++) {
 			for (int j = 1; j <= result.columnCount(); j++) {
 				for (int k = 1; k <= columnCount(); k++) {
-					result.plusValue(i, j, getValue(i, k)
-							* matrix.getValue(k, j));
+					result.plusValue(i, j,
+							getValue(i, k) * matrix.getValue(k, j));
 				}
 			}
 		}
@@ -561,14 +561,10 @@ public class Matrix implements Html, Serializable, MatrixProvider {
 		m.setRow(8, new double[] { 515, 415, 2, 1, 2, 1, 42.9, 33, 2.7, 1 });// israel
 		m.setRow(9, new double[] { 70, 83, 1, 0, 1, 1, 8.3, 29, 25.7, 0 });// jordan
 		m.setRow(10, new double[] { 707, 5395, 6, 1, 2, 0, 52.3, 468, 6.1, 1 });// netherlands
-		m
-				.setRow(11, new double[] { 468, 1852, 9, 0, 0, 1, -41.7, 220,
-						1.5, 0 });// poland
+		m.setRow(11, new double[] { 468, 1852, 9, 0, 0, 1, -41.7, 220, 1.5, 0 });// poland
 		m.setRow(12, new double[] { 749, 6530, 13, 1, 0, 1, -41.7, 34000, 20.4,
 				0 });// USSR
-		m
-				.setRow(13, new double[] { 998, 18677, 12, 1, 2, 1, 69, 3934,
-						7.8, 0 });// UK
+		m.setRow(13, new double[] { 998, 18677, 12, 1, 2, 1, 69, 3934, 7.8, 0 });// UK
 		m.setRow(14, new double[] { 2334, 26836, 14, 1, 2, 1, 100, 40641, 12.2,
 				1 });// US
 
@@ -659,6 +655,7 @@ public class Matrix implements Html, Serializable, MatrixProvider {
 		}
 		Arrays.sort(indexes, new Comparator<Integer>() {
 
+			@Override
 			public int compare(Integer o1, Integer o2) {
 				Double f1 = vectorFunction.f(m.getColumnVector(o1));
 				Double f2 = vectorFunction.f(m.getColumnVector(o2));
@@ -753,12 +750,14 @@ public class Matrix implements Html, Serializable, MatrixProvider {
 
 			r.setLoadings(r.getEigenvectors().times(
 					r.getEigenvalues().apply(new Function() {
+						@Override
 						public double f(int i, int j, double x) {
 							return Math.sqrt(x);
 						}
 					})));
 			r.setPrincipalLoadings(r.getPrincipalEigenvectors().times(
 					r.getPrincipalEigenvalues().apply(new Function() {
+						@Override
 						public double f(int i, int j, double x) {
 							return Math.sqrt(x);
 						}
@@ -844,6 +843,7 @@ public class Matrix implements Html, Serializable, MatrixProvider {
 		r.setPercentVariance(r.getEigenvalues().getDiagonal());
 		r.setPercentVariance(r.getPercentVariance().apply(new Function() {
 
+			@Override
 			public double f(int row, int col, double x) {
 				return 100 * r.getPercentVariance().getValue(row)
 						/ r.getPercentVariance().size();
@@ -875,8 +875,8 @@ public class Matrix implements Html, Serializable, MatrixProvider {
 	public List<MatrixRotation> getRotations(RotationMethod rotationMethod,
 			boolean kaiserNormalized) {
 		Matrix loadingsRotated = transpose();
-		Varimax rotator = new Varimax(rotationMethod, loadingsRotated
-				.getArray(), 0);
+		Varimax rotator = new Varimax(rotationMethod,
+				loadingsRotated.getArray(), 0);
 		rotator.setKaiserNormalisation(kaiserNormalized);
 		Varimax.setVerbose(false);
 		List<MatrixRotation> rotations = rotator.rotate();
@@ -963,6 +963,7 @@ public class Matrix implements Html, Serializable, MatrixProvider {
 		Matrix m2 = copy();
 		m2 = m2.apply(new Function() {
 
+			@Override
 			public double f(int row, int col, double x) {
 				return (m.getValue(row, col) - x) / x * 100.0;
 			}
@@ -1353,6 +1354,7 @@ public class Matrix implements Html, Serializable, MatrixProvider {
 		// calculate factor weights
 		m = m.apply(new Function() {
 
+			@Override
 			public double f(int row, int col, double x) {
 				return x / (1 - x * x);
 			}
@@ -1360,6 +1362,7 @@ public class Matrix implements Html, Serializable, MatrixProvider {
 		final Matrix f_m = m;
 		m = m.apply(new Function() {
 
+			@Override
 			public double f(int row, int col, double x) {
 				return x / f_m.getColumnVector(col).getMaxAbsoluteValue();
 			}
@@ -1420,8 +1423,8 @@ public class Matrix implements Html, Serializable, MatrixProvider {
 	public FactorScoreCombination getFactorScoresBest(Matrix loadings,
 			int numValidFactors) {
 		try {
-			TDistribution tDistribution = new TDistributionImpl(loadings
-					.rowCount());
+			TDistribution tDistribution = new TDistributionImpl(
+					loadings.rowCount());
 
 			double bestConfidence = 0;
 			double bestThreshold = 0;
@@ -1437,8 +1440,8 @@ public class Matrix implements Html, Serializable, MatrixProvider {
 						Matrix scores = getFactorScoresZ(loadings, threshold,
 								strategy);
 						boolean isNaN = false;
-						for (int i = 1; i <= Math.min(numValidFactors, loadings
-								.columnCount()); i++) {
+						for (int i = 1; i <= Math.min(numValidFactors,
+								loadings.columnCount()); i++) {
 							if (scores.getColumnVector(i).isNaN())
 								isNaN = true;
 						}
@@ -1572,8 +1575,11 @@ public class Matrix implements Html, Serializable, MatrixProvider {
 		result.setColumnLabels(m.getColumnLabels());
 		for (int i = 1; i <= columnCount(); i++) {
 			for (int j = 1; j <= m.columnCount(); j++) {
-				result.setValue(i, j, getColumnVector(i).getPearsonCorrelation(
-						m.getColumnVector(j)));
+				result.setValue(
+						i,
+						j,
+						getColumnVector(i).getPearsonCorrelation(
+								m.getColumnVector(j)));
 			}
 		}
 		return result;
@@ -1616,8 +1622,8 @@ public class Matrix implements Html, Serializable, MatrixProvider {
 			Vector loadings = null;
 			for (int i = 1; i <= numIterations; i++) {
 				double total = m.getSum();
-				loadings = m.transpose().getSumColumnVectors().times(
-						1 / Math.sqrt(total));
+				loadings = m.transpose().getSumColumnVectors()
+						.times(1 / Math.sqrt(total));
 				m.setDiagonal(loadings.getSquare());
 			}
 			eigenvalues.setValue(count, loadings.getSquare().getSum());
@@ -1640,6 +1646,7 @@ public class Matrix implements Html, Serializable, MatrixProvider {
 
 		result.eigenvectors = result.loadings.apply(new Function() {
 
+			@Override
 			public double f(int row, int col, double x) {
 				return x / Math.sqrt(eigenvalues.getValue(col));
 			}
@@ -1674,8 +1681,8 @@ public class Matrix implements Html, Serializable, MatrixProvider {
 		Matrix m = copy();
 		String[] labels = this.getColumnLabels();
 		for (int i = 1; i <= columnCount(); i++) {
-			m.setColumnVector(i, m.getColumnVector(i).getDistributed(
-					distribution));
+			m.setColumnVector(i,
+					m.getColumnVector(i).getDistributed(distribution));
 		}
 		m.setColumnLabels(labels);
 		return m;
@@ -1695,6 +1702,7 @@ public class Matrix implements Html, Serializable, MatrixProvider {
 		return map;
 	}
 
+	@Override
 	public String toHtml() {
 		StringBuffer s = new StringBuffer();
 		s.append("<html>");
@@ -1727,9 +1735,7 @@ public class Matrix implements Html, Serializable, MatrixProvider {
 				}
 				DecimalFormat df = new DecimalFormat(this.decimalFormat);
 				row.append("<td class=\"matrix\">");
-				row
-						.append(pad(df.format(getValue(i, j)), maxSize[j - 1],
-								true));
+				row.append(pad(df.format(getValue(i, j)), maxSize[j - 1], true));
 				row.append("</td>");
 			}
 			if (s.length() > 0)
@@ -1789,9 +1795,7 @@ public class Matrix implements Html, Serializable, MatrixProvider {
 				if (isNull) {
 					m.setValue(m.rowCount(), col, nullEntry);
 				} else {
-					m
-							.setValue(m.rowCount(), col, Double
-									.parseDouble((item[i])));
+					m.setValue(m.rowCount(), col, Double.parseDouble((item[i])));
 				}
 			}
 			count++;
@@ -1912,6 +1916,7 @@ public class Matrix implements Html, Serializable, MatrixProvider {
 		Possibility.doPossibility(endCol - startCol, numSectors,
 				new Processor() {
 
+					@Override
 					public void processValues(int[] values) {
 						counter[0]++;
 						if (counter[0] % 10000 == 0)
@@ -1924,10 +1929,8 @@ public class Matrix implements Html, Serializable, MatrixProvider {
 							if (excludeTheseColumnsFromRotation == null
 									|| !excludeTheseColumnsFromRotation
 											.contains(startCol + i + 1)) {
-								m = m
-										.rotateDegrees(startCol, startCol + i
-												+ 1, startDegrees
-												+ (values[i] - 1) * change);
+								m = m.rotateDegrees(startCol, startCol + i + 1,
+										startDegrees + (values[i] - 1) * change);
 							}
 						}
 						double corr = Math.abs(m.getColumnVector(startCol)
@@ -1956,8 +1959,8 @@ public class Matrix implements Html, Serializable, MatrixProvider {
 	}
 
 	public Matrix rotate(MatrixRotation rotation) {
-		return rotate(rotation.getColumn1(), rotation.getColumn2(), rotation
-				.getAngle());
+		return rotate(rotation.getColumn1(), rotation.getColumn2(),
+				rotation.getAngle());
 	}
 
 	public Matrix rotate(List<MatrixRotation> rotations) {
@@ -1987,6 +1990,7 @@ public class Matrix implements Html, Serializable, MatrixProvider {
 	public List<MatrixRotation> getRotationsTo(Matrix reference) {
 		MatrixComparison comparison = new MatrixComparison() {
 
+			@Override
 			public double compare(Matrix m, Matrix reference) {
 				Map<Point, Double> map = m.getMatchedCorrelations(reference);
 				double sum = 0;

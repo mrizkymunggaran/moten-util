@@ -46,8 +46,7 @@ public class VennPanel extends javax.swing.JPanel {
 		List<Object> objects = new ArrayList<Object>();
 		for (Double threshold : vennInfo.getThresholds()) {
 			objects.add(new NamedNumber(new DecimalFormat(">=0.00")
-					.format(threshold)
-					+ " Standard Deviations", threshold));
+					.format(threshold) + " Standard Deviations", threshold));
 		}
 
 		confidenceLabel = new JLabel(" ");
@@ -191,8 +190,8 @@ public class VennPanel extends javax.swing.JPanel {
 		FactorScoreAnalyzer fsa = vennInfo.getFactorScoreAnalyzer(
 				thresholdValue, strat);
 
-		Map<String, String> map = fsa.getVennMappings(thresholdValue, selector
-				.getSelected());
+		Map<String, String> map = fsa.getVennMappings(thresholdValue,
+				selector.getSelected());
 		vp.clearLabels();
 		int count = 0;
 		// set the factor labels in vp
@@ -201,8 +200,8 @@ public class VennPanel extends javax.swing.JPanel {
 				count++;
 				vp.setFactorLabel(count, "F" + (i + 1));
 			}
-			selector.setSignificant(i + 1, !fsa.getScores().getColumnVector(
-					i + 1).isNaN());
+			selector.setSignificant(i + 1,
+					!fsa.getScores().getColumnVector(i + 1).isNaN());
 		}
 		vp.setNumberSets(count);
 		for (String s : map.keySet()) {

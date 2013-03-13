@@ -17,6 +17,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SpringLayout;
+import javax.swing.SwingConstants;
 
 import moten.david.util.event.Event;
 import moten.david.util.event.EventManager;
@@ -59,7 +60,7 @@ public class PreferencesPanel extends JPanel {
 			JLabel label = new JLabel(key);
 			final JTextField field = new JTextField(preferences.getProperty(
 					key, defaultValue));
-			field.setHorizontalAlignment(JTextField.RIGHT);
+			field.setHorizontalAlignment(SwingConstants.RIGHT);
 			field.addKeyListener(new KeyAdapter() {
 				@Override
 				public void keyTyped(KeyEvent e) {

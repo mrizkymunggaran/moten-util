@@ -128,6 +128,7 @@ public class LoadingsPanel extends JPanel {
 			final RotationMethod rotationMethod = r;
 			item.addActionListener(new ActionListener() {
 
+				@Override
 				public void actionPerformed(ActionEvent e) {
 					rotations.setRotationMethod(rotationMethod);
 					graphs.setRotations(rotations);
@@ -139,6 +140,7 @@ public class LoadingsPanel extends JPanel {
 		JMenuItem item = new JMenuItem("Clear rotations");
 		item.addActionListener(new ActionListener() {
 
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				rotations.setRotationMethod(null);
 				graphs.setRotations(rotations);
@@ -150,6 +152,7 @@ public class LoadingsPanel extends JPanel {
 		item = new JMenuItem("Rotate to Reference (Pairwise)");
 		item.addActionListener(new ActionListener() {
 
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				Thread t = new Thread(new Runnable() {
 					@Override
@@ -158,10 +161,9 @@ public class LoadingsPanel extends JPanel {
 							return;
 						EventManager
 								.getInstance()
-								.notify(
-										new Event(
-												"Rotating to reference (Dave's Pairwise)...",
-												Events.STATUS));
+								.notify(new Event(
+										"Rotating to reference (Dave's Pairwise)...",
+										Events.STATUS));
 						rotations.clearRotations();
 						Matrix m = rotations.getLoadingsToUseWithReference();
 						Matrix r = Model.getInstance().getReferenceMatrix()
@@ -183,6 +185,7 @@ public class LoadingsPanel extends JPanel {
 		popup.add(item);
 
 		rotate.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				popup.show(rotate, 0, rotate.getHeight());
 			}

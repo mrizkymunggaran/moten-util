@@ -19,8 +19,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.Spring;
 import javax.swing.SpringLayout;
-import javax.swing.ToolTipManager;
 import javax.swing.SpringLayout.Constraints;
+import javax.swing.ToolTipManager;
 
 import moten.david.util.event.EventManager;
 import moten.david.util.gui.swing.v1.SwingUtil;
@@ -118,12 +118,14 @@ public class VennDiagramEdwardsPanel extends JPanel {
 			Constraints panelConstraints = layout.getConstraints(this);
 			Constraints c = layout.getConstraints(label);
 			LabelPosition lp = labelPositions.get(key);
-			c.setConstraint(SpringLayout.HORIZONTAL_CENTER, getSpring(
-					panelConstraints, lp.getCentreXFactor(), lp
-							.getRadiusXFactor(), true));
-			c.setConstraint(SpringLayout.VERTICAL_CENTER, getSpring(
-					panelConstraints, lp.getCentreYFactor(), lp
-							.getRadiusYFactor(), false));
+			c.setConstraint(
+					SpringLayout.HORIZONTAL_CENTER,
+					getSpring(panelConstraints, lp.getCentreXFactor(),
+							lp.getRadiusXFactor(), true));
+			c.setConstraint(
+					SpringLayout.VERTICAL_CENTER,
+					getSpring(panelConstraints, lp.getCentreYFactor(),
+							lp.getRadiusYFactor(), false));
 		}
 	}
 
@@ -219,12 +221,14 @@ public class VennDiagramEdwardsPanel extends JPanel {
 					g.drawOval(centreX - radius, centreY - radius, 2 * radius,
 							2 * radius);
 					g.setFont(nFont);
-					g.drawString(factorLabel[2], Math
-							.round((float) (centreX - radius
+					g.drawString(
+							factorLabel[2],
+							Math.round((float) (centreX - radius
 									* Math.cos(Math.PI / 3)))
-							- labelMargin, Math.round((float) (centreY - radius
-							* Math.sin(Math.PI / 3)))
-							- labelMargin);
+									- labelMargin,
+							Math.round((float) (centreY - radius
+									* Math.sin(Math.PI / 3)))
+									- labelMargin);
 					g.setFont(defaultFont);
 				}
 				if (n >= 4) {

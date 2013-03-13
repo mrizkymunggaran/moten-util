@@ -18,7 +18,7 @@ public class TestSpring extends JPanel {
 		add(label);
 		final Constraints cPanel = layout.getConstraints(this);
 		final Constraints c = layout.getConstraints(label);
-		
+
 		Spring spring = new Spring() {
 
 			@Override
@@ -46,7 +46,7 @@ public class TestSpring extends JPanel {
 
 			}
 		};
-		c.setConstraint(SpringLayout.HORIZONTAL_CENTER,spring);
+		c.setConstraint(SpringLayout.HORIZONTAL_CENTER, spring);
 		setBorder(BorderFactory.createLineBorder(Color.black));
 		label.setBorder(BorderFactory.createLineBorder(Color.black));
 	}

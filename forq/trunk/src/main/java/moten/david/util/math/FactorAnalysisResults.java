@@ -3,7 +3,6 @@ package moten.david.util.math;
 import java.io.PrintWriter;
 import java.text.DecimalFormat;
 
-
 public class FactorAnalysisResults {
 
 	public FactorExtractionMethod extractionMethod;
@@ -48,27 +47,33 @@ public class FactorAnalysisResults {
 			final PrintWriter out) {
 		return new SimpleHeirarchicalFormatter() {
 
+			@Override
 			public void blockFinish() {
 				out.println();
 			}
 
+			@Override
 			public void blockStart() {
 				out.println();
 			}
 
+			@Override
 			public void header(String s, boolean collapsed) {
 				out.println(s);
 			}
 
+			@Override
 			public void item(Object object) {
 				out.println(object);
 			}
 
+			@Override
 			public void link(String s, String id, Object object, String action) {
 				out.println(s);
 				out.println(object);
 			}
 
+			@Override
 			public void image(String s, String id, Object object, String action) {
 				out.println("image: " + s);
 				out.println(object);
@@ -107,8 +112,9 @@ public class FactorAnalysisResults {
 		f.item("Extraction time = "
 				+ new DecimalFormat("0.000").format(extractionTimeMs / 1000.0)
 				+ "s");
-		f.item(eigenvalues.getDiagonal().setRowLabels(
-				eigenvalues.getRowLabels()).setColumnLabel(1, "Eigenvalue"));
+		f.item(eigenvalues.getDiagonal()
+				.setRowLabels(eigenvalues.getRowLabels())
+				.setColumnLabel(1, "Eigenvalue"));
 		f.blockFinish();
 
 		f.header("Eigenvectors", true);
@@ -134,9 +140,9 @@ public class FactorAnalysisResults {
 
 		f.header("Principal Eigenvalues", true);
 		f.blockStart();
-		f.item(principalEigenvalues.getDiagonal().setRowLabels(
-				principalEigenvalues.getRowLabels()).setColumnLabel(1,
-				"Eigenvalue"));
+		f.item(principalEigenvalues.getDiagonal()
+				.setRowLabels(principalEigenvalues.getRowLabels())
+				.setColumnLabel(1, "Eigenvalue"));
 		f.blockFinish();
 
 		f.header("Principal Eigenvectors", true);

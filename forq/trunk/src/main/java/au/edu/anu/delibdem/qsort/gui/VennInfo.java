@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.math.MathException;
-import org.apache.commons.math.distribution.TDistribution;
-import org.apache.commons.math.distribution.TDistributionImpl;
-
 import moten.david.util.math.FactorScoreAnalyzer;
 import moten.david.util.math.Matrix;
 import moten.david.util.math.Matrix.FactorScoreStrategy;
+
+import org.apache.commons.math.MathException;
+import org.apache.commons.math.distribution.TDistribution;
+import org.apache.commons.math.distribution.TDistributionImpl;
 
 public class VennInfo {
 
@@ -69,8 +69,9 @@ public class VennInfo {
 				rotations.getRotatedLoadings(), 5);
 		if (best.getStrategy() == null)
 			return null;
-		Matrix mScores = initialData.getFactorScoresZ(rotations
-				.getRotatedLoadings(), best.getThreshold(), best.getStrategy());
+		Matrix mScores = initialData.getFactorScoresZ(
+				rotations.getRotatedLoadings(), best.getThreshold(),
+				best.getStrategy());
 		FactorScoreAnalyzer fsa = new FactorScoreAnalyzer(mScores);
 		fsa.setFactorScoreCombination(best);
 		return fsa;
@@ -78,8 +79,8 @@ public class VennInfo {
 
 	public FactorScoreAnalyzer getFactorScoreAnalyzer(double threshold,
 			FactorScoreStrategy strategy) {
-		Matrix mScores = initialData.getFactorScoresZ(rotations
-				.getRotatedLoadings(), threshold, strategy);
+		Matrix mScores = initialData.getFactorScoresZ(
+				rotations.getRotatedLoadings(), threshold, strategy);
 		FactorScoreAnalyzer fsa = new FactorScoreAnalyzer(mScores);
 		return fsa;
 	}

@@ -2,9 +2,9 @@ package moten.david.util.math;
 
 public class MatrixEntry {
 
-	private int row; 
+	private int row;
 	private int column;
-	
+
 	public MatrixEntry(int row, int column) {
 		super();
 		this.row = row;
@@ -26,6 +26,5 @@ public class MatrixEntry {
 	public void setColumn(int column) {
 		this.column = column;
 	}
-	
-	
+
 }

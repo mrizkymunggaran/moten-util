@@ -361,8 +361,8 @@ public class Data implements Serializable {
 
 				boolean alreadyGotIt = false;
 				for (QSort q2 : subList) {
-					if (q2.getParticipant().getId().equals(
-							q.getParticipant().getId())
+					if (q2.getParticipant().getId()
+							.equals(q.getParticipant().getId())
 							&& q2.getStage().equals(q.getStage())) {
 						alreadyGotIt = true;
 						break;
@@ -460,13 +460,13 @@ public class Data implements Serializable {
 						m = m.addRow();
 					participants1.add(qSortsCorrelated.getRowLabel(i));
 					participants2.add(qSortsCorrelated.getRowLabel(j));
-					m
-							.setValue(m.rowCount(), 1, qSortsCorrelated
-									.getValue(i, j));
-					m.setValue(m.rowCount(), 2, rankingsCorrelated.getValue(i,
-							j));
-					m.setRowLabel(m.rowCount(), combineLabels(qSortsCorrelated
-							.getRowLabel(i), qSortsCorrelated.getRowLabel(j)));
+					m.setValue(m.rowCount(), 1, qSortsCorrelated.getValue(i, j));
+					m.setValue(m.rowCount(), 2,
+							rankingsCorrelated.getValue(i, j));
+					m.setRowLabel(
+							m.rowCount(),
+							combineLabels(qSortsCorrelated.getRowLabel(i),
+									qSortsCorrelated.getRowLabel(j)));
 				}
 			}
 		}
@@ -570,6 +570,7 @@ public class Data implements Serializable {
 
 			gp.addFunction(new Function() {
 
+				@Override
 				public double f(double x) {
 
 					return sr.predict(x) + interval.f(x);
@@ -577,20 +578,22 @@ public class Data implements Serializable {
 			}, Color.lightGray);
 			gp.addFunction(new Function() {
 
+				@Override
 				public double f(double x) {
 					return sr.predict(x) - interval.f(x);
 				}
 			}, Color.lightGray);
 			gp.addFunction(new Function() {
 
+				@Override
 				public double f(double x) {
 					return sr.predict(x);
 				}
 			}, Color.BLACK);
 		}
 		DecimalFormat df = new DecimalFormat("0.00");
-		gp.addComment(new Vector(new double[] { -0.8, 0.8 }), "r2="
-				+ df.format(Math.pow(sr.getR(), 2)));
+		gp.addComment(new Vector(new double[] { -0.8, 0.8 }),
+				"r2=" + df.format(Math.pow(sr.getR(), 2)));
 		return gp;
 	}
 

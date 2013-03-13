@@ -24,9 +24,9 @@ public class SelectionManager {
 	}
 
 	/**
-	 * Keeping in mind the desire to decouple from the source of the event, a listener might want to simply 
-	 * check the description string and/or use the object rather than cast the event to a particular subclass 
-	 * of the event.
+	 * Keeping in mind the desire to decouple from the source of the event, a
+	 * listener might want to simply check the description string and/or use the
+	 * object rather than cast the event to a particular subclass of the event.
 	 * 
 	 * @param description
 	 * @param event
@@ -36,9 +36,10 @@ public class SelectionManager {
 		for (SelectionListener l : listeners)
 			l.selectionChanged(event);
 	}
-	
-	public static interface SelectionManagerEvent{
+
+	public static interface SelectionManagerEvent {
 		public String getDescription();
+
 		public Object getObject();
 	}
 

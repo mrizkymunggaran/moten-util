@@ -107,6 +107,7 @@ public class LoadingsGraphsPanel extends JPanel {
 						}
 					});
 					gp.addFocusListener(new FocusListener() {
+						@Override
 						public void focusGained(FocusEvent e) {
 							if (currentGp != null)
 								currentGp.setBorder(BorderFactory
@@ -115,6 +116,7 @@ public class LoadingsGraphsPanel extends JPanel {
 							updateSelection();
 						}
 
+						@Override
 						public void focusLost(FocusEvent e) {
 						}
 					});

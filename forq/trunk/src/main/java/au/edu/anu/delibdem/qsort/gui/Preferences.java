@@ -43,13 +43,13 @@ public class Preferences {
 	}
 
 	public double getMinEigenvalue() {
-		return getDouble(Preferences.EIGENVALUE_THRESHOLD, Double
-				.parseDouble(Preferences.EIGENVALUE_THRESHOLD_DEFAULT));
+		return getDouble(Preferences.EIGENVALUE_THRESHOLD,
+				Double.parseDouble(Preferences.EIGENVALUE_THRESHOLD_DEFAULT));
 	}
 
 	public int getMaxFactors() {
-		return getInteger(Preferences.MAX_PRINCIPAL_FACTORS, Integer
-				.parseInt(Preferences.MAX_PRINCIPAL_FACTORS_DEFAULT));
+		return getInteger(Preferences.MAX_PRINCIPAL_FACTORS,
+				Integer.parseInt(Preferences.MAX_PRINCIPAL_FACTORS_DEFAULT));
 	}
 
 	private int getInteger(String key, Integer defaultValue) {

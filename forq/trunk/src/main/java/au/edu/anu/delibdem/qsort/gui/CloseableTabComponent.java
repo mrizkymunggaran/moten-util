@@ -48,6 +48,7 @@ public class CloseableTabComponent extends JPanel {
 		JLabel label = new JLabel() {
 			private static final long serialVersionUID = -7823205211365969199L;
 
+			@Override
 			public String getText() {
 				int i = pane.indexOfTabComponent(CloseableTabComponent.this);
 				if (i != -1) {
@@ -64,6 +65,7 @@ public class CloseableTabComponent extends JPanel {
 		JButton button = new TabButton("Remove", true);
 		add(button);
 		button.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				int n = JOptionPane.showConfirmDialog(null,
 						"Are you sure you want to close this study?",
@@ -109,10 +111,12 @@ public class CloseableTabComponent extends JPanel {
 		}
 
 		// we don't want to update UI for this button
+		@Override
 		public void updateUI() {
 		}
 
 		// paint the cross
+		@Override
 		protected void paintComponent(Graphics g) {
 			super.paintComponent(g);
 			if (!getModel().isRollover()) {
@@ -140,6 +144,7 @@ public class CloseableTabComponent extends JPanel {
 	}
 
 	private final static MouseListener buttonMouseListener = new MouseAdapter() {
+		@Override
 		public void mouseEntered(MouseEvent e) {
 			Component component = e.getComponent();
 			if (component instanceof AbstractButton) {
@@ -148,6 +153,7 @@ public class CloseableTabComponent extends JPanel {
 			}
 		}
 
+		@Override
 		public void mouseExited(MouseEvent e) {
 			Component component = e.getComponent();
 			if (component instanceof AbstractButton) {

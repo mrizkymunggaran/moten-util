@@ -29,13 +29,13 @@ public class FactorPanel extends JPanel {
 		split.setDividerLocation(0.25);
 		setLayout(new GridLayout(1, 1));
 		add(split);
-		eventManager.addListener(Events.MATRIX,
-				new EventManagerListener() {
-					public void notify(Event event) {
-						Matrix m = (Matrix) event.getObject();
-						viewer.setNamedMatrix(new NamedMatrix("", m));
-					}
-				});
+		eventManager.addListener(Events.MATRIX, new EventManagerListener() {
+			@Override
+			public void notify(Event event) {
+				Matrix m = (Matrix) event.getObject();
+				viewer.setNamedMatrix(new NamedMatrix("", m));
+			}
+		});
 	}
 
 }

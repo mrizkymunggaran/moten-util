@@ -9,6 +9,7 @@ import java.util.Map;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 
 import moten.david.util.math.Matrix;
 
@@ -25,22 +26,22 @@ public class ReferencePanel extends JPanel {
 	public void update(Rotations rotations) {
 		removeAll();
 		if (Model.getInstance().getReferenceMatrix() != null) {
-				Matrix m = rotations.getRotatedLoadingsToUseWithReference();
-				Matrix r = Model.getInstance().getReferenceMatrix()
-						.restrictRows(rotations.getUseWithReference());
-				m = m.restrictRows(r);
-				r = r.restrictRows(m);
-				Map<Point, Double> map = m.getMatchedCorrelations(r);
-				setLayout(new GridLayout(3, map.keySet().size() + 1));
-				addBoldItem("Reference");
-				for (Point p : map.keySet())
-					addItem(p.y + "");
-				addBoldItem("This");
-				for (Point p : map.keySet())
-					addItem(p.x + "");
-				addBoldItem("Correlation");
-				for (Point p : map.keySet())
-					addItem(new DecimalFormat("0.0000").format(map.get(p)));
+			Matrix m = rotations.getRotatedLoadingsToUseWithReference();
+			Matrix r = Model.getInstance().getReferenceMatrix()
+					.restrictRows(rotations.getUseWithReference());
+			m = m.restrictRows(r);
+			r = r.restrictRows(m);
+			Map<Point, Double> map = m.getMatchedCorrelations(r);
+			setLayout(new GridLayout(3, map.keySet().size() + 1));
+			addBoldItem("Reference");
+			for (Point p : map.keySet())
+				addItem(p.y + "");
+			addBoldItem("This");
+			for (Point p : map.keySet())
+				addItem(p.x + "");
+			addBoldItem("Correlation");
+			for (Point p : map.keySet())
+				addItem(new DecimalFormat("0.0000").format(map.get(p)));
 		}
 		invalidate();
 		parent.validate();
@@ -48,14 +49,14 @@ public class ReferencePanel extends JPanel {
 
 	public void addItem(String s) {
 		JLabel label = new JLabel(s);
-		label.setHorizontalAlignment(JLabel.RIGHT);
+		label.setHorizontalAlignment(SwingConstants.RIGHT);
 		add(label);
 	}
 
 	public void addBoldItem(String s) {
 		JLabel label = new JLabel(s);
 		label.setFont(label.getFont().deriveFont(Font.BOLD));
-		label.setHorizontalAlignment(JLabel.RIGHT);
+		label.setHorizontalAlignment(SwingConstants.RIGHT);
 		add(label);
 	}
 

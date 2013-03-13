@@ -84,9 +84,7 @@ public class DataSelectionPanel extends JPanel {
 		layout.putConstraint(SpringLayout.SOUTH, participantsPanel, 0,
 				SpringLayout.SOUTH, stagesPanel);
 
-		layout
-				.putConstraint(SpringLayout.EAST, ok, -5, SpringLayout.EAST,
-						this);
+		layout.putConstraint(SpringLayout.EAST, ok, -5, SpringLayout.EAST, this);
 		layout.putConstraint(SpringLayout.SOUTH, ok, -5, SpringLayout.SOUTH,
 				this);
 		layout.putConstraint(SpringLayout.EAST, cancel, -5, SpringLayout.WEST,
