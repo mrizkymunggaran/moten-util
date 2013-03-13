@@ -24,7 +24,7 @@ public class AnalyzeOptionsPanel extends JPanel {
 	private final JTextField minEigenvalueField;
 	private final JRadioButton maxFactors;
 	private final JRadioButton minEigenvalue;
-	private final JComboBox method;
+	private final JComboBox<FactorExtractionMethod> method;
 
 	public AnalyzeOptionsPanel() {
 		SpringLayout layout = new SpringLayout();
@@ -78,7 +78,6 @@ public class AnalyzeOptionsPanel extends JPanel {
 				SpringLayout.SOUTH, maxFactorsField);
 		layout.putConstraint(SpringLayout.WEST, minEigenvalueField, 5,
 				SpringLayout.EAST, minEigenvalue);
-
 		updateDisplay();
 
 	}
@@ -88,12 +87,12 @@ public class AnalyzeOptionsPanel extends JPanel {
 		return minEigenvalue;
 	}
 
-	private JComboBox createMethodComboBox() {
-		JComboBox combo = new JComboBox(new Object[] {
-				FactorExtractionMethod.PRINCIPAL_COMPONENTS_ANALYSIS,
-				FactorExtractionMethod.CENTROID_METHOD });
-		combo
-				.setSelectedItem(FactorExtractionMethod.PRINCIPAL_COMPONENTS_ANALYSIS);
+	private JComboBox<FactorExtractionMethod> createMethodComboBox() {
+		JComboBox<FactorExtractionMethod> combo = new JComboBox<FactorExtractionMethod>(
+				new FactorExtractionMethod[] {
+						FactorExtractionMethod.PRINCIPAL_COMPONENTS_ANALYSIS,
+						FactorExtractionMethod.CENTROID_METHOD });
+		combo.setSelectedItem(FactorExtractionMethod.PRINCIPAL_COMPONENTS_ANALYSIS);
 		return combo;
 	}
 
@@ -118,11 +117,8 @@ public class AnalyzeOptionsPanel extends JPanel {
 			t.setPrincipalFactorCriterion(PrincipalFactorCriterion.MAX_FACTORS);
 			t.setMaxFactors(Integer.parseInt(maxFactorsField.getText()));
 		} else {
-			t
-					.setPrincipalFactorCriterion(PrincipalFactorCriterion.MIN_EIGENVALUE);
-			t
-					.setMinEigenvalue(Double.parseDouble(minEigenvalueField
-							.getText()));
+			t.setPrincipalFactorCriterion(PrincipalFactorCriterion.MIN_EIGENVALUE);
+			t.setMinEigenvalue(Double.parseDouble(minEigenvalueField.getText()));
 		}
 		return t;
 	}

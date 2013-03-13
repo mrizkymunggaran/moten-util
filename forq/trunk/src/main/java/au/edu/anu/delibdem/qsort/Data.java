@@ -158,7 +158,7 @@ public class Data implements Serializable {
 				processQSortLine(line, numQStatements, numPStatements);
 			} else if (marker.equals(Marker.NUM_P_STATEMENTS_READ)
 					&& isStatements(line)) {
-				marker = marker.STATEMENTS_READ;
+				marker = Marker.STATEMENTS_READ;
 			} else if (marker.equals(Marker.STATEMENTS_READ)
 					&& !isCommand(line)) {
 				// is statement data
@@ -614,6 +614,7 @@ public class Data implements Serializable {
 			map.get(q.getStage()).add(q);
 		}
 
+		@SuppressWarnings("unchecked")
 		GraphPanel gp = getGraphConnected(map.values()
 				.toArray(new ArrayList[1]), labelPoints, size, filter);
 

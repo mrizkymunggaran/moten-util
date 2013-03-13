@@ -17,6 +17,7 @@ import moten.david.util.math.Varimax.RotationMethod;
 
 public class Rotations implements MatrixProvider, Serializable {
 
+	private static final long serialVersionUID = 9145288071207927699L;
 	private Matrix loadings;
 	private Matrix rotatedLoadings;
 	private List<MatrixRotation> rotations = new ArrayList<MatrixRotation>();
