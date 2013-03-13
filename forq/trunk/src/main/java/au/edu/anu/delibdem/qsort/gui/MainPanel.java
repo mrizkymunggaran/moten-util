@@ -24,11 +24,9 @@ public class MainPanel extends JPanel {
 
     private static final String PREF_OPEN_STUDY_CURRENT_DIRECTORY = "open.study.current.directory";
     private static final long serialVersionUID = -4881720973156188291L;
-    private final EventManager eventManager;
 
     @Inject
     public MainPanel(EventManager eventManager) {
-        this.eventManager = eventManager;
 
         setLayout(new GridLayout(1, 1));
 
