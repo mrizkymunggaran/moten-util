@@ -18,7 +18,7 @@ public class DataViewerPanel extends JPanel {
 	public void setContent(Component panel) {
 		removeAll();
 		content = panel;
-		setLayout(new GridLayout(1,1));
+		setLayout(new GridLayout(1, 1));
 		add(panel);
 		invalidate();
 		parent.validate();

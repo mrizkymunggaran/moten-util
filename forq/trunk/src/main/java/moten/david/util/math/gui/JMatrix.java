@@ -106,6 +106,7 @@ public class JMatrix extends JTable {
 				if (aColumn.getModelIndex() != 0) {
 					CheckBoxHeader checkBox = new CheckBoxHeader(
 							new ItemListener() {
+								@Override
 								public void itemStateChanged(ItemEvent e) {
 									int column = ((CheckBoxHeader) (e.getItem()))
 											.getColumn();
@@ -144,7 +145,7 @@ public class JMatrix extends JTable {
 				long num = Math.round(d * 100);
 				setText(new DecimalFormat("00").format(num));
 			}
-			setHorizontalAlignment(JLabel.RIGHT);
+			setHorizontalAlignment(SwingConstants.RIGHT);
 			Color defaultColor = UIManager.getDefaults().getColor(
 					"TextArea.background");
 			setBackground(defaultColor);
@@ -194,10 +195,12 @@ public class JMatrix extends JTable {
 
 			private List<TableModelListener> listeners = new ArrayList<TableModelListener>();
 
+			@Override
 			public void addTableModelListener(TableModelListener l) {
 				listeners.add(l);
 			}
 
+			@Override
 			public Class<?> getColumnClass(int columnIndex) {
 				if (columnIndex == 0)
 					return String.class;
@@ -207,10 +210,12 @@ public class JMatrix extends JTable {
 					return Double.class;
 			}
 
+			@Override
 			public int getColumnCount() {
 				return matrix.columnCount() + 2;
 			}
 
+			@Override
 			public String getColumnName(int columnIndex) {
 				if (columnIndex == 0)
 					return "";
@@ -222,10 +227,12 @@ public class JMatrix extends JTable {
 					return columnIndex + "";
 			}
 
+			@Override
 			public int getRowCount() {
 				return matrix.rowCount();
 			}
 
+			@Override
 			public Object getValueAt(int rowIndex, int columnIndex) {
 				if (columnIndex == 0) {
 					if (matrix.getRowLabels() != null)
@@ -238,14 +245,17 @@ public class JMatrix extends JTable {
 					return matrix.getValue(rowIndex + 1, columnIndex - 1);
 			}
 
+			@Override
 			public boolean isCellEditable(int rowIndex, int columnIndex) {
 				return columnIndex == 1;
 			}
 
+			@Override
 			public void removeTableModelListener(TableModelListener l) {
 				listeners.remove(l);
 			}
 
+			@Override
 			public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
 				if (columnIndex == 1)
 					checked[rowIndex] = (Boolean) aValue;

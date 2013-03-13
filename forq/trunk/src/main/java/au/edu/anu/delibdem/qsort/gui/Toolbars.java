@@ -18,14 +18,18 @@ public class Toolbars {
 		JButton button = new JButton();
 		button.setToolTipText("Add rotation");
 		toolBar.add(button);
-		ImageIcon icon = new ImageIcon(ResourceLocator.getInstance().getClass().getResource("rotate.gif"));
+		ImageIcon icon = new ImageIcon(ResourceLocator.getInstance().getClass()
+				.getResource("rotate.gif"));
 		button.setIcon(icon);
 		button.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) { 
-				EventManager.getInstance().notify(new Event(null,Events.ADD_ROTATION));
-			}});
-		
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				EventManager.getInstance().notify(
+						new Event(null, Events.ADD_ROTATION));
+			}
+		});
+
 		return toolBar;
 	}
-	
+
 }

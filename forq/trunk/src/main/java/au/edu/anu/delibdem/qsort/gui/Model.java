@@ -9,7 +9,7 @@ public class Model {
 
 	private MatrixProvider reference;
 
-	public MatrixProvider  getReference() {
+	public MatrixProvider getReference() {
 		return reference;
 	}
 
@@ -17,7 +17,7 @@ public class Model {
 		if (reference == null)
 			return null;
 		else if (reference instanceof MatrixProvider) {
-			return ((MatrixProvider) reference).getMatrix();
+			return reference.getMatrix();
 		} else
 			throw new Error("reference not recognized: " + reference);
 	}

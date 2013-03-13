@@ -326,8 +326,8 @@ public class GraphPanel extends JPanel {
 		g2d.setRenderingHint(RenderingHints.KEY_RENDERING,
 				RenderingHints.VALUE_RENDER_QUALITY);
 		Font font = getFont();
-		font = new Font("Arial", Font.PLAIN, Math.max(scale(Math
-				.round(9 * getFontScaling())), 9));
+		font = new Font("Arial", Font.PLAIN, Math.max(
+				scale(Math.round(9 * getFontScaling())), 9));
 		g2d.setFont(font);
 
 		Vector vBottom = getVectorBottom();
@@ -567,6 +567,7 @@ public class GraphPanel extends JPanel {
 					currentVectorX, false);
 			GraphFunction f1 = new GraphFunction(new Function() {
 
+				@Override
 				public double f(double x) {
 
 					return sr.predict(x) + interval.f(x);
@@ -574,6 +575,7 @@ public class GraphPanel extends JPanel {
 			}, Color.orange);
 			GraphFunction f2 = new GraphFunction(new Function() {
 
+				@Override
 				public double f(double x) {
 					return sr.predict(x) - interval.f(x);
 				}
@@ -581,6 +583,7 @@ public class GraphPanel extends JPanel {
 
 			GraphFunction line = new GraphFunction(new Function() {
 
+				@Override
 				public double f(double x) {
 					return sr.predict(x);
 				}
@@ -777,6 +780,7 @@ public class GraphPanel extends JPanel {
 
 		final Function interval = new Function() {
 
+			@Override
 			public double f(double x) {
 				double s = Math.sqrt(v1.getResiduals().getSumSquares()
 						/ (v1.size() - 2));
@@ -786,14 +790,14 @@ public class GraphPanel extends JPanel {
 								+ 1
 								/ v1.size()
 								+ Math.pow(x - v1.getMean(), 2)
-								/ (v1.getSumSquares() - Math
-										.pow(v1.getSum(), 2)
+								/ (v1.getSumSquares() - Math.pow(v1.getSum(), 2)
 										/ v1.size()));
 			}
 		};
 
 		gp.addFunction(new Function() {
 
+			@Override
 			public double f(double x) {
 
 				return sr.predict(x) + interval.f(x);
@@ -801,19 +805,21 @@ public class GraphPanel extends JPanel {
 		}, Color.orange);
 		gp.addFunction(new Function() {
 
+			@Override
 			public double f(double x) {
 				return sr.predict(x) - interval.f(x);
 			}
 		}, Color.orange);
 		gp.addFunction(new Function() {
 
+			@Override
 			public double f(double x) {
 				return sr.predict(x);
 			}
 		}, Color.BLACK);
 		DecimalFormat df = new DecimalFormat("0.00");
-		gp.addComment(new Vector(new double[] { -0.5, 0.5 }), "r2="
-				+ df.format(Math.pow(sr.getR(), 2)));
+		gp.addComment(new Vector(new double[] { -0.5, 0.5 }),
+				"r2=" + df.format(Math.pow(sr.getR(), 2)));
 		gp.setDisplayMeans(true);
 		frame.setSize(300, 300);
 		SwingUtil.centre(frame);

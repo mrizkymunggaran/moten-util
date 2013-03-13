@@ -123,6 +123,7 @@ public class MainFrame extends JFrame {
 		eventManager.addListener(Events.APPLICATION_EXIT,
 				new EventManagerListener() {
 
+					@Override
 					public void notify(Event arg0) {
 						System.exit(0);
 					}
@@ -138,6 +139,7 @@ public class MainFrame extends JFrame {
 		final Stack<String> messages = new Stack<String>();
 		getContentPane().add(status, BorderLayout.PAGE_END);
 		eventManager.addListener(Events.STATUS, new EventManagerListener() {
+			@Override
 			public void notify(Event event) {
 				String message = (String) event.getObject();
 				messages.push(message);
@@ -146,6 +148,7 @@ public class MainFrame extends JFrame {
 		});
 		eventManager.addListener(Events.STATUS_FINISHED,
 				new EventManagerListener() {
+					@Override
 					public void notify(Event event) {
 						messages.pop();
 						if (messages.size() > 0)
@@ -192,13 +195,12 @@ public class MainFrame extends JFrame {
 
 						DataSelectionPanel panel = new DataSelectionPanel(data,
 								frame);
-						panel
-								.addDataSelectionPanelListener(new DataSelectionPanel.Listener() {
-									@Override
-									public void closed() {
-										dialog.setVisible(false);
-									}
-								});
+						panel.addDataSelectionPanelListener(new DataSelectionPanel.Listener() {
+							@Override
+							public void closed() {
+								dialog.setVisible(false);
+							}
+						});
 						dialog.getContentPane().setLayout(new GridLayout(1, 1));
 						dialog.getContentPane().add(panel);
 						dialog.setSize(400, frame.getHeight() * 2 / 3);

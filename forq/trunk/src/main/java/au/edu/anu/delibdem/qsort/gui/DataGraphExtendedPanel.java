@@ -17,7 +17,7 @@ public class DataGraphExtendedPanel extends JPanel {
 		// setLayout(layout);
 		// dataGraphPanel = new DataGraphPanel(data);
 		// add(dataGraphPanel);
-		//		
+		//
 		// layout.putConstraint(SpringLayout.WEST, dataGraphPanel, 30,
 		// SpringLayout.WEST, this);
 		// layout.putConstraint(SpringLayout.EAST, dataGraphPanel, 0,

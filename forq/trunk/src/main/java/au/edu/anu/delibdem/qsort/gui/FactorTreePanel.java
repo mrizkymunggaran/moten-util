@@ -15,10 +15,10 @@ import javax.swing.tree.TreeSelectionModel;
 import moten.david.util.event.Event;
 import moten.david.util.event.EventManager;
 import moten.david.util.math.EigenvalueThreshold;
+import moten.david.util.math.EigenvalueThreshold.PrincipalFactorCriterion;
 import moten.david.util.math.FactorAnalysisResults;
 import moten.david.util.math.Matrix;
 import moten.david.util.math.MatrixProvider;
-import moten.david.util.math.EigenvalueThreshold.PrincipalFactorCriterion;
 
 public class FactorTreePanel extends JPanel {
 
@@ -100,8 +100,8 @@ public class FactorTreePanel extends JPanel {
 	public static DefaultMutableTreeNode createNodes(
 			FactorAnalysisResults results) {
 		DefaultMutableTreeNode top = new DefaultMutableTreeNode(
-				new ObjectDecorator(results, results.extractionMethod
-						.toString()));
+				new ObjectDecorator(results,
+						results.extractionMethod.toString()));
 
 		try {
 			top.add(createGetterNode("Raw Data", results, "initial"));
@@ -130,6 +130,7 @@ public class FactorTreePanel extends JPanel {
 		eventManagers.add(eventManager);
 		tree.addTreeSelectionListener(new TreeSelectionListener() {
 
+			@Override
 			public void valueChanged(TreeSelectionEvent e) {
 				DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree
 						.getLastSelectedPathComponent();

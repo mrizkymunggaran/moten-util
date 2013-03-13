@@ -24,7 +24,7 @@ public class LinkButton extends JLabel {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				fireClicked();
-			}	
+			}
 		});
 	}
 

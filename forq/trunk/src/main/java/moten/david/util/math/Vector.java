@@ -59,6 +59,7 @@ public class Vector extends Matrix {
 		return result;
 	}
 
+	@Override
 	public double getSum() {
 		double result = 0;
 		for (double d : getValues()) {
@@ -119,7 +120,7 @@ public class Vector extends Matrix {
 		}
 		return result;
 	}
-	
+
 	public Vector standardize(double mean, double sd) {
 		double thisMean = getMean();
 		double thisSd = getStandardDeviation();
@@ -128,7 +129,7 @@ public class Vector extends Matrix {
 			result.setValue(i, result.getValue(i) / thisSd * sd + mean);
 		}
 		return result;
-	}	
+	}
 
 	public Vector normalize() {
 		return standardize();
@@ -211,6 +212,7 @@ public class Vector extends Matrix {
 		return result;
 	}
 
+	@Override
 	public Vector times(double d) {
 		Vector result = new Vector(this);
 		for (int i = 1; i <= size(); i++) {
@@ -317,6 +319,7 @@ public class Vector extends Matrix {
 		return result;
 	}
 
+	@Override
 	public double getMaximum() {
 		double result = 0;
 		for (int i = 1; i <= size(); i++) {
@@ -381,8 +384,8 @@ public class Vector extends Matrix {
 		for (int i = 1; i <= numSteps; i++) {
 			for (int sign : new int[] { -1, 1 }) {
 				double angle = sign * i * stepSize;
-				double c = m.rotateDegrees(1, 2, angle)
-						.getColumnVector(1).getPearsonCorrelation(v);
+				double c = m.rotateDegrees(1, 2, angle).getColumnVector(1)
+						.getPearsonCorrelation(v);
 				if (c > corr) {
 					corr = c;
 					initialRotation = angle;
@@ -395,14 +398,16 @@ public class Vector extends Matrix {
 		final double delta = 0.0001;
 
 		final moten.david.util.math.Function f = new moten.david.util.math.Function() {
+			@Override
 			public double f(double x) {
-				return finalM.rotateDegrees(1, 2, x)
-						.getColumnVector(1).getPearsonCorrelation(v);
+				return finalM.rotateDegrees(1, 2, x).getColumnVector(1)
+						.getPearsonCorrelation(v);
 			}
 		};
-		
+
 		final moten.david.util.math.Function fd = new moten.david.util.math.Function() {
-			
+
+			@Override
 			public double f(double x) {
 				return (f.f(x + delta) - f.f(x)) / delta;
 			}
@@ -419,7 +424,7 @@ public class Vector extends Matrix {
 			else
 				endX = x;
 		}
-		double x = (startX+endX)/2;
+		double x = (startX + endX) / 2;
 		return Math.PI / 180 * (initialRotation + x);
 	}
 }

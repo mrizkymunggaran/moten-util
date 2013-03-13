@@ -44,13 +44,14 @@ public class RotatedLoadings extends HashMap<RotationMethod, Matrix> {
 			f.blockStart();
 			f.item(get(method).getPearsonCorrelationMatrix());
 			f.blockFinish();
-			
-			Object[] objects = new Object[] {get(method).setColumnLabelPattern("F<index>"),data};
+
+			Object[] objects = new Object[] {
+					get(method).setColumnLabelPattern("F<index>"), data };
 			f.link("Manual Rotations", "manual-rotation-" + nextCounter(),
 					objects, "rotate");
-			
-			f.link("Factor Scores", "scores-" + nextCounter(),
-					objects, "scores");
+
+			f.link("Factor Scores", "scores-" + nextCounter(), objects,
+					"scores");
 			f.blockFinish();
 		}
 	}

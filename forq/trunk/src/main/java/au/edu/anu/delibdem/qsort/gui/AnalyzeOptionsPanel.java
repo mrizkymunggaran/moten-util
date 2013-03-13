@@ -14,8 +14,8 @@ import javax.swing.JTextField;
 import javax.swing.SpringLayout;
 
 import moten.david.util.math.EigenvalueThreshold;
-import moten.david.util.math.FactorExtractionMethod;
 import moten.david.util.math.EigenvalueThreshold.PrincipalFactorCriterion;
+import moten.david.util.math.FactorExtractionMethod;
 
 public class AnalyzeOptionsPanel extends JPanel {
 

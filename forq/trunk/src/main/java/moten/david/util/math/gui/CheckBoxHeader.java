@@ -52,6 +52,7 @@ public class CheckBoxHeader extends JCheckBox implements TableCellRenderer,
 	// pasted from javax.swing.table.TableColumn.createDefaultHeaderRenderer()
 	// with some slight modifications.
 	// implements TableCellRenderer
+	@Override
 	public Component getTableCellRendererComponent(JTable table, Object value,
 			boolean isSelected, boolean hasFocus, int row, int column) {
 
@@ -114,25 +115,30 @@ public class CheckBoxHeader extends JCheckBox implements TableCellRenderer,
 		}
 	}
 
+	@Override
 	public void mouseClicked(MouseEvent e) {
 		handleClickEvent(e);
 		// Header doesn't repaint itself properly
 		((JTableHeader) e.getSource()).repaint();
 	}
 
+	@Override
 	public void mousePressed(MouseEvent e) {
 		mousePressed = true;
 	}
 
+	@Override
 	public void mouseReleased(MouseEvent e) {
 		// works - problem: works even if column is dragged or resized ...
 		// handleClickEvent(e);
 		// properly repainting by the Header
 	}
 
+	@Override
 	public void mouseEntered(MouseEvent e) {
 	}
 
+	@Override
 	public void mouseExited(MouseEvent e) {
 	}
 }

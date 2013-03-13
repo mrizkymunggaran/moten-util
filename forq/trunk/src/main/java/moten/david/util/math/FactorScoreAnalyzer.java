@@ -32,8 +32,7 @@ public class FactorScoreAnalyzer {
 	public void format(SimpleHeirarchicalFormatter f) {
 
 		LinkedHashMap<Double, LinkedHashMap<Integer, TreeSet<Integer>>> map = getGrouped();
-		f
-				.item("initial significant score threshold = score mean + standard deviation");
+		f.item("initial significant score threshold = score mean + standard deviation");
 		for (Double scoreThreshold : map.keySet()) {
 			f.item("significant score threshold = " + scoreThreshold);
 			StringTable table = new StringTable();
@@ -134,8 +133,7 @@ public class FactorScoreAnalyzer {
 
 	public void format2(SimpleHeirarchicalFormatter f) {
 		LinkedHashMap<Double, LinkedHashMap<Integer, TreeSet<Integer>>> map = getGrouped();
-		f
-				.item("initial significant score threshold = score mean + standard deviation");
+		f.item("initial significant score threshold = score mean + standard deviation");
 		for (Double scoreThreshold : map.keySet()) {
 			f.item("significant score threshold = " + scoreThreshold);
 			StringTable table = new StringTable();

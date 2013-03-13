@@ -10,7 +10,7 @@ public class ResourceLocator {
 			instance = new ResourceLocator();
 		return instance;
 	}
-	
+
 	public ImageIcon getImageIcon(String name) {
 		return new ImageIcon(getClass().getResource(name));
 	}

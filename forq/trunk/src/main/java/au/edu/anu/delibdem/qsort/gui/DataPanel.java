@@ -73,6 +73,7 @@ public class DataPanel extends JPanel {
 		left.add(scroll);
 
 		filter.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				EventManager.getInstance().notify(
 						new Event(data, Events.FILTER));
@@ -135,6 +136,7 @@ public class DataPanel extends JPanel {
 
 	private EventManagerListener createTableChangedListener() {
 		return new EventManagerListener() {
+			@Override
 			public void notify(Event event) {
 				DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree
 						.getLastSelectedPathComponent();
@@ -145,8 +147,8 @@ public class DataPanel extends JPanel {
 					Rotations rotations = (Rotations) o;
 					TableModel model = (TableModel) event.getObject();
 					for (int i = 1; i <= model.getRowCount(); i++) {
-						rotations.setUseWithReference(i, (Boolean) model
-								.getValueAt(i - 1, 1));
+						rotations.setUseWithReference(i,
+								(Boolean) model.getValueAt(i - 1, 1));
 					}
 				}
 			}
@@ -155,6 +157,7 @@ public class DataPanel extends JPanel {
 
 	private EventManagerListener createReferenceSetterListener() {
 		return new EventManagerListener() {
+			@Override
 			public void notify(Event event) {
 				DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree
 						.getLastSelectedPathComponent();
@@ -189,6 +192,7 @@ public class DataPanel extends JPanel {
 
 	private EventManagerListener createVennListener() {
 		return new EventManagerListener() {
+			@Override
 			public void notify(Event event) {
 				VennInfo v = (VennInfo) event.getObject();
 				VennPanel vp = new VennPanel(v);
@@ -200,6 +204,7 @@ public class DataPanel extends JPanel {
 
 	private EventManagerListener createAddVennListener() {
 		return new EventManagerListener() {
+			@Override
 			public void notify(Event event) {
 				DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree
 						.getLastSelectedPathComponent();
@@ -223,8 +228,8 @@ public class DataPanel extends JPanel {
 							vennInfo);
 					DefaultTreeModel treeModel = (DefaultTreeModel) tree
 							.getModel();
-					treeModel.insertNodeInto(newNode, node, node
-							.getChildCount());
+					treeModel.insertNodeInto(newNode, node,
+							node.getChildCount());
 					tree.scrollPathToVisible(new TreePath(newNode.getPath()));
 					int i = tree.getRowForPath(new TreePath(newNode.getPath()));
 					tree.setSelectionInterval(i, i);
@@ -275,6 +280,7 @@ public class DataPanel extends JPanel {
 
 	private TreeSelectionListener createTreeSelectionListener() {
 		return new TreeSelectionListener() {
+			@Override
 			public void valueChanged(TreeSelectionEvent e) {
 				DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree
 						.getLastSelectedPathComponent();
@@ -305,6 +311,7 @@ public class DataPanel extends JPanel {
 
 	private EventManagerListener createRotationListener() {
 		return new EventManagerListener() {
+			@Override
 			public void notify(Event event) {
 				Rotations rotations = (Rotations) event.getObject();
 				LoadingsPanel panel = new LoadingsPanel(rotations,
@@ -325,6 +332,7 @@ public class DataPanel extends JPanel {
 
 	private EventManagerListener createMatrixListener() {
 		return new EventManagerListener() {
+			@Override
 			public void notify(Event event) {
 				boolean[] checked = null;
 				Matrix matrix;
@@ -361,6 +369,7 @@ public class DataPanel extends JPanel {
 	private EventManagerListener createAddRotationListener() {
 
 		return new EventManagerListener() {
+			@Override
 			public void notify(Event arg0) {
 				DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree
 						.getLastSelectedPathComponent();
@@ -374,16 +383,16 @@ public class DataPanel extends JPanel {
 							rotations);
 					DefaultTreeModel treeModel = (DefaultTreeModel) tree
 							.getModel();
-					treeModel.insertNodeInto(newNode, node, node
-							.getChildCount());
+					treeModel.insertNodeInto(newNode, node,
+							node.getChildCount());
 					tree.scrollPathToVisible(new TreePath(newNode.getPath()));
 					int i = tree.getRowForPath(new TreePath(newNode.getPath()));
 					tree.setSelectionInterval(i, i);
 
 					DefaultMutableTreeNode matrixNode = new DefaultMutableTreeNode(
 							new RotatedLoadings(rotations));
-					treeModel.insertNodeInto(matrixNode, newNode, newNode
-							.getChildCount());
+					treeModel.insertNodeInto(matrixNode, newNode,
+							newNode.getChildCount());
 
 					DefaultMutableTreeNode eigenvaluesNode = new DefaultMutableTreeNode(
 							new MatrixProvider() {
@@ -403,8 +412,8 @@ public class DataPanel extends JPanel {
 								}
 
 							});
-					treeModel.insertNodeInto(eigenvaluesNode, newNode, newNode
-							.getChildCount());
+					treeModel.insertNodeInto(eigenvaluesNode, newNode,
+							newNode.getChildCount());
 
 					final FactorAnalysisResults r;
 					try {
@@ -418,8 +427,8 @@ public class DataPanel extends JPanel {
 							rotations, data.getStatements());
 					DefaultMutableTreeNode vennNode = new DefaultMutableTreeNode(
 							vennInfo);
-					treeModel.insertNodeInto(vennNode, newNode, newNode
-							.getChildCount());
+					treeModel.insertNodeInto(vennNode, newNode,
+							newNode.getChildCount());
 					tree.scrollPathToVisible(new TreePath(vennNode.getPath()));
 
 					DefaultMutableTreeNode zScoresNode = new DefaultMutableTreeNode(
@@ -439,8 +448,8 @@ public class DataPanel extends JPanel {
 								}
 
 							});
-					treeModel.insertNodeInto(zScoresNode, vennNode, vennNode
-							.getChildCount());
+					treeModel.insertNodeInto(zScoresNode, vennNode,
+							vennNode.getChildCount());
 
 					DefaultMutableTreeNode scoresNode = new DefaultMutableTreeNode(
 							new MatrixProvider() {
@@ -459,11 +468,9 @@ public class DataPanel extends JPanel {
 								}
 
 							});
-					treeModel.insertNodeInto(scoresNode, vennNode, vennNode
-							.getChildCount());
-					tree
-							.scrollPathToVisible(new TreePath(scoresNode
-									.getPath()));
+					treeModel.insertNodeInto(scoresNode, vennNode,
+							vennNode.getChildCount());
+					tree.scrollPathToVisible(new TreePath(scoresNode.getPath()));
 				}
 			}
 		};
@@ -478,6 +485,7 @@ public class DataPanel extends JPanel {
 	private EventManagerListener createAnalyzeListener() {
 		return new EventManagerListener() {
 
+			@Override
 			public synchronized void notify(final Event event) {
 
 				FactorAnalysisResults[] results = (FactorAnalysisResults[]) event
@@ -497,8 +505,8 @@ public class DataPanel extends JPanel {
 					DefaultMutableTreeNode newAnalysisNode = new DefaultMutableTreeNode(
 							new ObjectDecorator(null, "Analysis "
 									+ nextAnalysisNumber()));
-					treeModel.insertNodeInto(newAnalysisNode, node, node
-							.getChildCount());
+					treeModel.insertNodeInto(newAnalysisNode, node,
+							node.getChildCount());
 
 					List<DefaultMutableTreeNode> newLeaves = new ArrayList<DefaultMutableTreeNode>();
 					for (FactorAnalysisResults result : results) {
@@ -511,8 +519,8 @@ public class DataPanel extends JPanel {
 						// add children to the new node
 						DefaultMutableTreeNode newNode2 = FactorTreePanel
 								.createNodes(result);
-						treeModel.insertNodeInto(newNode2, newNode, newNode
-								.getChildCount());
+						treeModel.insertNodeInto(newNode2, newNode,
+								newNode.getChildCount());
 						newLeaves.add(newNode2);
 					}
 
@@ -548,9 +556,11 @@ public class DataPanel extends JPanel {
 					.getContent();
 			if (d.getDataGraphPanel().getGraphPanel() != null
 					&& dPrevious.getDataGraphPanel().getGraphPanel() != null)
-				d.getDataGraphPanel().getGraphPanel().setLabelsVisible(
-						dPrevious.getDataGraphPanel().getGraphPanel()
-								.getLabelsVisible());
+				d.getDataGraphPanel()
+						.getGraphPanel()
+						.setLabelsVisible(
+								dPrevious.getDataGraphPanel().getGraphPanel()
+										.getLabelsVisible());
 		}
 		dataViewer.setContent(d);
 	}

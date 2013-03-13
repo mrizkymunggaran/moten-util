@@ -23,8 +23,8 @@ public class PreferencesDialog extends JDialog {
 	public PreferencesDialog() {
 		setTitle("Preferences");
 		getContentPane().setLayout(new GridLayout(1, 1));
-		PreferencesPanel preferencesPanel = new PreferencesPanel(Preferences
-				.getInstance());
+		PreferencesPanel preferencesPanel = new PreferencesPanel(
+				Preferences.getInstance());
 		getContentPane().add(preferencesPanel);
 		Dimension d = preferencesPanel.getPreferredSize();
 		d.setSize(d.getWidth(), d.getHeight() + 35);
