@@ -221,7 +221,7 @@ public class MainFrame extends JFrame {
 				MainFrame.class);
 		final EventManager eventManager = ApplicationInjector.getInjector()
 				.getInstance(EventManager.class);
-		frame.setTitle("ForQ");
+		frame.setTitle("AdvanceQ");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		SwingUtilities.invokeLater(new Runnable() {

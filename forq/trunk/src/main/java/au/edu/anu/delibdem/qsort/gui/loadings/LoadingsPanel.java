@@ -230,7 +230,7 @@ public class LoadingsPanel extends JPanel {
 
 					@Override
 					public String getDescription() {
-						return "ForQ Rotations (*" + ROTATIONS_EXTENSION + ")";
+						return "AdvanceQ Rotations (*" + ROTATIONS_EXTENSION + ")";
 					}
 				});
 				// In response to a button click:
@@ -275,7 +275,7 @@ public class LoadingsPanel extends JPanel {
 
 					@Override
 					public String getDescription() {
-						return "ForQ Rotations (*" + ROTATIONS_EXTENSION + ")";
+						return "AdvanceQ Rotations (*" + ROTATIONS_EXTENSION + ")";
 					}
 				});
 
