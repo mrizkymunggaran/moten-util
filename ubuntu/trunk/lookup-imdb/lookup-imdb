@@ -8,7 +8,7 @@ QUERY=`echo $FILENAME|sed 's/[0-9]*_[0-9]*_//'`
 
 #remove the extension, replace underscores with spaces, 
 #replace periods with spaces, then replace all spaces with +
-QUERY=`echo $QUERY|sed 's/\.[a-z]*$//'|sed 's/_/ /g'|sed 's/\./ /g'|sed 's/ /+/g'`
+QUERY=`echo $QUERY|sed 's/\.[a-zA-Z0-9]*$//'|sed 's/_/ /g'|sed 's/\./ /g'|sed 's/ /+/g'`
 
 #make an imdb url with the query
 URL="http://www.imdb.com/find?s=all&q=$QUERY"
