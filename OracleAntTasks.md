@@ -1,0 +1,61 @@
+# Oracle Ant Tasks #
+I found it useful to have ant tasks for some common Oracle specific actions (like loading jars and running scripts):
+  * `LoadJava` - loads jars into the database
+  * `SqlPlus` - runs scripts using an existing sqlplus installation
+
+Source code is [here](http://code.google.com/p/moten-util/source/browse/#svn%2Fmoten-util-parent%2Ftrunk%2Fmoten-util%2Fsrc%2Fmain%2Fjava%2Fmoten%2Fdavid%2Futil%2Fdatabase%2Foracle).
+
+## Load Java ##
+Instead of using loadjava shell scripts for uploading jars into Oracle I prefer to be independent of an oracle client install. To use the `LoadJava` ant task, include moten-util jar on the classpath and the aurora.jar dependency (see [pom.xml](http://code.google.com/p/moten-util/source/browse/moten-util-parent/trunk/moten-util/pom.xml)).
+
+Here's an example of use within a build.xml file:
+```
+<path id="libraries">...</path>
+<taskdef name="loadjava" classname="moten.david.util.database.oracle.LoadJavaTask" classpathref="libraries" />
+<loadjava failonerror="true" resolve="true" 
+    force="false" showchangesonly="false" showlog="true"
+    thin="true" user="scott/tiger@dbhost:1521:orcl">
+    <path>
+        <fileset dir="${lib}/axis1.4">
+             <include name="*.jar" />
+             <include name="log4j.properties" />
+        </fileset>
+    </path>
+</loadjava>
+```
+
+## Sqlplus ##
+Having used oracle and java for yonks I thought I'd improve my toolset a bit with this ant task. It's pretty useful especially as it detects errors in the running of the script and can optionally fail.
+
+This ant task provides all the options available for the sqlplus exe (and a few more).
+
+Note that the end of your script needs an exit, otherwise the task just hangs around.
+
+```
+  <path id="libraries">...</path>
+  <target name="run.sqlplus">
+      <taskdef name="sqlplus" classname="moten.david.util.database.oracle.SqlPlusTask" classpathref="libraries" />
+      <sqlplus logon="scott/tiger@orcl" failonerror="false">
+           <sql>
+                update document set folder_id = 14 
+                where document_id in (
+                     select document_id 
+                     from message_details
+                     where message_id in 
+                     (5204249,5204257,5204258,5204260,5204273,5204274,
+                      5204280,5204287,5204288,5204290,5204291,5204297)
+                );
+      
+                update message_details 
+                set sent_received_dtg=sysdate
+                where message_id in 
+                (5204249,5204257,5204258,5204260,5204273,5204274,
+                 5204280,5204287,5204288,5204290,5204291,5204297);
+                
+                commit;
+                
+                exit;
+           </sql>
+      </sqlplus>
+ </target>
+```
